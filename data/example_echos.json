@@ -1,0 +1,6816 @@
+{
+  "echos": [
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "CritRate": 0.04399999976158142,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 22.0,
+      "Cost": 4,
+      "DefencePercentage": 0.06199999898672104,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 54.0,
+      "Cost": 4,
+      "CritDamage": 0.15800000727176666,
+      "Health": 320.0,
+      "Level": 5,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "CritDamage": 0.08799999952316284,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealthPercentage": 0.06599999964237213,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 30.0,
+      "AttackPercentage": 0.06599999964237213,
+      "Cost": 4,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 54.0,
+      "Cost": 4,
+      "CritDamage": 0.15800000727176666,
+      "Health": 320.0,
+      "Level": 5,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealBonusPercentage": 0.052000001072883606,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 30.0,
+      "AttackPercentage": 0.06599999964237213,
+      "Cost": 4,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealBonusPercentage": 0.052000001072883606,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealBonusPercentage": 0.052000001072883606,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "DefencePercentage": 0.08299999684095383,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 22.0,
+      "AttackPercentage": 0.04899999871850014,
+      "Cost": 4,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "AttackPercentage": 0.027000000700354576,
+      "Cost": 1,
+      "Health": 228.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "CritRate": 0.04399999976158142,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 22.0,
+      "Cost": 4,
+      "CritRate": 0.032999999821186066,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 22.0,
+      "Cost": 4,
+      "DefencePercentage": 0.06199999898672104,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "CritRate": 0.04399999976158142,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "CritRate": 0.04399999976158142,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "CritDamage": 0.08799999952316284,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "DefencePercentage": 0.08299999684095383,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "CritRate": 0.04399999976158142,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealthPercentage": 0.06599999964237213,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 30.0,
+      "AttackPercentage": 0.06599999964237213,
+      "Cost": 4,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 22.0,
+      "Cost": 4,
+      "CritDamage": 0.06599999964237213,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealthPercentage": 0.06599999964237213,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "CritDamage": 0.08799999952316284,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealthPercentage": 0.06599999964237213,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "CritRate": 0.04399999976158142,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 30.0,
+      "AttackPercentage": 0.06599999964237213,
+      "Cost": 4,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 30.0,
+      "AttackPercentage": 0.06599999964237213,
+      "Cost": 4,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 30.0,
+      "AttackPercentage": 0.06599999964237213,
+      "Cost": 4,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 30.0,
+      "AttackPercentage": 0.06599999964237213,
+      "Cost": 4,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealthPercentage": 0.06599999964237213,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "DefencePercentage": 0.08299999684095383,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 30.0,
+      "AttackPercentage": 0.06599999964237213,
+      "Cost": 4,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealBonusPercentage": 0.052000001072883606,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealthPercentage": 0.06599999964237213,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 22.0,
+      "Cost": 4,
+      "HealthPercentage": 0.04899999871850014,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 22.0,
+      "Cost": 4,
+      "CritRate": 0.032999999821186066,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "DefencePercentage": 0.08299999684095383,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "CritRate": 0.04399999976158142,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "DefencePercentage": 0.08299999684095383,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 30.0,
+      "AttackPercentage": 0.06599999964237213,
+      "Cost": 4,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "DefencePercentage": 0.08299999684095383,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "CritRate": 0.04399999976158142,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealBonusPercentage": 0.052000001072883606,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Cost": 1,
+      "Health": 228.0,
+      "HealthPercentage": 0.03400000184774399,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Cost": 1,
+      "Health": 228.0,
+      "HealthPercentage": 0.03400000184774399,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.027000000700354576,
+      "Health": 228.0,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 15.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.04500000178813934,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 15.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.04500000178813934,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 22.0,
+      "Cost": 4,
+      "CritDamage": 0.06599999964237213,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 22.0,
+      "Cost": 4,
+      "CritRate": 0.032999999821186066,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 22.0,
+      "Cost": 4,
+      "DefencePercentage": 0.06199999898672104,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealBonusPercentage": 0.052000001072883606,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "CritRate": 0.04399999976158142,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "DefencePercentage": 0.08299999684095383,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 30.0,
+      "AttackPercentage": 0.06599999964237213,
+      "Cost": 4,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Cost": 1,
+      "Health": 228.0,
+      "HealthPercentage": 0.03400000184774399,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Attack": 20.0,
+      "AttackPercentage": 0.05999999865889549,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 55.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.16500000655651093,
+      "Level": 11,
+      "RegenPercentage": 0.07599999755620956,
+      "Set": "eMoltenRift",
+      "SkillDamagePercentage": 0.09399999678134918
+    },
+    {
+      "Cost": 1,
+      "Health": 228.0,
+      "HealthPercentage": 0.03400000184774399,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "CritDamage": 0.08799999952316284,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealBonusPercentage": 0.052000001072883606,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DefencePercentage": 0.07599999755620956,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Attack": 12.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.03700000047683716,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 20.0,
+      "AttackPercentage": 0.05999999865889549,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "RegenPercentage": 0.06400000303983688,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DefencePercentage": 0.07599999755620956,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealthPercentage": 0.06599999964237213,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealthPercentage": 0.06599999964237213,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "CritDamage": 0.08799999952316284,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 30.0,
+      "AttackPercentage": 0.06599999964237213,
+      "Cost": 4,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealBonusPercentage": 0.052000001072883606,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealBonusPercentage": 0.052000001072883606,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 68.0,
+      "AutoAttackDamagePercentage": 0.10100000351667404,
+      "Cost": 3,
+      "CritRate": 0.07500000298023224,
+      "FireDamagePercentage": 0.20399999618530273,
+      "Level": 15,
+      "Set": "eMoltenRift",
+      "UltDamagePercentage": 0.0860000029206276
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "CritDamage": 0.08799999952316284,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "HealthPercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "CritDamage": 0.08799999952316284,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 84.0,
+      "Cost": 3,
+      "CritDamage": 0.20999999344348907,
+      "CritRate": 0.0689999982714653,
+      "ElectricDamagePercentage": 0.25200000405311584,
+      "Level": 20,
+      "RegenPercentage": 0.09200000017881393,
+      "Set": "eVoidThunder",
+      "UltDamagePercentage": 0.10100000351667404
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Attack": 120.0,
+      "AttackPercentage": 0.09399999678134918,
+      "AutoAttackDamagePercentage": 0.07100000232458115,
+      "Cost": 4,
+      "CritRate": 0.18400000035762787,
+      "Health": 320.0,
+      "Level": 20,
+      "RegenPercentage": 0.09200000017881393,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealthPercentage": 0.06599999964237213,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 30.0,
+      "AttackPercentage": 0.06599999964237213,
+      "Cost": 4,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealBonusPercentage": 0.052000001072883606,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "CritDamage": 0.08799999952316284,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "CritDamage": 0.08799999952316284,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DefencePercentage": 0.07599999755620956,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "RegenPercentage": 0.06400000303983688,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "HealthPercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 20.0,
+      "AttackPercentage": 0.05999999865889549,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DefencePercentage": 0.07599999755620956,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "RegenPercentage": 0.06400000303983688,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "DefencePercentage": 0.08299999684095383,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 30.0,
+      "AttackPercentage": 0.06599999964237213,
+      "Cost": 4,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealthPercentage": 0.06599999964237213,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "CritDamage": 0.08799999952316284,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "HealthPercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 84.0,
+      "AutoAttackDamagePercentage": 0.07900000363588333,
+      "Cost": 3,
+      "HealthPercentage": 0.0860000029206276,
+      "IceDamagePercentage": 0.25200000405311584,
+      "Level": 20,
+      "RegenPercentage": 0.10000000149011612,
+      "Set": "eFreezingFrost",
+      "UltDamagePercentage": 0.0860000029206276
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DefencePercentage": 0.07599999755620956,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "CritRate": 0.04399999976158142,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "AttackPercentage": 0.05999999865889549,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "CritRate": 0.04399999976158142,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DefencePercentage": 0.07599999755620956,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DefencePercentage": 0.07599999755620956,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "HealthPercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eSierraGale"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Cost": 1,
+      "Health": 114.0,
+      "HealthPercentage": 0.02800000086426735,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "HealthPercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "HealthPercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eSierraGale"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "AttackPercentage": 0.05999999865889549,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DefencePercentage": 0.07599999755620956,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "RegenPercentage": 0.06400000303983688,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eSierraGale"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "HealthPercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "HealthPercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eSierraGale"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 20.0,
+      "AttackPercentage": 0.05999999865889549,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 30.0,
+      "AttackPercentage": 0.06599999964237213,
+      "Cost": 4,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 30.0,
+      "AttackPercentage": 0.06599999964237213,
+      "Cost": 4,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealthPercentage": 0.06599999964237213,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 30.0,
+      "AttackPercentage": 0.06599999964237213,
+      "Cost": 4,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealBonusPercentage": 0.052000001072883606,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 120.0,
+      "Cost": 4,
+      "CritDamage": 0.15000000596046448,
+      "CritRate": 0.18400000035762787,
+      "Level": 20,
+      "RegenPercentage": 0.11599999666213989,
+      "Set": "eMoltenRift",
+      "UltDamagePercentage": 0.07900000363588333
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "RegenPercentage": 0.06400000303983688,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eSierraGale"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "HealthPercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "RegenPercentage": 0.06400000303983688,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "HealthPercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 84.0,
+      "Cost": 3,
+      "CritRate": 0.08100000023841858,
+      "Defence": 50.0,
+      "DefencePercentage": 0.09000000357627869,
+      "Level": 20,
+      "RegenPercentage": 0.36000001430511475,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Attack": 20.0,
+      "AttackPercentage": 0.05999999865889549,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "HealthPercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "HealthPercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "HealthPercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "RegenPercentage": 0.06400000303983688,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 40.0,
+      "AttackPercentage": 0.1509999930858612,
+      "AutoAttackDamagePercentage": 0.0860000029206276,
+      "Cost": 1,
+      "Health": 1915.0,
+      "HeavyAttackPercentage": 0.0860000029206276,
+      "Level": 20,
+      "Set": "eMoonlitClouds",
+      "SkillDamagePercentage": 0.0860000029206276
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "RegenPercentage": 0.06400000303983688,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "RegenPercentage": 0.06400000303983688,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 20.0,
+      "AttackPercentage": 0.05999999865889549,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DefencePercentage": 0.07599999755620956,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "HealthPercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "AttackPercentage": 0.05999999865889549,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "HealthPercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "AirDamagePercentage": 0.03700000047683716,
+      "Attack": 12.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 84.0,
+      "AutoAttackDamagePercentage": 0.09399999678134918,
+      "Cost": 3,
+      "CritDamage": 0.15000000596046448,
+      "Health": 30.0,
+      "Level": 20,
+      "RegenPercentage": 0.2680000066757202,
+      "Set": "eSierraGale",
+      "UltDamagePercentage": 0.10100000351667404
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "HealthPercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "AttackPercentage": 0.2369999885559082,
+      "AutoAttackDamagePercentage": 0.10100000351667404,
+      "Cost": 1,
+      "DefencePercentage": 0.11800000071525574,
+      "Health": 1915.0,
+      "Level": 20,
+      "Set": "eFreezingFrost",
+      "UltDamagePercentage": 0.07100000232458115
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "DefencePercentage": 0.08299999684095383,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "DefencePercentage": 0.08299999684095383,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealthPercentage": 0.06599999964237213,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "AttackPercentage": 0.1509999930858612,
+      "Cost": 1,
+      "CritDamage": 0.12600000202655792,
+      "CritRate": 0.06300000101327896,
+      "Health": 1915.0,
+      "HeavyAttackPercentage": 0.07900000363588333,
+      "Level": 20,
+      "Set": "eVoidThunder",
+      "SkillDamagePercentage": 0.0860000029206276
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Attack": 20.0,
+      "AttackPercentage": 0.05999999865889549,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "HealthPercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "HealthPercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Attack": 20.0,
+      "AttackPercentage": 0.05999999865889549,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 30.0,
+      "AutoAttackDamagePercentage": 0.07100000232458115,
+      "Cost": 3,
+      "Level": 5,
+      "RegenPercentage": 0.11500000208616257,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "HealthPercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DefencePercentage": 0.07599999755620956,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 134.0,
+      "AttackPercentage": 0.09399999678134918,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.25200000405311584,
+      "HeavyAttackPercentage": 0.0860000029206276,
+      "Level": 20,
+      "Set": "eVoidThunder",
+      "SkillDamagePercentage": 0.0860000029206276
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "RegenPercentage": 0.06400000303983688,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "HealthPercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "HealthPercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 124.0,
+      "Cost": 3,
+      "CritDamage": 0.1379999965429306,
+      "IceDamagePercentage": 0.25200000405311584,
+      "Level": 20,
+      "Set": "eFreezingFrost",
+      "SkillDamagePercentage": 0.07900000363588333,
+      "UltDamagePercentage": 0.10100000351667404
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DefencePercentage": 0.07599999755620956,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "AttackPercentage": 0.09300000220537186,
+      "Cost": 1,
+      "Health": 1185.0,
+      "HeavyAttackPercentage": 0.10100000351667404,
+      "Level": 10,
+      "RegenPercentage": 0.08399999886751175,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "HealthPercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "HealthPercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "AirDamagePercentage": 0.25200000405311584,
+      "Attack": 84.0,
+      "AttackPercentage": 0.0860000029206276,
+      "Cost": 3,
+      "CritDamage": 0.15000000596046448,
+      "HealthPercentage": 0.07100000232458115,
+      "Level": 20,
+      "Set": "eSierraGale",
+      "UltDamagePercentage": 0.07900000363588333
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "HealthPercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "RegenPercentage": 0.06400000303983688,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DefencePercentage": 0.07599999755620956,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 152.0,
+      "AttackPercentage": 0.06400000303983688,
+      "Cost": 4,
+      "CritRate": 0.14900000393390656,
+      "Level": 15,
+      "Set": "eMoltenRift",
+      "SkillDamagePercentage": 0.09399999678134918
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DefencePercentage": 0.07599999755620956,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "RegenPercentage": 0.06400000303983688,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 124.0,
+      "Cost": 3,
+      "CritDamage": 0.12600000202655792,
+      "DarkDamagePercentage": 0.25200000405311584,
+      "HealthPercentage": 0.09399999678134918,
+      "Level": 20,
+      "Set": "eSunSinkingEclipses",
+      "SkillDamagePercentage": 0.06400000303983688
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 20.0,
+      "AttackPercentage": 0.05999999865889549,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "HealthPercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "RegenPercentage": 0.06400000303983688,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DefencePercentage": 0.07599999755620956,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 170.0,
+      "AttackPercentage": 0.0860000029206276,
+      "Cost": 4,
+      "CritDamage": 0.36899998784065247,
+      "CritRate": 0.06300000101327896,
+      "Level": 20,
+      "RegenPercentage": 0.10000000149011612,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 54.0,
+      "Cost": 4,
+      "CritRate": 0.07900000363588333,
+      "Health": 430.0,
+      "Level": 5,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 84.0,
+      "Cost": 3,
+      "CritDamage": 0.15000000596046448,
+      "HealthPercentage": 0.10100000351667404,
+      "Level": 20,
+      "RegenPercentage": 0.3440000116825104,
+      "Set": "eRejuvenatingGlow",
+      "SkillDamagePercentage": 0.10100000351667404
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealBonusPercentage": 0.052000001072883606,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "DefencePercentage": 0.08299999684095383,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "DefencePercentage": 0.08299999684095383,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 84.0,
+      "Cost": 3,
+      "Defence": 60.0,
+      "Health": 70.0,
+      "Level": 20,
+      "RegenPercentage": 0.3760000169277191,
+      "Set": "eFreezingFrost",
+      "SkillDamagePercentage": 0.0860000029206276
+    },
+    {
+      "Attack": 20.0,
+      "AttackPercentage": 0.05999999865889549,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "RegenPercentage": 0.06400000303983688,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 40.0,
+      "AttackPercentage": 0.1509999930858612,
+      "AutoAttackDamagePercentage": 0.07100000232458115,
+      "Cost": 1,
+      "Health": 1945.0,
+      "Level": 20,
+      "Set": "eVoidThunder",
+      "UltDamagePercentage": 0.0860000029206276
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "HealthPercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "AirDamagePercentage": 0.03700000047683716,
+      "Attack": 12.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "AttackPercentage": 0.22300000488758087,
+      "AutoAttackDamagePercentage": 0.0860000029206276,
+      "Cost": 1,
+      "Health": 1550.0,
+      "Level": 15,
+      "RegenPercentage": 0.11599999666213989,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 30.0,
+      "AttackPercentage": 0.06599999964237213,
+      "Cost": 4,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "DefencePercentage": 0.08299999684095383,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealthPercentage": 0.06599999964237213,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "AttackPercentage": 0.05999999865889549,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "RegenPercentage": 0.06400000303983688,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealthPercentage": 0.06599999964237213,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "DefencePercentage": 0.08299999684095383,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealthPercentage": 0.06599999964237213,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DefencePercentage": 0.07599999755620956,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "HealthPercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "RegenPercentage": 0.06400000303983688,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealBonusPercentage": 0.052000001072883606,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "CritDamage": 0.08799999952316284,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealBonusPercentage": 0.052000001072883606,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "CritDamage": 0.08799999952316284,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "CritDamage": 0.08799999952316284,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "CritDamage": 0.08799999952316284,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "DefencePercentage": 0.08299999684095383,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "CritDamage": 0.08799999952316284,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "CritDamage": 0.08799999952316284,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "CritDamage": 0.08799999952316284,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 30.0,
+      "AttackPercentage": 0.06599999964237213,
+      "Cost": 4,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealthPercentage": 0.06599999964237213,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealthPercentage": 0.06599999964237213,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "CritDamage": 0.08799999952316284,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealBonusPercentage": 0.052000001072883606,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 170.0,
+      "AutoAttackDamagePercentage": 0.09399999678134918,
+      "Cost": 4,
+      "CritDamage": 0.12600000202655792,
+      "Defence": 60.0,
+      "HealBonusPercentage": 0.22100000083446503,
+      "Level": 20,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "CritRate": 0.04399999976158142,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "DefencePercentage": 0.08299999684095383,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Attack": 134.0,
+      "Cost": 3,
+      "CritDamage": 0.1379999965429306,
+      "DefencePercentage": 0.10899999737739563,
+      "FireDamagePercentage": 0.25200000405311584,
+      "Level": 20,
+      "Set": "eMoltenRift",
+      "UltDamagePercentage": 0.10100000351667404
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "AttackPercentage": 0.25999999046325684,
+      "Cost": 1,
+      "CritDamage": 0.16200000047683716,
+      "DefencePercentage": 0.10000000149011612,
+      "Health": 1915.0,
+      "HealthPercentage": 0.10100000351667404,
+      "Level": 20,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 100.0,
+      "AutoAttackDamagePercentage": 0.09399999678134918,
+      "Cost": 3,
+      "CritDamage": 0.15000000596046448,
+      "FireDamagePercentage": 0.30000001192092896,
+      "Health": 360.0,
+      "HeavyAttackPercentage": 0.10100000351667404,
+      "Level": 25,
+      "RegenPercentage": 0.06800000369548798,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "CritRate": 0.04399999976158142,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Attack": 84.0,
+      "AttackPercentage": 0.07100000232458115,
+      "Cost": 3,
+      "CritDamage": 0.1379999965429306,
+      "DarkDamagePercentage": 0.25200000405311584,
+      "DefencePercentage": 0.10000000149011612,
+      "HealthPercentage": 0.07100000232458115,
+      "Level": 20,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "DefencePercentage": 0.08299999684095383,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "RegenPercentage": 0.06400000303983688,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DefencePercentage": 0.07599999755620956,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealBonusPercentage": 0.052000001072883606,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 30.0,
+      "AttackPercentage": 0.06599999964237213,
+      "Cost": 4,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 30.0,
+      "AttackPercentage": 0.06599999964237213,
+      "Cost": 4,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 30.0,
+      "AttackPercentage": 0.06599999964237213,
+      "Cost": 4,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "CritDamage": 0.08799999952316284,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "AttackPercentage": 0.06400000303983688,
+      "Cost": 1,
+      "Health": 820.0,
+      "Level": 5,
+      "Set": "eRejuvenatingGlow",
+      "SkillDamagePercentage": 0.0860000029206276
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DefencePercentage": 0.07599999755620956,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 20.0,
+      "AttackPercentage": 0.05999999865889549,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 50.0,
+      "AttackPercentage": 0.18000000715255737,
+      "Cost": 1,
+      "CritDamage": 0.15000000596046448,
+      "Defence": 60.0,
+      "Health": 2280.0,
+      "HeavyAttackPercentage": 0.07900000363588333,
+      "Level": 25,
+      "Set": "eMoltenRift",
+      "UltDamagePercentage": 0.07900000363588333
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DefencePercentage": 0.07599999755620956,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "HealthPercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 150.0,
+      "Cost": 4,
+      "CritDamage": 0.15000000596046448,
+      "CritRate": 0.2199999988079071,
+      "Defence": 50.0,
+      "Health": 430.0,
+      "Level": 25,
+      "Set": "eMoltenRift",
+      "SkillDamagePercentage": 0.0860000029206276,
+      "UltDamagePercentage": 0.07900000363588333
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "CritDamage": 0.08799999952316284,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealBonusPercentage": 0.052000001072883606,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "CritRate": 0.04399999976158142,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 107.0,
+      "Cost": 4,
+      "HealBonusPercentage": 0.10199999809265137,
+      "Level": 10,
+      "RegenPercentage": 0.09200000017881393,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "AttackPercentage": 0.26600000262260437,
+      "AutoAttackDamagePercentage": 0.10100000351667404,
+      "Cost": 1,
+      "DefencePercentage": 0.06400000303983688,
+      "Health": 2280.0,
+      "HealthPercentage": 0.09399999678134918,
+      "Level": 25,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 30.0,
+      "AttackPercentage": 0.06599999964237213,
+      "Cost": 4,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 30.0,
+      "AttackPercentage": 0.06599999964237213,
+      "Cost": 4,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 20.0,
+      "AttackPercentage": 0.05999999865889549,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 40.0,
+      "AttackPercentage": 0.18000000715255737,
+      "Cost": 1,
+      "CritRate": 0.08699999749660492,
+      "DefencePercentage": 0.11800000071525574,
+      "Health": 2280.0,
+      "HeavyAttackPercentage": 0.07100000232458115,
+      "Level": 25,
+      "RegenPercentage": 0.08399999886751175,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 200.0,
+      "AutoAttackDamagePercentage": 0.0860000029206276,
+      "Cost": 4,
+      "CritDamage": 0.5659999847412109,
+      "HeavyAttackPercentage": 0.0860000029206276,
+      "Level": 25,
+      "RegenPercentage": 0.06800000369548798,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "DefencePercentage": 0.08299999684095383,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "DefencePercentage": 0.08299999684095383,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealBonusPercentage": 0.052000001072883606,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DefencePercentage": 0.07599999755620956,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "HealthPercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "AttackPercentage": 0.1509999930858612,
+      "Cost": 1,
+      "DefencePercentage": 0.11800000071525574,
+      "Health": 1915.0,
+      "Level": 20,
+      "RegenPercentage": 0.09200000017881393,
+      "Set": "eMoonlitClouds",
+      "SkillDamagePercentage": 0.10100000351667404,
+      "UltDamagePercentage": 0.10899999737739563
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "FireDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "AttackPercentage": 0.06400000303983688,
+      "Cost": 1,
+      "Defence": 60.0,
+      "Health": 820.0,
+      "Level": 5,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "AttackPercentage": 0.035999998450279236,
+      "Cost": 1,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "IceDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eSierraGale"
+    },
+    {
+      "AirDamagePercentage": 0.05999999865889549,
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 22.0,
+      "Cost": 4,
+      "CritRate": 0.032999999821186066,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "LightDamagePercentage": 0.05999999865889549,
+      "Set": "eVoidThunder"
+    },
+    {
+      "AttackPercentage": 0.2590000033378601,
+      "Cost": 1,
+      "CritDamage": 0.12600000202655792,
+      "Health": 2710.0,
+      "HeavyAttackPercentage": 0.0860000029206276,
+      "Level": 25,
+      "Set": "eFreezingFrost",
+      "UltDamagePercentage": 0.0860000029206276
+    },
+    {
+      "Attack": 150.0,
+      "AutoAttackDamagePercentage": 0.10899999737739563,
+      "Cost": 4,
+      "CritDamage": 0.15000000596046448,
+      "CritRate": 0.2199999988079071,
+      "Health": 470.0,
+      "HeavyAttackPercentage": 0.09399999678134918,
+      "Level": 25,
+      "RegenPercentage": 0.09200000017881393,
+      "Set": "eFreezingFrost"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eCelestialLight"
+    },
+    {
+      "Attack": 20.0,
+      "AttackPercentage": 0.05999999865889549,
+      "Cost": 3,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Cost": 1,
+      "Health": 450.0,
+      "HealthPercentage": 0.04500000178813934,
+      "Level": 0,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "Cost": 1,
+      "DefencePercentage": 0.035999998450279236,
+      "Health": 450.0,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "AttackPercentage": 0.027000000700354576,
+      "Cost": 1,
+      "Health": 228.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "ElectricDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Attack": 30.0,
+      "Cost": 4,
+      "HealthPercentage": 0.06599999964237213,
+      "Level": 0,
+      "Set": "eMoltenRift"
+    },
+    {
+      "Attack": 15.0,
+      "Cost": 3,
+      "Level": 0,
+      "RegenPercentage": 0.04800000041723251,
+      "Set": "eRejuvenatingGlow"
+    },
+    {
+      "AttackPercentage": 0.027000000700354576,
+      "Cost": 1,
+      "Health": 228.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "Level": 0,
+      "RegenPercentage": 0.06400000303983688,
+      "Set": "eLingeringTunes"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eMoonlitClouds"
+    },
+    {
+      "Cost": 1,
+      "Health": 228.0,
+      "HealthPercentage": 0.03400000184774399,
+      "Level": 0,
+      "Set": "eSunSinkingEclipses"
+    },
+    {
+      "Attack": 22.0,
+      "Cost": 4,
+      "CritRate": 0.032999999821186066,
+      "Level": 0,
+      "Set": "eVoidThunder"
+    },
+    {
+      "Attack": 20.0,
+      "Cost": 3,
+      "DarkDamagePercentage": 0.05999999865889549,
+      "Level": 0,
+      "Set": "eSierraGale"
+    },
+    {
+      "AttackPercentage": 0.02199999988079071,
+      "Cost": 1,
+      "Health": 114.0,
+      "Level": 0,
+      "Set": "eSierraGale"
+    }
+  ]
+}

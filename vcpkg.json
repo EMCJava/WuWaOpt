@@ -1,0 +1,12 @@
+{
+  "dependencies": [
+    "opencv",
+    "nlohmann-json",
+    "sfml",
+    "imgui-sfml",
+    "implot",
+    "spdlog"
+  ],
+  "name": "emcjava-autogame",
+  "version": "1.0.0"
+}
