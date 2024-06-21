@@ -10,9 +10,6 @@
 #include <mutex>
 #include <set>
 
-#include <nlohmann/json.hpp>
-using json = nlohmann::json;
-
 #include <imgui.h>   // necessary for ImGui::*, imgui-SFML.h doesn't include imgui.h
 
 #include <imgui-SFML.h>   // for ImGui::SFML::* functions and SFML-specific overloads
@@ -28,27 +25,7 @@ using json = nlohmann::json;
 #include <SFML/Window/Event.hpp>
 #include <random>
 
-#include "Random.hpp"
-
-#include "FullStats.hpp"
-
-class Stopwatch
-{
-public:
-    Stopwatch( )
-        : start_time( std::chrono::high_resolution_clock::now( ) )
-    { }
-
-    ~Stopwatch( )
-    {
-        auto end_time = std::chrono::high_resolution_clock::now( );
-        auto duration = std::chrono::duration_cast<std::chrono::microseconds>( end_time - start_time ).count( );
-        spdlog::info( "Elapsed time: {} seconds", duration / 1000'000.f );
-    }
-
-private:
-    std::chrono::time_point<std::chrono::high_resolution_clock> start_time;
-};
+#include "Opt/WuWaGa.hpp"
 
 struct StatsCache {
     EffectiveStats AccumulatedStats;
@@ -165,56 +142,6 @@ knapsack( const std::vector<EffectiveStats>& Echos, auto&& BaseAttack )
     return Result;
 }
 
-struct CombinationRecord {
-    uint64_t CombinationData = 0;
-    FloatTy  Value           = 0;
-    int      SlotCount       = 5;
-
-    static constexpr auto IndexMaskBitCount = 12;
-    static constexpr auto IndexMask         = ( (uint64_t) 1 << IndexMaskBitCount ) - 1;
-
-    constexpr auto& SetAt( uint64_t Data, int Slot ) noexcept
-    {
-        assert( Data >= 0 && Data <= IndexMask );
-        assert( Slot >= 0 && Slot < SlotCount );
-
-        const auto Shift = Slot * IndexMaskBitCount;
-        CombinationData &= ~( IndexMask << Shift );
-        CombinationData |= Data << Shift;
-
-        return *this;
-    }
-
-    [[nodiscard]] constexpr auto GetAt( int Slot ) const noexcept
-    {
-        assert( Slot >= 0 && Slot < SlotCount );
-
-        const auto Shift = Slot * IndexMaskBitCount;
-        return ( CombinationData & ( IndexMask << Shift ) ) >> Shift;
-    }
-
-    constexpr bool operator( )( CombinationRecord& obj1, CombinationRecord& obj2 ) const noexcept
-    {
-        return obj1.Value > obj2.Value;
-    }
-
-    std::string ToString( ) const
-    {
-        std::stringstream ss;
-        ss << Value << " : ";
-        for ( int i = 0; i < SlotCount; ++i )
-        {
-            if ( GetAt( i ) == IndexMask ) break;
-
-            ss << GetAt( i ) << " -> ";
-        }
-        ss << "nul";
-
-        return ss.str( );
-    }
-};
-
-
 std::ostream&
 operator<<( std::ostream& os, const CombinationRecord& obj ) noexcept
 {
@@ -283,6 +210,19 @@ GetContainer( std::priority_queue<T, S, C>& q )
 {
     struct HackedQueue : private std::priority_queue<T, S, C> {
         static S& Container( std::priority_queue<T, S, C>& q )
+        {
+            return q.*&HackedQueue::c;
+        }
+    };
+    return HackedQueue::Container( q );
+}
+
+template <class T, class S, class C>
+auto&
+GetConstContainer( const std::priority_queue<T, S, C>& q )
+{
+    struct HackedQueue : private std::priority_queue<T, S, C> {
+        static const S& Container( const std::priority_queue<T, S, C>& q )
         {
             return q.*&HackedQueue::c;
         }
@@ -470,379 +410,315 @@ BruteForce( const std::vector<EffectiveStats>& Echos, auto&& BaseAttack )
     return Result;
 }
 
-template <std::size_t Count>
-struct BoolArray {
-    std::array<uint8_t, Count / 8 + 1> Value { 0 };
-    int                                TrueCount = 0;
-
-    constexpr void Reset( )
-    {
-        TrueCount = 0;
-        memset( Value.data( ), 0, sizeof( Value ) );
-    }
-
-    constexpr bool GetAt( int Index ) const
-    {
-        return ( Value[ Index / 8 ] >> ( Index % 8 ) );
-    }
-
-    template <bool Data = true>
-    constexpr bool SetAt( int Index )
-    {
-        auto&      Slot      = Value[ Index / 8 ];
-        const auto BitAtSlot = 1 << ( Index % 8 );
-
-        if constexpr ( Data )
-        {
-            if ( ~Slot & BitAtSlot )
-            {
-                Slot |= BitAtSlot;
-                TrueCount += 1;
-                return true;
-            }
-        } else
-        {
-            if ( Slot & BitAtSlot )
-            {
-                Slot &= ~BitAtSlot;
-                TrueCount -= 1;
-                return true;
-            }
-        }
-
-        return false;
-    }
-};
-
-struct GARuntimeReport {
-    static constexpr auto MaxCombinationCount = 11;
-
-    FloatTy OptimalValue[ MaxCombinationCount ];
-    FloatTy MutationProb[ MaxCombinationCount ];
-
-    std::array<std::vector<int>, MaxCombinationCount> ParentPickCount;
-
-    struct DetailReportQueue {
-        std::set<uint64_t> QueueSet;
-        std::priority_queue<CombinationRecord,
-                            std::vector<CombinationRecord>,
-                            CombinationRecord>
-            Queue;
-    };
-
-    std::array<DetailReportQueue, MaxCombinationCount> DetailReports;
-
-} GAReport;
-
-template <int SlotCount = 5, int ResultLength = 10, int PopulationSize = 10000, int ReproduceSize = PopulationSize / 100>
-auto
-GeneticAlgorithm( int GAReportIndex, const std::vector<EffectiveStats>& Echos, auto&& BaseAttack, std::vector<int>&& FixedCostAtSlot )
-{
-    static constexpr int MaxEchoCount = 2000;
-
-    if ( !std::ranges::is_sorted( Echos, []( auto&& EchoA, auto&& EchoB ) { return EchoA.Cost > EchoB.Cost; } ) )
-    {
-        throw std::runtime_error( "GeneticAlgorithm: Echos is not sorted by cost" );
-    }
-
-    if ( 2000 < Echos.size( ) )
-    {
-        throw std::runtime_error( "GeneticAlgorithm: Echos is too much" );
-    }
-
-    if ( SlotCount != FixedCostAtSlot.size( ) )
-    {
-        throw std::range_error( "FixedCostAtSlot is not with size SlotCount" );
-    }
-
-    GARuntimeReport::DetailReportQueue& DetailReport = GAReport.DetailReports[ GAReportIndex ];
-
-    auto& MinHeapMaxCombinationsSet = DetailReport.QueueSet;
-    MinHeapMaxCombinationsSet.clear( );
-    auto& MinHeapMaxCombinations = DetailReport.Queue;
-    while ( !MinHeapMaxCombinations.empty( ) )
-        MinHeapMaxCombinations.pop( );
-    for ( int i = 0; i < ResultLength; ++i )
-        MinHeapMaxCombinations.push( { .Value = std::numeric_limits<FloatTy>::min( ), .SlotCount = SlotCount } );
-
-    using RNG = XoshiroCpp::Xoshiro256Plus;
-    RNG random { std::random_device { }( ) };
-
-    std::uniform_real_distribution<FloatTy> real_dist( 0, 1 );
-    std::exponential_distribution<FloatTy>  expo_dist( 1.0 );
-
-    std::array<int, 5> CountByFixedCost { 0,
-                                          (int) std::ranges::count( FixedCostAtSlot, 1 ),
-                                          0,
-                                          (int) std::ranges::count( FixedCostAtSlot, 3 ),
-                                          (int) std::ranges::count( FixedCostAtSlot, 4 ) };
-
-    std::array<std::pair<int, int>, 5> LowerBoundCountByFixedCost;
-    for ( int i = 0; i < 5; ++i )
-    {
-        LowerBoundCountByFixedCost[ i ] =
-            std::pair<int, int> {
-                std::ranges::lower_bound( FixedCostAtSlot, i, std::ranges::greater { } ) - FixedCostAtSlot.begin( ),
-                std::ranges::upper_bound( FixedCostAtSlot, i, std::ranges::greater { } ) - FixedCostAtSlot.begin( ) };
-        LowerBoundCountByFixedCost[ i ].second = LowerBoundCountByFixedCost[ i ].second - LowerBoundCountByFixedCost[ i ].first;
-    }
-
-    using EquipmentIndex = int;
-    std::vector<std::array<EquipmentIndex, SlotCount>> Population( PopulationSize );
-
-    const auto EchoCounts = Echos
-        | std::views::chunk_by( []( auto& A, auto& B ) { return A.Cost == B.Cost; } )
-        | std::views::transform( []( const auto& Range ) -> int { return std::ranges::distance( Range ); } )
-        | std::ranges::to<std::vector>( );
-    const int FourCount  = EchoCounts[ 0 ];
-    const int ThreeCount = EchoCounts[ 1 ];
-    const int OneCount   = EchoCounts[ 2 ];
-
-    std::vector<std::array<int, SlotCount>> IndicesPermutations;
-    {
-        std::array<int, SlotCount> Permutation;
-        std::ranges::iota( Permutation, 0 );
-        do
-        {
-            IndicesPermutations.push_back( Permutation );
-        } while ( std::ranges::next_permutation( Permutation ).found );
-    }
-
-    std::vector<int> EchoIndices( Echos.size( ) );
-    std::ranges::iota( EchoIndices, 0 );
-
-    std::array<
-        decltype( std::ranges::subrange( EchoIndices.begin( ), EchoIndices.end( ) ) ),
-        5>
-        EchoIndicesSubrangeByCost;
-    EchoIndicesSubrangeByCost[ 4 ] = { EchoIndices.begin( ), EchoIndices.begin( ) + FourCount };
-    EchoIndicesSubrangeByCost[ 3 ] = { EchoIndices.begin( ) + FourCount, EchoIndices.begin( ) + FourCount + ThreeCount };
-    EchoIndicesSubrangeByCost[ 1 ] = { EchoIndices.begin( ) + FourCount + ThreeCount, EchoIndices.end( ) };
-
-    const auto Random4Cost = [ &EchoIndicesSubrangeByCost, &random ]( auto&& Count ) {
-        std::ranges::shuffle( EchoIndicesSubrangeByCost[ 4 ], random );
-        return std::ranges::subrange( EchoIndicesSubrangeByCost[ 4 ].begin( ), EchoIndicesSubrangeByCost[ 4 ].begin( ) + Count );
-    };
-    const auto Random3Cost = [ &EchoIndicesSubrangeByCost, &random ]( auto&& Count ) {
-        std::ranges::shuffle( EchoIndicesSubrangeByCost[ 3 ], random );
-        return std::ranges::subrange( EchoIndicesSubrangeByCost[ 3 ].begin( ), EchoIndicesSubrangeByCost[ 3 ].begin( ) + Count );
-    };
-    const auto Random1Cost = [ &EchoIndicesSubrangeByCost, &random ]( auto&& Count ) {
-        std::ranges::shuffle( EchoIndicesSubrangeByCost[ 1 ], random );
-        return std::ranges::subrange( EchoIndicesSubrangeByCost[ 1 ].begin( ), EchoIndicesSubrangeByCost[ 1 ].begin( ) + Count );
-    };
-    /*
-     *
-     * Initialize population with random echos
-     *
-     * */
-    for ( auto& Individual : Population )
-    {
-        auto CopyBegin = Individual.begin( );
-
-        auto RandSubrange = Random4Cost( CountByFixedCost[ 4 ] );
-        CopyBegin         = std::ranges::copy( RandSubrange, CopyBegin ).out;
-        RandSubrange      = Random3Cost( CountByFixedCost[ 3 ] );
-        CopyBegin         = std::ranges::copy( RandSubrange, CopyBegin ).out;
-        RandSubrange      = Random1Cost( CountByFixedCost[ 1 ] );
-        /*****************/ std::ranges::copy( RandSubrange, CopyBegin );
-    }
-
-    int MutationProbabilityChangeCount = 0;
-
-    auto& MutationProbability = GAReport.MutationProb[ GAReportIndex ];
-    auto& OptimalValue        = GAReport.OptimalValue[ GAReportIndex ];
-    OptimalValue              = std::numeric_limits<FloatTy>::lowest( );
-
-    GAReport.ParentPickCount[ GAReportIndex ].resize( ReproduceSize );
-
-    Stopwatch SW;
-
-    // Pre allocated memories
-    std::array<std::pair<FloatTy, int64_t>, PopulationSize> Fitness_Index;
-    std::array<std::pair<FloatTy, int64_t>, ReproduceSize>  TopPopulationFitness_Index;
-    std::array<BoolArray<MaxEchoCount>, 5>                  IndexSets;
-    std::array<std::vector<int>, 5>                         ReproduceIndices;
-
-    while ( true )
-    {
-        /*
-         *
-         * Selection
-         *
-         * */
-        memset( TopPopulationFitness_Index.data( ), 0, sizeof( TopPopulationFitness_Index ) );
-        for ( int i = 0, top_count = 0; i < PopulationSize; ++i )
-        {
-            const auto Fitness = std::ranges::fold_left(
-                                     Population[ i ],
-                                     EffectiveStats { }, [ &Echos ]( auto&& Stat, int EchoIndex ) {
-                                         return Stat + Echos[ EchoIndex ];
-                                     } )
-                                     .ExpectedDamage( BaseAttack );
-
-            if ( top_count < ReproduceSize ) [[unlikely]]
-            {
-                TopPopulationFitness_Index[ top_count++ ] = std::make_pair( Fitness, i );
-                std::ranges::push_heap( TopPopulationFitness_Index.begin( ), TopPopulationFitness_Index.begin( ) + top_count, std::greater<> { } );
-            } else if ( TopPopulationFitness_Index[ 0 ].first < Fitness )
-            {
-                std::ranges::pop_heap( TopPopulationFitness_Index, std::greater<> { } );
-                TopPopulationFitness_Index[ ReproduceSize - 1 ] = std::make_pair( Fitness, i );
-                std::ranges::push_heap( TopPopulationFitness_Index, std::greater<> { } );
-            }
-        }
-
-        std::ranges::sort_heap( TopPopulationFitness_Index, std::greater<> { } );
-
-        if ( OptimalValue >= TopPopulationFitness_Index.front( ).first )
-        {
-            MutationProbability += 0.0001f;
-
-            if ( ++MutationProbabilityChangeCount % 1000 == 0 )
-            {
-                const auto NewSeed = XoshiroCpp::SplitMix64 { std::random_device { }( ) }.generateSeedSequence<4>( );
-                random.deserialize( NewSeed );
-                spdlog::info( "No Max Fitness: MutationProbability({}) {}", MutationProbability, MutationProbabilityChangeCount );
-            }
-
-            // Finish
-            if ( MutationProbability >= 1 )
-            {
-                break;
-            }
-        } else
-        {
-            OptimalValue = TopPopulationFitness_Index.front( ).first;
-        }
-
-        // Store best result
-        for ( const auto& TPFI : TopPopulationFitness_Index )
-        {
-            if ( MinHeapMaxCombinations.top( ).Value < TPFI.first )
-            {
-                CombinationRecord NewRecord { .Value = TPFI.first, .SlotCount = SlotCount };
-
-                std::array<int, SlotCount> SortedIndices;
-                std::ranges::copy( Population[ TPFI.second ], SortedIndices.begin( ) );
-                std::ranges::sort( SortedIndices );
-                for ( int i = 0; i < SlotCount; ++i )
-                    NewRecord.SetAt( SortedIndices[ i ], i );
-
-                // need to sort by index
-                if ( !MinHeapMaxCombinationsSet.contains( NewRecord.CombinationData ) )
-                {
-                    MinHeapMaxCombinationsSet.erase( MinHeapMaxCombinations.top( ).CombinationData );
-                    MinHeapMaxCombinationsSet.insert( NewRecord.CombinationData );
-                    MinHeapMaxCombinations.pop( );
-                    MinHeapMaxCombinations.push( NewRecord );
-
-                    spdlog::info( "New record - {}", NewRecord.ToString( ) );
-                }
-            } else
-            {
-                break;
-            }
-        }
-
-        for ( std::array<EquipmentIndex, SlotCount>& Individual : std::ranges::subrange( Population.begin( ) + ReproduceSize, Population.end( ) ) )
-        {
-            /*
-             *
-             * Crossover
-             *
-             * */
-            constexpr auto ReproduceSizeBy5 = ReproduceSize / 5;
-            const auto     FirstPickIndex   = std::abs( static_cast<int>( expo_dist( random ) * ReproduceSizeBy5 ) % ReproduceSize );
-            const auto     SecondPickIndex  = std::abs( static_cast<int>( expo_dist( random ) * ReproduceSizeBy5 ) % ReproduceSize );
-
-            GAReport.ParentPickCount[ GAReportIndex ][ FirstPickIndex ]++;
-            GAReport.ParentPickCount[ GAReportIndex ][ SecondPickIndex ]++;
-
-            std::array<int, 2> ParentPopulationIndices;
-            ParentPopulationIndices[ 0 ] = TopPopulationFitness_Index[ FirstPickIndex ].second;
-            ParentPopulationIndices[ 1 ] = TopPopulationFitness_Index[ SecondPickIndex ].second;
-
-            IndexSets[ 4 ].Reset( );
-            IndexSets[ 3 ].Reset( );
-            IndexSets[ 1 ].Reset( );
-
-            ReproduceIndices[ 4 ].clear( );
-            ReproduceIndices[ 3 ].clear( );
-            ReproduceIndices[ 1 ].clear( );
-
-            for ( const auto& ParentIndex : ParentPopulationIndices )
-            {
-                const auto& Parent   = Population[ ParentIndex ];
-                auto        ParentIt = Parent.begin( );
-                for ( int i = 0; i < CountByFixedCost[ 4 ]; ++i, ++ParentIt )
-                    if ( IndexSets[ 4 ].SetAt( *ParentIt ) )
-                        ReproduceIndices[ 4 ].push_back( *ParentIt );
-                for ( int i = 0; i < CountByFixedCost[ 3 ]; ++i, ++ParentIt )
-                    if ( IndexSets[ 3 ].SetAt( *ParentIt ) )
-                        ReproduceIndices[ 3 ].push_back( *ParentIt );
-                for ( int i = 0; i < CountByFixedCost[ 1 ]; ++i, ++ParentIt )
-                    if ( IndexSets[ 1 ].SetAt( *ParentIt ) )
-                        ReproduceIndices[ 1 ].push_back( *ParentIt );
-            }
-
-            const auto AppendByIndices = []( auto& Indices, auto& Set, auto& It, int Count ) {
-                for ( int i = 0, ScanIndex = -1; i < Count; ++i, ++It )
-                {
-                    while ( Indices[ ++ScanIndex ] >= Set.size( ) )
-                        ;
-                    *It = Set[ Indices[ ScanIndex ] ];
-                }
-            };
-
-            auto IndividualIt = Individual.begin( );
-            AppendByIndices( IndicesPermutations[ random( ) % Factorial<SlotCount>( ) ], ReproduceIndices[ 4 ], IndividualIt, CountByFixedCost[ 4 ] );
-            AppendByIndices( IndicesPermutations[ random( ) % Factorial<SlotCount>( ) ], ReproduceIndices[ 3 ], IndividualIt, CountByFixedCost[ 3 ] );
-            AppendByIndices( IndicesPermutations[ random( ) % Factorial<SlotCount>( ) ], ReproduceIndices[ 1 ], IndividualIt, CountByFixedCost[ 1 ] );
-            assert( IndividualIt == Individual.end( ) );
-
-            /*
-             *
-             * Mutation
-             *
-             * */
-            while ( real_dist( random ) < MutationProbability )
-            {
-                const auto MutationAtCost = FixedCostAtSlot[ random( ) % SlotCount ];
-
-                auto [ MutationStart, MutationCount ] = LowerBoundCountByFixedCost[ MutationAtCost ];
-
-                const auto  MutationAtIndex    = MutationStart + random( ) % MutationCount;
-                const auto& AvailableEchoRange = EchoIndicesSubrangeByCost[ MutationAtCost ];
-
-                int NewEchoIndex = 0;
-                do
-                {
-                    NewEchoIndex = AvailableEchoRange[ random( ) % AvailableEchoRange.size( ) ];
-                } while ( std::ranges::contains( Individual.data( ) + MutationStart, Individual.data( ) + MutationStart + MutationCount, NewEchoIndex ) );
-
-                Individual[ MutationAtIndex ] = NewEchoIndex;
-            }
-        }
-
-        // Make sure range won't overlap by sorting by index
-        std::ranges::sort( TopPopulationFitness_Index, []( auto& A, auto& B ) {
-            return A.second < B.second;
-        } );
-
-        // Write to first ReproduceSize th element in population
-        std::ranges::copy(
-            TopPopulationFitness_Index
-                | std::views::transform( [ &Population ]( auto& FI ) { return Population[ FI.second ]; } ),
-            Population.begin( ) );
-    }
-
-    spdlog::info( "Final rand: {}", random( ) );
-
-    // For visualizer
-    MutationProbability = -1;
-    return;
-}
+// template <int SlotCount = 5, int ResultLength = 10, int PopulationSize = 10000, int ReproduceSize = PopulationSize / 100>
+// auto
+// GeneticAlgorithm( int GAReportIndex, const std::vector<EffectiveStats>& Echos, auto&& BaseAttack, std::vector<int>&& FixedCostAtSlot )
+//{
+//     static constexpr int MaxEchoCount = 2000;
+//
+//     if ( !std::ranges::is_sorted( Echos, []( auto&& EchoA, auto&& EchoB ) { return EchoA.Cost > EchoB.Cost; } ) )
+//     {
+//         throw std::runtime_error( "GeneticAlgorithm: Echos is not sorted by cost" );
+//     }
+//
+//     if ( 2000 < Echos.size( ) )
+//     {
+//         throw std::runtime_error( "GeneticAlgorithm: Echos is too much" );
+//     }
+//
+//     if ( SlotCount != FixedCostAtSlot.size( ) )
+//     {
+//         throw std::range_error( "FixedCostAtSlot is not with size SlotCount" );
+//     }
+//
+//     GARuntimeReport::DetailReportQueue& DetailReport = GAReport.DetailReports[ GAReportIndex ];
+//
+//     auto& MinHeapMaxCombinationsSet = DetailReport.QueueSet;
+//     MinHeapMaxCombinationsSet.clear( );
+//     auto& MinHeapMaxCombinations = DetailReport.Queue;
+//     while ( !MinHeapMaxCombinations.empty( ) )
+//         MinHeapMaxCombinations.pop( );
+//     for ( int i = 0; i < ResultLength; ++i )
+//         MinHeapMaxCombinations.push( { .Value = std::numeric_limits<FloatTy>::min( ), .SlotCount = SlotCount } );
+//
+//     using RNG = XoshiroCpp::Xoshiro256Plus;
+//     RNG random { std::random_device { }( ) };
+//
+//     std::uniform_real_distribution<FloatTy> real_dist( 0, 1 );
+//     std::exponential_distribution<FloatTy>  expo_dist( 1.0 );
+//
+//     std::array<int, 5> CountByFixedCost { 0,
+//                                           (int) std::ranges::count( FixedCostAtSlot, 1 ),
+//                                           0,
+//                                           (int) std::ranges::count( FixedCostAtSlot, 3 ),
+//                                           (int) std::ranges::count( FixedCostAtSlot, 4 ) };
+//
+//     std::array<std::pair<int, int>, 5> LowerBoundCountByFixedCost;
+//     for ( int i = 0; i < 5; ++i )
+//     {
+//         LowerBoundCountByFixedCost[ i ] =
+//             std::pair<int, int> {
+//                 std::ranges::lower_bound( FixedCostAtSlot, i, std::ranges::greater { } ) - FixedCostAtSlot.begin( ),
+//                 std::ranges::upper_bound( FixedCostAtSlot, i, std::ranges::greater { } ) - FixedCostAtSlot.begin( ) };
+//         LowerBoundCountByFixedCost[ i ].second = LowerBoundCountByFixedCost[ i ].second - LowerBoundCountByFixedCost[ i ].first;
+//     }
+//
+//     using EquipmentIndex = int;
+//     std::vector<std::array<EquipmentIndex, SlotCount>> Population( PopulationSize );
+//
+//     const auto EchoCounts = Echos
+//         | std::views::chunk_by( []( auto& A, auto& B ) { return A.Cost == B.Cost; } )
+//         | std::views::transform( []( const auto& Range ) -> int { return std::ranges::distance( Range ); } )
+//         | std::ranges::to<std::vector>( );
+//     const int FourCount  = EchoCounts[ 0 ];
+//     const int ThreeCount = EchoCounts[ 1 ];
+//     const int OneCount   = EchoCounts[ 2 ];
+//
+//     std::vector<std::array<int, SlotCount>> IndicesPermutations;
+//     {
+//         std::array<int, SlotCount> Permutation;
+//         std::ranges::iota( Permutation, 0 );
+//         do
+//         {
+//             IndicesPermutations.push_back( Permutation );
+//         } while ( std::ranges::next_permutation( Permutation ).found );
+//     }
+//
+//     std::vector<int> EchoIndices( Echos.size( ) );
+//     std::ranges::iota( EchoIndices, 0 );
+//
+//     std::array<
+//         decltype( std::ranges::subrange( EchoIndices.begin( ), EchoIndices.end( ) ) ),
+//         5>
+//         EchoIndicesSubrangeByCost;
+//     EchoIndicesSubrangeByCost[ 4 ] = { EchoIndices.begin( ), EchoIndices.begin( ) + FourCount };
+//     EchoIndicesSubrangeByCost[ 3 ] = { EchoIndices.begin( ) + FourCount, EchoIndices.begin( ) + FourCount + ThreeCount };
+//     EchoIndicesSubrangeByCost[ 1 ] = { EchoIndices.begin( ) + FourCount + ThreeCount, EchoIndices.end( ) };
+//
+//     const auto Random4Cost = [ &EchoIndicesSubrangeByCost, &random ]( auto&& Count ) {
+//         std::ranges::shuffle( EchoIndicesSubrangeByCost[ 4 ], random );
+//         return std::ranges::subrange( EchoIndicesSubrangeByCost[ 4 ].begin( ), EchoIndicesSubrangeByCost[ 4 ].begin( ) + Count );
+//     };
+//     const auto Random3Cost = [ &EchoIndicesSubrangeByCost, &random ]( auto&& Count ) {
+//         std::ranges::shuffle( EchoIndicesSubrangeByCost[ 3 ], random );
+//         return std::ranges::subrange( EchoIndicesSubrangeByCost[ 3 ].begin( ), EchoIndicesSubrangeByCost[ 3 ].begin( ) + Count );
+//     };
+//     const auto Random1Cost = [ &EchoIndicesSubrangeByCost, &random ]( auto&& Count ) {
+//         std::ranges::shuffle( EchoIndicesSubrangeByCost[ 1 ], random );
+//         return std::ranges::subrange( EchoIndicesSubrangeByCost[ 1 ].begin( ), EchoIndicesSubrangeByCost[ 1 ].begin( ) + Count );
+//     };
+//     /*
+//      *
+//      * Initialize population with random echos
+//      *
+//      * */
+//     for ( auto& Individual : Population )
+//     {
+//         auto CopyBegin = Individual.begin( );
+//
+//         auto RandSubrange = Random4Cost( CountByFixedCost[ 4 ] );
+//         CopyBegin         = std::ranges::copy( RandSubrange, CopyBegin ).out;
+//         RandSubrange      = Random3Cost( CountByFixedCost[ 3 ] );
+//         CopyBegin         = std::ranges::copy( RandSubrange, CopyBegin ).out;
+//         RandSubrange      = Random1Cost( CountByFixedCost[ 1 ] );
+//         /*****************/ std::ranges::copy( RandSubrange, CopyBegin );
+//     }
+//
+//     int MutationProbabilityChangeCount = 0;
+//
+//     auto& MutationProbability = GAReport.MutationProb[ GAReportIndex ];
+//     auto& OptimalValue        = GAReport.OptimalValue[ GAReportIndex ];
+//     OptimalValue              = std::numeric_limits<FloatTy>::lowest( );
+//
+//     GAReport.ParentPickCount[ GAReportIndex ].resize( ReproduceSize );
+//
+//     Stopwatch SW;
+//
+//     // Pre allocated memories
+//     std::array<std::pair<FloatTy, int64_t>, PopulationSize> Fitness_Index;
+//     std::array<std::pair<FloatTy, int64_t>, ReproduceSize>  TopPopulationFitness_Index;
+//     std::array<BoolArray<MaxEchoCount>, 5>                  IndexSets;
+//     std::array<std::vector<int>, 5>                         ReproduceIndices;
+//
+//     while ( true )
+//     {
+//         /*
+//          *
+//          * Selection
+//          *
+//          * */
+//         memset( TopPopulationFitness_Index.data( ), 0, sizeof( TopPopulationFitness_Index ) );
+//         for ( int i = 0, top_count = 0; i < PopulationSize; ++i )
+//         {
+//             const auto Fitness = std::ranges::fold_left(
+//                                      Population[ i ],
+//                                      EffectiveStats { }, [ &Echos ]( auto&& Stat, int EchoIndex ) {
+//                                          return Stat + Echos[ EchoIndex ];
+//                                      } )
+//                                      .ExpectedDamage( BaseAttack );
+//
+//             if ( top_count < ReproduceSize ) [[unlikely]]
+//             {
+//                 TopPopulationFitness_Index[ top_count++ ] = std::make_pair( Fitness, i );
+//                 std::ranges::push_heap( TopPopulationFitness_Index.begin( ), TopPopulationFitness_Index.begin( ) + top_count, std::greater<> { } );
+//             } else if ( TopPopulationFitness_Index[ 0 ].first < Fitness )
+//             {
+//                 std::ranges::pop_heap( TopPopulationFitness_Index, std::greater<> { } );
+//                 TopPopulationFitness_Index[ ReproduceSize - 1 ] = std::make_pair( Fitness, i );
+//                 std::ranges::push_heap( TopPopulationFitness_Index, std::greater<> { } );
+//             }
+//         }
+//
+//         std::ranges::sort_heap( TopPopulationFitness_Index, std::greater<> { } );
+//
+//         if ( OptimalValue >= TopPopulationFitness_Index.front( ).first )
+//         {
+//             MutationProbability += 0.0001f;
+//
+//             if ( ++MutationProbabilityChangeCount % 1000 == 0 )
+//             {
+//                 const auto NewSeed = XoshiroCpp::SplitMix64 { std::random_device { }( ) }.generateSeedSequence<4>( );
+//                 random.deserialize( NewSeed );
+//                 spdlog::info( "No Max Fitness: MutationProbability({}) {}", MutationProbability, MutationProbabilityChangeCount );
+//             }
+//
+//             // Finish
+//             if ( MutationProbability >= 1 )
+//             {
+//                 break;
+//             }
+//         } else
+//         {
+//             OptimalValue = TopPopulationFitness_Index.front( ).first;
+//         }
+//
+//         // Store best result
+//         for ( const auto& TPFI : TopPopulationFitness_Index )
+//         {
+//             if ( MinHeapMaxCombinations.top( ).Value < TPFI.first )
+//             {
+//                 CombinationRecord NewRecord { .Value = TPFI.first, .SlotCount = SlotCount };
+//
+//                 std::array<int, SlotCount> SortedIndices;
+//                 std::ranges::copy( Population[ TPFI.second ], SortedIndices.begin( ) );
+//                 std::ranges::sort( SortedIndices );
+//                 for ( int i = 0; i < SlotCount; ++i )
+//                     NewRecord.SetAt( SortedIndices[ i ], i );
+//
+//                 // need to sort by index
+//                 if ( !MinHeapMaxCombinationsSet.contains( NewRecord.CombinationData ) )
+//                 {
+//                     MinHeapMaxCombinationsSet.erase( MinHeapMaxCombinations.top( ).CombinationData );
+//                     MinHeapMaxCombinationsSet.insert( NewRecord.CombinationData );
+//                     MinHeapMaxCombinations.pop( );
+//                     MinHeapMaxCombinations.push( NewRecord );
+//
+//                     spdlog::info( "New record - {}", NewRecord.ToString( ) );
+//                 }
+//             } else
+//             {
+//                 break;
+//             }
+//         }
+//
+//         for ( std::array<EquipmentIndex, SlotCount>& Individual : std::ranges::subrange( Population.begin( ) + ReproduceSize, Population.end( ) ) )
+//         {
+//             /*
+//              *
+//              * Crossover
+//              *
+//              * */
+//             constexpr auto ReproduceSizeBy5 = ReproduceSize / 5;
+//             const auto     FirstPickIndex   = std::abs( static_cast<int>( expo_dist( random ) * ReproduceSizeBy5 ) % ReproduceSize );
+//             const auto     SecondPickIndex  = std::abs( static_cast<int>( expo_dist( random ) * ReproduceSizeBy5 ) % ReproduceSize );
+//
+//             GAReport.ParentPickCount[ GAReportIndex ][ FirstPickIndex ]++;
+//             GAReport.ParentPickCount[ GAReportIndex ][ SecondPickIndex ]++;
+//
+//             std::array<int, 2> ParentPopulationIndices;
+//             ParentPopulationIndices[ 0 ] = TopPopulationFitness_Index[ FirstPickIndex ].second;
+//             ParentPopulationIndices[ 1 ] = TopPopulationFitness_Index[ SecondPickIndex ].second;
+//
+//             IndexSets[ 4 ].Reset( );
+//             IndexSets[ 3 ].Reset( );
+//             IndexSets[ 1 ].Reset( );
+//
+//             ReproduceIndices[ 4 ].clear( );
+//             ReproduceIndices[ 3 ].clear( );
+//             ReproduceIndices[ 1 ].clear( );
+//
+//             for ( const auto& ParentIndex : ParentPopulationIndices )
+//             {
+//                 const auto& Parent   = Population[ ParentIndex ];
+//                 auto        ParentIt = Parent.begin( );
+//                 for ( int i = 0; i < CountByFixedCost[ 4 ]; ++i, ++ParentIt )
+//                     if ( IndexSets[ 4 ].SetAt( *ParentIt ) )
+//                         ReproduceIndices[ 4 ].push_back( *ParentIt );
+//                 for ( int i = 0; i < CountByFixedCost[ 3 ]; ++i, ++ParentIt )
+//                     if ( IndexSets[ 3 ].SetAt( *ParentIt ) )
+//                         ReproduceIndices[ 3 ].push_back( *ParentIt );
+//                 for ( int i = 0; i < CountByFixedCost[ 1 ]; ++i, ++ParentIt )
+//                     if ( IndexSets[ 1 ].SetAt( *ParentIt ) )
+//                         ReproduceIndices[ 1 ].push_back( *ParentIt );
+//             }
+//
+//             const auto AppendByIndices = []( auto& Indices, auto& Set, auto& It, int Count ) {
+//                 for ( int i = 0, ScanIndex = -1; i < Count; ++i, ++It )
+//                 {
+//                     while ( Indices[ ++ScanIndex ] >= Set.size( ) )
+//                         ;
+//                     *It = Set[ Indices[ ScanIndex ] ];
+//                 }
+//             };
+//
+//             auto IndividualIt = Individual.begin( );
+//             AppendByIndices( IndicesPermutations[ random( ) % Factorial<SlotCount>( ) ], ReproduceIndices[ 4 ], IndividualIt, CountByFixedCost[ 4 ] );
+//             AppendByIndices( IndicesPermutations[ random( ) % Factorial<SlotCount>( ) ], ReproduceIndices[ 3 ], IndividualIt, CountByFixedCost[ 3 ] );
+//             AppendByIndices( IndicesPermutations[ random( ) % Factorial<SlotCount>( ) ], ReproduceIndices[ 1 ], IndividualIt, CountByFixedCost[ 1 ] );
+//             assert( IndividualIt == Individual.end( ) );
+//
+//             /*
+//              *
+//              * Mutation
+//              *
+//              * */
+//             while ( real_dist( random ) < MutationProbability )
+//             {
+//                 const auto MutationAtCost = FixedCostAtSlot[ random( ) % SlotCount ];
+//
+//                 auto [ MutationStart, MutationCount ] = LowerBoundCountByFixedCost[ MutationAtCost ];
+//
+//                 const auto  MutationAtIndex    = MutationStart + random( ) % MutationCount;
+//                 const auto& AvailableEchoRange = EchoIndicesSubrangeByCost[ MutationAtCost ];
+//
+//                 int NewEchoIndex = 0;
+//                 do
+//                 {
+//                     NewEchoIndex = AvailableEchoRange[ random( ) % AvailableEchoRange.size( ) ];
+//                 } while ( std::ranges::contains( Individual.data( ) + MutationStart, Individual.data( ) + MutationStart + MutationCount, NewEchoIndex ) );
+//
+//                 Individual[ MutationAtIndex ] = NewEchoIndex;
+//             }
+//         }
+//
+//         // Make sure range won't overlap by sorting by index
+//         std::ranges::sort( TopPopulationFitness_Index, []( auto& A, auto& B ) {
+//             return A.second < B.second;
+//         } );
+//
+//         // Write to first ReproduceSize th element in population
+//         std::ranges::copy(
+//             TopPopulationFitness_Index
+//                 | std::views::transform( [ &Population ]( auto& FI ) { return Population[ FI.second ]; } ),
+//             Population.begin( ) );
+//     }
+//
+//     spdlog::info( "Final rand: {}", random( ) );
+//
+//     // For visualizer
+//     MutationProbability = -1;
+//     return;
+// }
 
 int
 main( )
@@ -853,7 +729,7 @@ main( )
     const std::vector<FullStats> FullStatsList = json::parse( std::ifstream { "data/example_echos.json" } )[ "echos" ];
 
     std::vector<EffectiveStats> EffectiveStatsList =
-        FullStatsList        // | std::views::filter( []( const FullStats& FullEcho ) { return FullEcho.Level != 0; } )
+        FullStatsList   // | std::views::filter( []( const FullStats& FullEcho ) { return FullEcho.Level != 0; } )
         // | std::views::filter( []( const FullStats& FullEcho ) { return FullEcho.Set == eMoltenRift || FullEcho.Set == eFreezingFrost; } )
         | std::views::transform( ToEffectiveStats<eFireDamagePercentage, eAutoAttackDamagePercentage> )
         | std::ranges::to<std::vector>( );
@@ -866,21 +742,8 @@ main( )
         return EchoA.ExpectedDamage( 200 ) > EchoB.ExpectedDamage( 200 );
     } );
 
-    std::vector<std::unique_ptr<std::jthread>> Threads;
-
-    // clang-format off
-    Threads.emplace_back( std::make_unique<std::jthread>([&](){GeneticAlgorithm<3>( 0,  EffectiveStatsList, 500, { 4, 4, 4}        );} ) );
-    Threads.emplace_back( std::make_unique<std::jthread>([&](){GeneticAlgorithm<4>( 1,  EffectiveStatsList, 500, { 4, 4, 3, 1 }    );} ) );
-    Threads.emplace_back( std::make_unique<std::jthread>([&](){GeneticAlgorithm<4>( 2,  EffectiveStatsList, 500, { 3, 3, 3, 3 }    );} ) );
-    Threads.emplace_back( std::make_unique<std::jthread>([&](){GeneticAlgorithm<5>( 3,  EffectiveStatsList, 500, { 4, 4, 1, 1, 1 } );} ) );
-    Threads.emplace_back( std::make_unique<std::jthread>([&](){GeneticAlgorithm<5>( 4,  EffectiveStatsList, 500, { 4, 1, 1, 1, 1 } );} ) );
-    Threads.emplace_back( std::make_unique<std::jthread>([&](){GeneticAlgorithm<5>( 5,  EffectiveStatsList, 500, { 4, 3, 3, 1, 1 } );} ) );
-    Threads.emplace_back( std::make_unique<std::jthread>([&](){GeneticAlgorithm<5>( 6,  EffectiveStatsList, 500, { 4, 3, 1, 1, 1 } );} ) );
-    Threads.emplace_back( std::make_unique<std::jthread>([&](){GeneticAlgorithm<5>( 7,  EffectiveStatsList, 500, { 3, 1, 1, 1, 1 } );} ) );
-    Threads.emplace_back( std::make_unique<std::jthread>([&](){GeneticAlgorithm<5>( 8,  EffectiveStatsList, 500, { 3, 3, 1, 1, 1 } );} ) );
-    Threads.emplace_back( std::make_unique<std::jthread>([&](){GeneticAlgorithm<5>( 9,  EffectiveStatsList, 500, { 3, 3, 3, 1, 1 } );} ) );
-    Threads.emplace_back( std::make_unique<std::jthread>([&](){GeneticAlgorithm<5>( 10, EffectiveStatsList, 500, { 1, 1, 1, 1, 1 } );} ) );
-    // clang-format on
+    WuWaGA Opt( EffectiveStatsList );
+    Opt.Run( );
 
     //    std::thread SearchThread( [ &EffectiveStatsList ]( ) {
     //        Stopwatch SW;
@@ -907,7 +770,8 @@ main( )
 
     static const char* glabels[] = { "444", "4431", "3333", "44111", "41111", "43311", "43111", "31111", "33111", "33311", "11111" };
 
-    sf::Clock deltaClock;
+    const auto& GAReport = Opt.GetReport( );
+    sf::Clock   deltaClock;
     while ( window.isOpen( ) )
     {
         sf::Event event { };
@@ -972,7 +836,7 @@ main( )
 
                 for ( int i = 0; i < GARuntimeReport::MaxCombinationCount; i++ )
                 {
-                    auto CopyList = GetContainer( GAReport.DetailReports[ i ].Queue );
+                    auto CopyList = GetConstContainer( GAReport.DetailReports[ i ].Queue );
                     if ( CopyList.size( ) >= 10 )
                     {
 

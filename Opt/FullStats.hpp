@@ -4,7 +4,11 @@
 
 #pragma once
 
-using FloatTy = float;
+#include <cstdint>
+#include <array>
+
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
 
 enum EchoSet : uint8_t {
     eFreezingFrost,
