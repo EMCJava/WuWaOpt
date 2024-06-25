@@ -251,10 +251,14 @@ struct FullStats {
     FloatTy CritDamage = 0;
     FloatTy CritRate   = 0;
 
+    [[nodiscard]] std::string GetSetName( ) const noexcept
+    {
+        return json( Set ).get<std::string>( );
+    }
+
     [[nodiscard]] std::string BriefStat( ) const noexcept
     {
-        return std::format( "Set: {:20} Cost: {} Level: {:2}",
-                            json( Set ).get<std::string>( ),
+        return std::format( "Cost: {} Level: {:2}",
                             Cost,
                             Level );
     }

@@ -49,6 +49,18 @@ ResultPlotDetailsImPlotGetter( int idx, void* user_data )
     return { (double) idx, ( ( (ResultPlotDetails*) user_data ) + idx )->Value };
 }
 
+std::array<ImU32, eEchoSetCount + 1> EchoSetColor {
+    IM_COL32( 66, 178, 255, 255 ),
+    IM_COL32( 245, 118, 790, 255 ),
+    IM_COL32( 182, 108, 255, 255 ),
+    IM_COL32( 86, 255, 183, 255 ),
+    IM_COL32( 247, 228, 107, 255 ),
+    IM_COL32( 204, 141, 181, 255 ),
+    IM_COL32( 135, 189, 41, 255 ),
+    IM_COL32( 255, 255, 255, 255 ),
+    IM_COL32( 202, 44, 37, 255 ),
+    IM_COL32( 243, 60, 241, 255 ) };
+
 int
 main( )
 {
@@ -199,6 +211,13 @@ main( )
                         const auto  Index        = SelectedResult.Indices[ i ];
                         const auto& SelectedEcho = FullStatsList[ Index ];
                         ImGui::Text( std::format( "{:=^43}", Index ).c_str( ) );
+
+                        ImGui::Text( "Set:" );
+                        ImGui::SameLine( );
+                        ImGui::PushStyleColor( ImGuiCol_Text, EchoSetColor[ SelectedEcho.Set ] );
+                        ImGui::Text( std::format( "{:20}", SelectedEcho.GetSetName( ) ).c_str( ) );
+                        ImGui::PopStyleColor( );
+                        ImGui::SameLine( );
                         ImGui::Text( "%s", SelectedEcho.BriefStat( ).c_str( ) );
                         ImGui::Text( "%s", SelectedEcho.DetailStat( ).c_str( ) );
                     }
