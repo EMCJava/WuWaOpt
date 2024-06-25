@@ -5,6 +5,7 @@
 #pragma once
 
 #include <cstdint>
+#include <format>
 #include <array>
 
 #include <nlohmann/json.hpp>
@@ -249,6 +250,45 @@ struct FullStats {
      * */
     FloatTy CritDamage = 0;
     FloatTy CritRate   = 0;
+
+    [[nodiscard]] std::string BriefStat( ) const noexcept
+    {
+        return std::format( "Set: {:20} Cost: {} Level: {:2}",
+                            json( Set ).get<std::string>( ),
+                            Cost,
+                            Level );
+    }
+
+    [[nodiscard]] std::string DetailStat( ) const noexcept
+    {
+        std::stringstream ss;
+
+        int StatIndex    = 0;
+        int SubStatIndex = 0;
+
+        if ( std::abs( AutoAttackDamagePercentage ) > 0.001 ) ss << std::format( "[{}]: {:26}: {:10.1f}\n", ++StatIndex, "AutoAttackDamagePercentage", AutoAttackDamagePercentage * 100 );
+        if ( std::abs( HeavyAttackPercentage ) > 0.001 ) ss << std::format( "[{}]: {:26}: {:10.1f}\n", ++StatIndex, "HeavyAttackPercentage", HeavyAttackPercentage * 100 );
+        if ( std::abs( UltDamagePercentage ) > 0.001 ) ss << std::format( "[{}]: {:26}: {:10.1f}\n", ++StatIndex, "UltDamagePercentage", UltDamagePercentage * 100 );
+        if ( std::abs( SkillDamagePercentage ) > 0.001 ) ss << std::format( "[{}]: {:26}: {:10.1f}\n", ++StatIndex, "SkillDamagePercentage", SkillDamagePercentage * 100 );
+        if ( std::abs( HealBonusPercentage ) > 0.001 ) ss << std::format( "[{}]: {:26}: {:10.1f}\n", ++StatIndex, "HealBonusPercentage", HealBonusPercentage * 100 );
+        if ( std::abs( FireDamagePercentage ) > 0.001 ) ss << std::format( "[{}]: {:26}: {:10.1f}\n", ++StatIndex, "FireDamagePercentage", FireDamagePercentage * 100 );
+        if ( std::abs( AirDamagePercentage ) > 0.001 ) ss << std::format( "[{}]: {:26}: {:10.1f}\n", ++StatIndex, "AirDamagePercentage", AirDamagePercentage * 100 );
+        if ( std::abs( IceDamagePercentage ) > 0.001 ) ss << std::format( "[{}]: {:26}: {:10.1f}\n", ++StatIndex, "IceDamagePercentage", IceDamagePercentage * 100 );
+        if ( std::abs( ElectricDamagePercentage ) > 0.001 ) ss << std::format( "[{}]: {:26}: {:10.1f}\n", ++StatIndex, "ElectricDamagePercentage", ElectricDamagePercentage * 100 );
+        if ( std::abs( DarkDamagePercentage ) > 0.001 ) ss << std::format( "[{}]: {:26}: {:10.1f}\n", ++StatIndex, "DarkDamagePercentage", DarkDamagePercentage * 100 );
+        if ( std::abs( LightDamagePercentage ) > 0.001 ) ss << std::format( "[{}]: {:26}: {:10.1f}\n", ++StatIndex, "LightDamagePercentage", LightDamagePercentage * 100 );
+        if ( std::abs( AttackPercentage ) > 0.001 ) ss << std::format( "[{}]: {:26}: {:10.1f}\n", ++StatIndex, "AttackPercentage", AttackPercentage * 100 );
+        if ( std::abs( DefencePercentage ) > 0.001 ) ss << std::format( "[{}]: {:26}: {:10.1f}\n", ++StatIndex, "DefencePercentage", DefencePercentage * 100 );
+        if ( std::abs( HealthPercentage ) > 0.001 ) ss << std::format( "[{}]: {:26}: {:10.1f}\n", ++StatIndex, "HealthPercentage", HealthPercentage * 100 );
+        if ( std::abs( RegenPercentage ) > 0.001 ) ss << std::format( "[{}]: {:26}: {:10.1f}\n", ++StatIndex, "RegenPercentage", RegenPercentage * 100 );
+        if ( std::abs( Attack ) > 0.001 ) ss << std::format( "[{}]: {:26}: {:10.1f}\n", ++StatIndex, "Flat Attack", Attack );
+        if ( std::abs( Defence ) > 0.001 ) ss << std::format( "[{}]: {:26}: {:10.1f}\n", ++StatIndex, "Flat Defence", Defence );
+        if ( std::abs( Health ) > 0.001 ) ss << std::format( "[{}]: {:26}: {:10.1f}\n", ++StatIndex, "Flat Health", Health );
+        if ( std::abs( CritDamage ) > 0.001 ) ss << std::format( "[{}]: {:26}: {:10.1f}\n", ++StatIndex, "CritDamage", CritDamage * 100 );
+        if ( std::abs( CritRate ) > 0.001 ) ss << std::format( "[{}]: {:26}: {:10.1f}\n", ++StatIndex, "CritRate", CritRate * 100 );
+
+        return ss.str( );
+    }
 };
 
 

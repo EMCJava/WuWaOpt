@@ -100,8 +100,9 @@ WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
     using RNG = XoshiroCpp::Xoshiro256Plus;
     RNG random { std::random_device { }( ) };
 
-    std::uniform_real_distribution<FloatTy> real_dist( 0, 1 );
-    std::exponential_distribution<FloatTy>  expo_dist( 1.0 );
+    std::uniform_real_distribution<FloatTy> mutation_dist( 0, 1 );
+    // std::exponential_distribution<FloatTy>  crossover_dist( 1.0 );
+    std::uniform_real_distribution<FloatTy> crossover_dist( 0, 1 );
 
     constexpr std::array<int, 5> CountByFixedCost {
         0,
@@ -290,8 +291,8 @@ WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
              * Crossover
              *
              * */
-            const auto FirstPickIndex  = std::abs( static_cast<int>( expo_dist( random ) * ReproduceSizeBy5 ) % m_ReproduceSize );
-            const auto SecondPickIndex = std::abs( static_cast<int>( expo_dist( random ) * ReproduceSizeBy5 ) % m_ReproduceSize );
+            const auto FirstPickIndex  = std::abs( static_cast<int>( crossover_dist( random ) * m_ReproduceSize ) % m_ReproduceSize );
+            const auto SecondPickIndex = std::abs( static_cast<int>( crossover_dist( random ) * m_ReproduceSize ) % m_ReproduceSize );
 
             m_GAReport.ParentPickCount[ GAReportIndex ][ FirstPickIndex ]++;
             m_GAReport.ParentPickCount[ GAReportIndex ][ SecondPickIndex ]++;
@@ -344,7 +345,7 @@ WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
              *
              * */
             int MutationTime = 0;
-            while ( ++MutationTime <= SlotCount && real_dist( random ) < MutationProbability )
+            while ( ++MutationTime <= SlotCount && mutation_dist( random ) < MutationProbability )
             {
                 const auto MutationAtCost = GetCostAt<CostSlotTemplateArgument>( random( ) % SlotCount );
 
