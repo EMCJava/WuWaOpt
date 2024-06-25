@@ -11,6 +11,9 @@
 #include <array>
 #include <set>
 
+#define CostSlotTemplate template <int CostAt1, int CostAt2, int CostAt3, int CostAt4, int CostAt5>
+#define CostSlotTemplateArgument CostAt1, CostAt2, CostAt3, CostAt4, CostAt5
+
 struct GARuntimeReport {
     static constexpr auto MaxCombinationCount = 11;
 
@@ -34,9 +37,8 @@ struct GARuntimeReport {
 class WuWaGA
 {
 private:
-
-    void
-    Run( int GAReportIndex, FloatTy BaseAttack, std::vector<int>&& FixedCostAtSlot );
+    CostSlotTemplate void
+    Run( int GAReportIndex, FloatTy BaseAttack );
 
 public:
     explicit WuWaGA( auto& Echos )
@@ -53,7 +55,7 @@ public:
 protected:
     GARuntimeReport m_GAReport;
 
-    int m_ResultLength = 10;
+    int m_ResultLength   = 10;
     int m_PopulationSize = 10000, m_ReproduceSize = 1000;
 
     std::vector<std::unique_ptr<std::jthread>> m_Threads;

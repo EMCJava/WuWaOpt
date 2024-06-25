@@ -11,7 +11,54 @@
 #include <ranges>
 #include <random>
 
-auto
+CostSlotTemplate constexpr int
+GetSlotCount( )
+{
+    constexpr std::array<int, 5> Costs { CostSlotTemplateArgument };
+    for ( int i = 0; i < 5; ++i )
+        if ( Costs[ i ] == 0 ) return i;
+    return 5;
+}
+
+CostSlotTemplate constexpr int
+GetCountByFixedCost( int Cost )
+{
+    constexpr std::array<int, 5> Costs { CostSlotTemplateArgument };
+
+    int Result = 0;
+    for ( int i = 0; i < 5; ++i )
+        if ( Costs[ i ] == Cost ) ++Result;
+    return Result;
+}
+
+CostSlotTemplate constexpr std::pair<int, int>
+GetLowerBoundAndCountByFixedCost( int Cost )
+{
+    constexpr std::array<int, 5> Costs { CostSlotTemplateArgument };
+
+    int LowerBound = -1;
+    int Count      = 0;
+    for ( int i = 0; i < 5; ++i )
+    {
+        if ( Costs[ i ] == Cost )
+        {
+            if ( LowerBound == -1 )
+                LowerBound = i;
+            else
+                ++Count;
+        }
+    }
+    return { LowerBound, Count };
+}
+
+CostSlotTemplate constexpr int
+GetCostAt( int Index )
+{
+    constexpr std::array<int, 5> Costs { CostSlotTemplateArgument };
+    return Costs[ Index ];
+}
+
+constexpr auto
 Factorial( auto X )
 {
     if ( 0 == X )
@@ -19,14 +66,14 @@ Factorial( auto X )
     return X * Factorial( X - 1 );
 }
 
-void
-WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack, std::vector<int>&& FixedCostAtSlot )
+CostSlotTemplate void
+WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
 {
     static constexpr int MaxEchoCount     = 2000;
     const auto           ReproduceSizeBy5 = m_ReproduceSize / 5;
 
-    int        SlotCount      = FixedCostAtSlot.size( );
-    const auto MaxPermutation = Factorial( SlotCount );
+    constexpr int  SlotCount      = GetSlotCount<CostSlotTemplateArgument>( );
+    constexpr auto MaxPermutation = Factorial( SlotCount );
 
     if ( !std::ranges::is_sorted( m_Echos, []( auto&& EchoA, auto&& EchoB ) { return EchoA.Cost > EchoB.Cost; } ) )
     {
@@ -36,11 +83,6 @@ WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack, std::vector<int>&& FixedCost
     if ( 2000 < m_Echos.size( ) )
     {
         throw std::runtime_error( "GeneticAlgorithm: m_Echos is too much" );
-    }
-
-    if ( SlotCount != FixedCostAtSlot.size( ) )
-    {
-        throw std::range_error( "FixedCostAtSlot is not with size SlotCount" );
     }
 
     GARuntimeReport::DetailReportQueue& DetailReport = m_GAReport.DetailReports[ GAReportIndex ];
@@ -59,21 +101,20 @@ WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack, std::vector<int>&& FixedCost
     std::uniform_real_distribution<FloatTy> real_dist( 0, 1 );
     std::exponential_distribution<FloatTy>  expo_dist( 1.0 );
 
-    std::array<int, 5> CountByFixedCost { 0,
-                                          (int) std::ranges::count( FixedCostAtSlot, 1 ),
-                                          0,
-                                          (int) std::ranges::count( FixedCostAtSlot, 3 ),
-                                          (int) std::ranges::count( FixedCostAtSlot, 4 ) };
+    constexpr std::array<int, 5> CountByFixedCost {
+        0,
+        GetCountByFixedCost<CostSlotTemplateArgument>( 1 ),
+        0,
+        GetCountByFixedCost<CostSlotTemplateArgument>( 3 ),
+        GetCountByFixedCost<CostSlotTemplateArgument>( 4 ) };
 
-    std::array<std::pair<int, int>, 5> LowerBoundCountByFixedCost;
-    for ( int i = 0; i < 5; ++i )
-    {
-        LowerBoundCountByFixedCost[ i ] =
-            std::pair<int, int> {
-                std::ranges::lower_bound( FixedCostAtSlot, i, std::ranges::greater { } ) - FixedCostAtSlot.begin( ),
-                std::ranges::upper_bound( FixedCostAtSlot, i, std::ranges::greater { } ) - FixedCostAtSlot.begin( ) };
-        LowerBoundCountByFixedCost[ i ].second = LowerBoundCountByFixedCost[ i ].second - LowerBoundCountByFixedCost[ i ].first;
-    }
+    constexpr std::array<std::pair<int, int>, 5> LowerBoundAndCountByFixedCost {
+        std::pair<int, int> {0, 0},
+        GetLowerBoundAndCountByFixedCost<CostSlotTemplateArgument>( 1 ),
+        std::pair<int, int> {0, 0},
+        GetLowerBoundAndCountByFixedCost<CostSlotTemplateArgument>( 3 ),
+        GetLowerBoundAndCountByFixedCost<CostSlotTemplateArgument>( 4 )
+    };
 
     using EquipmentIndex = int;
 
@@ -311,11 +352,11 @@ WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack, std::vector<int>&& FixedCost
              * Mutation
              *
              * */
-            while ( real_dist( random ) < MutationProbability )
+            while ( false && real_dist( random ) < MutationProbability )
             {
-                const auto MutationAtCost = FixedCostAtSlot[ random( ) % SlotCount ];
+                const auto MutationAtCost = GetCostAt<CostSlotTemplateArgument>( random( ) % SlotCount );
 
-                auto [ MutationStart, MutationCount ] = LowerBoundCountByFixedCost[ MutationAtCost ];
+                auto [ MutationStart, MutationCount ] = LowerBoundAndCountByFixedCost[ MutationAtCost ];
 
                 const auto  MutationAtIndex    = MutationStart + random( ) % MutationCount;
                 const auto& AvailableEchoRange = EchoIndicesSubrangeByCost[ MutationAtCost ];
@@ -354,16 +395,16 @@ WuWaGA::Run( )
     m_Threads.clear( );
 
     // clang-format off
-    m_Threads.emplace_back( std::make_unique<std::jthread>([&](){ Run( 0 , 500, { 4, 4, 4       } );} ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>([&](){ Run( 1 , 500, { 4, 4, 3, 1    } );} ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>([&](){ Run( 2 , 500, { 3, 3, 3, 3    } );} ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>([&](){ Run( 3 , 500, { 4, 4, 1, 1, 1 } );} ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>([&](){ Run( 4 , 500, { 4, 1, 1, 1, 1 } );} ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>([&](){ Run( 5 , 500, { 4, 3, 3, 1, 1 } );} ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>([&](){ Run( 6 , 500, { 4, 3, 1, 1, 1 } );} ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>([&](){ Run( 7 , 500, { 3, 1, 1, 1, 1 } );} ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>([&](){ Run( 8 , 500, { 3, 3, 1, 1, 1 } );} ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>([&](){ Run( 9 , 500, { 3, 3, 3, 1, 1 } );} ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>([&](){ Run( 10, 500, { 1, 1, 1, 1, 1 } );} ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>([&](){ Run< 4, 4, 4, 0, 0>( 0 , 500 );} ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>([&](){ Run< 4, 4, 3, 1, 0>( 1 , 500 );} ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>([&](){ Run< 3, 3, 3, 3, 0>( 2 , 500 );} ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>([&](){ Run< 4, 4, 1, 1, 1>( 3 , 500 );} ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>([&](){ Run< 4, 1, 1, 1, 1>( 4 , 500 );} ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>([&](){ Run< 4, 3, 3, 1, 1>( 5 , 500 );} ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>([&](){ Run< 4, 3, 1, 1, 1>( 6 , 500 );} ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>([&](){ Run< 3, 1, 1, 1, 1>( 7 , 500 );} ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>([&](){ Run< 3, 3, 1, 1, 1>( 8 , 500 );} ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>([&](){ Run< 3, 3, 3, 1, 1>( 9 , 500 );} ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>([&](){ Run< 1, 1, 1, 1, 1>( 10, 500 );} ) );
     // clang-format on
 }
