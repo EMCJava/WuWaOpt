@@ -109,6 +109,18 @@ struct CombinationRecord {
         return obj1.Value > obj2.Value;
     }
 
+    constexpr std::array<int, 5> SlotToArray( ) const noexcept
+    {
+        std::array<int, 5> Result { -1, -1, -1, -1, -1 };
+        for ( int i = 0; i < SlotCount; ++i )
+        {
+            if ( GetAt( i ) == IndexMask ) break;
+            Result[ i ] = GetAt( i );
+        }
+
+        return Result;
+    }
+
     [[nodiscard]] std::string ToString( ) const
     {
         std::stringstream ss;

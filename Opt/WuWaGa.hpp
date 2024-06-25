@@ -11,7 +11,7 @@
 #include <array>
 #include <set>
 
-#define CostSlotTemplate template <int CostAt1, int CostAt2, int CostAt3, int CostAt4, int CostAt5>
+#define CostSlotTemplate         template <int CostAt1, int CostAt2, int CostAt3, int CostAt4, int CostAt5>
 #define CostSlotTemplateArgument CostAt1, CostAt2, CostAt3, CostAt4, CostAt5
 
 struct GARuntimeReport {
@@ -41,6 +41,8 @@ private:
     Run( int GAReportIndex, FloatTy BaseAttack );
 
 public:
+    static constexpr int ResultLength = 10;
+
     explicit WuWaGA( auto& Echos )
         : m_Echos( Echos )
     { }
@@ -55,7 +57,6 @@ public:
 protected:
     GARuntimeReport m_GAReport;
 
-    int m_ResultLength   = 10;
     int m_PopulationSize = 10000, m_ReproduceSize = 1000;
 
     std::vector<std::unique_ptr<std::jthread>> m_Threads;
