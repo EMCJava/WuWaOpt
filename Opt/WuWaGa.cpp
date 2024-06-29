@@ -5,6 +5,7 @@
 #include "WuWaGa.hpp"
 #include "Random.hpp"
 
+#include <unordered_map>
 #include <stdexcept>
 #include <algorithm>
 #include <vector>
@@ -137,6 +138,7 @@ CostSlotTemplate void
 WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
 {
     static constexpr int MaxEchoCount     = 2000;
+    static constexpr int IndexBitsShift   = 11;
     const auto           ReproduceSizeBy5 = m_ReproduceSize / 5;
 
     constexpr int  SlotCount      = GetSlotCount<CostSlotTemplateArgument>( );
@@ -206,15 +208,21 @@ WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
     {
         const auto Random4Cost = [ &EchoIndicesSubrangeByCost, &random ]( auto&& Count ) {
             std::ranges::shuffle( EchoIndicesSubrangeByCost[ eCost4 ], random );
-            return std::ranges::subrange( EchoIndicesSubrangeByCost[ eCost4 ].begin( ), EchoIndicesSubrangeByCost[ eCost4 ].begin( ) + Count );
+            auto Result = std::ranges::subrange( EchoIndicesSubrangeByCost[ eCost4 ].begin( ), EchoIndicesSubrangeByCost[ eCost4 ].begin( ) + Count );
+            std::ranges::sort( Result );
+            return Result;
         };
         const auto Random3Cost = [ &EchoIndicesSubrangeByCost, &random ]( auto&& Count ) {
             std::ranges::shuffle( EchoIndicesSubrangeByCost[ eCost3 ], random );
-            return std::ranges::subrange( EchoIndicesSubrangeByCost[ eCost3 ].begin( ), EchoIndicesSubrangeByCost[ eCost3 ].begin( ) + Count );
+            auto Result = std::ranges::subrange( EchoIndicesSubrangeByCost[ eCost3 ].begin( ), EchoIndicesSubrangeByCost[ eCost3 ].begin( ) + Count );
+            std::ranges::sort( Result );
+            return Result;
         };
         const auto Random1Cost = [ &EchoIndicesSubrangeByCost, &random ]( auto&& Count ) {
             std::ranges::shuffle( EchoIndicesSubrangeByCost[ eCost1 ], random );
-            return std::ranges::subrange( EchoIndicesSubrangeByCost[ eCost1 ].begin( ), EchoIndicesSubrangeByCost[ eCost1 ].begin( ) + Count );
+            auto Result = std::ranges::subrange( EchoIndicesSubrangeByCost[ eCost1 ].begin( ), EchoIndicesSubrangeByCost[ eCost1 ].begin( ) + Count );
+            std::ranges::sort( Result );
+            return Result;
         };
 
         /*
@@ -245,15 +253,13 @@ WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
 
 
     // Pre-allocated memories
-    std::vector<std::pair<FloatTy, int64_t>>           Fitness_Index( m_PopulationSize );
-    std::vector<std::pair<FloatTy, int64_t>>           TopPopulationFitness_Index( m_ReproduceSize );
-    std::array<BoolArray<MaxEchoCount>, eMaxCostIndex> IndexSets;
-    std::array<int, SlotCount>                         SortedIndicesBuffer;
-
+    std::unordered_map<uint64_t, FloatTy>    StatsCache;
+    std::vector<std::pair<FloatTy, int64_t>> Fitness_Index( m_PopulationSize );
+    std::vector<std::pair<FloatTy, int64_t>> TopFitness_Index( m_ReproduceSize );
     std::array<PreAllocatedBuffer<
                    int, std::ranges::max( CountByFixedCost ) * 2>,
                eMaxCostIndex>
-        ReproduceIndices;
+        ReproduceIndicesBuffer;
 
     Stopwatch SW;
 
@@ -264,9 +270,21 @@ WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
          * Selection
          *
          * */
-        memset( TopPopulationFitness_Index.data( ), 0, sizeof( TopPopulationFitness_Index ) );
+        StatsCache.clear( );
+        TopFitness_Index.clear( );
         for ( int i = 0, top_count = 0; i < m_PopulationSize; ++i )
         {
+            uint64_t CombinationID = 0;
+            for ( int j = 0; j < SlotCount; ++j )
+            {
+                CombinationID |= (uint64_t) Population[ i ][ j ] << j * IndexBitsShift;
+            }
+
+            if ( StatsCache.contains( CombinationID ) )
+            {
+                continue;
+            }
+
             const auto Fitness = std::ranges::fold_left(
                                      Population[ i ],
                                      EffectiveStats { }, [ this ]( auto&& Stat, int EchoIndex ) {
@@ -274,21 +292,24 @@ WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
                                      } )
                                      .ExpectedDamage( BaseAttack );
 
-            if ( top_count < m_ReproduceSize ) [[unlikely]]
+            StatsCache.insert( { CombinationID, Fitness } );
+
+            if ( top_count < m_ReproduceSize )
             {
-                TopPopulationFitness_Index[ top_count++ ] = std::make_pair( Fitness, i );
-                std::ranges::push_heap( TopPopulationFitness_Index.begin( ), TopPopulationFitness_Index.begin( ) + top_count, std::greater<> { } );
-            } else if ( TopPopulationFitness_Index[ 0 ].first < Fitness )
+                ++top_count;
+                TopFitness_Index.emplace_back( Fitness, i );
+                std::ranges::push_heap( TopFitness_Index, std::greater<> { } );
+            } else if ( TopFitness_Index[ 0 ].first < Fitness )
             {
-                std::ranges::pop_heap( TopPopulationFitness_Index, std::greater<> { } );
-                TopPopulationFitness_Index[ m_ReproduceSize - 1 ] = std::make_pair( Fitness, i );
-                std::ranges::push_heap( TopPopulationFitness_Index, std::greater<> { } );
+                std::ranges::pop_heap( TopFitness_Index, std::greater<> { } );
+                TopFitness_Index[ m_ReproduceSize - 1 ] = std::make_pair( Fitness, i );
+                std::ranges::push_heap( TopFitness_Index, std::greater<> { } );
             }
         }
 
-        std::ranges::sort_heap( TopPopulationFitness_Index, std::greater<> { } );
+        std::ranges::sort_heap( TopFitness_Index, std::greater<> { } );
 
-        if ( OptimalValue >= TopPopulationFitness_Index.front( ).first )
+        if ( OptimalValue >= TopFitness_Index.front( ).first )
         {
             MutationProbability += 0.0001f;
 
@@ -306,20 +327,17 @@ WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
             }
         } else
         {
-            OptimalValue = TopPopulationFitness_Index.front( ).first;
+            OptimalValue = TopFitness_Index.front( ).first;
         }
 
         // Store best result
-        for ( const auto& TPFI : TopPopulationFitness_Index )
+        for ( const auto& TPFI : TopFitness_Index )
         {
             if ( MinHeapMaxCombinations.top( ).Value < TPFI.first )
             {
                 CombinationRecord NewRecord { .Value = TPFI.first, .SlotCount = SlotCount };
-
-                std::ranges::copy( Population[ TPFI.second ], SortedIndicesBuffer.begin( ) );
-                std::ranges::sort( SortedIndicesBuffer );
                 for ( int i = 0; i < SlotCount; ++i )
-                    NewRecord.SetAt( SortedIndicesBuffer[ i ], i );
+                    NewRecord.SetAt( Population[ TPFI.second ][ i ], i );
 
                 // need to sort by index
                 if ( !MinHeapMaxCombinationsSet.contains( NewRecord.CombinationData ) )
@@ -337,52 +355,84 @@ WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
             }
         }
 
-        for ( auto& Individual : std::ranges::subrange( Population.begin( ) + m_ReproduceSize, Population.end( ) ) )
+        for ( auto& Individual : std::ranges::subrange( Population.begin( ) + TopFitness_Index.size( ), Population.end( ) ) )
         {
             /*
              *
              * Crossover
              *
              * */
-            const auto FirstPickIndex  = static_cast<int>( crossover_dist( random ) * ( m_ReproduceSize - 1 ) );
-            const auto SecondPickIndex = static_cast<int>( crossover_dist( random ) * ( m_ReproduceSize - 1 ) );
+            const auto FirstPickIndex  = static_cast<int>( crossover_dist( random ) * ( TopFitness_Index.size( ) - 1 ) );
+            const auto SecondPickIndex = static_cast<int>( crossover_dist( random ) * ( TopFitness_Index.size( ) - 1 ) );
 
             m_GAReport.ParentPickCount[ GAReportIndex ][ FirstPickIndex ]++;
             m_GAReport.ParentPickCount[ GAReportIndex ][ SecondPickIndex ]++;
 
-            std::array<int, 2> ParentPopulationIndices;
-            ParentPopulationIndices[ 0 ] = TopPopulationFitness_Index[ FirstPickIndex ].second;
-            ParentPopulationIndices[ 1 ] = TopPopulationFitness_Index[ SecondPickIndex ].second;
+            auto FirstParentIter  = Population[ TopFitness_Index[ FirstPickIndex ].second ].begin( );
+            auto SecondParentIter = Population[ TopFitness_Index[ SecondPickIndex ].second ].begin( );
 
-            memset( IndexSets.data( ), 0, sizeof( IndexSets ) );
-            memset( ReproduceIndices.data( ), 0, sizeof( ReproduceIndices ) );
-
-            // Group parent to set
-            for ( const auto& ParentIndex : ParentPopulationIndices )
+            // Merge to parent set, eliminating duplicates
+            for ( int CostIndex = eMaxCostIndex - 1; CostIndex >= 0; --CostIndex )
             {
-                const auto& Parent   = Population[ ParentIndex ];
-                auto        ParentIt = Parent.begin( );
-                for ( int CostIndex = eMaxCostIndex - 1; CostIndex >= 0; --CostIndex )
-                    for ( int i = 0; i < CountByFixedCost[ CostIndex ]; ++i, ++ParentIt )
-                        if ( IndexSets[ CostIndex ].SetAt( *ParentIt ) )
-                            ReproduceIndices[ CostIndex ].PushBack( *ParentIt );
+                auto& CurrentIndices = ReproduceIndicesBuffer[ CostIndex ];
+                CurrentIndices.Clear( );
+
+                const auto Count = CountByFixedCost[ CostIndex ];
+
+                int ParentAIndex = 0, ParentBIndex = 0;
+                while ( ParentAIndex < Count && ParentBIndex < Count )
+                {
+                    if ( *FirstParentIter < *SecondParentIter )
+                    {
+                        CurrentIndices.PushBack( *FirstParentIter );
+                        ++FirstParentIter;
+                        ++ParentAIndex;
+                    } else if ( *FirstParentIter > *SecondParentIter )
+                    {
+                        CurrentIndices.PushBack( *SecondParentIter );
+                        ++SecondParentIter;
+                        ++ParentBIndex;
+                    } else
+                    {
+                        // Repeat
+                        CurrentIndices.PushBack( *FirstParentIter );
+                        ++FirstParentIter;
+                        ++ParentAIndex;
+                        ++SecondParentIter;
+                        ++ParentBIndex;
+                    }
+                }
+
+                while ( ParentAIndex < Count )
+                {
+                    CurrentIndices.PushBack( *FirstParentIter );
+                    ++FirstParentIter;
+                    ++ParentAIndex;
+                }
+
+                while ( ParentBIndex < Count )
+                {
+                    CurrentIndices.PushBack( *SecondParentIter );
+                    ++SecondParentIter;
+                    ++ParentBIndex;
+                }
             }
 
-            // 14.147462
-            // Regenerate from set
             int InsertIndex = 0;
             for ( int CostIndex = eMaxCostIndex - 1; CostIndex >= 0; --CostIndex )
             {
                 const auto& Indices = IndicesPermutations[ random( ) % MaxPermutation ];
-                const auto& Set     = ReproduceIndices[ CostIndex ];
+                const auto& Set     = ReproduceIndicesBuffer[ CostIndex ];
                 const auto  Count   = CountByFixedCost[ CostIndex ];
                 for ( int i = 0, ScanIndex = -1; i < Count; ++i )
                 {
                     while ( Indices[ ++ScanIndex ] >= Set.Size )
                         ;
                     Individual[ InsertIndex + i ] = Set[ Indices[ ScanIndex ] ];
+                    std::push_heap( Individual.begin( ) + InsertIndex, Individual.begin( ) + InsertIndex + i + 1 );
                 }
 
+                std::sort_heap( Individual.begin( ) + InsertIndex, Individual.begin( ) + InsertIndex + Count );
                 InsertIndex += Count;
             }
 
@@ -398,7 +448,7 @@ WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
 
                 auto [ MutationStart, MutationCount ] = LowerBoundAndCountByFixedCost[ MutationAtCost ];
 
-                const auto  MutationAtIndex    = MutationStart + random( ) % MutationCount;
+                const auto  MutationAtIndex    = MutationStart + int( random( ) % MutationCount );
                 const auto& AvailableEchoRange = EchoIndicesSubrangeByCost[ MutationAtCost ];
 
                 int NewEchoIndex = 0;
@@ -407,18 +457,35 @@ WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
                     NewEchoIndex = AvailableEchoRange[ random( ) % AvailableEchoRange.size( ) ];
                 } while ( std::ranges::contains( Individual.data( ) + MutationStart, Individual.data( ) + MutationStart + MutationCount, NewEchoIndex ) );
 
-                Individual[ MutationAtIndex ] = NewEchoIndex;
+                // Basic one round bubble sort
+                if ( Individual[ MutationAtIndex ] > NewEchoIndex )
+                {
+                    Individual[ MutationAtIndex ] = NewEchoIndex;
+                    for ( int i = MutationAtIndex; i > MutationStart; --i )
+                    {
+                        if ( Individual[ i ] < Individual[ i - 1 ] )
+                            std::swap( Individual[ i ], Individual[ i - 1 ] );
+                    }
+                } else
+                {
+                    Individual[ MutationAtIndex ] = NewEchoIndex;
+                    for ( int i = MutationAtIndex; i < MutationStart + MutationCount - 1; ++i )
+                    {
+                        if ( Individual[ i ] > Individual[ i + 1 ] )
+                            std::swap( Individual[ i ], Individual[ i + 1 ] );
+                    }
+                }
             }
         }
 
         // Make sure range won't overlap by sorting by index
-        std::ranges::sort( TopPopulationFitness_Index, []( auto& A, auto& B ) {
+        std::ranges::sort( TopFitness_Index, []( auto& A, auto& B ) {
             return A.second < B.second;
         } );
 
         // Write to first m_ReproduceSize th element in population
         std::ranges::copy(
-            TopPopulationFitness_Index
+            TopFitness_Index
                 | std::views::transform( [ &Population ]( auto& FI ) { return Population[ FI.second ]; } ),
             Population.begin( ) );
     }
