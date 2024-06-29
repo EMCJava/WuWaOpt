@@ -77,12 +77,7 @@ main( )
         if ( EchoA.Cost < EchoB.Cost ) return false;
     } );
 
-    std::vector<EffectiveStats> EffectiveStatsList =
-        FullStatsList
-        | std::views::transform( ToEffectiveStats<eFireDamagePercentage, eAutoAttackDamagePercentage> )
-        | std::ranges::to<std::vector>( );
-
-    WuWaGA Opt( EffectiveStatsList );
+    WuWaGA Opt( FullStatsList );
     Opt.Run( );
 
     sf::RenderWindow window( sf::VideoMode( 640, 650 ), "WuWa Optimize" );

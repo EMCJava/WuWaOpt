@@ -61,6 +61,6 @@ protected:
 
     std::vector<std::unique_ptr<std::jthread>> m_Threads;
 
-
-    const std::vector<EffectiveStats>& m_Echos;
+    const std::vector<FullStats>& m_Echos;
+    std::vector<EffectiveStats>   m_EffectiveEchos;
 };

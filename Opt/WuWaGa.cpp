@@ -11,6 +11,25 @@
 #include <ranges>
 #include <random>
 
+enum ECostToIndex {
+    eCost1 = 0,
+    eCost3 = 1,
+    eCost4 = 2,
+    eMaxCostIndex
+};
+
+constexpr ECostToIndex
+CostToIndex( int Cost )
+{
+    __assume( Cost == 1 || Cost == 3 || Cost == 4 );
+
+    if ( Cost == 1 ) return eCost1;
+    if ( Cost == 3 ) return eCost3;
+    if ( Cost == 4 ) return eCost4;
+
+    std::unreachable( );
+}
+
 CostSlotTemplate constexpr int
 GetSlotCount( )
 {
@@ -68,6 +87,52 @@ Factorial( auto X )
     return X * Factorial( X - 1 );
 }
 
+template <int SlotCount>
+constexpr auto
+GeneratePermutations( )
+{
+    constexpr auto MaxPermutation = Factorial( SlotCount );
+
+    std::vector<std::array<int, SlotCount>> IndicesPermutations;
+    IndicesPermutations.reserve( MaxPermutation * SlotCount );
+    {
+        std::array<int, SlotCount> Permutation;
+        std::ranges::iota( Permutation, 0 );
+        do
+        {
+            IndicesPermutations.push_back( Permutation );
+        } while ( std::ranges::next_permutation( Permutation ).found );
+    }
+
+    return IndicesPermutations;
+}
+
+template <typename Ty, int BufferSize>
+struct PreAllocatedBuffer {
+    std::array<Ty, BufferSize> Buffer { };
+    int                        Size = 0;
+
+    void Clear( ) noexcept
+    {
+        Size = 0;
+    }
+
+    void PushBack( auto&& Value )
+    {
+        Buffer[ Size++ ] = Value;
+    }
+
+    decltype( auto ) operator[]( int Index ) noexcept
+    {
+        return Buffer[ Index ];
+    }
+
+    decltype( auto ) operator[]( int Index ) const noexcept
+    {
+        return Buffer[ Index ];
+    }
+};
+
 CostSlotTemplate void
 WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
 {
@@ -77,14 +142,26 @@ WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
     constexpr int  SlotCount      = GetSlotCount<CostSlotTemplateArgument>( );
     constexpr auto MaxPermutation = Factorial( SlotCount );
 
-    if ( !std::ranges::is_sorted( m_Echos, []( auto&& EchoA, auto&& EchoB ) { return EchoA.Cost > EchoB.Cost; } ) )
+    constexpr std::array<int, eMaxCostIndex>
+        CountByFixedCost {
+            GetCountByFixedCost<CostSlotTemplateArgument>( 1 ),
+            GetCountByFixedCost<CostSlotTemplateArgument>( 3 ),
+            GetCountByFixedCost<CostSlotTemplateArgument>( 4 ) };
+
+    constexpr std::array<std::pair<int, int>, eMaxCostIndex>
+        LowerBoundAndCountByFixedCost {
+            GetLowerBoundAndCountByFixedCost<CostSlotTemplateArgument>( 1 ),
+            GetLowerBoundAndCountByFixedCost<CostSlotTemplateArgument>( 3 ),
+            GetLowerBoundAndCountByFixedCost<CostSlotTemplateArgument>( 4 ) };
+
+    if ( !std::ranges::is_sorted( m_EffectiveEchos, []( auto&& EchoA, auto&& EchoB ) { return EchoA.Cost > EchoB.Cost; } ) )
     {
-        throw std::runtime_error( "GeneticAlgorithm: m_Echos is not sorted by cost" );
+        throw std::runtime_error( "GeneticAlgorithm: Echos is not sorted by cost" );
     }
 
-    if ( 2000 < m_Echos.size( ) )
+    if ( 2000 < m_EffectiveEchos.size( ) )
     {
-        throw std::runtime_error( "GeneticAlgorithm: m_Echos is too much" );
+        throw std::runtime_error( "GeneticAlgorithm: Too much echos" );
     }
 
     GARuntimeReport::DetailReportQueue& DetailReport = m_GAReport.DetailReports[ GAReportIndex ];
@@ -101,41 +178,13 @@ WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
     RNG random { std::random_device { }( ) };
 
     std::uniform_real_distribution<FloatTy> mutation_dist( 0, 1 );
-    // std::exponential_distribution<FloatTy>  crossover_dist( 1.0 );
     std::uniform_real_distribution<FloatTy> crossover_dist( 0, 1 );
 
-    constexpr std::array<int, 5> CountByFixedCost {
-        0,
-        GetCountByFixedCost<CostSlotTemplateArgument>( 1 ),
-        0,
-        GetCountByFixedCost<CostSlotTemplateArgument>( 3 ),
-        GetCountByFixedCost<CostSlotTemplateArgument>( 4 ) };
-
-    constexpr std::array<std::pair<int, int>, 5> LowerBoundAndCountByFixedCost {
-        std::pair<int, int> {0, 0},
-        GetLowerBoundAndCountByFixedCost<CostSlotTemplateArgument>( 1 ),
-        std::pair<int, int> {0, 0},
-        GetLowerBoundAndCountByFixedCost<CostSlotTemplateArgument>( 3 ),
-        GetLowerBoundAndCountByFixedCost<CostSlotTemplateArgument>( 4 )
-    };
-
-    std::vector<std::array<int, SlotCount>> IndicesPermutations;
-    IndicesPermutations.reserve( MaxPermutation * SlotCount );
-    {
-        std::array<int, SlotCount> Permutation;
-        std::ranges::iota( Permutation, 0 );
-        do
-        {
-            IndicesPermutations.push_back( Permutation );
-        } while ( std::ranges::next_permutation( Permutation ).found );
-    }
-
-    using EquipmentIndex = int;
-
-    std::vector<std::array<EquipmentIndex, SlotCount>> Population( m_PopulationSize );
+    std::vector<std::array<int, SlotCount>> IndicesPermutations = GeneratePermutations<SlotCount>( );
+    std::vector<std::array<int, SlotCount>> Population( m_PopulationSize );
 
     // Echos is pre sorted by cost
-    const auto EchoCounts = m_Echos
+    const auto EchoCounts = m_EffectiveEchos
         | std::views::chunk_by( []( auto& A, auto& B ) { return A.Cost == B.Cost; } )
         | std::views::transform( []( const auto& Range ) -> int { return std::ranges::distance( Range ); } )
         | std::ranges::to<std::vector>( );
@@ -143,29 +192,29 @@ WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
     const int AvailableThreeCount = EchoCounts[ 1 ];
     const int AvailableOneCount   = EchoCounts[ 2 ];
 
-    std::vector<int> AvailableEchoIndices( m_Echos.size( ) );
+    std::vector<int> AvailableEchoIndices( m_EffectiveEchos.size( ) );
     std::ranges::iota( AvailableEchoIndices, 0 );
 
     std::array<
         decltype( std::ranges::subrange( AvailableEchoIndices.begin( ), AvailableEchoIndices.end( ) ) ),
-        5>
+        eMaxCostIndex>
         EchoIndicesSubrangeByCost;
-    EchoIndicesSubrangeByCost[ 4 ] = { AvailableEchoIndices.begin( ), AvailableEchoIndices.begin( ) + AvailableFourCount };
-    EchoIndicesSubrangeByCost[ 3 ] = { AvailableEchoIndices.begin( ) + AvailableFourCount, AvailableEchoIndices.begin( ) + AvailableFourCount + AvailableThreeCount };
-    EchoIndicesSubrangeByCost[ 1 ] = { AvailableEchoIndices.begin( ) + AvailableFourCount + AvailableThreeCount, AvailableEchoIndices.end( ) };
+    EchoIndicesSubrangeByCost[ eCost4 ] = { AvailableEchoIndices.begin( ), AvailableEchoIndices.begin( ) + AvailableFourCount };
+    EchoIndicesSubrangeByCost[ eCost3 ] = { AvailableEchoIndices.begin( ) + AvailableFourCount, AvailableEchoIndices.begin( ) + AvailableFourCount + AvailableThreeCount };
+    EchoIndicesSubrangeByCost[ eCost1 ] = { AvailableEchoIndices.begin( ) + AvailableFourCount + AvailableThreeCount, AvailableEchoIndices.end( ) };
 
     {
         const auto Random4Cost = [ &EchoIndicesSubrangeByCost, &random ]( auto&& Count ) {
-            std::ranges::shuffle( EchoIndicesSubrangeByCost[ 4 ], random );
-            return std::ranges::subrange( EchoIndicesSubrangeByCost[ 4 ].begin( ), EchoIndicesSubrangeByCost[ 4 ].begin( ) + Count );
+            std::ranges::shuffle( EchoIndicesSubrangeByCost[ eCost4 ], random );
+            return std::ranges::subrange( EchoIndicesSubrangeByCost[ eCost4 ].begin( ), EchoIndicesSubrangeByCost[ eCost4 ].begin( ) + Count );
         };
         const auto Random3Cost = [ &EchoIndicesSubrangeByCost, &random ]( auto&& Count ) {
-            std::ranges::shuffle( EchoIndicesSubrangeByCost[ 3 ], random );
-            return std::ranges::subrange( EchoIndicesSubrangeByCost[ 3 ].begin( ), EchoIndicesSubrangeByCost[ 3 ].begin( ) + Count );
+            std::ranges::shuffle( EchoIndicesSubrangeByCost[ eCost3 ], random );
+            return std::ranges::subrange( EchoIndicesSubrangeByCost[ eCost3 ].begin( ), EchoIndicesSubrangeByCost[ eCost3 ].begin( ) + Count );
         };
         const auto Random1Cost = [ &EchoIndicesSubrangeByCost, &random ]( auto&& Count ) {
-            std::ranges::shuffle( EchoIndicesSubrangeByCost[ 1 ], random );
-            return std::ranges::subrange( EchoIndicesSubrangeByCost[ 1 ].begin( ), EchoIndicesSubrangeByCost[ 1 ].begin( ) + Count );
+            std::ranges::shuffle( EchoIndicesSubrangeByCost[ eCost1 ], random );
+            return std::ranges::subrange( EchoIndicesSubrangeByCost[ eCost1 ].begin( ), EchoIndicesSubrangeByCost[ eCost1 ].begin( ) + Count );
         };
 
         /*
@@ -177,11 +226,11 @@ WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
         {
             auto CopyBegin = Individual.begin( );
 
-            auto RandSubrange = Random4Cost( CountByFixedCost[ 4 ] );
+            auto RandSubrange = Random4Cost( CountByFixedCost[ eCost4 ] );
             CopyBegin         = std::ranges::copy( RandSubrange, CopyBegin ).out;
-            RandSubrange      = Random3Cost( CountByFixedCost[ 3 ] );
+            RandSubrange      = Random3Cost( CountByFixedCost[ eCost3 ] );
             CopyBegin         = std::ranges::copy( RandSubrange, CopyBegin ).out;
-            RandSubrange      = Random1Cost( CountByFixedCost[ 1 ] );
+            RandSubrange      = Random1Cost( CountByFixedCost[ eCost1 ] );
             /*****************/ std::ranges::copy( RandSubrange, CopyBegin );
         }
     }
@@ -196,10 +245,15 @@ WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
 
 
     // Pre-allocated memories
-    std::vector<std::pair<FloatTy, int64_t>> Fitness_Index( m_PopulationSize );
-    std::vector<std::pair<FloatTy, int64_t>> TopPopulationFitness_Index( m_ReproduceSize );
-    std::array<BoolArray<MaxEchoCount>, 5>   IndexSets;
-    std::array<std::vector<int>, 5>          ReproduceIndices;
+    std::vector<std::pair<FloatTy, int64_t>>           Fitness_Index( m_PopulationSize );
+    std::vector<std::pair<FloatTy, int64_t>>           TopPopulationFitness_Index( m_ReproduceSize );
+    std::array<BoolArray<MaxEchoCount>, eMaxCostIndex> IndexSets;
+    std::array<int, SlotCount>                         SortedIndicesBuffer;
+
+    std::array<PreAllocatedBuffer<
+                   int, std::ranges::max( CountByFixedCost ) * 2>,
+               eMaxCostIndex>
+        ReproduceIndices;
 
     Stopwatch SW;
 
@@ -216,7 +270,7 @@ WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
             const auto Fitness = std::ranges::fold_left(
                                      Population[ i ],
                                      EffectiveStats { }, [ this ]( auto&& Stat, int EchoIndex ) {
-                                         return Stat + m_Echos[ EchoIndex ];
+                                         return Stat + m_EffectiveEchos[ EchoIndex ];
                                      } )
                                      .ExpectedDamage( BaseAttack );
 
@@ -262,11 +316,10 @@ WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
             {
                 CombinationRecord NewRecord { .Value = TPFI.first, .SlotCount = SlotCount };
 
-                std::vector<int> SortedIndices( SlotCount );
-                std::ranges::copy( Population[ TPFI.second ], SortedIndices.begin( ) );
-                std::ranges::sort( SortedIndices );
+                std::ranges::copy( Population[ TPFI.second ], SortedIndicesBuffer.begin( ) );
+                std::ranges::sort( SortedIndicesBuffer );
                 for ( int i = 0; i < SlotCount; ++i )
-                    NewRecord.SetAt( SortedIndices[ i ], i );
+                    NewRecord.SetAt( SortedIndicesBuffer[ i ], i );
 
                 // need to sort by index
                 if ( !MinHeapMaxCombinationsSet.contains( NewRecord.CombinationData ) )
@@ -291,8 +344,8 @@ WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
              * Crossover
              *
              * */
-            const auto FirstPickIndex  = std::abs( static_cast<int>( crossover_dist( random ) * m_ReproduceSize ) % m_ReproduceSize );
-            const auto SecondPickIndex = std::abs( static_cast<int>( crossover_dist( random ) * m_ReproduceSize ) % m_ReproduceSize );
+            const auto FirstPickIndex  = static_cast<int>( crossover_dist( random ) * ( m_ReproduceSize - 1 ) );
+            const auto SecondPickIndex = static_cast<int>( crossover_dist( random ) * ( m_ReproduceSize - 1 ) );
 
             m_GAReport.ParentPickCount[ GAReportIndex ][ FirstPickIndex ]++;
             m_GAReport.ParentPickCount[ GAReportIndex ][ SecondPickIndex ]++;
@@ -301,43 +354,37 @@ WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
             ParentPopulationIndices[ 0 ] = TopPopulationFitness_Index[ FirstPickIndex ].second;
             ParentPopulationIndices[ 1 ] = TopPopulationFitness_Index[ SecondPickIndex ].second;
 
-            IndexSets[ 4 ].Reset( );
-            IndexSets[ 3 ].Reset( );
-            IndexSets[ 1 ].Reset( );
+            memset( IndexSets.data( ), 0, sizeof( IndexSets ) );
+            memset( ReproduceIndices.data( ), 0, sizeof( ReproduceIndices ) );
 
-            ReproduceIndices[ 4 ].clear( );
-            ReproduceIndices[ 3 ].clear( );
-            ReproduceIndices[ 1 ].clear( );
-
+            // Group parent to set
             for ( const auto& ParentIndex : ParentPopulationIndices )
             {
                 const auto& Parent   = Population[ ParentIndex ];
                 auto        ParentIt = Parent.begin( );
-                for ( int i = 0; i < CountByFixedCost[ 4 ]; ++i, ++ParentIt )
-                    if ( IndexSets[ 4 ].SetAt( *ParentIt ) )
-                        ReproduceIndices[ 4 ].push_back( *ParentIt );
-                for ( int i = 0; i < CountByFixedCost[ 3 ]; ++i, ++ParentIt )
-                    if ( IndexSets[ 3 ].SetAt( *ParentIt ) )
-                        ReproduceIndices[ 3 ].push_back( *ParentIt );
-                for ( int i = 0; i < CountByFixedCost[ 1 ]; ++i, ++ParentIt )
-                    if ( IndexSets[ 1 ].SetAt( *ParentIt ) )
-                        ReproduceIndices[ 1 ].push_back( *ParentIt );
+                for ( int CostIndex = eMaxCostIndex - 1; CostIndex >= 0; --CostIndex )
+                    for ( int i = 0; i < CountByFixedCost[ CostIndex ]; ++i, ++ParentIt )
+                        if ( IndexSets[ CostIndex ].SetAt( *ParentIt ) )
+                            ReproduceIndices[ CostIndex ].PushBack( *ParentIt );
             }
 
-            const auto AppendByIndices = []( auto& Indices, auto& Set, auto& It, int Count ) {
-                for ( int i = 0, ScanIndex = -1; i < Count; ++i, ++It )
+            // 14.147462
+            // Regenerate from set
+            int InsertIndex = 0;
+            for ( int CostIndex = eMaxCostIndex - 1; CostIndex >= 0; --CostIndex )
+            {
+                const auto& Indices = IndicesPermutations[ random( ) % MaxPermutation ];
+                const auto& Set     = ReproduceIndices[ CostIndex ];
+                const auto  Count   = CountByFixedCost[ CostIndex ];
+                for ( int i = 0, ScanIndex = -1; i < Count; ++i )
                 {
-                    while ( Indices[ ++ScanIndex ] >= Set.size( ) )
+                    while ( Indices[ ++ScanIndex ] >= Set.Size )
                         ;
-                    *It = Set[ Indices[ ScanIndex ] ];
+                    Individual[ InsertIndex + i ] = Set[ Indices[ ScanIndex ] ];
                 }
-            };
 
-            auto IndividualIt = Individual.begin( );
-            AppendByIndices( IndicesPermutations[ random( ) % MaxPermutation ], ReproduceIndices[ 4 ], IndividualIt, CountByFixedCost[ 4 ] );
-            AppendByIndices( IndicesPermutations[ random( ) % MaxPermutation ], ReproduceIndices[ 3 ], IndividualIt, CountByFixedCost[ 3 ] );
-            AppendByIndices( IndicesPermutations[ random( ) % MaxPermutation ], ReproduceIndices[ 1 ], IndividualIt, CountByFixedCost[ 1 ] );
-            assert( IndividualIt == Individual.end( ) );
+                InsertIndex += Count;
+            }
 
             /*
              *
@@ -347,7 +394,7 @@ WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
             int MutationTime = 0;
             while ( ++MutationTime <= SlotCount && mutation_dist( random ) < MutationProbability )
             {
-                const auto MutationAtCost = GetCostAt<CostSlotTemplateArgument>( random( ) % SlotCount );
+                const int MutationAtCost = CostToIndex( GetCostAt<CostSlotTemplateArgument>( random( ) % SlotCount ) );
 
                 auto [ MutationStart, MutationCount ] = LowerBoundAndCountByFixedCost[ MutationAtCost ];
 
@@ -386,6 +433,11 @@ void
 WuWaGA::Run( )
 {
     m_Threads.clear( );
+
+    m_EffectiveEchos =
+        m_Echos
+        | std::views::transform( ToEffectiveStats<eFireDamagePercentage, eAutoAttackDamagePercentage> )
+        | std::ranges::to<std::vector>( );
 
     // clang-format off
     m_Threads.emplace_back( std::make_unique<std::jthread>([&](){ Run< 4, 4, 4, 0, 0>( 0 , 500 );} ) );
