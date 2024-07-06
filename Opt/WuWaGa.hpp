@@ -43,7 +43,7 @@ private:
 
     template <char ElementType, char DamageType, int SlotCount>
     inline FloatTy
-    Calculatefitness( const std::array<int, SlotCount>& EffectiveCombination, const FloatTy BaseAttack );
+    CalculateFitness( const std::array<int, SlotCount>& EffectiveCombination, const FloatTy BaseAttack );
 
 public:
     static constexpr int ResultLength = 10;

@@ -140,7 +140,7 @@ struct PreAllocatedBuffer {
 
 template <char ElementType, char DamageType, int SlotCount>
 FloatTy
-WuWaGA::Calculatefitness( const std::array<int, SlotCount>& EffectiveCombination, const FloatTy BaseAttack )
+WuWaGA::CalculateFitness( const std::array<int, SlotCount>& EffectiveCombination, const FloatTy BaseAttack )
 {
     return std::ranges::fold_left(
                EffectiveCombination,
@@ -314,7 +314,7 @@ WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
             } else
             {
                 // First time calculating
-                Fitness = Calculatefitness<ElementType, DamageType>( Population[ i ], BaseAttack );
+                Fitness = CalculateFitness<ElementType, DamageType>( Population[ i ], BaseAttack );
 
                 StatsCache.insert( StatsCacheIt, { CombinationID, Fitness } );
             }
