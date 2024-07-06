@@ -6,6 +6,7 @@
 #include "Random.hpp"
 
 #include <unordered_map>
+#include <unordered_set>
 #include <stdexcept>
 #include <algorithm>
 #include <vector>
@@ -259,6 +260,7 @@ WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
 
     // Pre-allocated memories
     std::unordered_map<uint64_t, FloatTy>    StatsCache;
+    std::unordered_set<uint64_t>             ExistentialCache;
     std::vector<std::pair<FloatTy, int64_t>> Fitness_Index( m_PopulationSize );
     std::vector<std::pair<FloatTy, int64_t>> TopFitness_Index( m_ReproduceSize );
     std::array<PreAllocatedBuffer<
@@ -275,7 +277,7 @@ WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
          * Selection
          *
          * */
-        StatsCache.clear( );
+        ExistentialCache.clear( );
         TopFitness_Index.clear( );
         for ( int i = 0, top_count = 0; i < m_PopulationSize; ++i )
         {
@@ -285,19 +287,31 @@ WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
                 CombinationID |= (uint64_t) Population[ i ][ j ] << j * IndexBitsShift;
             }
 
-            if ( StatsCache.contains( CombinationID ) )
+            // Calculated in the current round
+            if ( ExistentialCache.contains( CombinationID ) )
             {
                 continue;
             }
 
-            const auto Fitness = std::ranges::fold_left(
-                                     Population[ i ],
-                                     EffectiveStats { }, [ this ]( auto&& Stat, int EchoIndex ) {
-                                         return Stat + m_EffectiveEchos[ EchoIndex ];
-                                     } )
-                                     .ExpectedDamage( BaseAttack );
+            FloatTy Fitness = 0;
 
-            StatsCache.insert( { CombinationID, Fitness } );
+            const auto StatsCacheIt = StatsCache.find( CombinationID );
+            if ( StatsCacheIt != StatsCache.end( ) )
+            {
+                // Use cached result
+                Fitness = StatsCacheIt->second;
+            } else
+            {
+                // First time calculating
+                Fitness = std::ranges::fold_left(
+                              Population[ i ],
+                              EffectiveStats { }, [ this ]( auto&& Stat, int EchoIndex ) {
+                                  return Stat + m_EffectiveEchos[ EchoIndex ];
+                              } )
+                              .ExpectedDamage( BaseAttack );
+
+                StatsCache.insert( StatsCacheIt, { CombinationID, Fitness } );
+            }
 
             if ( top_count < m_ReproduceSize )
             {
