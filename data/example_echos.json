@@ -27,7 +27,7 @@
       "Cost": 4,
       "CritDamage": 0.08799999952316284,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 30.0,
@@ -224,7 +224,7 @@
       "Cost": 4,
       "CritRate": 0.04399999976158142,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 30.0,
@@ -245,7 +245,7 @@
       "AttackPercentage": 0.06599999964237213,
       "Cost": 4,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 30.0,
@@ -259,7 +259,7 @@
       "Cost": 4,
       "HealthPercentage": 0.06599999964237213,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 30.0,
@@ -273,7 +273,7 @@
       "AttackPercentage": 0.06599999964237213,
       "Cost": 4,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 30.0,
@@ -301,7 +301,7 @@
       "Cost": 4,
       "CritRate": 0.032999999821186066,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 30.0,
@@ -322,7 +322,7 @@
       "Cost": 4,
       "DefencePercentage": 0.08299999684095383,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 30.0,
@@ -364,7 +364,7 @@
       "Health": 228.0,
       "HealthPercentage": 0.03400000184774399,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -548,7 +548,7 @@
       "Cost": 1,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -583,7 +583,7 @@
       "Cost": 3,
       "FireDamagePercentage": 0.05999999865889549,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "AttackPercentage": 0.035999998450279236,
@@ -604,7 +604,7 @@
       "Cost": 4,
       "CritDamage": 0.08799999952316284,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 30.0,
@@ -653,7 +653,7 @@
       "Cost": 3,
       "Level": 0,
       "LightDamagePercentage": 0.05999999865889549,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -695,7 +695,7 @@
       "Health": 450.0,
       "HealthPercentage": 0.04500000178813934,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -723,7 +723,7 @@
       "AttackPercentage": 0.05999999865889549,
       "Cost": 3,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -863,7 +863,7 @@
       "Health": 450.0,
       "HealthPercentage": 0.04500000178813934,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -905,7 +905,7 @@
       "DefencePercentage": 0.035999998450279236,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 20.0,
@@ -954,7 +954,7 @@
       "DefencePercentage": 0.035999998450279236,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -968,7 +968,7 @@
       "Health": 450.0,
       "HealthPercentage": 0.04500000178813934,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 30.0,
@@ -1104,7 +1104,7 @@
       "Health": 450.0,
       "HealthPercentage": 0.04500000178813934,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 20.0,
@@ -1132,7 +1132,7 @@
       "Cost": 3,
       "FireDamagePercentage": 0.05999999865889549,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -1181,7 +1181,7 @@
       "Health": 450.0,
       "HealthPercentage": 0.04500000178813934,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -1237,7 +1237,7 @@
       "Cost": 4,
       "CritDamage": 0.08799999952316284,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -1321,7 +1321,7 @@
       "Cost": 1,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -1406,7 +1406,7 @@
       "DefencePercentage": 0.035999998450279236,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -1441,7 +1441,7 @@
       "Cost": 3,
       "DefencePercentage": 0.07599999755620956,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 20.0,
@@ -1476,14 +1476,14 @@
       "Cost": 1,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
       "DefencePercentage": 0.035999998450279236,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -1525,7 +1525,7 @@
       "Health": 450.0,
       "HealthPercentage": 0.04500000178813934,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "AttackPercentage": 0.035999998450279236,
@@ -1546,7 +1546,7 @@
       "Health": 450.0,
       "HealthPercentage": 0.04500000178813934,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "AttackPercentage": 0.035999998450279236,
@@ -1581,7 +1581,7 @@
       "Cost": 3,
       "IceDamagePercentage": 0.05999999865889549,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 20.0,
@@ -1956,7 +1956,7 @@
       "Cost": 1,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "AttackPercentage": 0.035999998450279236,
@@ -1970,7 +1970,7 @@
       "Cost": 1,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -2005,7 +2005,7 @@
       "Cost": 4,
       "CritRate": 0.04399999976158142,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -2061,7 +2061,7 @@
       "Cost": 1,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -2159,7 +2159,7 @@
       "Health": 450.0,
       "HealthPercentage": 0.04500000178813934,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 20.0,
@@ -2173,7 +2173,7 @@
       "Cost": 1,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -2187,7 +2187,7 @@
       "Cost": 3,
       "IceDamagePercentage": 0.05999999865889549,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "AttackPercentage": 0.035999998450279236,
@@ -2586,7 +2586,7 @@
       "Health": 450.0,
       "HealthPercentage": 0.04500000178813934,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "AirDamagePercentage": 0.05999999865889549,
@@ -2614,7 +2614,7 @@
       "Cost": 1,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 20.0,
@@ -2642,7 +2642,7 @@
       "Attack": 20.0,
       "Cost": 3,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -2785,7 +2785,7 @@
       "Cost": 1,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 20.0,
@@ -2834,7 +2834,7 @@
       "Health": 450.0,
       "HealthPercentage": 0.04500000178813934,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 20.0,
@@ -2862,7 +2862,7 @@
       "Health": 450.0,
       "HealthPercentage": 0.04500000178813934,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 20.0,
@@ -2921,7 +2921,7 @@
       "DefencePercentage": 0.035999998450279236,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 20.0,
@@ -2942,7 +2942,7 @@
       "Cost": 1,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -2963,7 +2963,7 @@
       "Cost": 1,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -3100,7 +3100,7 @@
       "AttackPercentage": 0.05999999865889549,
       "Cost": 3,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -3184,7 +3184,7 @@
       "Cost": 3,
       "ElectricDamagePercentage": 0.05999999865889549,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 20.0,
@@ -3226,7 +3226,7 @@
       "Cost": 1,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -3289,7 +3289,7 @@
       "Cost": 3,
       "HealthPercentage": 0.05999999865889549,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "AttackPercentage": 0.035999998450279236,
@@ -3387,7 +3387,7 @@
       "DefencePercentage": 0.035999998450279236,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "AttackPercentage": 0.035999998450279236,
@@ -3629,7 +3629,7 @@
       "DefencePercentage": 0.035999998450279236,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -3692,7 +3692,7 @@
       "Cost": 3,
       "ElectricDamagePercentage": 0.05999999865889549,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 20.0,
@@ -3871,7 +3871,7 @@
       "Cost": 3,
       "IceDamagePercentage": 0.05999999865889549,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "AirDamagePercentage": 0.05999999865889549,
@@ -4065,14 +4065,14 @@
       "Cost": 1,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 20.0,
       "Cost": 3,
       "ElectricDamagePercentage": 0.05999999865889549,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -4086,7 +4086,7 @@
       "Cost": 3,
       "HealthPercentage": 0.05999999865889549,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 20.0,
@@ -4118,14 +4118,14 @@
       "Health": 450.0,
       "HealthPercentage": 0.04500000178813934,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 20.0,
       "Cost": 3,
       "Level": 0,
       "LightDamagePercentage": 0.05999999865889549,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -4139,7 +4139,7 @@
       "DefencePercentage": 0.035999998450279236,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -4167,7 +4167,7 @@
       "Cost": 3,
       "Level": 0,
       "LightDamagePercentage": 0.05999999865889549,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 20.0,
@@ -4181,14 +4181,14 @@
       "Cost": 1,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 20.0,
       "Cost": 3,
       "HealthPercentage": 0.05999999865889549,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "AttackPercentage": 0.035999998450279236,
@@ -4230,7 +4230,7 @@
       "Cost": 3,
       "Level": 0,
       "RegenPercentage": 0.06400000303983688,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "AttackPercentage": 0.035999998450279236,
@@ -4258,14 +4258,14 @@
       "Cost": 1,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "AttackPercentage": 0.035999998450279236,
       "Cost": 1,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -4279,7 +4279,7 @@
       "Cost": 1,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -4330,7 +4330,7 @@
       "Cost": 1,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "AttackPercentage": 0.035999998450279236,
@@ -4414,14 +4414,14 @@
       "Cost": 3,
       "Level": 0,
       "RegenPercentage": 0.06400000303983688,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
       "DefencePercentage": 0.035999998450279236,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -4435,14 +4435,14 @@
       "Cost": 3,
       "ElectricDamagePercentage": 0.05999999865889549,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
       "Health": 450.0,
       "HealthPercentage": 0.04500000178813934,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 20.0,
@@ -4477,7 +4477,7 @@
       "Health": 450.0,
       "HealthPercentage": 0.04500000178813934,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 124.0,
@@ -4486,7 +4486,7 @@
       "DarkDamagePercentage": 0.25200000405311584,
       "HealthPercentage": 0.09399999678134918,
       "Level": 20,
-      "Set": "eSunSinkingEclipses",
+      "Set": "eSunSinkingEclipse",
       "SkillDamagePercentage": 0.06400000303983688
     },
     {
@@ -4508,7 +4508,7 @@
       "Health": 450.0,
       "HealthPercentage": 0.04500000178813934,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 20.0,
@@ -4606,7 +4606,7 @@
       "Cost": 3,
       "FireDamagePercentage": 0.05999999865889549,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "AirDamagePercentage": 0.05999999865889549,
@@ -4711,7 +4711,7 @@
       "Cost": 1,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "AttackPercentage": 0.035999998450279236,
@@ -4826,7 +4826,7 @@
       "DefencePercentage": 0.035999998450279236,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 20.0,
@@ -4892,7 +4892,7 @@
       "Health": 450.0,
       "HealthPercentage": 0.04500000178813934,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 20.0,
@@ -4906,7 +4906,7 @@
       "Health": 450.0,
       "HealthPercentage": 0.04500000178813934,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "AttackPercentage": 0.22300000488758087,
@@ -4922,7 +4922,7 @@
       "AttackPercentage": 0.06599999964237213,
       "Cost": 4,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 30.0,
@@ -4999,7 +4999,7 @@
       "DefencePercentage": 0.035999998450279236,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 20.0,
@@ -5097,7 +5097,7 @@
       "DefencePercentage": 0.035999998450279236,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -5111,14 +5111,14 @@
       "Cost": 4,
       "HealthPercentage": 0.06599999964237213,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 30.0,
       "Cost": 4,
       "DefencePercentage": 0.08299999684095383,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 30.0,
@@ -5223,7 +5223,7 @@
       "Cost": 1,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -5265,70 +5265,70 @@
       "Cost": 4,
       "CritDamage": 0.08799999952316284,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 30.0,
       "Cost": 4,
       "HealBonusPercentage": 0.052000001072883606,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 30.0,
       "Cost": 4,
       "CritDamage": 0.08799999952316284,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 30.0,
       "Cost": 4,
       "CritDamage": 0.08799999952316284,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 30.0,
       "Cost": 4,
       "CritDamage": 0.08799999952316284,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 30.0,
       "Cost": 4,
       "DefencePercentage": 0.08299999684095383,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 30.0,
       "Cost": 4,
       "CritDamage": 0.08799999952316284,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 30.0,
       "Cost": 4,
       "CritDamage": 0.08799999952316284,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 30.0,
       "Cost": 4,
       "CritDamage": 0.08799999952316284,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 30.0,
       "AttackPercentage": 0.06599999964237213,
       "Cost": 4,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 30.0,
@@ -5453,7 +5453,7 @@
       "Health": 450.0,
       "HealthPercentage": 0.04500000178813934,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "AttackPercentage": 0.035999998450279236,
@@ -5502,7 +5502,7 @@
       "DefencePercentage": 0.035999998450279236,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "AttackPercentage": 0.25999999046325684,
@@ -5587,21 +5587,21 @@
       "DefencePercentage": 0.035999998450279236,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
       "DefencePercentage": 0.035999998450279236,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 20.0,
       "Cost": 3,
       "Level": 0,
       "LightDamagePercentage": 0.05999999865889549,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "AirDamagePercentage": 0.05999999865889549,
@@ -5664,7 +5664,7 @@
       "Cost": 1,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 20.0,
@@ -5682,7 +5682,7 @@
       "DefencePercentage": 0.10000000149011612,
       "HealthPercentage": 0.07100000232458115,
       "Level": 20,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 30.0,
@@ -5703,14 +5703,14 @@
       "Health": 450.0,
       "HealthPercentage": 0.04500000178813934,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 20.0,
       "Cost": 3,
       "IceDamagePercentage": 0.05999999865889549,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -5724,7 +5724,7 @@
       "DefencePercentage": 0.035999998450279236,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -5766,7 +5766,7 @@
       "Cost": 1,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 20.0,
@@ -5808,14 +5808,14 @@
       "Cost": 3,
       "DefencePercentage": 0.07599999755620956,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
       "Health": 450.0,
       "HealthPercentage": 0.04500000178813934,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -5921,21 +5921,21 @@
       "Cost": 3,
       "DefencePercentage": 0.07599999755620956,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 20.0,
       "Cost": 3,
       "Level": 0,
       "LightDamagePercentage": 0.05999999865889549,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 20.0,
       "AttackPercentage": 0.05999999865889549,
       "Cost": 3,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 50.0,
@@ -6017,7 +6017,7 @@
       "Cost": 1,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 150.0,
@@ -6057,7 +6057,7 @@
       "Cost": 1,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 30.0,
@@ -6071,7 +6071,7 @@
       "Health": 450.0,
       "HealthPercentage": 0.04500000178813934,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 107.0,
@@ -6121,7 +6121,7 @@
       "Health": 450.0,
       "HealthPercentage": 0.04500000178813934,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 20.0,
@@ -6177,7 +6177,7 @@
       "DefencePercentage": 0.035999998450279236,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "AirDamagePercentage": 0.05999999865889549,
@@ -6198,7 +6198,7 @@
       "Health": 450.0,
       "HealthPercentage": 0.04500000178813934,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -6236,7 +6236,7 @@
       "Health": 2280.0,
       "HealthPercentage": 0.09399999678134918,
       "Level": 25,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -6360,7 +6360,7 @@
       "HeavyAttackPercentage": 0.07100000232458115,
       "Level": 25,
       "RegenPercentage": 0.08399999886751175,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 20.0,
@@ -6384,14 +6384,14 @@
       "HeavyAttackPercentage": 0.0860000029206276,
       "Level": 25,
       "RegenPercentage": 0.06800000369548798,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 30.0,
       "Cost": 4,
       "DefencePercentage": 0.08299999684095383,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -6405,7 +6405,7 @@
       "Cost": 3,
       "FireDamagePercentage": 0.05999999865889549,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -6419,14 +6419,14 @@
       "Cost": 4,
       "DefencePercentage": 0.08299999684095383,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
       "DefencePercentage": 0.035999998450279236,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 30.0,
@@ -6620,7 +6620,7 @@
       "Health": 450.0,
       "HealthPercentage": 0.04500000178813934,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 20.0,
@@ -6641,7 +6641,7 @@
       "DefencePercentage": 0.035999998450279236,
       "Health": 450.0,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Cost": 1,
@@ -6789,7 +6789,7 @@
       "Health": 228.0,
       "HealthPercentage": 0.03400000184774399,
       "Level": 0,
-      "Set": "eSunSinkingEclipses"
+      "Set": "eSunSinkingEclipse"
     },
     {
       "Attack": 22.0,

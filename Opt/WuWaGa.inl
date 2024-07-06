@@ -138,18 +138,6 @@ struct PreAllocatedBuffer {
     }
 };
 
-template <char ElementType, char DamageType, int SlotCount>
-FloatTy
-WuWaGA::CalculateFitness( const std::array<int, SlotCount>& EffectiveCombination, const FloatTy BaseAttack )
-{
-    return std::ranges::fold_left(
-               EffectiveCombination,
-               EffectiveStats { }, [ this ]( auto&& Stat, int EchoIndex ) {
-                   return Stat + m_EffectiveEchos[ EchoIndex ];
-               } )
-        .ExpectedDamage( BaseAttack );
-}
-
 template <char ElementType, char DamageType, CostSlotTemplate>
 void
 WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
@@ -314,7 +302,12 @@ WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
             } else
             {
                 // First time calculating
-                Fitness = CalculateFitness<ElementType, DamageType>( Population[ i ], BaseAttack );
+                Fitness = CalculateCombinationalStat<ElementType>(
+                              Population[ i ]
+                              | std::views::transform( [ this ]( int EchoIndex ) {
+                                    return m_EffectiveEchos[ EchoIndex ];
+                                } ) )
+                              .ExpectedDamage( BaseAttack );
 
                 StatsCache.insert( StatsCacheIt, { CombinationID, Fitness } );
             }

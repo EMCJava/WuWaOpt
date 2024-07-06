@@ -8,95 +8,150 @@
 #include <tuple>
 #include <limits>
 
-#include <nlohmann/json.hpp>
-using json = nlohmann::json;
-
-enum EchoSet : uint8_t {
-    eFreezingFrost,
-    eMoltenRift,
-    eVoidThunder,
-    eSierraGale,
-    eCelestialLight,
-    eSunSinkingEclipses,
-    eRejuvenatingGlow,
-    eMoonlitClouds,
-    eLingeringTunes,
-    eEchoSetCount,
-    eEchoSetNone = eEchoSetCount
-};
-
-NLOHMANN_JSON_SERIALIZE_ENUM( EchoSet, {
-                                           {     eFreezingFrost,      "eFreezingFrost"},
-                                           {        eMoltenRift,         "eMoltenRift"},
-                                           {       eVoidThunder,        "eVoidThunder"},
-                                           {        eSierraGale,         "eSierraGale"},
-                                           {    eCelestialLight,     "eCelestialLight"},
-                                           {eSunSinkingEclipses, "eSunSinkingEclipses"},
-                                           {  eRejuvenatingGlow,   "eRejuvenatingGlow"},
-                                           {     eMoonlitClouds,      "eMoonlitClouds"},
-                                           {    eLingeringTunes,     "eLingeringTunes"},
-                                           {       eEchoSetNone,        "eEchoSetNone"}
-} )
-
-constexpr std::array<std::tuple<int, int, int>, eEchoSetCount> EchoSetColorIndicators = {
-    std::make_tuple( 66, 178, 255 ),
-    std::make_tuple( 245, 118, 79 ),
-    std::make_tuple( 182, 108, 255 ),
-    std::make_tuple( 86, 255, 183 ),
-    std::make_tuple( 247, 228, 107 ),
-    std::make_tuple( 204, 141, 181 ),
-    std::make_tuple( 135, 189, 41 ),
-    std::make_tuple( 255, 255, 255 ),
-    std::make_tuple( 202, 44, 37 ),
-};
-
-
-constexpr auto
-ColorIndicatorsMinDifferent( ) noexcept
+// Assume all conditions are met, max buff applies
+template <EchoSet Set>
+inline void
+ApplyTwoSetEffect( EffectiveStats& Stats )
 {
-    int SmallestDistance = std::numeric_limits<int>::max( );
-    for ( const auto& A : EchoSetColorIndicators )
-    {
-        for ( const auto& B : EchoSetColorIndicators )
-        {
-            const auto XDistance = std::get<0>( A ) - std::get<0>( B );
-            const auto YDistance = std::get<1>( A ) - std::get<1>( B );
-            const auto ZDistance = std::get<2>( A ) - std::get<2>( B );
-
-            const auto Distance = XDistance * XDistance + YDistance * YDistance + ZDistance * ZDistance;
-            if ( Distance != 0 && Distance < SmallestDistance )
-            {
-                SmallestDistance = Distance;
-            }
-        }
-    }
-
-    return SmallestDistance;
+    Stats.buff_multiplier += 0.1f;
 }
 
-constexpr EchoSet
-MatchColorToSet( std::tuple<int, int, int> Color ) noexcept
+template <>
+inline void
+ApplyTwoSetEffect<eLingeringTunes>( EffectiveStats& Stats )
 {
-    int SmallestDistance   = std::numeric_limits<int>::max( );
-    int SmallestDistanceAt = -1;
-    for ( int i = 0; i < eEchoSetCount; ++i )
-    {
-        const auto XDistance = std::get<0>( EchoSetColorIndicators[ i ] ) - std::get<0>( Color );
-        const auto YDistance = std::get<1>( EchoSetColorIndicators[ i ] ) - std::get<1>( Color );
-        const auto ZDistance = std::get<2>( EchoSetColorIndicators[ i ] ) - std::get<2>( Color );
+    Stats.percentage_attack += 0.1f;
+}
 
-        const auto Distance = XDistance * XDistance + YDistance * YDistance + ZDistance * ZDistance;
-        if ( Distance < SmallestDistance )
+template <>
+inline void
+ApplyTwoSetEffect<eMoonlitClouds>( EffectiveStats& Stats )
+{
+    Stats.regen += 0.1f;
+}
+
+template <>
+inline void
+ApplyTwoSetEffect<eRejuvenatingGlow>( EffectiveStats& Stats )
+{
+    /* Healing Bonus increased by 10%. */
+}
+
+// Assume all conditions are met, max buff applies
+template <EchoSet Set>
+inline void
+ApplyFiveSetEffect( EffectiveStats& Stats )
+{
+    Stats.buff_multiplier += 0.3f;
+}
+
+template <>
+inline void
+ApplyFiveSetEffect<eRejuvenatingGlow>( EffectiveStats& Stats )
+{
+    /* When performing the Outro Skill, the ATK of the entire team's Resonator increases by 15%, lasting 30 seconds. */
+}
+
+template <>
+inline void
+ApplyFiveSetEffect<eMoonlitClouds>( EffectiveStats& Stats )
+{
+    /* After using an Outro Skill, the ATK of the next Resonator to enter the field increases by 22.5%, lasting 15 seconds. */
+}
+
+template <>
+inline void
+ApplyFiveSetEffect<eLingeringTunes>( EffectiveStats& Stats )
+{
+    Stats.percentage_attack += 0.2f;
+}
+
+template <EchoSet Set>
+inline void
+ApplySetEffect( EffectiveStats& Stats, int SetCount )
+{
+    if ( SetCount >= 2 )
+    {
+        ApplyTwoSetEffect<Set>( Stats );
+
+        if ( SetCount >= 5 )
         {
-            SmallestDistance   = Distance;
-            SmallestDistanceAt = i;
+            ApplyFiveSetEffect<Set>( Stats );
         }
     }
+}
 
-    if ( SmallestDistance >= ColorIndicatorsMinDifferent( ) / 4 )
+template <int Index, EchoSet Set, EchoSet... Sets>
+inline void
+CountSet( auto& Counter, char ActualSet )
+{
+    if ( ActualSet == Set ) Counter[ Index ]++;
+    if constexpr ( sizeof...( Sets ) > 0 )
+        CountSet<Index + 1, Sets...>( Counter, ActualSet );
+}
+
+template <int Index, EchoSet Set, EchoSet... Sets>
+inline void
+ApplyAllSetByCount( EffectiveStats& Stat, auto& SetCounts )
+{
+    ApplySetEffect<Set>( Stat, SetCounts[ Index ] );
+    if constexpr ( sizeof...( Sets ) > 0 )
+        ApplyAllSetByCount<Index + 1, Sets...>( Stat, SetCounts );
+}
+
+template <EchoSet... Sets>
+inline EffectiveStats
+CountAndApplySets( auto&& EffectiveStatRanges )
+{
+    constexpr int RelatedSetCount = sizeof...( Sets );
+
+    std::array<int, RelatedSetCount> SetCounts { };
+
+    EffectiveStats CombinationalStats { };
+    for ( const auto& EffectiveStat : EffectiveStatRanges )
     {
-        return eEchoSetNone;
+        CountSet<0, Sets...>( SetCounts, EffectiveStat.Set );
+        CombinationalStats += EffectiveStat;
     }
 
-    return (EchoSet) SmallestDistanceAt;
+    ApplyAllSetByCount<0, Sets...>( CombinationalStats, SetCounts );
+
+    return CombinationalStats;
+}
+
+template <char ElementType>
+inline EffectiveStats
+CalculateCombinationalStat( auto&& EffectiveStatRanges )
+{
+#define SWITCH_TYPE( type ) \
+    if constexpr ( ElementType == e##type )
+
+    SWITCH_TYPE( FireDamagePercentage )
+    {
+        return CountAndApplySets<eMoltenRift, eMoonlitClouds, eLingeringTunes>( EffectiveStatRanges );
+    }
+    else SWITCH_TYPE( AirDamagePercentage )
+    {
+        return CountAndApplySets<eSierraGale, eMoonlitClouds, eLingeringTunes>( EffectiveStatRanges );
+    }
+    else SWITCH_TYPE( IceDamagePercentage )
+    {
+        return CountAndApplySets<eFreezingFrost, eMoonlitClouds, eLingeringTunes>( EffectiveStatRanges );
+    }
+    else SWITCH_TYPE( ElectricDamagePercentage )
+    {
+        return CountAndApplySets<eVoidThunder, eMoonlitClouds, eLingeringTunes>( EffectiveStatRanges );
+    }
+    else SWITCH_TYPE( DarkDamagePercentage )
+    {
+        return CountAndApplySets<eSunSinkingEclipse, eMoonlitClouds, eLingeringTunes>( EffectiveStatRanges );
+    }
+    else SWITCH_TYPE( LightDamagePercentage )
+    {
+        return CountAndApplySets<eCelestialLight, eMoonlitClouds, eLingeringTunes>( EffectiveStatRanges );
+    }
+
+#undef SWITCH_TYPE
+
+    std::unreachable( );
 }

@@ -41,10 +41,6 @@ private:
     void
     Run( int GAReportIndex, FloatTy BaseAttack );
 
-    template <char ElementType, char DamageType, int SlotCount>
-    inline FloatTy
-    CalculateFitness( const std::array<int, SlotCount>& EffectiveCombination, const FloatTy BaseAttack );
-
 public:
     static constexpr int ResultLength = 10;
 
