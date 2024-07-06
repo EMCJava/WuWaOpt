@@ -78,7 +78,7 @@ main( )
     } );
 
     WuWaGA Opt( FullStatsList );
-    Opt.Run( );
+    Opt.Run<eFireDamagePercentage, eAutoAttackDamagePercentage>( 500 );
 
     sf::RenderWindow window( sf::VideoMode( 640, 650 ), "WuWa Optimize" );
     window.setFramerateLimit( 60 );

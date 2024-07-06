@@ -11,7 +11,7 @@
 #include <array>
 #include <set>
 
-#define CostSlotTemplate         template <int CostAt1, int CostAt2, int CostAt3, int CostAt4, int CostAt5>
+#define CostSlotTemplate         int CostAt1, int CostAt2, int CostAt3, int CostAt4, int CostAt5
 #define CostSlotTemplateArgument CostAt1, CostAt2, CostAt3, CostAt4, CostAt5
 
 struct GARuntimeReport {
@@ -37,7 +37,8 @@ struct GARuntimeReport {
 class WuWaGA
 {
 private:
-    CostSlotTemplate void
+    template <char ElementType, char DamageType, CostSlotTemplate>
+    void
     Run( int GAReportIndex, FloatTy BaseAttack );
 
 public:
@@ -52,7 +53,8 @@ public:
         return m_GAReport;
     }
 
-    void Run( );
+    template <char ElementType, char DamageType>
+    void Run( FloatTy BaseAttack );
 
 protected:
     GARuntimeReport m_GAReport;
@@ -64,3 +66,5 @@ protected:
     const std::vector<FullStats>& m_Echos;
     std::vector<EffectiveStats>   m_EffectiveEchos;
 };
+
+#include "WuWaGa.inl"

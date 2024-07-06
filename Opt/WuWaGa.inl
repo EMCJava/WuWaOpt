@@ -31,7 +31,8 @@ CostToIndex( int Cost )
     std::unreachable( );
 }
 
-CostSlotTemplate constexpr int
+template <CostSlotTemplate>
+constexpr int
 GetSlotCount( )
 {
     constexpr std::array<int, 5> Costs { CostSlotTemplateArgument };
@@ -40,7 +41,8 @@ GetSlotCount( )
     return 5;
 }
 
-CostSlotTemplate constexpr int
+template <CostSlotTemplate>
+constexpr int
 GetCountByFixedCost( int Cost )
 {
     constexpr std::array<int, 5> Costs { CostSlotTemplateArgument };
@@ -51,7 +53,8 @@ GetCountByFixedCost( int Cost )
     return Result;
 }
 
-CostSlotTemplate constexpr std::pair<int, int>
+template <CostSlotTemplate>
+constexpr std::pair<int, int>
 GetLowerBoundAndCountByFixedCost( int Cost )
 {
     constexpr std::array<int, 5> Costs { CostSlotTemplateArgument };
@@ -73,7 +76,8 @@ GetLowerBoundAndCountByFixedCost( int Cost )
     return { LowerBound == -1 ? 0 : LowerBound, Count };
 }
 
-CostSlotTemplate constexpr int
+template <CostSlotTemplate>
+constexpr int
 GetCostAt( int Index )
 {
     constexpr std::array<int, 5> Costs { CostSlotTemplateArgument };
@@ -134,7 +138,8 @@ struct PreAllocatedBuffer {
     }
 };
 
-CostSlotTemplate void
+template <char ElementType, char DamageType, CostSlotTemplate>
+void
 WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
 {
     static constexpr int MaxEchoCount     = 2000;
@@ -496,27 +501,28 @@ WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
     MutationProbability = -1;
 }
 
+template <char ElementType, char DamageType>
 void
-WuWaGA::Run( )
+WuWaGA::Run( FloatTy BaseAttack )
 {
     m_Threads.clear( );
 
     m_EffectiveEchos =
         m_Echos
-        | std::views::transform( ToEffectiveStats<eFireDamagePercentage, eAutoAttackDamagePercentage> )
+        | std::views::transform( ToEffectiveStats<ElementType, DamageType> )
         | std::ranges::to<std::vector>( );
 
     // clang-format off
-    m_Threads.emplace_back( std::make_unique<std::jthread>([&](){ Run< 4, 4, 4, 0, 0>( 0 , 500 );} ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>([&](){ Run< 4, 4, 3, 1, 0>( 1 , 500 );} ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>([&](){ Run< 3, 3, 3, 3, 0>( 2 , 500 );} ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>([&](){ Run< 4, 4, 1, 1, 1>( 3 , 500 );} ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>([&](){ Run< 4, 1, 1, 1, 1>( 4 , 500 );} ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>([&](){ Run< 4, 3, 3, 1, 1>( 5 , 500 );} ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>([&](){ Run< 4, 3, 1, 1, 1>( 6 , 500 );} ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>([&](){ Run< 3, 1, 1, 1, 1>( 7 , 500 );} ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>([&](){ Run< 3, 3, 1, 1, 1>( 8 , 500 );} ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>([&](){ Run< 3, 3, 3, 1, 1>( 9 , 500 );} ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>([&](){ Run< 1, 1, 1, 1, 1>( 10, 500 );} ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>( [ =, this ]( ) { Run<ElementType, DamageType, 4, 4, 4, 0, 0>(  0, BaseAttack ); } ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>( [ =, this ]( ) { Run<ElementType, DamageType, 4, 4, 3, 1, 0>(  1, BaseAttack ); } ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>( [ =, this ]( ) { Run<ElementType, DamageType, 3, 3, 3, 3, 0>(  2, BaseAttack ); } ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>( [ =, this ]( ) { Run<ElementType, DamageType, 4, 4, 1, 1, 1>(  3, BaseAttack ); } ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>( [ =, this ]( ) { Run<ElementType, DamageType, 4, 1, 1, 1, 1>(  4, BaseAttack ); } ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>( [ =, this ]( ) { Run<ElementType, DamageType, 4, 3, 3, 1, 1>(  5, BaseAttack ); } ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>( [ =, this ]( ) { Run<ElementType, DamageType, 4, 3, 1, 1, 1>(  6, BaseAttack ); } ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>( [ =, this ]( ) { Run<ElementType, DamageType, 3, 1, 1, 1, 1>(  7, BaseAttack ); } ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>( [ =, this ]( ) { Run<ElementType, DamageType, 3, 3, 1, 1, 1>(  8, BaseAttack ); } ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>( [ =, this ]( ) { Run<ElementType, DamageType, 3, 3, 3, 1, 1>(  9, BaseAttack ); } ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>( [ =, this ]( ) { Run<ElementType, DamageType, 1, 1, 1, 1, 1>( 10, BaseAttack ); } ) );
     // clang-format on
 }
