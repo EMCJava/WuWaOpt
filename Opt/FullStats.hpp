@@ -106,6 +106,7 @@ struct EffectiveStats {
     EchoSet Set               = eFreezingFrost;
     int     Cost              = 0;
     FloatTy flat_attack       = 0;
+    FloatTy regen             = 0;
     FloatTy percentage_attack = 0;
     FloatTy buff_multiplier   = 0;
     FloatTy crit_rate         = 0;
@@ -117,6 +118,7 @@ struct EffectiveStats {
 
         Cost += Other.Cost;
         flat_attack += Other.flat_attack;
+        regen += Other.regen;
         percentage_attack += Other.percentage_attack;
         buff_multiplier += Other.buff_multiplier;
         crit_rate += Other.crit_rate;
@@ -131,6 +133,7 @@ struct EffectiveStats {
             eEchoSetNone,
             Cost + Other.Cost,
             flat_attack + Other.flat_attack,
+            regen + Other.regen,
             percentage_attack + Other.percentage_attack,
             buff_multiplier + Other.buff_multiplier,
             crit_rate + Other.crit_rate,
@@ -143,6 +146,7 @@ struct EffectiveStats {
             eEchoSetNone,
             Cost - Other.Cost,
             flat_attack - Other.flat_attack,
+            regen - Other.regen,
             percentage_attack - Other.percentage_attack,
             buff_multiplier - Other.buff_multiplier,
             crit_rate - Other.crit_rate,
@@ -156,6 +160,7 @@ struct EffectiveStats {
         if ( Set != Other.Set ) return false;
         if ( Cost != Other.Cost ) return false;
         if ( !CLOSE( flat_attack, Other.flat_attack ) ) return false;
+        if ( !CLOSE( regen, Other.regen ) ) return false;
         if ( !CLOSE( percentage_attack, Other.percentage_attack ) ) return false;
         if ( !CLOSE( buff_multiplier, Other.buff_multiplier ) ) return false;
         if ( !CLOSE( crit_rate, Other.crit_rate ) ) return false;
@@ -387,6 +392,7 @@ ToEffectiveStats( const FullStats& MatchResult )
         .Set               = MatchResult.Set,
         .Cost              = MatchResult.Cost,
         .flat_attack       = MatchResult.Attack,
+        .regen             = MatchResult.RegenPercentage,
         .percentage_attack = MatchResult.AttackPercentage,
         .buff_multiplier =
             MatchResult.*GetElementBonusPtr<ElementType>( )
