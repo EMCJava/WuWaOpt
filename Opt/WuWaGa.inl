@@ -2,7 +2,6 @@
 // Created by EMCJava on 6/16/2024.
 //
 
-#include "WuWaGa.hpp"
 #include "Random.hpp"
 
 #include <unordered_map>
@@ -138,6 +137,18 @@ struct PreAllocatedBuffer {
         return Buffer[ Index ];
     }
 };
+
+template <char ElementType, char DamageType, int SlotCount>
+FloatTy
+WuWaGA::Calculatefitness( const std::array<int, SlotCount>& EffectiveCombination, const FloatTy BaseAttack )
+{
+    return std::ranges::fold_left(
+               EffectiveCombination,
+               EffectiveStats { }, [ this ]( auto&& Stat, int EchoIndex ) {
+                   return Stat + m_EffectiveEchos[ EchoIndex ];
+               } )
+        .ExpectedDamage( BaseAttack );
+}
 
 template <char ElementType, char DamageType, CostSlotTemplate>
 void
@@ -303,12 +314,7 @@ WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
             } else
             {
                 // First time calculating
-                Fitness = std::ranges::fold_left(
-                              Population[ i ],
-                              EffectiveStats { }, [ this ]( auto&& Stat, int EchoIndex ) {
-                                  return Stat + m_EffectiveEchos[ EchoIndex ];
-                              } )
-                              .ExpectedDamage( BaseAttack );
+                Fitness = Calculatefitness<ElementType, DamageType>( Population[ i ], BaseAttack );
 
                 StatsCache.insert( StatsCacheIt, { CombinationID, Fitness } );
             }
