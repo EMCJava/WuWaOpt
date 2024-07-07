@@ -18,6 +18,8 @@
 #include <SFML/Window/Event.hpp>
 #include <random>
 
+#include "Opt/FullStats.hpp"
+#include "Opt/OptUtil.hpp"
 #include "Opt/WuWaGa.hpp"
 
 template <class T, class S, class C>
@@ -75,12 +77,19 @@ main( )
     std::ranges::sort( FullStatsList, []( const auto& EchoA, const auto& EchoB ) {
         if ( EchoA.Cost > EchoB.Cost ) return true;
         if ( EchoA.Cost < EchoB.Cost ) return false;
+        return false;
     } );
+
+    FloatTy SkillMultiplier     = 0.3877;
+    int     CharacterLevel      = 60;
+    int     EnemyLevel          = 73;
+    FloatTy ElementResistance   = 0.1;
+    FloatTy ElementDamageReduce = 0;
 
     WuWaGA Opt( FullStatsList );
     Opt.Run<eFireDamagePercentage, eAutoAttackDamagePercentage>( 500 );
 
-    sf::RenderWindow window( sf::VideoMode( 640, 650 ), "WuWa Optimize" );
+    sf::RenderWindow window( sf::VideoMode( 600 + 600, 900 ), "WuWa Optimize" );
     window.setFramerateLimit( 60 );
     if ( !ImGui::SFML::Init( window ) ) return -1;
     ImPlot::CreateContext( );
@@ -88,6 +97,35 @@ main( )
     std::array<std::array<ResultPlotDetails, WuWaGA::ResultLength>, GARuntimeReport::MaxCombinationCount> ResultDisplayBuffer { };
 
     static const char* glabels[] = { "444", "4431", "3333", "44111", "41111", "43311", "43111", "31111", "33111", "33311", "11111" };
+
+    int        ChosenCombination = -1;
+    int        ChosenRank        = 0;
+    const auto DisplayCombination =
+        [ & ]( int CombinationIndex, int Rank ) {
+            ImGui::Text( "Echo combination %s", glabels[ CombinationIndex ] );
+
+            auto& SelectedResult = ResultDisplayBuffer[ CombinationIndex ][ Rank ];
+
+            const FloatTy Resistances = ( (FloatTy) 100 + CharacterLevel ) / ( 199 + CharacterLevel + EnemyLevel ) * ( 1 - ElementResistance ) * ( 1 - ElementDamageReduce );
+            ImGui::Text( "Damage %f", SelectedResult.Value * SkillMultiplier * Resistances );
+
+            const int SelectedEchoCount = strlen( glabels[ CombinationIndex ] );
+            for ( int i = 0; i < SelectedEchoCount; ++i )
+            {
+                const auto  Index        = SelectedResult.Indices[ i ];
+                const auto& SelectedEcho = FullStatsList[ Index ];
+                ImGui::Text( "%s", std::format( "{:=^43}", Index ).c_str( ) );
+
+                ImGui::Text( "Set:" );
+                ImGui::SameLine( );
+                ImGui::PushStyleColor( ImGuiCol_Text, EchoSetColor[ SelectedEcho.Set ] );
+                ImGui::Text( "%s", std::format( "{:20}", SelectedEcho.GetSetName( ) ).c_str( ) );
+                ImGui::PopStyleColor( );
+                ImGui::SameLine( );
+                ImGui::Text( "%s", SelectedEcho.BriefStat( ).c_str( ) );
+                ImGui::Text( "%s", SelectedEcho.DetailStat( ).c_str( ) );
+            }
+        };
 
     const auto& GAReport = Opt.GetReport( );
     sf::Clock   deltaClock;
@@ -114,112 +152,136 @@ main( )
         ImGui::SetNextWindowSize( use_work_area ? viewport->WorkSize : viewport->Size );
         if ( ImGui::Begin( "Display", nullptr, flags ) )
         {
-            ImGui::ProgressBar( std::ranges::fold_left( GAReport.MutationProb, 0.f, []( auto A, auto B ) {
-                                    return A + ( B <= 0 ? 1 : B );
-                                } ) / GARuntimeReport::MaxCombinationCount,
-                                ImVec2( -1.0f, 0.0f ) );
-            if ( ImPlot::BeginPlot( "Overview" ) )
             {
-                // Labels and positions
-                static const double  positions[]    = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-                static const FloatTy positionsn05[] = { -0.1, 0.9, 1.9, 2.9, 3.9, 4.9, 5.9, 6.9, 7.9, 8.9, 9.9 };
-                static const FloatTy positionsp05[] = { 0.1, 1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1, 9.1, 10.1 };
+                ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 5.0f );
+                ImGui::BeginChild( "GAStats", ImVec2( 600, -1 ), ImGuiChildFlags_Border );
 
-                // Setup
-                ImPlot::SetupLegend( ImPlotLocation_South, ImPlotLegendFlags_Outside );
-                ImPlot::SetupAxes( "Type", "Optimal Value", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit );
-
-                // Set axis ticks
-                ImPlot::SetupAxisTicks( ImAxis_X1, positions, GARuntimeReport::MaxCombinationCount, glabels );
-                ImPlot::SetupAxisLimits( ImAxis_X1, -1, 11, ImPlotCond_Always );
-
-                ImPlot::SetupAxis( ImAxis_X2, "Type", ImPlotAxisFlags_Lock | ImPlotAxisFlags_NoDecorations );
-                ImPlot::SetupAxisLimits( ImAxis_X2, -1, 11, ImPlotCond_Always );
-
-                ImPlot::SetupAxis( ImAxis_Y2, "Progress", ImPlotAxisFlags_AuxDefault );
-                ImPlot::SetupAxisLimits( ImAxis_Y2, 0, 1, ImPlotCond_Always );
-
-                // Plot
-                ImPlot::SetAxes( ImAxis_X1, ImAxis_Y1 );
-                ImPlot::PlotBars( "Optimal Value", positionsn05, GAReport.OptimalValue, GARuntimeReport::MaxCombinationCount, 0.2 );
-
-                ImPlot::SetAxes( ImAxis_X2, ImAxis_Y2 );
-                ImPlot::PlotBars( "Progress", positionsp05, GAReport.MutationProb, GARuntimeReport::MaxCombinationCount, 0.2 );
-
-                ImPlot::EndPlot( );
-            }
-
-            if ( ImPlot::BeginPlot( "Details" ) )
-            {
-                ImPlot::SetupLegend( ImPlotLocation_South, ImPlotLegendFlags_Horizontal | ImPlotLegendFlags_Outside );
-                ImPlot::SetupAxes( "Rank", "Value", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit );
-
-                for ( int i = 0; i < GARuntimeReport::MaxCombinationCount; i++ )
+                ImGui::ProgressBar( std::ranges::fold_left( GAReport.MutationProb, 0.f, []( auto A, auto B ) {
+                                        return A + ( B <= 0 ? 1 : B );
+                                    } ) / GARuntimeReport::MaxCombinationCount,
+                                    ImVec2( -1.0f, 0.0f ) );
+                if ( ImPlot::BeginPlot( "Overview" ) )
                 {
-                    auto CopyList = GetConstContainer( GAReport.DetailReports[ i ].Queue );
-                    if ( CopyList.size( ) >= 10 )
-                    {
-                        std::ranges::copy( CopyList
-                                               | std::views::transform( []( auto& C ) {
-                                                     return ResultPlotDetails { C.Value, C.SlotToArray( ) };
-                                                 } ),
-                                           ResultDisplayBuffer[ i ].begin( ) );
+                    // Labels and positions
+                    static const double  positions[]    = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+                    static const FloatTy positionsn05[] = { -0.1, 0.9, 1.9, 2.9, 3.9, 4.9, 5.9, 6.9, 7.9, 8.9, 9.9 };
+                    static const FloatTy positionsp05[] = { 0.1, 1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1, 9.1, 10.1 };
 
-                        std::ranges::sort( ResultDisplayBuffer[ i ], std::greater { } );
-                        ImPlot::PlotLineG( glabels[ i ], ResultPlotDetailsImPlotGetter, ResultDisplayBuffer[ i ].data( ), WuWaGA::ResultLength );
-                    }
+                    // Setup
+                    ImPlot::SetupLegend( ImPlotLocation_South, ImPlotLegendFlags_Outside );
+                    ImPlot::SetupAxes( "Type", "Optimal Value", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit );
+
+                    // Set axis ticks
+                    ImPlot::SetupAxisTicks( ImAxis_X1, positions, GARuntimeReport::MaxCombinationCount, glabels );
+                    ImPlot::SetupAxisLimits( ImAxis_X1, -1, 11, ImPlotCond_Always );
+
+                    ImPlot::SetupAxis( ImAxis_X2, "Type", ImPlotAxisFlags_Lock | ImPlotAxisFlags_NoDecorations );
+                    ImPlot::SetupAxisLimits( ImAxis_X2, -1, 11, ImPlotCond_Always );
+
+                    ImPlot::SetupAxis( ImAxis_Y2, "Progress", ImPlotAxisFlags_AuxDefault );
+                    ImPlot::SetupAxisLimits( ImAxis_Y2, 0, 1, ImPlotCond_Always );
+
+                    // Plot
+                    ImPlot::SetAxes( ImAxis_X1, ImAxis_Y1 );
+                    ImPlot::PlotBars( "Optimal Value", positionsn05, GAReport.OptimalValue, GARuntimeReport::MaxCombinationCount, 0.2 );
+
+                    ImPlot::SetAxes( ImAxis_X2, ImAxis_Y2 );
+                    ImPlot::PlotBars( "Progress", positionsp05, GAReport.MutationProb, GARuntimeReport::MaxCombinationCount, 0.2 );
+
+                    ImPlot::EndPlot( );
                 }
 
-                ImDrawList* draw_list = ImPlot::GetPlotDrawList( );
-                if ( ImPlot::IsPlotHovered( ) )
+                if ( ImPlot::BeginPlot( "Details" ) )
                 {
-                    ImPlotPoint mouse = ImPlot::GetPlotMousePos( );
+                    ImPlot::SetupLegend( ImPlotLocation_South, ImPlotLegendFlags_Horizontal | ImPlotLegendFlags_Outside );
+                    ImPlot::SetupAxes( "Rank", "Value", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit );
 
-                    int Rank  = std::round( mouse.x );
-                    int Value = mouse.y;
-
-                    FloatTy MinDiff            = std::numeric_limits<FloatTy>::max( );
-                    int     ClosestCombination = 0;
                     for ( int i = 0; i < GARuntimeReport::MaxCombinationCount; i++ )
                     {
-                        const auto Diff = std::abs( Value - ResultDisplayBuffer[ i ][ Rank ].Value );
-                        if ( Diff < MinDiff && ImPlot::GetCurrentContext( )->CurrentItems->GetLegendItem( i )->Show )
+                        auto CopyList = GetConstContainer( GAReport.DetailReports[ i ].Queue );
+                        if ( CopyList.size( ) >= 10 )
                         {
-                            ClosestCombination = i;
-                            MinDiff            = Diff;
+                            std::ranges::copy( CopyList
+                                                   | std::views::transform( []( auto& C ) {
+                                                         return ResultPlotDetails { C.Value, C.SlotToArray( ) };
+                                                     } ),
+                                               ResultDisplayBuffer[ i ].begin( ) );
+
+                            std::ranges::sort( ResultDisplayBuffer[ i ], std::greater { } );
+                            ImPlot::PlotLineG( glabels[ i ], ResultPlotDetailsImPlotGetter, ResultDisplayBuffer[ i ].data( ), WuWaGA::ResultLength );
                         }
                     }
 
-                    auto& SelectedResult = ResultDisplayBuffer[ ClosestCombination ][ Rank ];
-
-                    ImPlot::PushPlotClipRect( );
-                    draw_list->AddCircleFilled( ImPlot::PlotToPixels( (float) Rank, SelectedResult.Value ), 5, IM_COL32( 255, 0, 0, 255 ) );
-                    ImPlot::PopPlotClipRect( );
-
-                    const int SelectedEchoCount = strlen( glabels[ ClosestCombination ] );
-
-                    ImGui::BeginTooltip( );
-                    ImGui::Text( "Echo combination %s", glabels[ ClosestCombination ] );
-                    ImGui::Text( "Damage %f", SelectedResult.Value );
-                    for ( int i = 0; i < SelectedEchoCount; ++i )
+                    ImDrawList* draw_list = ImPlot::GetPlotDrawList( );
+                    if ( ImPlot::IsPlotHovered( ) )
                     {
-                        const auto  Index        = SelectedResult.Indices[ i ];
-                        const auto& SelectedEcho = FullStatsList[ Index ];
-                        ImGui::Text( std::format( "{:=^43}", Index ).c_str( ) );
+                        ImPlotPoint mouse = ImPlot::GetPlotMousePos( );
 
-                        ImGui::Text( "Set:" );
-                        ImGui::SameLine( );
-                        ImGui::PushStyleColor( ImGuiCol_Text, EchoSetColor[ SelectedEcho.Set ] );
-                        ImGui::Text( std::format( "{:20}", SelectedEcho.GetSetName( ) ).c_str( ) );
-                        ImGui::PopStyleColor( );
-                        ImGui::SameLine( );
-                        ImGui::Text( "%s", SelectedEcho.BriefStat( ).c_str( ) );
-                        ImGui::Text( "%s", SelectedEcho.DetailStat( ).c_str( ) );
+                        int Rank  = std::round( mouse.x );
+                        int Value = mouse.y;
+
+                        FloatTy MinDiff            = std::numeric_limits<FloatTy>::max( );
+                        int     ClosestCombination = 0;
+                        for ( int i = 0; i < GARuntimeReport::MaxCombinationCount; i++ )
+                        {
+                            const auto Diff = std::abs( Value - ResultDisplayBuffer[ i ][ Rank ].Value );
+                            if ( Diff < MinDiff && ImPlot::GetCurrentContext( )->CurrentItems->GetLegendItem( i )->Show )
+                            {
+                                ClosestCombination = i;
+                                MinDiff            = Diff;
+                            }
+                        }
+
+                        auto& SelectedResult = ResultDisplayBuffer[ ClosestCombination ][ Rank ];
+
+                        ImPlot::PushPlotClipRect( );
+                        draw_list->AddCircleFilled( ImPlot::PlotToPixels( (float) Rank, SelectedResult.Value ), 5, IM_COL32( 255, 0, 0, 255 ) );
+                        ImPlot::PopPlotClipRect( );
+
+                        ImGui::BeginTooltip( );
+                        DisplayCombination( ClosestCombination, Rank );
+                        ImGui::EndTooltip( );
+
+                        // Select the echo combination
+                        if ( event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Button::Left )
+                        {
+                            std::cout << "Left click on " << glabels[ ClosestCombination ] << std::endl;
+                            ChosenCombination = ClosestCombination;
+                            ChosenRank        = Rank;
+                        }
                     }
-                    ImGui::EndTooltip( );
+
+                    ImPlot::EndPlot( );
                 }
 
-                ImPlot::EndPlot( );
+                ImGui::EndChild( );
+                ImGui::PopStyleVar( );
+            }
+
+            ImGui::SameLine( );
+
+            {
+                ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 5.0f );
+                ImGui::BeginChild( "DetailPanel", ImVec2( 0, -1 ), ImGuiChildFlags_Border );
+
+                ImGui::SeparatorText( "Static Configurations" );
+                FloatTy SkillMultiplierMul100 = SkillMultiplier * 100;
+                ImGui::DragFloat( "Skill Multiplier", &SkillMultiplierMul100, 0.01, 0, 0, "%.2f" );
+                SkillMultiplier = SkillMultiplierMul100 / 100;
+
+                ImGui::SliderInt( "Character Level", &CharacterLevel, 1, 90 );
+                ImGui::SliderInt( "Enemy Level", &EnemyLevel, 1, 90 );
+                ImGui::SliderFloat( "Enemy Element Resistance", &ElementResistance, 0, 1, "%.2f" );
+                ImGui::SliderFloat( "Enemy Damage Reduction", &ElementDamageReduce, 0, 1, "%.2f" );
+
+                if ( ChosenCombination >= 0 )
+                {
+                    ImGui::SeparatorText( "Combination Details" );
+                    DisplayCombination( ChosenCombination, ChosenRank );
+                }
+
+                ImGui::EndChild( );
+                ImGui::PopStyleVar( );
             }
         }
 

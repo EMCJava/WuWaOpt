@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "FullStats.hpp"
+
 #include <array>
 #include <tuple>
 #include <limits>

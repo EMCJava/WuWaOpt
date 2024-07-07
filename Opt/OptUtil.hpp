@@ -8,6 +8,7 @@ using FloatTy = float;
 
 #include "FullStats.hpp"
 
+#include <sstream>
 #include <chrono>
 #include <queue>
 #include <set>

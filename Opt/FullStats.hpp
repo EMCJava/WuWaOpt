@@ -11,6 +11,8 @@
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
+#include "OptUtil.hpp"
+
 enum EchoSet : uint8_t {
     eFreezingFrost,
     eMoltenRift,
@@ -26,16 +28,16 @@ enum EchoSet : uint8_t {
 };
 
 NLOHMANN_JSON_SERIALIZE_ENUM( EchoSet, {
-                                           {     eFreezingFrost,      "eFreezingFrost"},
-                                           {        eMoltenRift,         "eMoltenRift"},
-                                           {       eVoidThunder,        "eVoidThunder"},
-                                           {        eSierraGale,         "eSierraGale"},
-                                           {    eCelestialLight,     "eCelestialLight"},
+                                           {    eFreezingFrost,     "eFreezingFrost"},
+                                           {       eMoltenRift,        "eMoltenRift"},
+                                           {      eVoidThunder,       "eVoidThunder"},
+                                           {       eSierraGale,        "eSierraGale"},
+                                           {   eCelestialLight,    "eCelestialLight"},
                                            {eSunSinkingEclipse, "eSunSinkingEclipse"},
-                                           {  eRejuvenatingGlow,   "eRejuvenatingGlow"},
-                                           {     eMoonlitClouds,      "eMoonlitClouds"},
-                                           {    eLingeringTunes,     "eLingeringTunes"},
-                                           {       eEchoSetNone,        "eEchoSetNone"}
+                                           { eRejuvenatingGlow,  "eRejuvenatingGlow"},
+                                           {    eMoonlitClouds,     "eMoonlitClouds"},
+                                           {   eLingeringTunes,    "eLingeringTunes"},
+                                           {      eEchoSetNone,       "eEchoSetNone"}
 } )
 
 constexpr std::array<std::tuple<int, int, int>, eEchoSetCount> EchoSetColorIndicators = {
@@ -171,18 +173,22 @@ struct EffectiveStats {
         return true;
     }
 
-    FloatTy NormalDamage( auto&& base_attack ) const noexcept
+    FloatTy AttackStat( auto base_attack ) const noexcept
     {
-        const FloatTy attack = base_attack * ( 1 + percentage_attack ) + flat_attack;
-        return attack * ( 1 + buff_multiplier );
+        return base_attack * ( 1 + percentage_attack ) + flat_attack;
     }
 
-    FloatTy CritDamage( auto&& base_attack ) const noexcept
+    FloatTy NormalDamage( auto base_attack ) const noexcept
+    {
+        return AttackStat( base_attack ) * ( 1 + buff_multiplier );
+    }
+
+    FloatTy CritDamage( auto base_attack ) const noexcept
     {
         return NormalDamage( base_attack ) * crit_damage;
     }
 
-    FloatTy ExpectedDamage( auto&& base_attack ) const noexcept
+    FloatTy ExpectedDamage( auto base_attack ) const noexcept
     {
         return NormalDamage( base_attack ) * ( 1 + std::min( crit_rate, (FloatTy) 1 ) * crit_damage );
     }
