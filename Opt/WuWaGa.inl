@@ -6,6 +6,7 @@
 
 #include <unordered_map>
 #include <unordered_set>
+#include <stop_token>
 #include <stdexcept>
 #include <algorithm>
 #include <vector>
@@ -140,7 +141,7 @@ struct PreAllocatedBuffer {
 
 template <char ElementType, char DamageType, CostSlotTemplate>
 void
-WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
+WuWaGA::Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack )
 {
     static constexpr int MaxEchoCount     = 2000;
     static constexpr int IndexBitsShift   = 11;
@@ -250,9 +251,8 @@ WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
 
     int MutationProbabilityChangeCount = 0;
 
-    auto& MutationProbability = m_GAReport.MutationProb[ GAReportIndex ];
-    auto& OptimalValue        = m_GAReport.OptimalValue[ GAReportIndex ];
-    OptimalValue              = std::numeric_limits<FloatTy>::lowest( );
+    auto& MutationProbability = m_GAReport.MutationProb[ GAReportIndex ] = 0;
+    auto& OptimalValue = m_GAReport.OptimalValue[ GAReportIndex ] = std::numeric_limits<FloatTy>::lowest( );
 
     m_GAReport.ParentPickCount[ GAReportIndex ].resize( m_ReproduceSize );
 
@@ -269,7 +269,7 @@ WuWaGA::Run( int GAReportIndex, FloatTy BaseAttack )
 
     Stopwatch SW;
 
-    while ( true )
+    while ( !StopToken.stop_requested( ) )
     {
         /*
          *
@@ -526,16 +526,16 @@ WuWaGA::Run( FloatTy BaseAttack )
         | std::ranges::to<std::vector>( );
 
     // clang-format off
-    m_Threads.emplace_back( std::make_unique<std::jthread>( [ =, this ]( ) { Run<ElementType, DamageType, 4, 4, 4, 0, 0>(  0, BaseAttack ); } ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>( [ =, this ]( ) { Run<ElementType, DamageType, 4, 4, 3, 1, 0>(  1, BaseAttack ); } ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>( [ =, this ]( ) { Run<ElementType, DamageType, 3, 3, 3, 3, 0>(  2, BaseAttack ); } ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>( [ =, this ]( ) { Run<ElementType, DamageType, 4, 4, 1, 1, 1>(  3, BaseAttack ); } ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>( [ =, this ]( ) { Run<ElementType, DamageType, 4, 1, 1, 1, 1>(  4, BaseAttack ); } ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>( [ =, this ]( ) { Run<ElementType, DamageType, 4, 3, 3, 1, 1>(  5, BaseAttack ); } ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>( [ =, this ]( ) { Run<ElementType, DamageType, 4, 3, 1, 1, 1>(  6, BaseAttack ); } ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>( [ =, this ]( ) { Run<ElementType, DamageType, 3, 1, 1, 1, 1>(  7, BaseAttack ); } ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>( [ =, this ]( ) { Run<ElementType, DamageType, 3, 3, 1, 1, 1>(  8, BaseAttack ); } ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>( [ =, this ]( ) { Run<ElementType, DamageType, 3, 3, 3, 1, 1>(  9, BaseAttack ); } ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>( [ =, this ]( ) { Run<ElementType, DamageType, 1, 1, 1, 1, 1>( 10, BaseAttack ); } ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ElementType, DamageType, 4, 4, 4, 0, 0>, this, std::placeholders::_1,  0, BaseAttack ) ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ElementType, DamageType, 4, 4, 3, 1, 0>, this, std::placeholders::_1,  1, BaseAttack ) ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ElementType, DamageType, 3, 3, 3, 3, 0>, this, std::placeholders::_1,  2, BaseAttack ) ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ElementType, DamageType, 4, 4, 1, 1, 1>, this, std::placeholders::_1,  3, BaseAttack ) ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ElementType, DamageType, 4, 1, 1, 1, 1>, this, std::placeholders::_1,  4, BaseAttack ) ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ElementType, DamageType, 4, 3, 3, 1, 1>, this, std::placeholders::_1,  5, BaseAttack ) ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ElementType, DamageType, 4, 3, 1, 1, 1>, this, std::placeholders::_1,  6, BaseAttack ) ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ElementType, DamageType, 3, 1, 1, 1, 1>, this, std::placeholders::_1,  7, BaseAttack ) ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ElementType, DamageType, 3, 3, 1, 1, 1>, this, std::placeholders::_1,  8, BaseAttack ) ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ElementType, DamageType, 3, 3, 3, 1, 1>, this, std::placeholders::_1,  9, BaseAttack ) ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ElementType, DamageType, 1, 1, 1, 1, 1>, this, std::placeholders::_1, 10, BaseAttack ) ) );
     // clang-format on
 }

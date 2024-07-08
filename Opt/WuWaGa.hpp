@@ -6,6 +6,7 @@
 
 #include "OptUtil.hpp"
 
+#include <stop_token>
 #include <vector>
 #include <queue>
 #include <array>
@@ -39,7 +40,7 @@ class WuWaGA
 private:
     template <char ElementType, char DamageType, CostSlotTemplate>
     void
-    Run( int GAReportIndex, FloatTy BaseAttack );
+    Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack );
 
 public:
     static constexpr int ResultLength = 10;

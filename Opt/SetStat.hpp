@@ -5,6 +5,7 @@
 #pragma once
 
 #include "FullStats.hpp"
+#include "OptUtil.hpp"
 
 #include <array>
 #include <tuple>

@@ -69,7 +69,7 @@ main( )
     std::ios::sync_with_stdio( false );
     std::cin.tie( nullptr );
 
-    auto FullStatsList = json::parse( std::ifstream { "data/example_echos.json" } )[ "echos" ].get<std::vector<FullStats>>( )
+    auto FullStatsList = json::parse( std::ifstream { "data/echos.json" } )[ "echos" ].get<std::vector<FullStats>>( )
         // | std::views::filter( []( const FullStats& FullEcho ) { return FullEcho.Level != 0; } )
         // | std::views::filter( []( const FullStats& FullEcho ) { return FullEcho.Set == eMoltenRift || FullEcho.Set == eFreezingFrost; } )
         | std::ranges::to<std::vector>( );
@@ -81,13 +81,14 @@ main( )
     } );
 
     FloatTy SkillMultiplier     = 0.3877;
+    int     BaseAttack          = 642;
     int     CharacterLevel      = 60;
     int     EnemyLevel          = 73;
     FloatTy ElementResistance   = 0.1;
     FloatTy ElementDamageReduce = 0;
 
     WuWaGA Opt( FullStatsList );
-    Opt.Run<eFireDamagePercentage, eAutoAttackDamagePercentage>( 500 );
+    Opt.Run<eFireDamagePercentage, eAutoAttackDamagePercentage>( BaseAttack );
 
     sf::RenderWindow window( sf::VideoMode( 600 + 600, 900 ), "WuWa Optimize" );
     window.setFramerateLimit( 60 );
@@ -106,10 +107,40 @@ main( )
 
             auto& SelectedResult = ResultDisplayBuffer[ CombinationIndex ][ Rank ];
 
-            const FloatTy Resistances = ( (FloatTy) 100 + CharacterLevel ) / ( 199 + CharacterLevel + EnemyLevel ) * ( 1 - ElementResistance ) * ( 1 - ElementDamageReduce );
-            ImGui::Text( "Damage %f", SelectedResult.Value * SkillMultiplier * Resistances );
+            const int      SelectedEchoCount = strlen( glabels[ CombinationIndex ] );
+            EffectiveStats SelectedStats     = CalculateCombinationalStat<eFireDamagePercentage>(
+                std::views::iota( 0, SelectedEchoCount )
+                | std::views::transform( [ & ]( int EchoIndex ) {
+                      return ToEffectiveStats<eFireDamagePercentage, eAutoAttackDamagePercentage>(
+                          FullStatsList[ SelectedResult.Indices[ EchoIndex ] ] );
+                  } ) );
 
-            const int SelectedEchoCount = strlen( glabels[ CombinationIndex ] );
+            const auto DisplayRow = []( const char* Label, FloatTy Value ) {
+                ImGui::TableNextRow( );
+                ImGui::TableSetColumnIndex( 0 );
+                ImGui::Text( "%s", Label );
+                ImGui::TableSetColumnIndex( 1 );
+                ImGui::Text( "%.3f", Value );
+            };
+
+            if ( ImGui::BeginTable( "EffectiveStats", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg ) )
+            {
+                DisplayRow( "Flat Attack", SelectedStats.flat_attack );
+                DisplayRow( "Regen", SelectedStats.regen * 100 );
+                DisplayRow( "Percentage Attack", SelectedStats.percentage_attack * 100 );
+                DisplayRow( "Buff Multiplier", SelectedStats.buff_multiplier * 100 );
+                DisplayRow( "Crit rate", SelectedStats.crit_rate * 100 );
+                DisplayRow( "Crit Damage", SelectedStats.crit_damage * 100 + 100 );
+                DisplayRow( "Final Attack", SelectedStats.AttackStat( BaseAttack ) );
+
+                const FloatTy Resistances = ( (FloatTy) 100 + CharacterLevel ) / ( 199 + CharacterLevel + EnemyLevel ) * ( 1 - ElementResistance ) * ( 1 - ElementDamageReduce );
+                DisplayRow( "Non Crit Damage", SelectedStats.NormalDamage( BaseAttack ) * SkillMultiplier * Resistances );
+                DisplayRow( "    Crit Damage", SelectedStats.CritDamage( BaseAttack ) * SkillMultiplier * Resistances );
+                DisplayRow( "Expected Damage", SelectedStats.ExpectedDamage( BaseAttack ) * SkillMultiplier * Resistances );
+
+                ImGui::EndTable( );
+            }
+
             for ( int i = 0; i < SelectedEchoCount; ++i )
             {
                 const auto  Index        = SelectedResult.Indices[ i ];
@@ -152,6 +183,8 @@ main( )
         ImGui::SetNextWindowSize( use_work_area ? viewport->WorkSize : viewport->Size );
         if ( ImGui::Begin( "Display", nullptr, flags ) )
         {
+            // ImGui::ShowDemoWindow( );
+
             {
                 ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 5.0f );
                 ImGui::BeginChild( "GAStats", ImVec2( 600, -1 ), ImGuiChildFlags_Border );
@@ -263,6 +296,13 @@ main( )
             {
                 ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 5.0f );
                 ImGui::BeginChild( "DetailPanel", ImVec2( 0, -1 ), ImGuiChildFlags_Border );
+
+                ImGui::DragInt( "Base Attack", &BaseAttack );
+                ImGui::SameLine( );
+                if ( ImGui::ArrowButton( "Start", ImGuiDir_Right ) )
+                {
+                    Opt.Run<eFireDamagePercentage, eAutoAttackDamagePercentage>( BaseAttack );
+                }
 
                 ImGui::SeparatorText( "Static Configurations" );
                 FloatTy SkillMultiplierMul100 = SkillMultiplier * 100;
