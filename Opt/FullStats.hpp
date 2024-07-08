@@ -185,7 +185,7 @@ struct EffectiveStats {
 
     FloatTy CritDamage( auto base_attack ) const noexcept
     {
-        return NormalDamage( base_attack ) * crit_damage;
+        return NormalDamage( base_attack ) * ( 1 + crit_damage );
     }
 
     FloatTy ExpectedDamage( auto base_attack ) const noexcept
