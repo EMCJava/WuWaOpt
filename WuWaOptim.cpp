@@ -99,51 +99,90 @@ main( )
 
     static const char* glabels[] = { "444", "4431", "3333", "44111", "41111", "43311", "43111", "31111", "33111", "33311", "11111" };
 
-    int        ChosenCombination = -1;
-    int        ChosenRank        = 0;
+    int            ChosenCombination = -1;
+    int            ChosenRank        = 0;
+    EffectiveStats SelectedStats;
+
     const auto DisplayCombination =
         [ & ]( int CombinationIndex, int Rank ) {
-            ImGui::Text( "Echo combination %s", glabels[ CombinationIndex ] );
+            const bool ShowDifferent = ChosenCombination != CombinationIndex || ChosenRank != Rank;
 
-            auto& SelectedResult = ResultDisplayBuffer[ CombinationIndex ][ Rank ];
+            auto& DisplayCombination = ResultDisplayBuffer[ CombinationIndex ][ Rank ];
 
-            const int      SelectedEchoCount = strlen( glabels[ CombinationIndex ] );
-            EffectiveStats SelectedStats     = CalculateCombinationalStat<eFireDamagePercentage>(
-                std::views::iota( 0, SelectedEchoCount )
+            const int      DisplayEchoCount = strlen( glabels[ CombinationIndex ] );
+            EffectiveStats DisplayStats     = CalculateCombinationalStat<eFireDamagePercentage>(
+                std::views::iota( 0, DisplayEchoCount )
                 | std::views::transform( [ & ]( int EchoIndex ) {
                       return ToEffectiveStats<eFireDamagePercentage, eAutoAttackDamagePercentage>(
-                          FullStatsList[ SelectedResult.Indices[ EchoIndex ] ] );
+                          FullStatsList[ DisplayCombination.Indices[ EchoIndex ] ] );
                   } ) );
 
-            const auto DisplayRow = []( const char* Label, FloatTy Value ) {
-                ImGui::TableNextRow( );
-                ImGui::TableSetColumnIndex( 0 );
-                ImGui::Text( "%s", Label );
-                ImGui::TableSetColumnIndex( 1 );
-                ImGui::Text( "%.3f", Value );
+            const auto DisplayRow = [ ShowDifferent ]( const char* Label, FloatTy OldValue, FloatTy Value ) {
+                if ( ShowDifferent )
+                {
+                    ImGui::TableNextRow( );
+                    ImGui::TableSetColumnIndex( 0 );
+                    ImGui::Text( "%s", Label );
+                    ImGui::TableSetColumnIndex( 1 );
+                    ImGui::Text( "%.3f", OldValue );
+                    if ( Value - OldValue < 0 )
+                    {
+                        ImGui::SameLine( );
+                        ImGui::Text( "(" );
+                        ImGui::SameLine( );
+                        ImGui::PushStyleColor( ImGuiCol_Text, IM_COL32( 255, 0, 0, 255 ) );
+                        ImGui::Text( "%.3f", Value - OldValue );
+                        ImGui::PopStyleColor( );
+                        ImGui::SameLine( );
+                        ImGui::Text( ")" );
+                    } else if ( Value - OldValue > 0 )
+                    {
+                        ImGui::SameLine( );
+                        ImGui::Text( "(" );
+                        ImGui::SameLine( );
+                        ImGui::PushStyleColor( ImGuiCol_Text, IM_COL32( 0, 255, 0, 255 ) );
+                        ImGui::Text( "+%.3f", Value - OldValue );
+                        ImGui::PopStyleColor( );
+                        ImGui::SameLine( );
+                        ImGui::Text( ")" );
+                    }
+                } else
+                {
+                    ImGui::TableNextRow( );
+                    ImGui::TableSetColumnIndex( 0 );
+                    ImGui::Text( "%s", Label );
+                    ImGui::TableSetColumnIndex( 1 );
+                    ImGui::Text( "%.3f", Value );
+                }
             };
 
+            ImGui::SeparatorText( "Effective Stats" );
             if ( ImGui::BeginTable( "EffectiveStats", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg ) )
             {
-                DisplayRow( "Flat Attack", SelectedStats.flat_attack );
-                DisplayRow( "Regen", SelectedStats.regen * 100 );
-                DisplayRow( "Percentage Attack", SelectedStats.percentage_attack * 100 );
-                DisplayRow( "Buff Multiplier", SelectedStats.buff_multiplier * 100 );
-                DisplayRow( "Crit rate", SelectedStats.crit_rate * 100 );
-                DisplayRow( "Crit Damage", SelectedStats.crit_damage * 100 + 100 );
-                DisplayRow( "Final Attack", SelectedStats.AttackStat( BaseAttack ) );
+                ImGui::TableSetupColumn( "Stat" );
+                ImGui::TableSetupColumn( "Number" );
+                ImGui::TableHeadersRow( );
+
+                DisplayRow( "Flat Attack", SelectedStats.flat_attack, DisplayStats.flat_attack );
+                DisplayRow( "Regen", SelectedStats.regen * 100, DisplayStats.regen * 100 );
+                DisplayRow( "Percentage Attack", SelectedStats.percentage_attack * 100, DisplayStats.percentage_attack * 100 );
+                DisplayRow( "Buff Multiplier", SelectedStats.buff_multiplier * 100, DisplayStats.buff_multiplier * 100 );
+                DisplayRow( "Crit rate", SelectedStats.crit_rate * 100, DisplayStats.crit_rate * 100 );
+                DisplayRow( "Crit Damage", SelectedStats.crit_damage * 100 + 100, DisplayStats.crit_damage * 100 + 100 );
+                DisplayRow( "Final Attack", SelectedStats.AttackStat( BaseAttack ), DisplayStats.AttackStat( BaseAttack ) );
 
                 const FloatTy Resistances = ( (FloatTy) 100 + CharacterLevel ) / ( 199 + CharacterLevel + EnemyLevel ) * ( 1 - ElementResistance ) * ( 1 - ElementDamageReduce );
-                DisplayRow( "Non Crit Damage", SelectedStats.NormalDamage( BaseAttack ) * SkillMultiplier * Resistances );
-                DisplayRow( "    Crit Damage", SelectedStats.CritDamage( BaseAttack ) * SkillMultiplier * Resistances );
-                DisplayRow( "Expected Damage", SelectedStats.ExpectedDamage( BaseAttack ) * SkillMultiplier * Resistances );
+                DisplayRow( "Non Crit Damage", SelectedStats.NormalDamage( BaseAttack ) * SkillMultiplier * Resistances, DisplayStats.NormalDamage( BaseAttack ) * SkillMultiplier * Resistances );
+                DisplayRow( "    Crit Damage", SelectedStats.CritDamage( BaseAttack ) * SkillMultiplier * Resistances, DisplayStats.CritDamage( BaseAttack ) * SkillMultiplier * Resistances );
+                DisplayRow( "Expected Damage", SelectedStats.ExpectedDamage( BaseAttack ) * SkillMultiplier * Resistances, DisplayStats.ExpectedDamage( BaseAttack ) * SkillMultiplier * Resistances );
 
                 ImGui::EndTable( );
             }
 
-            for ( int i = 0; i < SelectedEchoCount; ++i )
+            ImGui::SeparatorText( "Combination" );
+            for ( int i = 0; i < DisplayEchoCount; ++i )
             {
-                const auto  Index        = SelectedResult.Indices[ i ];
+                const auto  Index        = DisplayCombination.Indices[ i ];
                 const auto& SelectedEcho = FullStatsList[ Index ];
                 ImGui::Text( "%s", std::format( "{:=^43}", Index ).c_str( ) );
 
@@ -281,6 +320,13 @@ main( )
                             std::cout << "Left click on " << glabels[ ClosestCombination ] << std::endl;
                             ChosenCombination = ClosestCombination;
                             ChosenRank        = Rank;
+
+                            SelectedStats = CalculateCombinationalStat<eFireDamagePercentage>(
+                                std::views::iota( 0, (int) strlen( glabels[ ClosestCombination ] ) )
+                                | std::views::transform( [ & ]( int EchoIndex ) {
+                                      return ToEffectiveStats<eFireDamagePercentage, eAutoAttackDamagePercentage>(
+                                          FullStatsList[ SelectedResult.Indices[ EchoIndex ] ] );
+                                  } ) );
                         }
                     }
 
@@ -316,7 +362,6 @@ main( )
 
                 if ( ChosenCombination >= 0 )
                 {
-                    ImGui::SeparatorText( "Combination Details" );
                     DisplayCombination( ChosenCombination, ChosenRank );
                 }
 
