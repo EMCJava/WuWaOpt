@@ -22,7 +22,7 @@ using json = nlohmann::json;
 #include <vector>
 #include <semaphore>
 
-#include "FullStats.hpp"
+#include "Opt/FullStats.hpp"
 
 const int RESIZED_IMAGE_WIDTH  = 20;
 const int RESIZED_IMAGE_HEIGHT = 30;
@@ -267,19 +267,18 @@ public:
     }
 
 private:
-    std::array<Template, 12>
+    std::array<Template, 11>
         Templates {
             Template {'%', "percentage.png", cv::Scalar( 255, 248, 240 ), 190},
             Template {'0',          "0.png", cv::Scalar( 255, 255,   0 ), 205},
-            Template {'1',          "1.png", cv::Scalar( 193, 182, 255 ), 210},
-            Template {'1',     "thin_1.png", cv::Scalar( 193, 182, 255 ), 245},
+            Template {'1',          "1.png", cv::Scalar( 193, 182, 255 ), 220},
             Template {'2',          "2.png", cv::Scalar( 160, 158,  95 ), 210},
             Template {'3',          "3.png",  cv::Scalar( 80, 127, 255 ), 200},
             Template {'4',          "4.png", cv::Scalar( 169, 169, 169 ), 214},
             Template {'5',          "5.png", cv::Scalar( 107, 183, 189 ), 200},
-            Template {'6',          "6.png", cv::Scalar( 204,  50, 153 ), 215},
+            Template {'6',          "6.png", cv::Scalar( 204,  50, 153 ), 205},
             Template {'7',          "7.png", cv::Scalar( 240, 255, 255 ), 220},
-            Template {'8',          "8.png", cv::Scalar( 255, 144,  30 ), 218},
+            Template {'8',          "8.png", cv::Scalar( 255, 144,  30 ), 205},
             Template {'9',          "9.png",  cv::Scalar( 47, 255, 173 ), 205},
     };
 };
@@ -642,7 +641,8 @@ main( )
             Trail.back( ) = { 1, 1 };
     }
 
-    int EchoLeftToScan = 955;
+    int EchoLeftToScan = 752;
+    std::cout << "Scaning " << EchoLeftToScan << " echoes..." << std::endl;
 
     srand( time( nullptr ) );
 
@@ -700,6 +700,7 @@ main( )
     };
 
     const auto ReadCard = [ & ]( ) {
+        std::cout << "=================Start Scan=================" << std::endl;
         cv::Mat InputImage = ScreenCap( );
 
         const cv::Rect FullRect { 885, 305, 350, 220 };
@@ -720,7 +721,11 @@ main( )
         cv::adaptiveThreshold( CostThresholeImage, CostThresholeImage, 255, cv::ADAPTIVE_THRESH_MEAN_C, cv::THRESH_BINARY, 17, -10 );
         cvtColor( CostThresholeImage, CostThresholeImage, cv::COLOR_GRAY2BGR );
         const auto CostChars = extractor.MatchType( CostThresholeImage );
-        if ( CostChars.empty( ) || CostChars[ 0 ] < '1' || CostChars[ 0 ] > '4' ) return;
+        if ( CostChars.empty( ) || CostChars[ 0 ] < '1' || CostChars[ 0 ] > '4' )
+        {
+            std::cout << "Cost is invalid: " << ( CostChars.empty( ) ? "null" : std::string( 1, CostChars[ 0 ] ) ) << " (" << CostChars.size( ) << ")" << std::endl;
+            return;
+        }
         FS.Cost = CostChars[ 0 ] - '0';
 
         //        cv::namedWindow( "InputImage", cv::WINDOW_AUTOSIZE );
@@ -758,8 +763,13 @@ main( )
         const auto     LevelImage = InputImage( LevelRect );
         const auto     LevelChars = extractor.MatchText( LevelImage );
         std::from_chars( LevelChars.data( ), LevelChars.data( ) + LevelChars.size( ), FS.Level, 10 );
-        if ( FS.Level > 25 ) return;
+        if ( FS.Level > 25 )
+        {
+            std::cout << "Level is invalid: " << FS.Level << std::endl;
+            return;
+        }
 
+        std::cout << json( FS ) << std::endl;
         ResultJsonEchos.push_back( FS );
     };
     const auto ReadCardInLocations = [ & ]( auto&& Location ) {
@@ -821,8 +831,11 @@ main( )
         ReadCardInLocations( ListOfCardIndex );
     }
 
-    std::ofstream OutputJson( "data/echos___.json" );
+    std::ofstream OutputJson( "data/echos.json" );
     OutputJson << ResultJson << std::endl;
+
+    std::cout << ResultJsonEchos << std::endl;
+    std::cin.get( );
 
     DeleteObject( hCaptureBitmap );
     DeleteDC( hCaptureDC );
