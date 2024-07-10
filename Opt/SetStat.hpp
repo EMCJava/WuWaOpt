@@ -104,54 +104,53 @@ ApplyAllSetByCount( EffectiveStats& Stat, auto& SetCounts )
 
 template <EchoSet... Sets>
 inline EffectiveStats
-CountAndApplySets( auto&& EffectiveStatRanges )
+CountAndApplySets( auto&& EffectiveStatRanges, EffectiveStats CommonStats )
 {
     constexpr int RelatedSetCount = sizeof...( Sets );
 
     std::array<int, RelatedSetCount> SetCounts { };
 
-    EffectiveStats CombinationalStats { };
     for ( const auto& EffectiveStat : EffectiveStatRanges )
     {
         CountSet<0, Sets...>( SetCounts, EffectiveStat.Set );
-        CombinationalStats += EffectiveStat;
+        CommonStats += EffectiveStat;
     }
 
-    ApplyAllSetByCount<0, Sets...>( CombinationalStats, SetCounts );
+    ApplyAllSetByCount<0, Sets...>( CommonStats, SetCounts );
 
-    return CombinationalStats;
+    return CommonStats;
 }
 
 template <char ElementType>
 inline EffectiveStats
-CalculateCombinationalStat( auto&& EffectiveStatRanges )
+CalculateCombinationalStat( auto&& EffectiveStatRanges, const EffectiveStats& CommonStats )
 {
 #define SWITCH_TYPE( type ) \
     if constexpr ( ElementType == e##type )
 
     SWITCH_TYPE( FireDamagePercentage )
     {
-        return CountAndApplySets<eMoltenRift, eMoonlitClouds, eLingeringTunes>( EffectiveStatRanges );
+        return CountAndApplySets<eMoltenRift, eMoonlitClouds, eLingeringTunes>( EffectiveStatRanges, CommonStats );
     }
     else SWITCH_TYPE( AirDamagePercentage )
     {
-        return CountAndApplySets<eSierraGale, eMoonlitClouds, eLingeringTunes>( EffectiveStatRanges );
+        return CountAndApplySets<eSierraGale, eMoonlitClouds, eLingeringTunes>( EffectiveStatRanges, CommonStats );
     }
     else SWITCH_TYPE( IceDamagePercentage )
     {
-        return CountAndApplySets<eFreezingFrost, eMoonlitClouds, eLingeringTunes>( EffectiveStatRanges );
+        return CountAndApplySets<eFreezingFrost, eMoonlitClouds, eLingeringTunes>( EffectiveStatRanges, CommonStats );
     }
     else SWITCH_TYPE( ElectricDamagePercentage )
     {
-        return CountAndApplySets<eVoidThunder, eMoonlitClouds, eLingeringTunes>( EffectiveStatRanges );
+        return CountAndApplySets<eVoidThunder, eMoonlitClouds, eLingeringTunes>( EffectiveStatRanges, CommonStats );
     }
     else SWITCH_TYPE( DarkDamagePercentage )
     {
-        return CountAndApplySets<eSunSinkingEclipse, eMoonlitClouds, eLingeringTunes>( EffectiveStatRanges );
+        return CountAndApplySets<eSunSinkingEclipse, eMoonlitClouds, eLingeringTunes>( EffectiveStatRanges, CommonStats );
     }
     else SWITCH_TYPE( LightDamagePercentage )
     {
-        return CountAndApplySets<eCelestialLight, eMoonlitClouds, eLingeringTunes>( EffectiveStatRanges );
+        return CountAndApplySets<eCelestialLight, eMoonlitClouds, eLingeringTunes>( EffectiveStatRanges, CommonStats );
     }
 
 #undef SWITCH_TYPE

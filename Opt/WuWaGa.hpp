@@ -24,6 +24,7 @@ struct GARuntimeReport {
     std::array<std::vector<int>, MaxCombinationCount> ParentPickCount;
 
     struct DetailReportQueue {
+        std::mutex         ReportLock;
         std::set<uint64_t> QueueSet;
         std::priority_queue<CombinationRecord,
                             std::vector<CombinationRecord>,
@@ -40,32 +41,32 @@ class WuWaGA
 private:
     template <char ElementType, char DamageType, CostSlotTemplate>
     void
-    Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack );
+    Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack, EffectiveStats CommonStats );
 
 public:
-    static constexpr int ResultLength = 10;
+    static constexpr int ResultLength = 50;
 
     explicit WuWaGA( auto& Echos )
         : m_Echos( Echos )
     { }
 
-    [[nodiscard]] auto& GetReport( ) const noexcept
+    [[nodiscard]] auto& GetReport( ) noexcept
     {
         return m_GAReport;
     }
 
     template <char ElementType, char DamageType>
-    void Run( FloatTy BaseAttack );
+    void Run( FloatTy BaseAttack, const EffectiveStats& CommonStats );
 
 protected:
     GARuntimeReport m_GAReport;
 
     int m_PopulationSize = 10000, m_ReproduceSize = 1000;
 
-    std::vector<std::unique_ptr<std::jthread>> m_Threads;
-
     const std::vector<FullStats>& m_Echos;
     std::vector<EffectiveStats>   m_EffectiveEchos;
+
+    std::vector<std::unique_ptr<std::jthread>> m_Threads;
 };
 
 #include "WuWaGa.inl"

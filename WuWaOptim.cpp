@@ -81,14 +81,30 @@ main( )
     } );
 
     FloatTy SkillMultiplier     = 0.3877;
-    int     BaseAttack          = 642;
     int     CharacterLevel      = 60;
     int     EnemyLevel          = 73;
     FloatTy ElementResistance   = 0.1;
     FloatTy ElementDamageReduce = 0;
 
+    EffectiveStats WeaponStats;
+    EffectiveStats CharacterStats;
+    const auto     GetCommonStat = [ & ]( ) {
+        auto CommonStats        = WeaponStats + CharacterStats;
+        CommonStats.flat_attack = 0;
+
+        CommonStats.crit_damage /= 100;
+        CommonStats.crit_rate /= 100;
+        CommonStats.percentage_attack /= 100;
+        CommonStats.buff_multiplier /= 100;
+        CommonStats.regen /= 100;
+
+        return CommonStats;
+    };
+
+    constexpr auto OptimizingElementTy = eLightDamagePercentage;
+    constexpr auto OptimizingDamageTy  = eSkillDamagePercentage;
+
     WuWaGA Opt( FullStatsList );
-    Opt.Run<eFireDamagePercentage, eAutoAttackDamagePercentage>( BaseAttack );
 
     sf::RenderWindow window( sf::VideoMode( 600 + 600, 900 ), "WuWa Optimize" );
     window.setFramerateLimit( 60 );
@@ -110,12 +126,13 @@ main( )
             auto& DisplayCombination = ResultDisplayBuffer[ CombinationIndex ][ Rank ];
 
             const int      DisplayEchoCount = strlen( glabels[ CombinationIndex ] );
-            EffectiveStats DisplayStats     = CalculateCombinationalStat<eFireDamagePercentage>(
+            EffectiveStats DisplayStats     = CalculateCombinationalStat<OptimizingElementTy>(
                 std::views::iota( 0, DisplayEchoCount )
-                | std::views::transform( [ & ]( int EchoIndex ) {
-                      return ToEffectiveStats<eFireDamagePercentage, eAutoAttackDamagePercentage>(
-                          FullStatsList[ DisplayCombination.Indices[ EchoIndex ] ] );
-                  } ) );
+                    | std::views::transform( [ & ]( int EchoIndex ) {
+                          return ToEffectiveStats<OptimizingElementTy, OptimizingDamageTy>(
+                              FullStatsList[ DisplayCombination.Indices[ EchoIndex ] ] );
+                      } ),
+                GetCommonStat( ) );
 
             const auto DisplayRow = [ ShowDifferent ]( const char* Label, FloatTy OldValue, FloatTy Value ) {
                 if ( ShowDifferent )
@@ -124,7 +141,7 @@ main( )
                     ImGui::TableSetColumnIndex( 0 );
                     ImGui::Text( "%s", Label );
                     ImGui::TableSetColumnIndex( 1 );
-                    ImGui::Text( "%.3f", OldValue );
+                    ImGui::Text( "%.3f", Value );
                     if ( Value - OldValue < 0 )
                     {
                         ImGui::SameLine( );
@@ -159,6 +176,8 @@ main( )
             ImGui::SeparatorText( "Effective Stats" );
             if ( ImGui::BeginTable( "EffectiveStats", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg ) )
             {
+                const auto BaseAttack = WeaponStats.flat_attack + CharacterStats.flat_attack;
+
                 ImGui::TableSetupColumn( "Stat" );
                 ImGui::TableSetupColumn( "Number" );
                 ImGui::TableHeadersRow( );
@@ -197,8 +216,8 @@ main( )
             }
         };
 
-    const auto& GAReport = Opt.GetReport( );
-    sf::Clock   deltaClock;
+    auto&     GAReport = Opt.GetReport( );
+    sf::Clock deltaClock;
     while ( window.isOpen( ) )
     {
         sf::Event event { };
@@ -222,11 +241,11 @@ main( )
         ImGui::SetNextWindowSize( use_work_area ? viewport->WorkSize : viewport->Size );
         if ( ImGui::Begin( "Display", nullptr, flags ) )
         {
-            // ImGui::ShowDemoWindow( );
+            ImGui::ShowDemoWindow( );
 
             {
                 ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 5.0f );
-                ImGui::BeginChild( "GAStats", ImVec2( 600, -1 ), ImGuiChildFlags_Border );
+                ImGui::BeginChild( "GAStats", ImVec2( 600 - ImGui::GetStyle( ).WindowPadding.x, -1 ), ImGuiChildFlags_Border );
 
                 ImGui::ProgressBar( std::ranges::fold_left( GAReport.MutationProb, 0.f, []( auto A, auto B ) {
                                         return A + ( B <= 0 ? 1 : B );
@@ -268,11 +287,14 @@ main( )
                     ImPlot::SetupLegend( ImPlotLocation_South, ImPlotLegendFlags_Horizontal | ImPlotLegendFlags_Outside );
                     ImPlot::SetupAxes( "Rank", "Value", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit );
 
+                    bool HasData = false;
                     for ( int i = 0; i < GARuntimeReport::MaxCombinationCount; i++ )
                     {
-                        auto CopyList = GetConstContainer( GAReport.DetailReports[ i ].Queue );
-                        if ( CopyList.size( ) >= 10 )
+                        std::lock_guard Lock( GAReport.DetailReports[ i ].ReportLock );
+                        auto            CopyList = GetConstContainer( GAReport.DetailReports[ i ].Queue );
+                        if ( CopyList.size( ) >= WuWaGA::ResultLength )
                         {
+                            HasData = true;
                             std::ranges::copy( CopyList
                                                    | std::views::transform( []( auto& C ) {
                                                          return ResultPlotDetails { C.Value, C.SlotToArray( ) };
@@ -285,7 +307,7 @@ main( )
                     }
 
                     ImDrawList* draw_list = ImPlot::GetPlotDrawList( );
-                    if ( ImPlot::IsPlotHovered( ) )
+                    if ( HasData && ImPlot::IsPlotHovered( ) )
                     {
                         ImPlotPoint mouse = ImPlot::GetPlotMousePos( );
 
@@ -321,12 +343,13 @@ main( )
                             ChosenCombination = ClosestCombination;
                             ChosenRank        = Rank;
 
-                            SelectedStats = CalculateCombinationalStat<eFireDamagePercentage>(
+                            SelectedStats = CalculateCombinationalStat<OptimizingElementTy>(
                                 std::views::iota( 0, (int) strlen( glabels[ ClosestCombination ] ) )
-                                | std::views::transform( [ & ]( int EchoIndex ) {
-                                      return ToEffectiveStats<eFireDamagePercentage, eAutoAttackDamagePercentage>(
-                                          FullStatsList[ SelectedResult.Indices[ EchoIndex ] ] );
-                                  } ) );
+                                    | std::views::transform( [ & ]( int EchoIndex ) {
+                                          return ToEffectiveStats<OptimizingElementTy, OptimizingDamageTy>(
+                                              FullStatsList[ SelectedResult.Indices[ EchoIndex ] ] );
+                                      } ),
+                                GetCommonStat( ) );
                         }
                     }
 
@@ -341,14 +364,27 @@ main( )
 
             {
                 ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 5.0f );
-                ImGui::BeginChild( "DetailPanel", ImVec2( 0, -1 ), ImGuiChildFlags_Border );
+                ImGui::BeginChild( "DetailPanel", ImVec2( 600 - ImGui::GetStyle( ).WindowPadding.x * 2, -1 ), ImGuiChildFlags_Border );
 
-                ImGui::DragInt( "Base Attack", &BaseAttack );
-                ImGui::SameLine( );
-                if ( ImGui::ArrowButton( "Start", ImGuiDir_Right ) )
+                if ( ImGui::Button( "Run", ImVec2( -1, 0 ) ) )
                 {
-                    Opt.Run<eFireDamagePercentage, eAutoAttackDamagePercentage>( BaseAttack );
+                    const auto BaseAttack = WeaponStats.flat_attack + CharacterStats.flat_attack;
+                    Opt.Run<OptimizingElementTy, OptimizingDamageTy>( BaseAttack, GetCommonStat( ) );
                 }
+
+                ImGui::SeparatorText( "Weapon" );
+                ImGui::DragFloat( "Flat Percentage##1", &WeaponStats.flat_attack, 1, 0, 0, "%.0f" );
+                ImGui::DragFloat( "Attack Percentage##1", &WeaponStats.percentage_attack, 0.01, 0, 0, "%.2f" );
+                ImGui::DragFloat( "Damage Buff Percentage##1", &WeaponStats.buff_multiplier, 0.01, 0, 0, "%.2f" );
+                ImGui::DragFloat( "Crit Rate##1", &WeaponStats.crit_rate, 0.01, 0, 0, "%.2f" );
+                ImGui::DragFloat( "Crit Damage##1", &WeaponStats.crit_damage, 0.01, 0, 0, "%.2f" );
+
+                ImGui::SeparatorText( "Character" );
+                ImGui::DragFloat( "Flat Percentage##2", &CharacterStats.flat_attack, 1, 0, 0, "%.0f" );
+                ImGui::DragFloat( "Attack Percentage##2", &CharacterStats.percentage_attack, 0.01, 0, 0, "%.2f" );
+                ImGui::DragFloat( "Damage Buff Percentage##2", &CharacterStats.buff_multiplier, 0.01, 0, 0, "%.2f" );
+                ImGui::DragFloat( "Crit Rate##2", &CharacterStats.crit_rate, 0.01, 0, 0, "%.2f" );
+                ImGui::DragFloat( "Crit Damage##2", &CharacterStats.crit_damage, 0.01, 0, 0, "%.2f" );
 
                 ImGui::SeparatorText( "Static Configurations" );
                 FloatTy SkillMultiplierMul100 = SkillMultiplier * 100;
