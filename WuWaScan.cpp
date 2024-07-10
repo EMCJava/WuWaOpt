@@ -271,11 +271,11 @@ private:
         Templates {
             Template {'%', "percentage.png", cv::Scalar( 255, 248, 240 ), 190},
             Template {'0',          "0.png", cv::Scalar( 255, 255,   0 ), 205},
-            Template {'1',          "1.png", cv::Scalar( 193, 182, 255 ), 220},
+            Template {'1',          "1.png", cv::Scalar( 193, 182, 255 ), 240},
             Template {'2',          "2.png", cv::Scalar( 160, 158,  95 ), 210},
             Template {'3',          "3.png",  cv::Scalar( 80, 127, 255 ), 200},
             Template {'4',          "4.png", cv::Scalar( 169, 169, 169 ), 214},
-            Template {'5',          "5.png", cv::Scalar( 107, 183, 189 ), 200},
+            Template {'5',          "5.png", cv::Scalar( 107, 183, 189 ), 190},
             Template {'6',          "6.png", cv::Scalar( 204,  50, 153 ), 205},
             Template {'7',          "7.png", cv::Scalar( 240, 255, 255 ), 220},
             Template {'8',          "8.png", cv::Scalar( 255, 144,  30 ), 205},
@@ -300,10 +300,10 @@ private:
     std::vector<Template>
         Templates {
             Template {                    eAttack,       "attack.png", cv::Scalar( 255, 248, 240 ), 210},
-            Template {eAutoAttackDamagePercentage,  "auto_attack.png", cv::Scalar( 255, 255,   0 ), 210},
+            Template {eAutoAttackDamagePercentage,  "auto_attack.png", cv::Scalar( 255, 255,   0 ), 200},
             Template {     eHeavyAttackPercentage, "heavy_attack.png", cv::Scalar( 193, 182, 255 ), 200},
-            Template {       eUltDamagePercentage,   "ult_damage.png", cv::Scalar( 193, 182, 255 ), 210},
-            Template {     eSkillDamagePercentage,    "skill_dmg.png", cv::Scalar( 255, 240, 245 ), 210},
+            Template {       eUltDamagePercentage,   "ult_damage.png", cv::Scalar( 193, 182, 255 ), 180},
+            Template {     eSkillDamagePercentage,    "skill_dmg.png", cv::Scalar( 255,   0, 245 ), 200},
             Template {       eHealBonusPercentage,   "heal_bonus.png", cv::Scalar( 160, 158,  95 ), 210},
             Template {      eFireDamagePercentage,     "fire_dmg.png",  cv::Scalar( 80, 127, 255 ), 210},
             Template {       eAirDamagePercentage,      "air_dmg.png", cv::Scalar( 169, 169, 169 ), 210},
@@ -311,9 +311,9 @@ private:
             Template {  eElectricDamagePercentage,     "elec_dmg.png", cv::Scalar( 204,  50, 153 ), 210},
             Template {      eDarkDamagePercentage,     "dark_dmg.png", cv::Scalar( 240, 255, 255 ), 210},
             Template {     eLightDamagePercentage,    "light_dmg.png", cv::Scalar( 255, 144,  30 ), 210},
-            Template {                   eDefence,      "defence.png",  cv::Scalar( 47, 255, 173 ), 200},
+            Template {                   eDefence,      "defence.png",  cv::Scalar( 47, 255, 173 ), 180},
             Template {                    eHealth,       "health.png",   cv::Scalar( 0, 255, 255 ), 210},
-            Template {           eRegenPercentage,        "regen.png",   cv::Scalar( 0, 191, 255 ), 210},
+            Template {           eRegenPercentage,        "regen.png",   cv::Scalar( 0, 191, 255 ), 200},
             Template {                eCritDamage,     "crit_dmg.png", cv::Scalar( 153,  50, 204 ), 200},
             Template {                  eCritRate,    "crit_rate.png", cv::Scalar( 205, 133,  63 ), 210},
             Template {                        '1',       "cost_1.png", cv::Scalar( 193, 182, 255 ), 250},
@@ -325,13 +325,27 @@ private:
 class Extractor
 {
 private:
-    std::vector<char> MatchWithRecognizer( const cv::Mat& Src, auto& Recognizer )
+    std::vector<char> MatchWithRecognizer( const cv::Mat& Src, auto& Recognizer, const std::string& MatchName = "" )
     {
         cvtColor( Src, GrayImg, cv::COLOR_BGR2GRAY );
-        cv::threshold( GrayImg, GrayImg, 155, 255, cv::THRESH_BINARY );
+        cv::threshold( GrayImg, GrayImg, 153, 255, cv::THRESH_BINARY );
         cvtColor( GrayImg, MatchVisualizerImg, cv::COLOR_GRAY2BGR );
 
         auto& MatchRects = Recognizer.ExtractRect( GrayImg, MatchVisualizerImg );
+
+        if ( !MatchName.empty( ) )
+        {
+            const int MinimumWidth  = 300;
+            const int MinimumHeight = 300;
+            const int FinalWidth    = std::max( MatchVisualizerImg.cols + 100, MinimumWidth );
+
+            cv::Mat newImage = cv::Mat::zeros( std::max( MatchVisualizerImg.rows, MinimumHeight ), FinalWidth, MatchVisualizerImg.type( ) );
+            MatchVisualizerImg.copyTo( newImage( cv::Rect( 0, 0, MatchVisualizerImg.cols, MatchVisualizerImg.rows ) ) );
+
+            cv::namedWindow( MatchName, cv::WINDOW_NORMAL );
+            cv::resizeWindow( MatchName, newImage.cols, newImage.rows );
+            cv::imshow( MatchName, newImage );
+        }
 
         std::vector<char> Result;
 
@@ -392,20 +406,20 @@ private:
     }
 
 public:
-    auto MatchText( const cv::Mat& Src )
+    auto MatchText( const cv::Mat& Src, const std::string& MatchName = "" )
     {
-        return MatchWithRecognizer( Src, CRecognizer );
+        return MatchWithRecognizer( Src, CRecognizer, MatchName );
     }
 
-    auto MatchType( const cv::Mat& Src )
+    auto MatchType( const cv::Mat& Src, const std::string& MatchName = "" )
     {
-        return MatchWithRecognizer( Src, TRecognizer );
+        return MatchWithRecognizer( Src, TRecognizer, MatchName );
     }
 
     auto Match( const cv::Mat& Cimg, const cv::Mat& Timg )
     {
-        auto CResult = MatchText( Cimg );
-        auto TResult = MatchType( Timg );
+        auto CResult = MatchText( Cimg, "Stat Number" );
+        auto TResult = MatchType( Timg, "Stat Type" );
 
         auto Types   = TResult | std::views::split( '\n' ) | std::views::transform( []( auto&& c ) -> char { return c.front( ); } );
         auto Numbers = CResult | std::views::split( '\n' )
@@ -641,7 +655,7 @@ main( )
             Trail.back( ) = { 1, 1 };
     }
 
-    int EchoLeftToScan = 752;
+    int EchoLeftToScan = 776;
     std::cout << "Scaning " << EchoLeftToScan << " echoes..." << std::endl;
 
     srand( time( nullptr ) );
@@ -728,32 +742,6 @@ main( )
         }
         FS.Cost = CostChars[ 0 ] - '0';
 
-        //        cv::namedWindow( "InputImage", cv::WINDOW_AUTOSIZE );
-        //        cv::imshow( "InputImage", InputImage );
-        //        cv::setMouseCallback( "InputImage", []( int event, int x, int y, int flag, void* param ) {
-        //                    cv::Mat& img =* reinterpret_cast<cv::Mat*>(param);
-        //                    uchar b = img.data[img.channels()*(img.cols*y + x) + 0];
-        //                    uchar g = img.data[img.channels()*(img.cols*y + x) + 1];
-        //                    uchar r = img.data[img.channels()*(img.cols*y + x) + 2];
-        //                    std::cout << "at (" << x << "," << y << ")" << std::endl;
-        //                    cv::Mat colorImg(480, 640, CV_8UC3, cv::Scalar(b, g, r));
-        //                    std::cout << (int)r << " " << (int)g << " " << (int)b << std::endl;
-        //                    cv::imshow("Color", colorImg); }, reinterpret_cast<void*>( &InputImage ) );
-        //        cv::waitKey( 0 );
-
-        //        cv::namedWindow( "InputImage", cv::WINDOW_AUTOSIZE );
-        //        cv::imshow( "InputImage", InputImage );
-        //        cv::setMouseCallback( "InputImage", []( int event, int x, int y, int flag, void* param ) {
-        //                    cv::Mat& img =* reinterpret_cast<cv::Mat*>(param);
-        //                    uchar b = img.data[img.channels()*(img.cols*y + x) + 0];
-        //                    uchar g = img.data[img.channels()*(img.cols*y + x) + 1];
-        //                    uchar r = img.data[img.channels()*(img.cols*y + x) + 2];
-        //                    std::cout << "at (" << x << "," << y << ")" << std::endl;
-        //                    cv::Mat colorImg(480, 640, CV_8UC3, cv::Scalar(b, g, r));
-        //                    std::cout << (int)r << " " << (int)g << " " << (int)b << std::endl;
-        //                    cv::imshow("Color", colorImg); }, reinterpret_cast<void*>( &InputImage ) );
-        //        cv::waitKey( 0 );
-
         int SetColorCoordinateX = 977, SetColorCoordinateY = 242;
         FS.Set = MatchColorToSet( { InputImage.data[ InputImage.channels( ) * ( InputImage.cols * SetColorCoordinateY + SetColorCoordinateX ) + 2 ],
                                     InputImage.data[ InputImage.channels( ) * ( InputImage.cols * SetColorCoordinateY + SetColorCoordinateX ) + 1 ],
@@ -761,7 +749,7 @@ main( )
 
         const cv::Rect LevelRect { 1202, 195, 28, 22 };
         const auto     LevelImage = InputImage( LevelRect );
-        const auto     LevelChars = extractor.MatchText( LevelImage );
+        const auto     LevelChars = extractor.MatchText( LevelImage, "Level" );
         std::from_chars( LevelChars.data( ), LevelChars.data( ) + LevelChars.size( ), FS.Level, 10 );
         if ( FS.Level > 25 )
         {
@@ -772,6 +760,7 @@ main( )
         std::cout << json( FS ) << std::endl;
         ResultJsonEchos.push_back( FS );
     };
+
     const auto ReadCardInLocations = [ & ]( auto&& Location ) {
         MouseToCard( Location[ 0 ].x, Location[ 0 ].y );
         LeftClick( true );
