@@ -381,6 +381,9 @@ GetSkillBonusPtr( )
     if constexpr ( DamageType == eAutoAttackDamagePercentage )
     {
         return &FullStats::AutoAttackDamagePercentage;
+    } else if constexpr ( DamageType == eHeavyAttackPercentage )
+    {
+        return &FullStats::HeavyAttackPercentage;
     } else if constexpr ( DamageType == eSkillDamagePercentage )
     {
         return &FullStats::SkillDamagePercentage;
