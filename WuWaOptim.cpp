@@ -167,8 +167,8 @@ main( )
                 DisplayRow( "Regen", SelectedStats.regen * 100, DisplayStats.regen * 100 );
                 DisplayRow( "Percentage Attack", SelectedStats.percentage_attack * 100, DisplayStats.percentage_attack * 100 );
                 DisplayRow( "Buff Multiplier", SelectedStats.buff_multiplier * 100, DisplayStats.buff_multiplier * 100 );
-                DisplayRow( "Crit rate", SelectedStats.crit_rate * 100, DisplayStats.crit_rate * 100 );
-                DisplayRow( "Crit Damage", SelectedStats.crit_damage * 100 + 100, DisplayStats.crit_damage * 100 + 100 );
+                DisplayRow( "Crit rate", SelectedStats.CritRateStat( ) * 100, DisplayStats.CritRateStat( ) * 100 );
+                DisplayRow( "Crit Damage", SelectedStats.CritDamageStat( ) * 100, DisplayStats.CritDamageStat( ) * 100 );
                 DisplayRow( "Final Attack", SelectedStats.AttackStat( BaseAttack ), DisplayStats.AttackStat( BaseAttack ) );
 
                 const FloatTy Resistances = ( (FloatTy) 100 + CharacterLevel ) / ( 199 + CharacterLevel + EnemyLevel ) * ( 1 - ElementResistance ) * ( 1 - ElementDamageReduce );

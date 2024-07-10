@@ -173,6 +173,16 @@ struct EffectiveStats {
         return true;
     }
 
+    FloatTy CritRateStat( ) const noexcept
+    {
+        return crit_rate + 0.05f;
+    }
+
+    FloatTy CritDamageStat( ) const noexcept
+    {
+        return crit_damage + 1.5f;
+    }
+
     FloatTy AttackStat( auto base_attack ) const noexcept
     {
         return base_attack * ( 1 + percentage_attack ) + flat_attack;
@@ -180,17 +190,17 @@ struct EffectiveStats {
 
     FloatTy NormalDamage( auto base_attack ) const noexcept
     {
-        return AttackStat( base_attack ) * ( 1 + buff_multiplier );
+        return AttackStat( base_attack ) * ( 1.f + buff_multiplier );
     }
 
     FloatTy CritDamage( auto base_attack ) const noexcept
     {
-        return NormalDamage( base_attack ) * ( 1 + crit_damage );
+        return NormalDamage( base_attack ) * CritDamageStat( );
     }
 
     FloatTy ExpectedDamage( auto base_attack ) const noexcept
     {
-        return NormalDamage( base_attack ) * ( 1 + std::min( crit_rate, (FloatTy) 1 ) * crit_damage );
+        return NormalDamage( base_attack ) * ( 1 + std::min( CritRateStat( ), (FloatTy) 1 ) * ( 0.5f + crit_damage ) );
     }
 };
 
