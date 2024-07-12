@@ -24,8 +24,8 @@ using json = nlohmann::json;
 
 #include "Opt/FullStats.hpp"
 
-const int RESIZED_IMAGE_WIDTH  = 20;
-const int RESIZED_IMAGE_HEIGHT = 30;
+const int RESIZED_IMAGE_WIDTH  = 1200;
+const int RESIZED_IMAGE_HEIGHT = 300;
 
 std::random_device               rd;
 std::mt19937                     gen( rd( ) );
@@ -34,17 +34,18 @@ std::uniform_real_distribution<> dis( 0.15, 0.85 );
 std::vector<std::vector<std::pair<float, float>>> MouseTrails;
 
 struct Template {
-    char        name;
+    int32_t     template_id;
     std::string template_file;
     cv::Mat     template_mat;
     cv::Scalar  color;
     int         threshold;
 
-    Template( char name, std::string template_file, cv::Scalar color, int threshold )
+    Template( int32_t name, std::string template_file, cv::Scalar color, int threshold )
     {
-        template_mat = imread( "data/" + template_file, cv::IMREAD_GRAYSCALE );
+        if ( !std::filesystem::exists( template_file ) ) template_file = "data/" + template_file;
+        template_mat = cv::imread( template_file, cv::IMREAD_GRAYSCALE );
 
-        this->name          = name;
+        this->template_id   = name;
         this->template_file = std::move( template_file );
         this->color         = std::move( color );
         this->threshold     = threshold;
@@ -58,7 +59,7 @@ struct Template {
 };
 
 struct Record {
-    char     match;
+    int      match;
     cv::Rect rect;
 };
 class CompareRecord
@@ -116,6 +117,32 @@ GetGameWindow( )
 }   // namespace Win
 namespace ML
 {
+void
+PixelPerfectResize( const cv::Mat& src, cv::Mat& dst, int width, int height )
+{
+    // Create a destination matrix with the desired size
+    dst = cv::Mat::zeros( height, width, src.type( ) );
+
+    // Calculate the scale factors
+    float scaleX = (float) src.cols / width;
+    float scaleY = (float) src.rows / height;
+
+    // Loop over the destination image
+    for ( int y = 0; y < height; ++y )
+    {
+        for ( int x = 0; x < width; ++x )
+        {
+            // Find the corresponding position in the source image
+            int srcX = std::min( (int) ( x * scaleX ), src.cols - 1 );
+            int srcY = std::min( (int) ( y * scaleY ), src.rows - 1 );
+
+            // Assign the pixel value
+            dst.at<uint8_t>( y, x ) = src.at<uint8_t>( srcY, srcX );
+        }
+    }
+}
+
+
 auto
 TrainKNearest( auto&& Templates )
 {
@@ -127,7 +154,7 @@ TrainKNearest( auto&& Templates )
         cv::Mat matROIResized;
 
         // resize image, this will be more consistent for recognition and storage
-        cv::resize( Templates[ i ].template_mat, matROIResized, cv::Size( RESIZED_IMAGE_WIDTH, RESIZED_IMAGE_HEIGHT ) );
+        PixelPerfectResize( Templates[ i ].template_mat, matROIResized, RESIZED_IMAGE_WIDTH, RESIZED_IMAGE_HEIGHT );
 
         // now add the training image (some conversion is necessary first) . . .
         cv::Mat matImageFloat;
@@ -142,7 +169,7 @@ TrainKNearest( auto&& Templates )
 
     cv::Mat matClassificationInts( Templates.size( ), 1, CV_32S );
     for ( int i = 0; i < Templates.size( ); i++ )
-        matClassificationInts.at<int>( i, 0 ) = Templates[ i ].name;
+        matClassificationInts.at<int>( i, 0 ) = Templates[ i ].template_id;
 
     auto model = cv::ml::KNearest::create( );
     model->train( matTrainingImagesAsFlattenedFloats, cv::ml::ROW_SAMPLE, matClassificationInts );
@@ -224,7 +251,7 @@ public:
                     rectangle( MatchVisualizer, MatchRect, pattern.color, 2 );
                     floodFill( MatchResult, maxloc, 0 );
 
-                    MatchRects.emplace( pattern.name, MatchRect );
+                    MatchRects.emplace( pattern.template_id, MatchRect );
                 } else
                     break;
             }
@@ -233,12 +260,11 @@ public:
         return MatchRects;
     }
 
-    char KNNMatch( const cv::Mat& Src )
+    int KNNMatch( const cv::Mat& Src )
     {
         cv::Mat matCurrentChar( 0, 0, CV_32F );
         KNearestModel->findNearest( Src, 1, matCurrentChar );
-        auto fltCurrentChar = matCurrentChar.at<float>( 0, 0 );
-        return char( int( fltCurrentChar ) );
+        return (int) std::round( matCurrentChar.at<float>( 0, 0 ) );
     }
 
 private:
@@ -322,14 +348,64 @@ private:
     };
 };
 
+class EchoNameRecognizer : public RecognizerBase<EchoNameRecognizer>
+{
+public:
+    EchoNameRecognizer( const std::filesystem::path& EchoNameFolder = "data/names" )
+    {
+        Templates = std::filesystem::directory_iterator { EchoNameFolder }
+            | std::views::enumerate
+            | std::views::transform( []( const auto& Index_DirEntry ) {
+                        const auto& path = std::get<1>( Index_DirEntry ).path( );
+                        std::cout << "Loading template: " << path.stem( ) << std::endl;
+                        return Template {
+                            (int32_t) std::get<0>( Index_DirEntry ),
+                            std::filesystem::absolute( path ).string( ),
+                            cv::Scalar(
+                                100 + rand( ) % ( 255 - 100 ),
+                                100 + rand( ) % ( 255 - 100 ),
+                                100 + rand( ) % ( 255 - 100 ) ),
+                            220 };
+                    } )
+            | std::ranges::to<std::vector>( );
+
+        Initialize( );
+    }
+
+    [[nodiscard]] const auto& GetTemplates( ) const
+    {
+        return Templates;
+    }
+
+private:
+    std::vector<Template> Templates;
+};
+
 class Extractor
 {
 private:
-    std::vector<char> MatchWithRecognizer( const cv::Mat& Src, auto& Recognizer, const std::string& MatchName = "" )
+    void ThresholdPreProcessor( const cv::Mat& Src )
     {
         cvtColor( Src, GrayImg, cv::COLOR_BGR2GRAY );
         cv::threshold( GrayImg, GrayImg, 153, 255, cv::THRESH_BINARY );
         cvtColor( GrayImg, MatchVisualizerImg, cv::COLOR_GRAY2BGR );
+    }
+
+    void InYellowRangePreProcessor( const cv::Mat& Src )
+    {
+        cv::Mat SrcHSV;
+        cvtColor( Src, SrcHSV, cv::COLOR_BGR2HSV );
+        cv::inRange( SrcHSV, cv::Scalar( 25, 0, 150 ), cv::Scalar( 35, 255, 255 ), GrayImg );
+        cvtColor( GrayImg, MatchVisualizerImg, cv::COLOR_GRAY2BGR );
+    }
+
+    std::vector<char> MatchWithRecognizer( const cv::Mat&     Src,
+                                           auto&              Recognizer,
+                                           const std::string& MatchName                        = "",
+                                           void ( Extractor::*PreProcessor )( const cv::Mat& ) = &Extractor::ThresholdPreProcessor )
+    {
+
+        ( this->*PreProcessor )( Src );
 
         auto& MatchRects = Recognizer.ExtractRect( GrayImg, MatchVisualizerImg );
 
@@ -372,7 +448,7 @@ private:
             if ( Overlaps.size( ) == 1 )
             {
                 // std::cout << CurrentMatch.match;
-                Result.push_back( CurrentMatch.match );
+                Result.push_back( (char) CurrentMatch.match );
             } else
             {
 
@@ -384,7 +460,7 @@ private:
                 cv::Mat matROI = GrayImg( cv::Rect { left, top, right - left, bottom - top } );
 
                 cv::Mat matROIResized;
-                cv::resize( matROI, matROIResized, cv::Size( RESIZED_IMAGE_WIDTH, RESIZED_IMAGE_HEIGHT ) );
+                ML::PixelPerfectResize( matROI, matROIResized, RESIZED_IMAGE_WIDTH, RESIZED_IMAGE_HEIGHT );
 
                 cv::Mat matROIFloat;
                 matROIResized.convertTo( matROIFloat, CV_32FC1 );
@@ -416,10 +492,17 @@ public:
         return MatchWithRecognizer( Src, TRecognizer, MatchName );
     }
 
-    auto Match( const cv::Mat& Cimg, const cv::Mat& Timg )
+    auto MatchEchoName( const cv::Mat& Src, const std::string& MatchName = "" )
+    {
+        return MatchWithRecognizer( Src, NRecognizer, MatchName, &Extractor::InYellowRangePreProcessor );
+    }
+
+    auto Match( const cv::Mat& Cimg, const cv::Mat& Timg, const cv::Mat& Nimg )
     {
         auto CResult = MatchText( Cimg, "Stat Number" );
         auto TResult = MatchType( Timg, "Stat Type" );
+
+        auto NResult = MatchEchoName( Nimg, "Echo Name" );
 
         auto Types   = TResult | std::views::split( '\n' ) | std::views::transform( []( auto&& c ) -> char { return c.front( ); } );
         auto Numbers = CResult | std::views::split( '\n' )
@@ -481,12 +564,19 @@ public:
             }
         }
 
+        if ( !NResult.empty( ) )
+        {
+            std::filesystem::path TemplateName = NRecognizer.GetTemplates( )[ NResult.front( ) ].template_file;
+            Result.EchoName                    = TemplateName.stem( );
+        }
+
         return Result;
     }
 
 private:
     StatTypeRecognizer  TRecognizer;
     CharacterRecognizer CRecognizer;
+    EchoNameRecognizer  NRecognizer;
 
     /*
      *
@@ -496,58 +586,6 @@ private:
     cv::Mat               GrayImg, MatchVisualizerImg;
     std::vector<cv::Rect> Overlaps;
 };
-
-void
-AAA( )
-{
-    const int character_base_attack = 279;
-    const int weapon_base_attack    = 263;
-    const int base_attack           = character_base_attack + weapon_base_attack;
-
-    const int     character_level   = 60;
-    const int     enemy_level       = 54;
-    const int     character_defence = 792 + character_level * 8;
-    const int     enemy_defence     = 792 + enemy_level * 8;
-    const FloatTy defence           = character_defence / FloatTy( character_defence + enemy_defence );
-
-    const FloatTy enemy_resistance_percentage_sum = 0.1;
-
-    // skill / attack
-    const FloatTy skill_multiplier = 0.358;
-
-    // team based
-    const FloatTy damage_multiplier_percentage_sum = 0;
-
-    EffectiveStats fixed_stats {
-        .flat_attack       = 0,
-        .percentage_attack = 0.018,
-        .buff_multiplier   = 0,
-        .crit_rate         = 0,
-        .crit_damage       = 1,
-    };
-
-    // =========================================
-    // Stats to optimize
-    EffectiveStats              Weapon { .flat_attack = 0, .percentage_attack = 0 };
-    std::vector<EffectiveStats> Echos {
-        {.flat_attack = 150,             .percentage_attack = 0},
-        { .flat_attack = 84,             .percentage_attack = 0},
-        { .flat_attack = 68,             .percentage_attack = 0},
-        {  .flat_attack = 0, .percentage_attack = 0.151 + 0.109},
-        { .flat_attack = 50,         .percentage_attack = 0.122},
-    };
-
-    const auto Substat = std::reduce( Echos.begin( ), Echos.end( ), fixed_stats ) + Weapon;
-
-    const FloatTy ActualDamage =
-        Substat.NormalDamage( base_attack )
-        * skill_multiplier
-        * defence
-        * ( 1 - enemy_resistance_percentage_sum )
-        * ( 1 + damage_multiplier_percentage_sum );
-
-    return;
-}
 
 void
 MoveMouse( cv::Point Start, cv::Point End, int Millisecond = 1000 )
@@ -720,13 +758,16 @@ main( )
         const cv::Rect FullRect { 885, 305, 350, 220 };
         const auto     FullImage = InputImage( FullRect );
 
+        const cv::Rect NameRect { 880, 115, 200, 25 };
+        const auto     NameImage = InputImage( NameRect );
+
         const cv::Rect StatRect { 0, 0, 26, 220 };
         const auto     StatImage = FullImage( StatRect );
 
         const cv::Rect NumberRect { 1150 - 885, 0, 80, 220 };
         const auto     NumberImage = FullImage( NumberRect );
 
-        auto FS = extractor.Match( NumberImage, StatImage );
+        auto FS = extractor.Match( NumberImage, StatImage, NameImage );
 
         const cv::Rect CostRect { 1148, 170, 76, 18 };
         const auto     CostImage = InputImage( CostRect ).clone( );
