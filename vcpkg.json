@@ -2,6 +2,7 @@
   "dependencies": [
     "opencv",
     "nlohmann-json",
+    "tesseract",
     "sfml",
     "imgui-sfml",
     "implot",
