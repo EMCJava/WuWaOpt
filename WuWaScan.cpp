@@ -2,6 +2,7 @@
 // Created by EMCJava on 5/28/2024.
 //
 #include <windows.h>
+#include <Psapi.h>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -113,6 +114,38 @@ GetGameWindow( )
     }
 
     return iotaFuture.get( ) == IDCANCEL ? nullptr : Foreground;
+}
+
+BOOL CALLBACK
+EnumGameProc( HWND hwnd, LPARAM lParam )
+{
+    const int MAX_CLASS_NAME = 255;
+    char      className[ MAX_CLASS_NAME ];
+
+    GetClassName( hwnd, className, MAX_CLASS_NAME );
+
+    if ( strcmp( className, "UnrealWindow" ) != 0 ) return TRUE;
+
+    DWORD dwProcId = 0;
+    GetWindowThreadProcessId( hwnd, &dwProcId );
+    HANDLE hProc = OpenProcess( PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, dwProcId );
+    if ( hProc != nullptr )
+    {
+        char executablePath[ MAX_PATH ] { 0 };
+        if ( GetModuleFileNameEx( hProc, nullptr, executablePath, sizeof( executablePath ) / sizeof( char ) ) )
+        {
+            if ( strstr( executablePath, "Wuthering Waves Game" ) != nullptr )
+            {
+                std::cout << "Full path of the executable: " << executablePath << std::endl;
+                *(HWND*) lParam = hwnd;
+                return FALSE;
+            }
+        }
+
+        CloseHandle( hProc );
+    }
+
+    return TRUE;
 }
 }   // namespace Win
 namespace ML
@@ -567,7 +600,7 @@ public:
         if ( !NResult.empty( ) )
         {
             std::filesystem::path TemplateName = NRecognizer.GetTemplates( )[ NResult.front( ) ].template_file;
-            Result.EchoName                    = TemplateName.stem( );
+            Result.EchoName                    = TemplateName.stem( ).string( );
         }
 
         return Result;
@@ -662,44 +695,53 @@ ScrollMouse( int scroll )
     return ::SendInput( 1, &input, sizeof( INPUT ) );
 }
 
+void
+LoadMouseTrails( )
+{
+    using namespace std::ranges;
+    using std::views::chunk;
+    using std::views::transform;
+
+    std::ifstream MouseTrailInput( "data/MouseTrail.txt" );
+
+    std::size_t TrailsCount, TrailResolution;
+    MouseTrailInput >> TrailsCount >> TrailResolution;
+
+    MouseTrails =
+        istream_view<float>( MouseTrailInput )
+        | chunk( TrailResolution * /* x and y coordinate */ 2 )
+        | transform( []( auto&& r ) {
+              return r
+                  | chunk( 2 )
+                  | transform( []( auto&& r ) {
+                         auto iter = r.begin( );
+                         return std::make_pair( *r.begin( ), *++iter );
+                     } )
+                  | to<std::vector>( );
+          } )
+        | to<std::vector>( );
+
+    for ( auto& Trail : MouseTrails )
+        Trail.back( ) = { 1, 1 };
+}
+
 int
 main( )
 {
+    HWND TargetWindowHandle = nullptr;
+    EnumWindows( Win::EnumGameProc, reinterpret_cast<LPARAM>( &TargetWindowHandle ) );
+    if ( TargetWindowHandle == nullptr )
     {
-        using namespace std::ranges;
-        using std::views::chunk;
-        using std::views::transform;
-
-        std::ifstream MouseTrailInput( "data/MouseTrail.txt" );
-
-        std::size_t TrailsCount, TrailResolution;
-        MouseTrailInput >> TrailsCount >> TrailResolution;
-
-        MouseTrails =
-            istream_view<float>( MouseTrailInput )
-            | chunk( TrailResolution * /* x and y coordinate */ 2 )
-            | transform( []( auto&& r ) {
-                  return r
-                      | chunk( 2 )
-                      | transform( []( auto&& r ) {
-                             auto iter = r.begin( );
-                             return std::make_pair( *r.begin( ), *++iter );
-                         } )
-                      | to<std::vector>( );
-              } )
-            | to<std::vector>( );
-
-        for ( auto& Trail : MouseTrails )
-            Trail.back( ) = { 1, 1 };
+        TargetWindowHandle = Win::GetGameWindow( );
+        if ( TargetWindowHandle == nullptr ) return 0;
     }
 
-    int EchoLeftToScan = 776;
-    std::cout << "Scaning " << EchoLeftToScan << " echoes..." << std::endl;
+    std::wstring TargetWindowTitle( 256, L'\0' );
+    GetWindowTextW( TargetWindowHandle, TargetWindowTitle.data( ), (int) TargetWindowTitle.size( ) );
+    setlocale( LC_CTYPE, "en_US.UTF-8" );
 
-    srand( time( nullptr ) );
-
-    auto TargetWindowHandle = Win::GetGameWindow( );
-    if ( TargetWindowHandle == nullptr ) return 0;
+    std::wcout << TargetWindowHandle << ": " << TargetWindowTitle.data( ) << std::endl;
+    SetForegroundWindow( TargetWindowHandle );
 
     HDC hScreenDC  = GetDC( GetDesktopWindow( ) );
     HDC hCaptureDC = CreateCompatibleDC( hScreenDC );   // create a device context to use yourself
@@ -710,6 +752,13 @@ main( )
 
     // use the previously created device context with the bitmap
     SelectObject( hCaptureDC, hCaptureBitmap );
+
+    LoadMouseTrails( );
+
+    int EchoLeftToScan = 848;
+    std::cout << "Scaning " << EchoLeftToScan << " echoes..." << std::endl;
+
+    srand( time( nullptr ) );
 
     static const float CardSpaceWidth  = 111;
     static const float CardSpaceHeight = 1230 / 9.f;
