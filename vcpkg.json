@@ -5,7 +5,13 @@
     "sfml",
     "imgui-sfml",
     "implot",
-    "spdlog"
+    {
+      "name": "spdlog",
+      "default-features": false,
+      "features": [
+        "wchar"
+      ]
+    }
   ],
   "name": "emcjava-autogame",
   "version": "1.0.0"
