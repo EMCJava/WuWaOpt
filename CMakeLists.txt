@@ -10,6 +10,7 @@ find_package(SFML COMPONENTS system window graphics CONFIG REQUIRED)
 find_package(ImGui-SFML CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 
+include_directories(.)
 add_subdirectory(Scan)
 
 add_executable(WuWaScan WuWaScan.cpp)
