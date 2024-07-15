@@ -64,7 +64,7 @@ main( )
                                                   115 + CardSpaceHeight * Y + CardHeight * (float) dis( gen ) };
         NextLocation += GameHandler.GetLeftTop( );
 
-        MouseController.MoveMouse( MouseLocation, NextLocation, 200 + 80 * ( dis( gen ) - 0.5 ) );
+        MouseController.MoveMouse( MouseLocation, NextLocation, 300 + 80 * ( dis( gen ) - 0.5 ) );
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
 
         MouseLocation = NextLocation;
@@ -73,10 +73,20 @@ main( )
     EchoExtractor Extractor;
     const auto    ReadCard = [ & ]( ) {
         std::cout << "=================Start Scan=================" << std::endl;
+        Stopwatch  SW;
         const auto FS = Extractor.ReadCard( GameHandler.ScreenCap( ) );
         std::cout << json( FS ) << std::endl;
         ResultJsonEchos.push_back( FS );
     };
+
+//    while ( true )
+//    {
+//        {
+//            Stopwatch  SW;
+//            const auto FS = Extractor.ReadCard( GameHandler.ScreenCap( ) );
+//        }
+//        cv::waitKey( 1 );
+//    }
 
     std::binary_semaphore CardReading { 1 };
     const auto            ReadCardInLocations = [ & ]( auto&& Location ) {
@@ -87,7 +97,7 @@ main( )
         {
             std::thread { [ &CardReading, &ReadCard ] {
                 CardReading.acquire( );
-                std::this_thread::sleep_for( std::chrono::milliseconds( 120 ) );
+                std::this_thread::sleep_for( std::chrono::milliseconds( 300 ) );
                 ReadCard( );
                 CardReading.release( );
             } }.detach( );
