@@ -26,6 +26,8 @@ using json = nlohmann::json;
 #include "Scan/Win/GameHandle.hpp"
 #include "Scan/Recognizer/EchoExtractor.hpp"
 
+#include <spdlog/spdlog.h>
+
 std::random_device               rd;
 std::mt19937                     gen( rd( ) );
 std::uniform_real_distribution<> dis( 0.15, 0.85 );
