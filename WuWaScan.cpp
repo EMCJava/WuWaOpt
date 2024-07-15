@@ -22,8 +22,8 @@ using json = nlohmann::json;
 #include <semaphore>
 
 #include "Opt/FullStats.hpp"
-#include "Scan/MouseControl.hpp"
-#include "Scan/GameHandle.hpp"
+#include "Scan/Win/MouseControl.hpp"
+#include "Scan/Win/GameHandle.hpp"
 
 const int RESIZED_IMAGE_WIDTH  = 1200;
 const int RESIZED_IMAGE_HEIGHT = 300;
