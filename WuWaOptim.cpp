@@ -87,9 +87,25 @@ main( )
     FloatTy ElementResistance   = 0.1;
     FloatTy ElementDamageReduce = 0;
 
-    EffectiveStats WeaponStats;
-    EffectiveStats CharacterStats;
-    const auto     GetCommonStat = [ & ]( ) {
+    EffectiveStats WeaponStats {
+        .flat_attack       = 516,
+        .regen             = 0,
+        .percentage_attack = 0,
+        .buff_multiplier   = 12,
+        .crit_rate         = 22.1,
+        .crit_damage       = 0,
+    };
+
+    EffectiveStats CharacterStats {
+        .flat_attack       = 368,
+        .regen             = 0,
+        .percentage_attack = 12,
+        .buff_multiplier   = 2,
+        .crit_rate         = 8,
+        .crit_damage       = 0,
+    };
+
+    const auto GetCommonStat = [ & ]( ) {
         auto CommonStats        = WeaponStats + CharacterStats;
         CommonStats.flat_attack = 0;
 

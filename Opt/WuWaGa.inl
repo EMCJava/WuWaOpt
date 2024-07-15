@@ -528,15 +528,28 @@ WuWaGA::Run( FloatTy BaseAttack, const EffectiveStats& CommonStats )
 {
     m_Threads.clear( );
 
-    const auto EchoNameSet = m_Echos
-        | std::views::transform( []( const FullStats& Stat ) { return Stat.EchoName; } )
-        | std::ranges::to<std::set<std::string>>( );
+    const auto EchoNameSets = std::views::iota( 0, eEchoSetCount )
+        | std::views::transform( [ this ]( int Set ) {
+                                  return m_Echos
+                                      | std::views::filter( [ Set ]( const FullStats& Stat ) { return Stat.Set == Set; } )
+                                      | std::views::transform( []( const FullStats& Stat ) {
+                                             spdlog::info( "Set: {}, Echo: {}", (int) Stat.Set, Stat.EchoName );
+                                             return Stat.EchoName;
+                                         } )
+                                      | std::ranges::to<std::set<std::string>>( );
+                              } )
+        | std::ranges::to<std::vector>( );
+
+    std::ranges::for_each( EchoNameSets, []( const auto& NameSet ) {
+        assert( NameSet.size( ) < std::numeric_limits<SetNameOccupation>::digits );
+    } );
 
     m_EffectiveEchos =
         m_Echos
         | std::views::transform( [ & ]( const FullStats& Stats ) {
-              auto EffectiveStats   = ToEffectiveStats<ElementType, DamageType>( Stats );
-              EffectiveStats.NameID = std::distance( EchoNameSet.begin( ), EchoNameSet.find( Stats.EchoName ) );
+              auto        EffectiveStats = ToEffectiveStats<ElementType, DamageType>( Stats );
+              const auto& NameSets       = EchoNameSets[ Stats.Set ];
+              EffectiveStats.NameID      = std::distance( NameSets.begin( ), NameSets.find( Stats.EchoName ) );
               return EffectiveStats;
           } )
         | std::ranges::to<std::vector>( );

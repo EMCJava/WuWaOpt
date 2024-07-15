@@ -86,11 +86,21 @@ ApplySetEffect( EffectiveStats& Stats, int SetCount )
 
 template <int Index, EchoSet Set, EchoSet... Sets>
 inline void
-CountSet( auto& Counter, char ActualSet )
+CountSet( auto& Counter, auto& OccupationMask, char ActualSet, int NameID )
 {
-    if ( ActualSet == Set ) Counter[ Index ]++;
+    if ( ActualSet == Set )
+    {
+        const auto Mask = 1 << NameID;
+        if ( ~OccupationMask[ Index ] & Mask )
+        {
+            // Unique name
+            OccupationMask[ Index ] |= Mask;
+            Counter[ Index ]++;
+        }
+    }
+
     if constexpr ( sizeof...( Sets ) > 0 )
-        CountSet<Index + 1, Sets...>( Counter, ActualSet );
+        CountSet<Index + 1, Sets...>( Counter, OccupationMask, ActualSet, NameID );
 }
 
 template <int Index, EchoSet Set, EchoSet... Sets>
@@ -102,17 +112,20 @@ ApplyAllSetByCount( EffectiveStats& Stat, auto& SetCounts )
         ApplyAllSetByCount<Index + 1, Sets...>( Stat, SetCounts );
 }
 
+using SetNameOccupation = uint32_t;
+
 template <EchoSet... Sets>
 inline EffectiveStats
 CountAndApplySets( auto&& EffectiveStatRanges, EffectiveStats CommonStats )
 {
     constexpr int RelatedSetCount = sizeof...( Sets );
 
-    std::array<int, RelatedSetCount> SetCounts { };
+    std::array<int, RelatedSetCount>               SetCounts { 0 };
+    std::array<SetNameOccupation, RelatedSetCount> OccupationMask { 0 };
 
     for ( const auto& EffectiveStat : EffectiveStatRanges )
     {
-        CountSet<0, Sets...>( SetCounts, EffectiveStat.Set );
+        CountSet<0, Sets...>( SetCounts, OccupationMask, EffectiveStat.Set, EffectiveStat.NameID );
         CommonStats += EffectiveStat;
     }
 
