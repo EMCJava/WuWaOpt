@@ -58,6 +58,8 @@ public:
     template <char ElementType, char DamageType>
     void Run( FloatTy BaseAttack, const EffectiveStats& CommonStats );
 
+    auto& GetEffectiveEchos( ) const noexcept { return m_EffectiveEchos; }
+
 protected:
     GARuntimeReport m_GAReport;
 

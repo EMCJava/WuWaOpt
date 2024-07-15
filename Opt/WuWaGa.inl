@@ -533,7 +533,6 @@ WuWaGA::Run( FloatTy BaseAttack, const EffectiveStats& CommonStats )
                                   return m_Echos
                                       | std::views::filter( [ Set ]( const FullStats& Stat ) { return Stat.Set == Set; } )
                                       | std::views::transform( []( const FullStats& Stat ) {
-                                             spdlog::info( "Set: {}, Echo: {}", (int) Stat.Set, Stat.EchoName );
                                              return Stat.EchoName;
                                          } )
                                       | std::ranges::to<std::set<std::string>>( );

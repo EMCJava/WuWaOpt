@@ -295,7 +295,6 @@ struct FullStats {
         std::stringstream ss;
 
         int StatIndex    = 0;
-        int SubStatIndex = 0;
 
         ss << std::format( "[{}]: {:26}: {:>21}\n", ++StatIndex, "EchoName", EchoName );
         if ( std::abs( AutoAttackDamagePercentage ) > 0.001 ) ss << std::format( "[{}]: {:26}: {:>21.1f}\n", ++StatIndex, "AutoAttackDamagePercentage", AutoAttackDamagePercentage * 100 );

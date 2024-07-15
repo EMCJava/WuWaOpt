@@ -146,8 +146,7 @@ main( )
             EffectiveStats DisplayStats     = CalculateCombinationalStat<OptimizingElementTy>(
                 std::views::iota( 0, DisplayEchoCount )
                     | std::views::transform( [ & ]( int EchoIndex ) {
-                          return ToEffectiveStats<OptimizingElementTy, OptimizingDamageTy>(
-                              FullStatsList[ DisplayCombination.Indices[ EchoIndex ] ] );
+                          return Opt.GetEffectiveEchos( )[ DisplayCombination.Indices[ EchoIndex ] ];
                       } ),
                 GetCommonStat( ) );
 
@@ -200,7 +199,7 @@ main( )
                 ImGui::TableHeadersRow( );
 
                 DisplayRow( "Flat Attack", SelectedStats.flat_attack, DisplayStats.flat_attack );
-                DisplayRow( "Regen", SelectedStats.regen * 100, DisplayStats.regen * 100 );
+                DisplayRow( "Regen", SelectedStats.regen * 100 + 100, DisplayStats.regen * 100 + 100 );
                 DisplayRow( "Percentage Attack", SelectedStats.percentage_attack * 100, DisplayStats.percentage_attack * 100 );
                 DisplayRow( "Buff Multiplier", SelectedStats.buff_multiplier * 100, DisplayStats.buff_multiplier * 100 );
                 DisplayRow( "Crit rate", SelectedStats.CritRateStat( ) * 100, DisplayStats.CritRateStat( ) * 100 );
@@ -220,12 +219,12 @@ main( )
             {
                 const auto  Index        = DisplayCombination.Indices[ i ];
                 const auto& SelectedEcho = FullStatsList[ Index ];
-                ImGui::Text( "%s", std::format( "{:=^43}", Index ).c_str( ) );
+                ImGui::Text( "%s", std::format( "{:=^54}", Index ).c_str( ) );
 
                 ImGui::Text( "Set:" );
                 ImGui::SameLine( );
                 ImGui::PushStyleColor( ImGuiCol_Text, EchoSetColor[ SelectedEcho.Set ] );
-                ImGui::Text( "%s", std::format( "{:20}", SelectedEcho.GetSetName( ) ).c_str( ) );
+                ImGui::Text( "%s", std::format( "{:31}", SelectedEcho.GetSetName( ) ).c_str( ) );
                 ImGui::PopStyleColor( );
                 ImGui::SameLine( );
                 ImGui::Text( "%s", SelectedEcho.BriefStat( ).c_str( ) );
@@ -258,8 +257,6 @@ main( )
         ImGui::SetNextWindowSize( use_work_area ? viewport->WorkSize : viewport->Size );
         if ( ImGui::Begin( "Display", nullptr, flags ) )
         {
-            ImGui::ShowDemoWindow( );
-
             {
                 ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 5.0f );
                 ImGui::BeginChild( "GAStats", ImVec2( 600 - ImGui::GetStyle( ).WindowPadding.x, -1 ), ImGuiChildFlags_Border );
@@ -363,8 +360,7 @@ main( )
                             SelectedStats = CalculateCombinationalStat<OptimizingElementTy>(
                                 std::views::iota( 0, (int) strlen( glabels[ ClosestCombination ] ) )
                                     | std::views::transform( [ & ]( int EchoIndex ) {
-                                          return ToEffectiveStats<OptimizingElementTy, OptimizingDamageTy>(
-                                              FullStatsList[ SelectedResult.Indices[ EchoIndex ] ] );
+                                          return Opt.GetEffectiveEchos( )[ SelectedResult.Indices[ EchoIndex ] ];
                                       } ),
                                 GetCommonStat( ) );
                         }
