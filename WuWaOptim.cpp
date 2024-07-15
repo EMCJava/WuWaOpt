@@ -232,6 +232,9 @@ main( )
             }
         };
 
+    std::string TopCombinationByType = std::format( "Top {} Combinations By Type", WuWaGA::ResultLength );
+    std::string TopCombination       = std::format( "Top {} Combinations", WuWaGA::ResultLength );
+
     auto&     GAReport = Opt.GetReport( );
     sf::Clock deltaClock;
     while ( window.isOpen( ) )
@@ -296,7 +299,7 @@ main( )
                     ImPlot::EndPlot( );
                 }
 
-                if ( ImPlot::BeginPlot( "Details" ) )
+                if ( ImPlot::BeginPlot( TopCombinationByType.c_str( ) ) )
                 {
                     ImPlot::SetupLegend( ImPlotLocation_South, ImPlotLegendFlags_Horizontal | ImPlotLegendFlags_Outside );
                     ImPlot::SetupAxes( "Rank", "Value", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit );
