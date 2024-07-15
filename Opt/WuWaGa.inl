@@ -528,9 +528,17 @@ WuWaGA::Run( FloatTy BaseAttack, const EffectiveStats& CommonStats )
 {
     m_Threads.clear( );
 
+    const auto EchoNameSet = m_Echos
+        | std::views::transform( []( const FullStats& Stat ) { return Stat.EchoName; } )
+        | std::ranges::to<std::set<std::string>>( );
+
     m_EffectiveEchos =
         m_Echos
-        | std::views::transform( ToEffectiveStats<ElementType, DamageType> )
+        | std::views::transform( [ & ]( const FullStats& Stats ) {
+              auto EffectiveStats   = ToEffectiveStats<ElementType, DamageType>( Stats );
+              EffectiveStats.NameID = std::distance( EchoNameSet.begin( ), EchoNameSet.find( Stats.EchoName ) );
+              return EffectiveStats;
+          } )
         | std::ranges::to<std::vector>( );
 
     // clang-format off

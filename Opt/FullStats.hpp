@@ -106,6 +106,7 @@ MatchColorToSet( std::tuple<int, int, int> Color ) noexcept
 struct EffectiveStats {
 
     EchoSet Set               = eFreezingFrost;
+    int     NameID            = 0;
     int     Cost              = 0;
     FloatTy flat_attack       = 0;
     FloatTy regen             = 0;
@@ -116,7 +117,8 @@ struct EffectiveStats {
 
     EffectiveStats& operator+=( const EffectiveStats& Other ) noexcept
     {
-        Set = eEchoSetNone;
+        Set    = eEchoSetNone;
+        NameID = -1;
 
         Cost += Other.Cost;
         flat_attack += Other.flat_attack;
@@ -133,6 +135,7 @@ struct EffectiveStats {
     {
         return EffectiveStats {
             eEchoSetNone,
+            -1,
             Cost + Other.Cost,
             flat_attack + Other.flat_attack,
             regen + Other.regen,
@@ -146,6 +149,7 @@ struct EffectiveStats {
     {
         return EffectiveStats {
             eEchoSetNone,
+            -1,
             Cost - Other.Cost,
             flat_attack - Other.flat_attack,
             regen - Other.regen,
@@ -160,6 +164,7 @@ struct EffectiveStats {
 #define CLOSE( x, y ) ( std::abs( x - y ) < 0.0001f )
 
         if ( Set != Other.Set ) return false;
+        if ( NameID != Other.NameID ) return false;
         if ( Cost != Other.Cost ) return false;
         if ( !CLOSE( flat_attack, Other.flat_attack ) ) return false;
         if ( !CLOSE( regen, Other.regen ) ) return false;
@@ -429,6 +434,7 @@ ToEffectiveStats( const FullStats& MatchResult )
 {
     return EffectiveStats {
         .Set               = MatchResult.Set,
+        .NameID            = -1,
         .Cost              = MatchResult.Cost,
         .flat_attack       = MatchResult.Attack,
         .regen             = MatchResult.RegenPercentage,

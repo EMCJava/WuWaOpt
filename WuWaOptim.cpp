@@ -72,6 +72,7 @@ main( )
     auto FullStatsList = json::parse( std::ifstream { "data/echos.json" } )[ "echos" ].get<std::vector<FullStats>>( )
         // | std::views::filter( []( const FullStats& FullEcho ) { return FullEcho.Level != 0; } )
         // | std::views::filter( []( const FullStats& FullEcho ) { return FullEcho.Set == eMoltenRift || FullEcho.Set == eFreezingFrost; } )
+        | std::views::filter( []( const FullStats& FullEcho ) { return !FullEcho.EchoName.empty( ); } )
         | std::ranges::to<std::vector>( );
 
     std::ranges::sort( FullStatsList, []( const auto& EchoA, const auto& EchoB ) {
