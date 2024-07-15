@@ -24,6 +24,7 @@ using json = nlohmann::json;
 #include <semaphore>
 
 #include "Opt/FullStats.hpp"
+#include "Scan/MouseControl.hpp"
 
 const int RESIZED_IMAGE_WIDTH  = 1200;
 const int RESIZED_IMAGE_HEIGHT = 300;
@@ -31,8 +32,6 @@ const int RESIZED_IMAGE_HEIGHT = 300;
 std::random_device               rd;
 std::mt19937                     gen( rd( ) );
 std::uniform_real_distribution<> dis( 0.15, 0.85 );
-
-std::vector<std::vector<std::pair<float, float>>> MouseTrails;
 
 struct Template {
     int32_t     template_id;
@@ -157,8 +156,8 @@ PixelPerfectResize( const cv::Mat& src, cv::Mat& dst, int width, int height )
     dst = cv::Mat::zeros( height, width, src.type( ) );
 
     // Calculate the scale factors
-    float scaleX = (float) src.cols / width;
-    float scaleY = (float) src.rows / height;
+    float scaleX = (float) src.cols / (float) width;
+    float scaleY = (float) src.rows / (float) height;
 
     // Loop over the destination image
     for ( int y = 0; y < height; ++y )
@@ -166,8 +165,8 @@ PixelPerfectResize( const cv::Mat& src, cv::Mat& dst, int width, int height )
         for ( int x = 0; x < width; ++x )
         {
             // Find the corresponding position in the source image
-            int srcX = std::min( (int) ( x * scaleX ), src.cols - 1 );
-            int srcY = std::min( (int) ( y * scaleY ), src.rows - 1 );
+            int srcX = std::min( (int) ( (float) x * scaleX ), src.cols - 1 );
+            int srcY = std::min( (int) ( (float) y * scaleY ), src.rows - 1 );
 
             // Assign the pixel value
             dst.at<uint8_t>( y, x ) = src.at<uint8_t>( srcY, srcX );
@@ -229,7 +228,7 @@ HBitmapToMat( HBITMAP hBitmap )
     bi.biBitCount       = 32;
     bi.biCompression    = BI_RGB;
 
-    GetDIBits( GetDC( 0 ), hBitmap, 0, bmp.bmHeight, mat.data, (BITMAPINFO*) &bi, DIB_RGB_COLORS );
+    GetDIBits( GetDC( nullptr ), hBitmap, 0, bmp.bmHeight, mat.data, (BITMAPINFO*) &bi, DIB_RGB_COLORS );
 
     return mat;
 }
@@ -269,7 +268,7 @@ public:
             res_32f.convertTo( MatchResult, CV_8U, 255.0 );
             cv::threshold( MatchResult, MatchResult, pattern.threshold, 255, cv::THRESH_BINARY );
 
-            while ( 1 )
+            while ( true )
             {
                 double    minval, maxval;
                 cv::Point minloc, maxloc;
@@ -384,7 +383,7 @@ private:
 class EchoNameRecognizer : public RecognizerBase<EchoNameRecognizer>
 {
 public:
-    EchoNameRecognizer( const std::filesystem::path& EchoNameFolder = "data/names" )
+    explicit EchoNameRecognizer( const std::filesystem::path& EchoNameFolder = "data/names" )
     {
         Templates = std::filesystem::directory_iterator { EchoNameFolder }
             | std::views::enumerate
@@ -546,12 +545,12 @@ public:
                            {
                                int Convert = 0;
                                std::from_chars( Number.data( ), Number.data( ) + Number.size( ) - 1, Convert, 10 );
-                               result = -Convert / 1000.f;
+                               result = -(FloatTy) Convert / (FloatTy) 1000;
                            } else
                            {
                                int Convert = 0;
                                std::from_chars( Number.data( ), Number.data( ) + Number.size( ), Convert, 10 );
-                               result = Convert;
+                               result = (FloatTy) Convert;
                            }
 
                            return result;
@@ -594,6 +593,8 @@ public:
                 SAVE( CritDamage )
                 SAVE( CritRate )
 #undef SAVE
+            default:
+                std::unreachable( );
             }
         }
 
@@ -619,111 +620,6 @@ private:
     cv::Mat               GrayImg, MatchVisualizerImg;
     std::vector<cv::Rect> Overlaps;
 };
-
-void
-MoveMouse( cv::Point Start, cv::Point End, int Millisecond = 1000 )
-{
-    const auto& MouseTrail = MouseTrails[ rand( ) % MouseTrails.size( ) ];
-
-    const auto StartTime       = std::chrono::high_resolution_clock::now( );
-    const auto MouseMoveOffset = End - Start;
-    for ( int i = 0; i < MouseTrail.size( ) - 1; ++i )
-    {
-        const auto XCoordinate = std::round( Start.x + MouseMoveOffset.x * MouseTrail[ i ].first );
-        const auto YCoordinate = std::round( Start.y + MouseMoveOffset.y * MouseTrail[ i ].second );
-
-        SetCursorPos( XCoordinate, YCoordinate );
-
-        auto EndTime = StartTime + std::chrono::microseconds( ( i == 0 ? 0 : i - 1 ) * Millisecond * 1000 / MouseTrail.size( ) );
-        if ( i != 0 ) EndTime += std::chrono::microseconds( int( dis( gen ) * Millisecond * 1000 / MouseTrail.size( ) ) );
-        std::this_thread::sleep_until( EndTime );
-    }
-
-    SetCursorPos( End.x, End.y );
-}
-
-void
-LeftDown( )
-{
-    INPUT Input      = { 0 };
-    Input.type       = INPUT_MOUSE;
-    Input.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
-    ::SendInput( 1, &Input, sizeof( INPUT ) );
-}
-
-void
-LeftUp( )
-{
-    INPUT Input      = { 0 };
-    Input.type       = INPUT_MOUSE;
-    Input.mi.dwFlags = MOUSEEVENTF_LEFTUP;
-    ::SendInput( 1, &Input, sizeof( INPUT ) );
-}
-
-void
-LeftClick( bool DoubleClick = false, int Millisecond = -1 )
-{
-    LeftDown( );
-    if ( Millisecond == -1 ) Millisecond = 120 + 40 * ( dis( gen ) - 0.5 );
-    std::this_thread::sleep_for( std::chrono::microseconds( Millisecond ) );
-    LeftUp( );
-
-    if ( DoubleClick )
-    {
-        if ( Millisecond == -1 ) Millisecond = 120 + 40 * ( dis( gen ) - 0.5 );
-        std::this_thread::sleep_for( std::chrono::microseconds( Millisecond ) );
-        LeftClick( false, Millisecond );
-    }
-}
-
-
-UINT
-ScrollMouse( int scroll )
-{
-    INPUT input;
-    POINT pos;
-    GetCursorPos( &pos );
-
-    input.type           = INPUT_MOUSE;
-    input.mi.dwFlags     = MOUSEEVENTF_WHEEL;
-    input.mi.time        = NULL;             // Windows will do the timestamp
-    input.mi.mouseData   = (DWORD) scroll;   // A positive value indicates that the wheel was rotated forward, away from the user; a negative value indicates that the wheel was rotated backward, toward the user. One wheel click is defined as WHEEL_DELTA, which is 120.
-    input.mi.dx          = pos.x;
-    input.mi.dy          = pos.y;
-    input.mi.dwExtraInfo = GetMessageExtraInfo( );
-
-    return ::SendInput( 1, &input, sizeof( INPUT ) );
-}
-
-void
-LoadMouseTrails( )
-{
-    using namespace std::ranges;
-    using std::views::chunk;
-    using std::views::transform;
-
-    std::ifstream MouseTrailInput( "data/MouseTrail.txt" );
-
-    std::size_t TrailsCount, TrailResolution;
-    MouseTrailInput >> TrailsCount >> TrailResolution;
-
-    MouseTrails =
-        istream_view<float>( MouseTrailInput )
-        | chunk( TrailResolution * /* x and y coordinate */ 2 )
-        | transform( []( auto&& r ) {
-              return r
-                  | chunk( 2 )
-                  | transform( []( auto&& r ) {
-                         auto iter = r.begin( );
-                         return std::make_pair( *r.begin( ), *++iter );
-                     } )
-                  | to<std::vector>( );
-          } )
-        | to<std::vector>( );
-
-    for ( auto& Trail : MouseTrails )
-        Trail.back( ) = { 1, 1 };
-}
 
 int
 main( )
@@ -753,8 +649,6 @@ main( )
     // use the previously created device context with the bitmap
     SelectObject( hCaptureDC, hCaptureBitmap );
 
-    LoadMouseTrails( );
-
     int EchoLeftToScan = 848;
     std::cout << "Scaning " << EchoLeftToScan << " echoes..." << std::endl;
 
@@ -766,9 +660,9 @@ main( )
     static const int CardWidth  = 85;
     static const int CardHeight = 100;
 
-    auto      ResultJson = json { };
-    cv::Point CurrentLocation;
-    Extractor extractor;
+    auto                     ResultJson = json { };
+    MouseControl::MousePoint MouseLocation( 2 );
+    Extractor                extractor;
 
     std::vector<cv::Point> ListOfCardIndex;
     for ( int j = 0; j < 3; ++j )
@@ -789,15 +683,16 @@ main( )
         return CVUtils::HBitmapToMat( hCaptureBitmap );
     };
 
-    const auto MouseToCard = [ & ]( int X, int Y ) {
-        cv::Point NextLocation { WindowRect.left + 150
-                                     + int( CardSpaceWidth * X + CardWidth * dis( gen ) ),
-                                 WindowRect.top + 115
-                                     + int( CardSpaceHeight * Y + CardHeight * dis( gen ) ) };
-        MoveMouse( CurrentLocation, NextLocation, 200 + 80 * ( dis( gen ) - 0.5 ) );
-        std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );   // stop the momentu
+    MouseControl MouseController( "data/MouseTrail.txt" );
+    const auto   MouseToCard = [ & ]( int X, int Y ) {
+        MouseControl::MousePoint NextLocation { WindowRect.left + 150
+                                                    + CardSpaceWidth * X + CardWidth * (float) dis( gen ),
+                                                WindowRect.top + 115
+                                                    + CardSpaceHeight * Y + CardHeight * (float) dis( gen ) };
+        MouseController.MoveMouse( MouseLocation, NextLocation, 200 + 80 * ( dis( gen ) - 0.5 ) );
+        std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
 
-        CurrentLocation = NextLocation;
+        MouseLocation = NextLocation;
     };
 
     const auto ReadCard = [ & ]( ) {
@@ -853,7 +748,7 @@ main( )
 
     const auto ReadCardInLocations = [ & ]( auto&& Location ) {
         MouseToCard( Location[ 0 ].x, Location[ 0 ].y );
-        LeftClick( true );
+        MouseController.LeftClick( true );
 
         for ( const auto& CardLocation : Location | std::views::drop( 1 ) )
         {
@@ -867,7 +762,7 @@ main( )
             MouseToCard( CardLocation.x, CardLocation.y );
 
             CardReading.acquire( );
-            LeftClick( true );
+            MouseController.LeftClick( true );
             CardReading.release( );
         }
 
@@ -883,7 +778,7 @@ main( )
 
         for ( int i = 0; i < ( Page % 2 == 0 ? 24 : 23 ); ++i )
         {
-            ScrollMouse( -120 );
+            MouseController.ScrollMouse( -120 );
             std::this_thread::sleep_for( std::chrono::milliseconds( 50 + int( 10 * dis( gen ) ) ) );
         }
 
@@ -893,7 +788,7 @@ main( )
 
         if ( Page != 0 && Page % 16 == 0 )
         {
-            ScrollMouse( 120 );
+            MouseController.ScrollMouse( 120 );
             std::this_thread::sleep_for( std::chrono::milliseconds( 50 + int( 10 * dis( gen ) ) ) );
         }
     }
