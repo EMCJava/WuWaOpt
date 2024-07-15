@@ -44,7 +44,7 @@ private:
     Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack, EffectiveStats CommonStats );
 
 public:
-    static constexpr int ResultLength = 50;
+    static constexpr int ResultLength = 100;
 
     explicit WuWaGA( auto& Echos )
         : m_Echos( Echos )
@@ -63,7 +63,7 @@ public:
 protected:
     GARuntimeReport m_GAReport;
 
-    int m_PopulationSize = 10000, m_ReproduceSize = 1000;
+    int m_PopulationSize = 200000, m_ReproduceSize = 0.2 * m_PopulationSize;
 
     const std::vector<FullStats>& m_Echos;
     std::vector<EffectiveStats>   m_EffectiveEchos;

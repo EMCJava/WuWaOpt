@@ -335,14 +335,7 @@ WuWaGA::Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack, E
 
         if ( OptimalValue >= TopFitness_Index.front( ).first )
         {
-            MutationProbability += 0.0001f;
-
-            if ( ++MutationProbabilityChangeCount % 1000 == 0 )
-            {
-                const auto NewSeed = XoshiroCpp::SplitMix64 { std::random_device { }( ) }.generateSeedSequence<4>( );
-                random.deserialize( NewSeed );
-                spdlog::info( "No Max Fitness: MutationProbability({}) {}", MutationProbability, MutationProbabilityChangeCount );
-            }
+            MutationProbability += 0.01f;
 
             // Finish
             if ( MutationProbability >= 1 )
