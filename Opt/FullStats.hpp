@@ -318,9 +318,24 @@ struct FullStats {
     }
 };
 
+namespace NLOHMANN_utils
+{
+inline bool
+ShouldSerialize( const auto& Data )
+{
+    if constexpr ( !std::is_floating_point_v<std::decay_t<decltype( Data )>> )
+    {
+        return true;
+    } else
+    {
+        return std::abs( Data ) > 0.0001f;
+    }
+}
+}   // namespace NLOHMANN_utils
 
 #define NLOHMANN_JSON_TO_LAZY( v1 ) \
-    if ( !std::is_floating_point_v<std::decay_t<decltype( nlohmann_json_t.v1 )>> || std::abs( nlohmann_json_t.v1 ) > 0.0001f ) nlohmann_json_j[ #v1 ] = nlohmann_json_t.v1;
+    if ( NLOHMANN_utils::ShouldSerialize( nlohmann_json_t.v1 ) ) nlohmann_json_j[ #v1 ] = nlohmann_json_t.v1;
+
 #define NLOHMANN_JSON_FROM_LAZY( v1 ) \
     if ( nlohmann_json_j.contains( #v1 ) ) nlohmann_json_j.at( #v1 ).get_to( nlohmann_json_t.v1 );
 
