@@ -12,10 +12,15 @@ See [echo file example](data/example_echos.json)
 
 ## Echo Scanner
 
-Run `WuWaScan.exe` as administrator as Wuthering Waves also runs as administrator
+1. Go to the echo page in you backpack (press b), scroll to the top
+2. Run `WuWaScan.exe` as administrator as Wuthering Waves also runs as administrator
+3. Enter the number of echoes to scan
+4. Wait
 
 > ⚠️Only support 1280x720 in Traditional Chinese until Kuro fix this, or I have motivation to implementing echo scanning in character page\
-> ![Text overlapping](data/overlapping.png)
+> ![Text overlapping](data/overlapping.png)\
+> Your echo page should look like the following **(4 by 6)**\
+> ![Text overlapping](data/echo_page.png)
 
 > Traditional Chinese
 > ![Traditional Chinese](data/tra_chi.png)
