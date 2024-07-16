@@ -11,9 +11,9 @@ WuWaOptim.exe "path to echos.json"
 See [echo file example](data/example_echos.json)
 
 ## Echo Scanner
-```bash
-WuWaScan.exe
-```
+
+Run `WuWaScan.exe` as administrator as Wuthering Waves also runs as administrator
+
 > ⚠️Only support 1280x720 in Traditional Chinese until Kuro fix this, or I have motivation to implementing echo scanning in character page\
 > ![Text overlapping](data/overlapping.png)
 
