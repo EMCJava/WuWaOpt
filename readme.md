@@ -1,3 +1,6 @@
+
+![Showcase](data/opt_showcase.png)
+
 > ⚠️ This project is still under development
 # Usage
 
@@ -11,7 +14,7 @@ See [echo file example](data/example_echos.json)
 ```bash
 WuWaScan.exe
 ```
-> ⚠️ Only support 1280x720 in Traditional Chinese until Kuro fix this, or I have motivation to implementing echo scanning in character page\
+> ⚠️Only support 1280x720 in Traditional Chinese until Kuro fix this, or I have motivation to implementing echo scanning in character page\
 > ![Text overlapping](data/overlapping.png)
 
 > Traditional Chinese
