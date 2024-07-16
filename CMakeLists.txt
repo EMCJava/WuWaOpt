@@ -1,4 +1,7 @@
 cmake_minimum_required(VERSION 3.28)
+
+set(VCPKG_TARGET_TRIPLET x64-windows-static)
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 project(WuWaOpt)
 
 set(CMAKE_CXX_STANDARD 23)
@@ -21,3 +24,17 @@ target_link_libraries(WuWaGA INTERFACE nlohmann_json::nlohmann_json)
 
 target_link_libraries(WuWaScan PRIVATE opencv_highgui opencv_ml opencv_dnn opencv_core opencv_flann nlohmann_json::nlohmann_json Scan.lib)
 target_link_libraries(WuWaOptim PRIVATE WuWaGA nlohmann_json::nlohmann_json implot::implot sfml-system sfml-network sfml-graphics sfml-window ImGui-SFML::ImGui-SFML spdlog::spdlog_header_only)
+
+set_target_properties(WuWaScan
+        PROPERTIES
+        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/WuWaScan"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/WuWaScan"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/WuWaScan"
+)
+
+set_target_properties(WuWaOptim
+        PROPERTIES
+        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/WuWaOptim"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/WuWaOptim"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/WuWaOptim"
+)
