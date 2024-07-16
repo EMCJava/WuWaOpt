@@ -4,6 +4,7 @@
 
 #include "Random.hpp"
 
+#include <source_location>
 #include <unordered_map>
 #include <unordered_set>
 #include <stop_token>
@@ -144,6 +145,8 @@ template <char ElementType, char DamageType, CostSlotTemplate>
 void
 WuWaGA::Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack, EffectiveStats CommonStats )
 {
+    const auto SL = std::source_location::current( );
+
     static constexpr int MaxEchoCount     = 2000;
     static constexpr int IndexBitsShift   = 11;
     const auto           ReproduceSizeBy5 = m_ReproduceSize / 5;
@@ -165,12 +168,14 @@ WuWaGA::Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack, E
 
     if ( !std::ranges::is_sorted( m_EffectiveEchos, []( auto&& EchoA, auto&& EchoB ) { return EchoA.Cost > EchoB.Cost; } ) )
     {
-        throw std::runtime_error( "GeneticAlgorithm: Echos is not sorted by cost" );
+        spdlog::critical( "{}: Echos is not sorted by cost", SL.function_name( ) );
+        return;
     }
 
     if ( 2000 < m_EffectiveEchos.size( ) )
     {
-        throw std::runtime_error( "GeneticAlgorithm: Too much echos" );
+        spdlog::critical( "{}: Too much echos", SL.function_name( ) );
+        return;
     }
 
     GARuntimeReport::DetailReportQueue& DetailReport = m_GAReport.DetailReports[ GAReportIndex ];
@@ -196,14 +201,17 @@ WuWaGA::Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack, E
     std::vector<std::array<int, SlotCount>> IndicesPermutations = GeneratePermutations<SlotCount>( );
     std::vector<std::array<int, SlotCount>> Population( m_PopulationSize );
 
-    // Echos is pre sorted by cost
-    const auto EchoCounts = m_EffectiveEchos
-        | std::views::chunk_by( []( auto& A, auto& B ) { return A.Cost == B.Cost; } )
-        | std::views::transform( []( const auto& Range ) -> int { return std::ranges::distance( Range ); } )
-        | std::ranges::to<std::vector>( );
-    const int AvailableFourCount  = EchoCounts[ 0 ];
-    const int AvailableThreeCount = EchoCounts[ 1 ];
-    const int AvailableOneCount   = EchoCounts[ 2 ];
+    const int AvailableFourCount  = std::ranges::count_if( m_EffectiveEchos, []( const auto& Echo ) { return Echo.Cost == 4; } );
+    const int AvailableThreeCount = std::ranges::count_if( m_EffectiveEchos, []( const auto& Echo ) { return Echo.Cost == 3; } );
+    const int AvailableOneCount   = std::ranges::count_if( m_EffectiveEchos, []( const auto& Echo ) { return Echo.Cost == 1; } );
+
+    if ( CountByFixedCost[ eCost4 ] > AvailableFourCount
+         || CountByFixedCost[ eCost3 ] > AvailableThreeCount
+         || CountByFixedCost[ eCost1 ] > AvailableOneCount )
+    {
+        spdlog::critical( "{}: Not enough echos of specified costs", SL.function_name( ) );
+        return;
+    }
 
     std::vector<int> AvailableEchoIndices( m_EffectiveEchos.size( ) );
     std::ranges::iota( AvailableEchoIndices, 0 );
@@ -559,4 +567,10 @@ WuWaGA::Run( FloatTy BaseAttack, const EffectiveStats& CommonStats )
     m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ElementType, DamageType, 3, 3, 3, 1, 1>, this, std::placeholders::_1,  9, BaseAttack, CommonStats ) ) );
     m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ElementType, DamageType, 1, 1, 1, 1, 1>, this, std::placeholders::_1, 10, BaseAttack, CommonStats ) ) );
     // clang-format on
+}
+
+bool
+WuWaGA::IsRunning( ) const
+{
+    return std::ranges::any_of( m_GAReport.MutationProb, []( auto Prob ) { return Prob > 0; } );
 }

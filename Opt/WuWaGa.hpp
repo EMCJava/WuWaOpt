@@ -60,6 +60,8 @@ public:
 
     auto& GetEffectiveEchos( ) const noexcept { return m_EffectiveEchos; }
 
+    bool IsRunning( ) const;
+
 protected:
     GARuntimeReport m_GAReport;
 
