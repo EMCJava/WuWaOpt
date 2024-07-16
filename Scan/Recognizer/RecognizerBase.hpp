@@ -12,6 +12,8 @@
 #include <filesystem>
 #include <queue>
 
+#include <spdlog/spdlog.h>
+
 struct Template {
     int32_t     template_id;
     std::string template_file;
@@ -31,7 +33,7 @@ struct Template {
 
         if ( template_mat.empty( ) )
         {
-            std::cout << "Error reading template file: " << template_file << std::endl;
+            spdlog::error( "Error reading template file: {} ", template_file );
             return;
         }
     }

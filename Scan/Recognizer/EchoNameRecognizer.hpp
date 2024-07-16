@@ -15,7 +15,7 @@ public:
             | std::views::enumerate
             | std::views::transform( []( const auto& Index_DirEntry ) {
                         const auto& path = std::get<1>( Index_DirEntry ).path( );
-                        std::cout << "Loading template: " << path.stem( ) << std::endl;
+                        spdlog::info( "Loading template: {} ", path.stem( ).string( ) );
                         return Template {
                             (int32_t) std::get<0>( Index_DirEntry ),
                             std::filesystem::absolute( path ).string( ),

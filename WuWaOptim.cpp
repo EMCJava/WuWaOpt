@@ -74,10 +74,14 @@ std::array<ImU32, eEchoSetCount + 1> EchoSetColor {
 int
 main( )
 {
-    std::ios::sync_with_stdio( false );
-    std::cin.tie( nullptr );
+    std::ifstream EchoFile { "data/echos.json" };
+    if ( !EchoFile )
+    {
+        spdlog::error( "Failed to open echos file." );
+        return 1;
+    }
 
-    auto FullStatsList = json::parse( std::ifstream { "data/echos.json" } )[ "echos" ].get<std::vector<FullStats>>( )
+    auto FullStatsList = json::parse( EchoFile )[ "echos" ].get<std::vector<FullStats>>( )
         // | std::views::filter( []( const FullStats& FullEcho ) { return FullEcho.Level != 0; } )
         // | std::views::filter( []( const FullStats& FullEcho ) { return FullEcho.Set == eMoltenRift || FullEcho.Set == eFreezingFrost; } )
         | std::views::filter( []( const FullStats& FullEcho ) { return !FullEcho.EchoName.empty( ); } )

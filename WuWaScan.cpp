@@ -10,6 +10,7 @@
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
+#include <semaphore>
 #include <chrono>
 #include <fstream>
 #include <future>
@@ -19,7 +20,7 @@ using json = nlohmann::json;
 #include <ranges>
 #include <utility>
 #include <vector>
-#include <semaphore>
+#include <memory>
 
 #include "Opt/FullStats.hpp"
 #include "Scan/Win/MouseControl.hpp"
@@ -37,10 +38,20 @@ main( )
 {
     srand( time( nullptr ) );
 
-    GameHandle GameHandler;
+    std::unique_ptr<GameHandle> GameHandler;
+
+    try
+    {
+        GameHandler = std::make_unique<GameHandle>( );
+    }
+    catch ( const std::exception& e )
+    {
+        spdlog::error( "Error initializing game handle: {}", e.what( ) );
+        return 1;
+    }
 
     int EchoLeftToScan = 848;
-    std::cout << "Scaning " << EchoLeftToScan << " echoes..." << std::endl;
+    spdlog::info( "Scanning {} echoes...", EchoLeftToScan );
 
     MouseControl::MousePoint MouseLocation( 2 );
 
@@ -62,7 +73,7 @@ main( )
 
         MouseControl::MousePoint NextLocation = { 150 + CardSpaceWidth * X + CardWidth * (float) dis( gen ),
                                                   115 + CardSpaceHeight * Y + CardHeight * (float) dis( gen ) };
-        NextLocation += GameHandler.GetLeftTop( );
+        NextLocation += GameHandler->GetLeftTop( );
 
         MouseController.MoveMouse( MouseLocation, NextLocation, 300 + 80 * ( dis( gen ) - 0.5 ) );
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
@@ -72,21 +83,21 @@ main( )
 
     EchoExtractor Extractor;
     const auto    ReadCard = [ & ]( ) {
-        std::cout << "=================Start Scan=================" << std::endl;
+        spdlog::info( "Reading card..." );
         Stopwatch  SW;
-        const auto FS = Extractor.ReadCard( GameHandler.ScreenCap( ) );
-        std::cout << json( FS ) << std::endl;
+        const auto FS = Extractor.ReadCard( GameHandler->ScreenCap( ) );
+        spdlog::trace( "{}", json( FS ).dump( ) );
         ResultJsonEchos.push_back( FS );
     };
 
-//    while ( true )
-//    {
-//        {
-//            Stopwatch  SW;
-//            const auto FS = Extractor.ReadCard( GameHandler.ScreenCap( ) );
-//        }
-//        cv::waitKey( 1 );
-//    }
+    //    while ( true )
+    //    {
+    //        {
+    //            Stopwatch  SW;
+    //            const auto FS = Extractor.ReadCard( GameHandler->ScreenCap( ) );
+    //        }
+    //        cv::waitKey( 1 );
+    //    }
 
     std::binary_semaphore CardReading { 1 };
     const auto            ReadCardInLocations = [ & ]( auto&& Location ) {
@@ -115,7 +126,7 @@ main( )
 
     for ( int Page = 0;; ++Page )
     {
-        std::cout << "Page: " << Page << std::endl;
+        spdlog::info( "Scanning at page {}...", Page );
 
         ReadCardInLocations( ListOfCardIndex );
 
@@ -151,6 +162,6 @@ main( )
     std::ofstream OutputJson( "data/echos.json" );
     OutputJson << ResultJson << std::endl;
 
-    std::cout << ResultJsonEchos << std::endl;
+    spdlog::info( "Scanning completed!" );
     std::cin.get( );
 }

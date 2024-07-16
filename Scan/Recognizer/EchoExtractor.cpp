@@ -255,7 +255,7 @@ EchoExtractor::ReadCard( const cv::Mat& Src )
     std::from_chars( LevelChars.data( ), LevelChars.data( ) + LevelChars.size( ), FS.Level, 10 );
     if ( FS.Level > 25 )
     {
-        std::cout << "Level is invalid: " << FS.Level << std::endl;
+        spdlog::error( "Level is invalid: {}", FS.Level );
         return { };
     }
 
@@ -268,7 +268,7 @@ EchoExtractor::ExtractCost( const cv::Mat& Timg )
     const auto CostChars = MatchCost( Timg );
     if ( CostChars.empty( ) || CostChars[ 0 ] < '1' || CostChars[ 0 ] > '4' )
     {
-        std::cout << "Cost is invalid: " << ( CostChars.empty( ) ? "null" : std::string( 1, CostChars[ 0 ] ) ) << " (" << CostChars.size( ) << ")" << std::endl;
+        spdlog::error( "Cost is invalid: {} ({})", CostChars.empty( ) ? "null" : std::string( 1, CostChars[ 0 ] ), CostChars.size( ) );
         return 0;
     }
 
