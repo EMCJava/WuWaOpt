@@ -291,10 +291,10 @@ main( )
 
                     // Plot
                     ImPlot::SetAxes( ImAxis_X1, ImAxis_Y1 );
-                    ImPlot::PlotBars( "Optimal Value", positionsn05, GAReport.OptimalValue, GARuntimeReport::MaxCombinationCount, 0.2 );
+                    ImPlot::PlotBars( "Optimal Value", positionsn05, GAReport.OptimalValue.data( ), GARuntimeReport::MaxCombinationCount, 0.2 );
 
                     ImPlot::SetAxes( ImAxis_X2, ImAxis_Y2 );
-                    ImPlot::PlotBars( "Progress", positionsp05, GAReport.MutationProb, GARuntimeReport::MaxCombinationCount, 0.2 );
+                    ImPlot::PlotBars( "Progress", positionsp05, GAReport.MutationProb.data( ), GARuntimeReport::MaxCombinationCount, 0.2 );
 
                     ImPlot::EndPlot( );
                 }

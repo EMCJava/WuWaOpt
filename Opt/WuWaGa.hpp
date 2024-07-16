@@ -18,8 +18,8 @@
 struct GARuntimeReport {
     static constexpr auto MaxCombinationCount = 11;
 
-    FloatTy OptimalValue[ MaxCombinationCount ] { };
-    FloatTy MutationProb[ MaxCombinationCount ] { };
+    std::array<FloatTy, MaxCombinationCount> OptimalValue { -1 };
+    std::array<FloatTy, MaxCombinationCount> MutationProb { -1 };
 
     std::array<std::vector<int>, MaxCombinationCount> ParentPickCount;
 
