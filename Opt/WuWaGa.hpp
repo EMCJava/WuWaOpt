@@ -39,8 +39,8 @@ struct GARuntimeReport {
 class WuWaGA
 {
 private:
-    template <char ElementType, char DamageType, CostSlotTemplate>
-    void
+    template <char ElementType, CostSlotTemplate>
+    inline void
     Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack, EffectiveStats CommonStats );
 
 public:
@@ -56,11 +56,11 @@ public:
     }
 
     template <char ElementType, char DamageType>
-    void Run( FloatTy BaseAttack, const EffectiveStats& CommonStats );
+    inline void Run( FloatTy BaseAttack, const EffectiveStats& CommonStats );
 
     auto& GetEffectiveEchos( ) const noexcept { return m_EffectiveEchos; }
 
-    bool IsRunning( ) const;
+    inline bool IsRunning( ) const;
 
 protected:
     GARuntimeReport m_GAReport;

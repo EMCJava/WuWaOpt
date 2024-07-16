@@ -18,6 +18,7 @@
 #include <SFML/Window/Event.hpp>
 #include <random>
 
+#include "Opt/OptimizerParmSwitcher.hpp"
 #include "Opt/FullStats.hpp"
 #include "Opt/OptUtil.hpp"
 #include "Opt/WuWaGa.hpp"
@@ -146,10 +147,23 @@ main( int argc, char** argv )
         return CommonStats;
     };
 
-    // std::array<std::array<>> OptimizingGroups;
+    int         SelectedElement = 5;
+    const char* ElementLabel[]  = {
+        "Fire Damage",
+        "Air Damage",
+        "Ice Damage",
+        "Electric Damage",
+        "Dark Damage",
+        "Light Damage",
+    };
 
-    constexpr auto OptimizingElementTy = eLightDamagePercentage;
-    constexpr auto OptimizingDamageTy  = eSkillDamagePercentage;
+    int         SelectedDamageType      = 3;
+    const char* DamageTypeLabel[]       = {
+        "Auto Attack Damage",
+        "Heavy Attack Damage",
+        "Ult Damage",
+        "Skill Damage",
+    };
 
     WuWaGA Opt( FullStatsList );
 
@@ -159,6 +173,15 @@ main( int argc, char** argv )
     window.setFramerateLimit( 60 );
     if ( !ImGui::SFML::Init( window ) ) return -1;
     ImPlot::CreateContext( );
+
+    {
+        ImGui::StyleColorsClassic( );
+        auto& Style            = ImGui::GetStyle( );
+        Style.WindowBorderSize = 0.0f;
+        Style.FramePadding.y   = 5.0f;
+        Style.FrameBorderSize  = 1.0f;
+        Style.FrameRounding    = 12.0f;
+    }
 
     std::array<std::array<ResultPlotDetails, WuWaGA::ResultLength>, GARuntimeReport::MaxCombinationCount> ResultDisplayBuffer { };
 
@@ -177,13 +200,9 @@ main( int argc, char** argv )
 
             auto& DisplayCombination = ResultDisplayBuffer[ CombinationIndex ][ Rank ];
 
-            auto a = std::views::empty<int>
-                | std::ranges::views::transform( []( int ) { return EffectiveStats { }; } );
-
-            auto aa = &decltype( std::ranges::views::transform )::operator( )<std::function<EffectiveStats( int )>>;
-
             const int      DisplayEchoCount = strlen( glabels[ CombinationIndex ] );
-            EffectiveStats DisplayStats     = CalculateCombinationalStat<OptimizingElementTy>(
+            EffectiveStats DisplayStats     = OptimizerParmSwitcher::SwitchCalculateCombinationalStat(
+                SelectedElement,
                 std::views::iota( 0, DisplayEchoCount )
                     | std::views::transform( [ & ]( int EchoIndex ) {
                           return Opt.GetEffectiveEchos( )[ DisplayCombination.Indices[ EchoIndex ] ];
@@ -302,6 +321,8 @@ main( int argc, char** argv )
         ImGui::SetNextWindowSize( use_work_area ? viewport->WorkSize : viewport->Size );
         if ( ImGui::Begin( "Display", nullptr, flags ) )
         {
+            ImGui::ShowDemoWindow( );
+
             {
                 ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 5.0f );
                 ImGui::BeginChild( "GAStats", ImVec2( ChartSplitWidth - ImGui::GetStyle( ).WindowPadding.x, -1 ), ImGuiChildFlags_Border );
@@ -419,7 +440,8 @@ main( int argc, char** argv )
                             ChosenCombination = ClosestCombination;
                             ChosenRank        = Rank;
 
-                            SelectedStats = CalculateCombinationalStat<OptimizingElementTy>(
+                            SelectedStats = OptimizerParmSwitcher::SwitchCalculateCombinationalStat(
+                                SelectedElement,
                                 std::views::iota( 0, (int) strlen( glabels[ ClosestCombination ] ) )
                                     | std::views::transform( [ & ]( int EchoIndex ) {
                                           return Opt.GetEffectiveEchos( )[ SelectedResult.Indices[ EchoIndex ] ];
@@ -488,7 +510,8 @@ main( int argc, char** argv )
                                     ChosenCombination = ClosestCombination;
                                     ChosenRank        = ClosestRank;
 
-                                    SelectedStats = CalculateCombinationalStat<OptimizingElementTy>(
+                                    SelectedStats = OptimizerParmSwitcher::SwitchCalculateCombinationalStat(
+                                        SelectedElement,
                                         std::views::iota( 0, (int) strlen( glabels[ ClosestCombination ] ) )
                                             | std::views::transform( [ & ]( int EchoIndex ) {
                                                   return Opt.GetEffectiveEchos( )[ SelectedResult.Indices[ EchoIndex ] ];
@@ -532,6 +555,20 @@ main( int argc, char** argv )
                 ImGui::EndChild( );
                 ImGui::NewLine( );
 
+                ImGui::Separator( );
+
+                ImGui::BeginChild( "DetailPanel##Element", ImVec2( StatSplitWidth / 2 - ImGui::GetStyle( ).WindowPadding.x * 4, 0 ), ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysAutoResize );
+                ImGui::Combo( "Element Type", &SelectedElement, ElementLabel, IM_ARRAYSIZE( ElementLabel ) );
+                ImGui::EndChild( );
+
+                ImGui::SameLine( );
+
+                ImGui::BeginChild( "DetailPanel##Damage", ImVec2( StatSplitWidth / 2 - ImGui::GetStyle( ).WindowPadding.x * 4, 0 ), ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysAutoResize );
+                ImGui::Combo( "Damage Type", &SelectedDamageType, DamageTypeLabel, IM_ARRAYSIZE( DamageTypeLabel ) );
+                ImGui::EndChild( );
+
+                ImGui::Separator( );
+
                 const auto  OptRunning = Opt.IsRunning( );
                 const float ButtonH    = OptRunning ? 0 : 0.384;
                 ImGui::PushStyleColor( ImGuiCol_Button, (ImVec4) ImColor::HSV( ButtonH, 0.6f, 0.6f ) );
@@ -540,7 +577,7 @@ main( int argc, char** argv )
                 if ( ImGui::Button( OptRunning ? "Re-Run" : "Run", ImVec2( -1, 0 ) ) )
                 {
                     const auto BaseAttack = WeaponStats.flat_attack + CharacterStats.flat_attack;
-                    Opt.Run<OptimizingElementTy, OptimizingDamageTy>( BaseAttack, GetCommonStat( ) );
+                    OptimizerParmSwitcher::SwitchRun( Opt, SelectedElement, SelectedDamageType, BaseAttack, GetCommonStat( ) );
                 }
                 ImGui::PopStyleColor( 3 );
 

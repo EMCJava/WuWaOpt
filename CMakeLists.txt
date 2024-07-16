@@ -20,7 +20,9 @@ add_executable(WuWaScan WuWaScan.cpp)
 add_executable(WuWaOptim WuWaOptim.cpp)
 
 add_library(WuWaGA INTERFACE Opt/WuWaGa.hpp Opt/WuWaGa.inl)
-target_link_libraries(WuWaGA INTERFACE nlohmann_json::nlohmann_json)
+add_library(WuWaGASwitcher Opt/OptimizerParmSwitcher.hpp Opt/OptimizerParmSwitcher.cpp)
+target_link_libraries(WuWaGASwitcher nlohmann_json::nlohmann_json )
+target_link_libraries(WuWaGA INTERFACE nlohmann_json::nlohmann_json WuWaGASwitcher)
 
 target_link_libraries(WuWaScan PRIVATE opencv_highgui opencv_ml opencv_dnn opencv_core opencv_flann nlohmann_json::nlohmann_json Scan.lib)
 target_link_libraries(WuWaOptim PRIVATE WuWaGA nlohmann_json::nlohmann_json implot::implot sfml-system sfml-network sfml-graphics sfml-window ImGui-SFML::ImGui-SFML spdlog::spdlog_header_only)

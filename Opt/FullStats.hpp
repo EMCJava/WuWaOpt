@@ -210,26 +210,26 @@ struct EffectiveStats {
 };
 
 enum StatType : char {
-    eAttack                     = '#',
-    eAttackPercentage           = '&',
-    eAutoAttackDamagePercentage = '-',
-    eHeavyAttackPercentage      = '=',
-    eUltDamagePercentage        = '*',
-    eSkillDamagePercentage      = '+',
-    eHealBonusPercentage        = 'h',
-    eFireDamagePercentage       = 'f',
-    eAirDamagePercentage        = 'a',
-    eIceDamagePercentage        = 'i',
-    eElectricDamagePercentage   = 'e',
-    eDarkDamagePercentage       = 'd',
-    eLightDamagePercentage      = 'l',
-    eDefence                    = '(',
-    eDefencePercentage          = ')',
-    eHealth                     = '!',
-    eHealthPercentage           = '~',
-    eRegenPercentage            = '@',
-    eCritDamage                 = '^',
-    eCritRate                   = '%',
+    eAttack,
+    eAttackPercentage,
+    eAutoAttackDamagePercentage,
+    eHeavyAttackPercentage,
+    eUltDamagePercentage,
+    eSkillDamagePercentage,
+    eHealBonusPercentage,
+    eFireDamagePercentage,
+    eAirDamagePercentage,
+    eIceDamagePercentage,
+    eElectricDamagePercentage,
+    eDarkDamagePercentage,
+    eLightDamagePercentage,
+    eDefence,
+    eDefencePercentage,
+    eHealth,
+    eHealthPercentage,
+    eRegenPercentage,
+    eCritDamage,
+    eCritRate,
 };
 
 struct FullStats {
@@ -294,7 +294,7 @@ struct FullStats {
     {
         std::stringstream ss;
 
-        int StatIndex    = 0;
+        int StatIndex = 0;
 
         ss << std::format( "[{}]: {:26}: {:>21}\n", ++StatIndex, "EchoName", EchoName );
         if ( std::abs( AutoAttackDamagePercentage ) > 0.001 ) ss << std::format( "[{}]: {:26}: {:>21.1f}\n", ++StatIndex, "AutoAttackDamagePercentage", AutoAttackDamagePercentage * 100 );
