@@ -136,7 +136,7 @@ CountAndApplySets( auto&& EffectiveStatRanges, EffectiveStats CommonStats )
 
 template <char ElementType>
 inline EffectiveStats
-CalculateCombinationalStat( auto&& EffectiveStatRanges, const EffectiveStats& CommonStats )
+CalculateCombinationalStat( const std::vector<EffectiveStats>& EffectiveStatRanges, const EffectiveStats& CommonStats )
 {
 #define SWITCH_TYPE( type ) \
     if constexpr ( ElementType == e##type )

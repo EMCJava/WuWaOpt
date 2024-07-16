@@ -146,6 +146,8 @@ main( int argc, char** argv )
         return CommonStats;
     };
 
+    // std::array<std::array<>> OptimizingGroups;
+
     constexpr auto OptimizingElementTy = eLightDamagePercentage;
     constexpr auto OptimizingDamageTy  = eSkillDamagePercentage;
 
@@ -175,12 +177,18 @@ main( int argc, char** argv )
 
             auto& DisplayCombination = ResultDisplayBuffer[ CombinationIndex ][ Rank ];
 
+            auto a = std::views::empty<int>
+                | std::ranges::views::transform( []( int ) { return EffectiveStats { }; } );
+
+            auto aa = &decltype( std::ranges::views::transform )::operator( )<std::function<EffectiveStats( int )>>;
+
             const int      DisplayEchoCount = strlen( glabels[ CombinationIndex ] );
             EffectiveStats DisplayStats     = CalculateCombinationalStat<OptimizingElementTy>(
                 std::views::iota( 0, DisplayEchoCount )
                     | std::views::transform( [ & ]( int EchoIndex ) {
                           return Opt.GetEffectiveEchos( )[ DisplayCombination.Indices[ EchoIndex ] ];
-                      } ),
+                      } )
+                    | std::ranges::to<std::vector>( ),
                 GetCommonStat( ) );
 
             const auto DisplayRow = [ ShowDifferent ]( const char* Label, FloatTy OldValue, FloatTy Value ) {
@@ -415,7 +423,8 @@ main( int argc, char** argv )
                                 std::views::iota( 0, (int) strlen( glabels[ ClosestCombination ] ) )
                                     | std::views::transform( [ & ]( int EchoIndex ) {
                                           return Opt.GetEffectiveEchos( )[ SelectedResult.Indices[ EchoIndex ] ];
-                                      } ),
+                                      } )
+                                    | std::ranges::to<std::vector>( ),
                                 GetCommonStat( ) );
                         }
                     }
@@ -483,7 +492,8 @@ main( int argc, char** argv )
                                         std::views::iota( 0, (int) strlen( glabels[ ClosestCombination ] ) )
                                             | std::views::transform( [ & ]( int EchoIndex ) {
                                                   return Opt.GetEffectiveEchos( )[ SelectedResult.Indices[ EchoIndex ] ];
-                                              } ),
+                                              } )
+                                            | std::ranges::to<std::vector>( ),
                                         GetCommonStat( ) );
                                 }
                             }

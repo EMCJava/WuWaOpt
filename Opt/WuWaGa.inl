@@ -272,6 +272,7 @@ WuWaGA::Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack, E
 
     // Pre-allocated memories
     std::unordered_map<uint64_t, FloatTy>    StatsCache;
+    std::vector<EffectiveStats>              EffectiveStatsPlaceHolder( SlotCount );
     std::unordered_set<uint64_t>             ExistentialCache;
     std::vector<std::pair<FloatTy, int64_t>> Fitness_Index( m_PopulationSize );
     std::vector<std::pair<FloatTy, int64_t>> TopFitness_Index( m_ReproduceSize );
@@ -314,12 +315,15 @@ WuWaGA::Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack, E
                 Fitness = StatsCacheIt->second;
             } else
             {
+                std::ranges::copy( Population[ i ]
+                                       | std::views::transform( [ this ]( int EchoIndex ) {
+                                             return m_EffectiveEchos[ EchoIndex ];
+                                         } ),
+                                   EffectiveStatsPlaceHolder.begin( ) );
+
                 // First time calculating
                 Fitness = CalculateCombinationalStat<ElementType>(
-                              Population[ i ]
-                                  | std::views::transform( [ this ]( int EchoIndex ) {
-                                        return m_EffectiveEchos[ EchoIndex ];
-                                    } ),
+                              EffectiveStatsPlaceHolder,
                               CommonStats )
                               .ExpectedDamage( BaseAttack );
 
