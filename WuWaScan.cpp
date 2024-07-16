@@ -38,6 +38,16 @@ main( )
 {
     srand( time( nullptr ) );
 
+    int EchoLeftToScan;
+    spdlog::info( "Enter number of echoes to scan..." );
+    std::cin >> EchoLeftToScan;
+
+    if ( EchoLeftToScan <= 0 )
+    {
+        spdlog::error( "Number of echoes to scan must be a positive integer." );
+        return 1;
+    }
+
     std::unique_ptr<GameHandle> GameHandler;
 
     try
@@ -50,7 +60,6 @@ main( )
         return 1;
     }
 
-    int EchoLeftToScan = 848;
     spdlog::info( "Scanning {} echoes...", EchoLeftToScan );
 
     MouseControl::MousePoint MouseLocation( 2 );
@@ -159,7 +168,7 @@ main( )
         ReadCardInLocations( ListOfCardIndex );
     }
 
-    std::ofstream OutputJson( "data/echos.json" );
+    std::ofstream OutputJson( "output.json" );
     OutputJson << ResultJson << std::endl;
 
     spdlog::info( "Scanning completed!" );
