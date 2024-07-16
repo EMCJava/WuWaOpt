@@ -72,9 +72,15 @@ std::array<ImU32, eEchoSetCount + 1> EchoSetColor {
     IM_COL32( 243, 60, 241, 255 ) };
 
 int
-main( )
+main( int argc, char** argv )
 {
-    std::ifstream EchoFile { "data/echos.json" };
+    std::string EchoFilePath = "data/example_echos.json";
+    if ( argc > 1 )
+    {
+        EchoFilePath = argv[ 1 ];
+    }
+
+    std::ifstream EchoFile { EchoFilePath };
     if ( !EchoFile )
     {
         spdlog::error( "Failed to open echos file." );
@@ -288,8 +294,6 @@ main( )
         ImGui::SetNextWindowSize( use_work_area ? viewport->WorkSize : viewport->Size );
         if ( ImGui::Begin( "Display", nullptr, flags ) )
         {
-            ImGui::ShowDemoWindow( );
-
             {
                 ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 5.0f );
                 ImGui::BeginChild( "GAStats", ImVec2( ChartSplitWidth - ImGui::GetStyle( ).WindowPadding.x, -1 ), ImGuiChildFlags_Border );
