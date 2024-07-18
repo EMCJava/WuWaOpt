@@ -168,7 +168,7 @@ main( )
         ReadCardInLocations( ListOfCardIndex );
     }
 
-    std::ofstream OutputJson( "output.json" );
+    std::ofstream OutputJson( "echoes.json" );
     OutputJson << ResultJson << std::endl;
 
     spdlog::info( "Scanning completed!" );

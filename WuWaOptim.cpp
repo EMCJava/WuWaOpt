@@ -72,10 +72,54 @@ std::array<ImU32, eEchoSetCount + 1> EchoSetColor {
     IM_COL32( 202, 44, 37, 255 ),
     IM_COL32( 243, 60, 241, 255 ) };
 
+struct OptimizerConfig {
+
+    OptimizerConfig( )
+    {
+        ReadConfig( );
+    }
+
+    EffectiveStats WeaponStats { };
+    EffectiveStats CharacterStats { };
+
+    MultiplierConfig OptimizeMultiplierConfig { };
+    int              SelectedElement { };
+
+    int     CharacterLevel { };
+    int     EnemyLevel { };
+    FloatTy ElementResistance { };
+    FloatTy ElementDamageReduce { };
+
+    [[nodiscard]] auto GetResistances( ) const noexcept
+    {
+        return ( (FloatTy) 100 + CharacterLevel ) / ( 199 + CharacterLevel + EnemyLevel ) * ( 1 - ElementResistance ) * ( 1 - ElementDamageReduce );
+    };
+
+    void ReadConfig( )
+    {
+        static_assert( std::is_trivially_copy_assignable_v<OptimizerConfig> );
+        std::ifstream OptimizerConfigFile( "oc.data", std::ios::binary );
+        if ( OptimizerConfigFile )
+        {
+            OptimizerConfigFile.read( (char*) this, sizeof( OptimizerConfig ) );
+        }
+    }
+
+    void SaveConfig( ) const
+    {
+        static_assert( std::is_trivially_copy_assignable_v<OptimizerConfig> );
+        std::ofstream OptimizerConfigFile( "oc.data", std::ios::binary );
+        if ( OptimizerConfigFile )
+        {
+            OptimizerConfigFile.write( (char*) this, sizeof( OptimizerConfig ) );
+        }
+    }
+};
+
 int
 main( int argc, char** argv )
 {
-    std::string EchoFilePath = "data/example_echos.json";
+    std::string EchoFilePath = "echos.json";
     if ( argc > 1 )
     {
         EchoFilePath = argv[ 1 ];
@@ -106,36 +150,15 @@ main( int argc, char** argv )
         return false;
     } );
 
-    int        CharacterLevel      = 80;
-    int        EnemyLevel          = 73;
-    FloatTy    ElementResistance   = 0.1;
-    FloatTy    ElementDamageReduce = 0;
-    const auto GetResistances      = [ & ]( ) {
-        return ( (FloatTy) 100 + CharacterLevel ) / ( 199 + CharacterLevel + EnemyLevel ) * ( 1 - ElementResistance ) * ( 1 - ElementDamageReduce );
-    };
-
-    FloatTy SkillMultiplier = ( 300.57 + 38.48 * 50 * 1.45 ) / 100;
-
-    EffectiveStats WeaponStats {
-        .flat_attack       = 516,
-        .regen             = 0,
-        .percentage_attack = 0,
-        .buff_multiplier   = 12 + 24,
-        .crit_rate         = 22.1,
-        .crit_damage       = 0,
-    };
-
-    EffectiveStats CharacterStats {
-        .flat_attack       = 368,
-        .regen             = 0,
-        .percentage_attack = 12,
-        .buff_multiplier   = 20 + 80 + 45,
-        .crit_rate         = 8,
-        .crit_damage       = 0,
-    };
+    /*
+     *
+     * Optimizer Configurations
+     *
+     * */
+    OptimizerConfig OConfig;
 
     const auto GetCommonStat = [ & ]( ) {
-        auto CommonStats        = WeaponStats + CharacterStats;
+        auto CommonStats        = OConfig.WeaponStats + OConfig.CharacterStats;
         CommonStats.flat_attack = 0;
 
         CommonStats.crit_damage /= 100;
@@ -143,26 +166,21 @@ main( int argc, char** argv )
         CommonStats.percentage_attack /= 100;
         CommonStats.buff_multiplier /= 100;
         CommonStats.regen /= 100;
+        CommonStats.auto_attack_buff /= 100;
+        CommonStats.heavy_attack_buff /= 100;
+        CommonStats.skill_buff /= 100;
+        CommonStats.ult_buff /= 100;
 
         return CommonStats;
     };
 
-    int         SelectedElement = 5;
-    const char* ElementLabel[]  = {
+    const char* ElementLabel[] = {
         "Fire Damage",
         "Air Damage",
         "Ice Damage",
         "Electric Damage",
         "Dark Damage",
         "Light Damage",
-    };
-
-    int         SelectedDamageType      = 3;
-    const char* DamageTypeLabel[]       = {
-        "Auto Attack Damage",
-        "Heavy Attack Damage",
-        "Ult Damage",
-        "Skill Damage",
     };
 
     WuWaGA Opt( FullStatsList );
@@ -202,7 +220,7 @@ main( int argc, char** argv )
 
             const int      DisplayEchoCount = strlen( glabels[ CombinationIndex ] );
             EffectiveStats DisplayStats     = OptimizerParmSwitcher::SwitchCalculateCombinationalStat(
-                SelectedElement,
+                OConfig.SelectedElement,
                 std::views::iota( 0, DisplayEchoCount )
                     | std::views::transform( [ & ]( int EchoIndex ) {
                           return Opt.GetEffectiveEchos( )[ DisplayCombination.Indices[ EchoIndex ] ];
@@ -252,7 +270,7 @@ main( int argc, char** argv )
             ImGui::SeparatorText( "Effective Stats" );
             if ( ImGui::BeginTable( "EffectiveStats", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg ) )
             {
-                const auto BaseAttack = WeaponStats.flat_attack + CharacterStats.flat_attack;
+                const auto BaseAttack = OConfig.WeaponStats.flat_attack + OConfig.CharacterStats.flat_attack;
 
                 ImGui::TableSetupColumn( "Stat" );
                 ImGui::TableSetupColumn( "Number" );
@@ -261,15 +279,21 @@ main( int argc, char** argv )
                 DisplayRow( "Flat Attack", SelectedStats.flat_attack, DisplayStats.flat_attack );
                 DisplayRow( "Regen", SelectedStats.regen * 100 + 100, DisplayStats.regen * 100 + 100 );
                 DisplayRow( "Percentage Attack", SelectedStats.percentage_attack * 100, DisplayStats.percentage_attack * 100 );
-                DisplayRow( "Buff Multiplier", SelectedStats.buff_multiplier * 100, DisplayStats.buff_multiplier * 100 );
+
+                DisplayRow( "Element Buff %", SelectedStats.buff_multiplier * 100, DisplayStats.buff_multiplier * 100 );
+                DisplayRow( "Auto Attack %", SelectedStats.auto_attack_buff * 100, DisplayStats.auto_attack_buff * 100 );
+                DisplayRow( "Heavy Attack %", SelectedStats.heavy_attack_buff * 100, DisplayStats.heavy_attack_buff * 100 );
+                DisplayRow( "Skill Damage %", SelectedStats.skill_buff * 100, DisplayStats.skill_buff * 100 );
+                DisplayRow( "Ult Damage %", SelectedStats.ult_buff * 100, DisplayStats.ult_buff * 100 );
+
                 DisplayRow( "Crit rate", SelectedStats.CritRateStat( ) * 100, DisplayStats.CritRateStat( ) * 100 );
                 DisplayRow( "Crit Damage", SelectedStats.CritDamageStat( ) * 100, DisplayStats.CritDamageStat( ) * 100 );
                 DisplayRow( "Final Attack", SelectedStats.AttackStat( BaseAttack ), DisplayStats.AttackStat( BaseAttack ) );
 
-                const FloatTy Resistances = GetResistances( );
-                DisplayRow( "Non Crit Damage", SelectedStats.NormalDamage( BaseAttack ) * SkillMultiplier * Resistances, DisplayStats.NormalDamage( BaseAttack ) * SkillMultiplier * Resistances );
-                DisplayRow( "    Crit Damage", SelectedStats.CritDamage( BaseAttack ) * SkillMultiplier * Resistances, DisplayStats.CritDamage( BaseAttack ) * SkillMultiplier * Resistances );
-                DisplayRow( "Expected Damage", SelectedStats.ExpectedDamage( BaseAttack ) * SkillMultiplier * Resistances, DisplayStats.ExpectedDamage( BaseAttack ) * SkillMultiplier * Resistances );
+                const FloatTy Resistances = OConfig.GetResistances( );
+                DisplayRow( "Non Crit Damage", SelectedStats.NormalDamage( BaseAttack, &OConfig.OptimizeMultiplierConfig ) * Resistances, DisplayStats.NormalDamage( BaseAttack, &OConfig.OptimizeMultiplierConfig ) * Resistances );
+                DisplayRow( "    Crit Damage", SelectedStats.CritDamage( BaseAttack, &OConfig.OptimizeMultiplierConfig ) * Resistances, DisplayStats.CritDamage( BaseAttack, &OConfig.OptimizeMultiplierConfig ) * Resistances );
+                DisplayRow( "Expected Damage", SelectedStats.ExpectedDamage( BaseAttack, &OConfig.OptimizeMultiplierConfig ) * Resistances, DisplayStats.ExpectedDamage( BaseAttack, &OConfig.OptimizeMultiplierConfig ) * Resistances );
 
                 ImGui::EndTable( );
             }
@@ -367,7 +391,7 @@ main( int argc, char** argv )
                     ImPlot::SetupAxes( "Rank", "Optimal Value", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit );
 
                     bool       HasData              = false;
-                    const auto StaticStatMultiplier = SkillMultiplier * GetResistances( );
+                    const auto StaticStatMultiplier = OConfig.GetResistances( );
                     for ( int i = 0; i < GARuntimeReport::MaxCombinationCount; i++ )
                     {
                         std::lock_guard Lock( GAReport.DetailReports[ i ].ReportLock );
@@ -433,13 +457,13 @@ main( int argc, char** argv )
                         ImGui::EndTooltip( );
 
                         // Select the echo combination
-                        if ( event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Button::Left )
+                        if ( sf::Mouse::isButtonPressed( sf::Mouse::Button::Left ) )
                         {
                             ChosenCombination = ClosestCombination;
                             ChosenRank        = Rank;
 
                             SelectedStats = OptimizerParmSwitcher::SwitchCalculateCombinationalStat(
-                                SelectedElement,
+                                OConfig.SelectedElement,
                                 std::views::iota( 0, (int) strlen( glabels[ ClosestCombination ] ) )
                                     | std::views::transform( [ & ]( int EchoIndex ) {
                                           return Opt.GetEffectiveEchos( )[ SelectedResult.Indices[ EchoIndex ] ];
@@ -503,13 +527,13 @@ main( int argc, char** argv )
                                 ImGui::EndTooltip( );
 
                                 // Select the echo combination
-                                if ( event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Button::Left )
+                                if ( sf::Mouse::isButtonPressed( sf::Mouse::Button::Left ) )
                                 {
                                     ChosenCombination = ClosestCombination;
                                     ChosenRank        = ClosestRank;
 
                                     SelectedStats = OptimizerParmSwitcher::SwitchCalculateCombinationalStat(
-                                        SelectedElement,
+                                        OConfig.SelectedElement,
                                         std::views::iota( 0, (int) strlen( glabels[ ClosestCombination ] ) )
                                             | std::views::transform( [ & ]( int EchoIndex ) {
                                                   return Opt.GetEffectiveEchos( )[ SelectedResult.Indices[ EchoIndex ] ];
@@ -531,41 +555,58 @@ main( int argc, char** argv )
             ImGui::SameLine( );
 
             {
+#define SAVE_CONFIG( x ) \
+    if ( x ) OConfig.SaveConfig( );
+
                 ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 5.0f );
                 ImGui::BeginChild( "DetailPanel", ImVec2( StatSplitWidth - ImGui::GetStyle( ).WindowPadding.x * 2, -1 ), ImGuiChildFlags_Border );
 
                 ImGui::BeginChild( "DetailPanel##Character", ImVec2( StatSplitWidth / 2 - ImGui::GetStyle( ).WindowPadding.x * 4, 0 ), ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysAutoResize );
                 ImGui::SeparatorText( "Character" );
-                ImGui::DragFloat( "Flat Percentage##2", &CharacterStats.flat_attack, 1, 0, 0, "%.0f" );
-                ImGui::DragFloat( "Attack Percentage##2", &CharacterStats.percentage_attack, 0.01, 0, 0, "%.2f" );
-                ImGui::DragFloat( "Damage Buff Percentage##2", &CharacterStats.buff_multiplier, 0.01, 0, 0, "%.2f" );
-                ImGui::DragFloat( "Crit Rate##2", &CharacterStats.crit_rate, 0.01, 0, 0, "%.2f" );
-                ImGui::DragFloat( "Crit Damage##2", &CharacterStats.crit_damage, 0.01, 0, 0, "%.2f" );
+                SAVE_CONFIG( ImGui::DragFloat( "Flat Attack##Character", &OConfig.CharacterStats.flat_attack, 1, 0, 0, "%.0f" ) )
+                SAVE_CONFIG( ImGui::DragFloat( "Attack %##Character", &OConfig.CharacterStats.percentage_attack, 0.01, 0, 0, "%.2f" ) )
+                SAVE_CONFIG( ImGui::DragFloat( "Element Buff %##Character", &OConfig.CharacterStats.buff_multiplier, 0.01, 0, 0, "%.2f" ) )
+                SAVE_CONFIG( ImGui::DragFloat( "Auto Attack %##Character", &OConfig.CharacterStats.auto_attack_buff, 0.01, 0, 0, "%.2f" ) )
+                SAVE_CONFIG( ImGui::DragFloat( "Heavy Attack %##Character", &OConfig.CharacterStats.heavy_attack_buff, 0.01, 0, 0, "%.2f" ) )
+                SAVE_CONFIG( ImGui::DragFloat( "Skill Damage %##Character", &OConfig.CharacterStats.skill_buff, 0.01, 0, 0, "%.2f" ) )
+                SAVE_CONFIG( ImGui::DragFloat( "Ult Damage %##Character", &OConfig.CharacterStats.ult_buff, 0.01, 0, 0, "%.2f" ) )
+                SAVE_CONFIG( ImGui::DragFloat( "Crit Rate##Character", &OConfig.CharacterStats.crit_rate, 0.01, 0, 0, "%.2f" ) )
+                SAVE_CONFIG( ImGui::DragFloat( "Crit Damage##Character", &OConfig.CharacterStats.crit_damage, 0.01, 0, 0, "%.2f" ) )
                 ImGui::EndChild( );
                 ImGui::SameLine( );
                 ImGui::BeginChild( "DetailPanel##Weapon", ImVec2( StatSplitWidth / 2 - ImGui::GetStyle( ).WindowPadding.x * 4, 0 ), ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysAutoResize );
                 ImGui::SeparatorText( "Weapon" );
-                ImGui::DragFloat( "Flat Percentage##1", &WeaponStats.flat_attack, 1, 0, 0, "%.0f" );
-                ImGui::DragFloat( "Attack Percentage##1", &WeaponStats.percentage_attack, 0.01, 0, 0, "%.2f" );
-                ImGui::DragFloat( "Damage Buff Percentage##1", &WeaponStats.buff_multiplier, 0.01, 0, 0, "%.2f" );
-                ImGui::DragFloat( "Crit Rate##1", &WeaponStats.crit_rate, 0.01, 0, 0, "%.2f" );
-                ImGui::DragFloat( "Crit Damage##1", &WeaponStats.crit_damage, 0.01, 0, 0, "%.2f" );
+                SAVE_CONFIG( ImGui::DragFloat( "Flat Attack##Weapon", &OConfig.WeaponStats.flat_attack, 1, 0, 0, "%.0f" ) )
+                SAVE_CONFIG( ImGui::DragFloat( "Attack %##Weapon", &OConfig.WeaponStats.percentage_attack, 0.01, 0, 0, "%.2f" ) )
+                SAVE_CONFIG( ImGui::DragFloat( "Element Buff %##Weapon", &OConfig.WeaponStats.buff_multiplier, 0.01, 0, 0, "%.2f" ) )
+                SAVE_CONFIG( ImGui::DragFloat( "Auto Attack %##Weapon", &OConfig.WeaponStats.auto_attack_buff, 0.01, 0, 0, "%.2f" ) )
+                SAVE_CONFIG( ImGui::DragFloat( "Heavy Attack %##Weapon", &OConfig.WeaponStats.heavy_attack_buff, 0.01, 0, 0, "%.2f" ) )
+                SAVE_CONFIG( ImGui::DragFloat( "Skill Damage %##Weapon", &OConfig.WeaponStats.skill_buff, 0.01, 0, 0, "%.2f" ) )
+                SAVE_CONFIG( ImGui::DragFloat( "Ult Damage %##Weapon", &OConfig.WeaponStats.ult_buff, 0.01, 0, 0, "%.2f" ) )
+                SAVE_CONFIG( ImGui::DragFloat( "Crit Rate##Weapon", &OConfig.WeaponStats.crit_rate, 0.01, 0, 0, "%.2f" ) )
+                SAVE_CONFIG( ImGui::DragFloat( "Crit Damage##Weapon", &OConfig.WeaponStats.crit_damage, 0.01, 0, 0, "%.2f" ) )
                 ImGui::EndChild( );
+
+                ImGui::NewLine( );
+                ImGui::Separator( );
                 ImGui::NewLine( );
 
+                SAVE_CONFIG( ImGui::DragFloat( "Auto Attack Kit Total %", &OConfig.OptimizeMultiplierConfig.auto_attack_multiplier ) )
+                SAVE_CONFIG( ImGui::DragFloat( "Heavy Attack Kit Total %", &OConfig.OptimizeMultiplierConfig.heavy_attack_multiplier ) )
+                SAVE_CONFIG( ImGui::DragFloat( "Skill Kit Total %", &OConfig.OptimizeMultiplierConfig.skill_multiplier ) )
+                SAVE_CONFIG( ImGui::DragFloat( "Ult Kit Total %", &OConfig.OptimizeMultiplierConfig.ult_multiplier ) )
+
+                ImGui::NewLine( );
                 ImGui::Separator( );
+                ImGui::NewLine( );
 
                 ImGui::BeginChild( "DetailPanel##Element", ImVec2( StatSplitWidth / 2 - ImGui::GetStyle( ).WindowPadding.x * 4, 0 ), ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysAutoResize );
-                ImGui::Combo( "Element Type", &SelectedElement, ElementLabel, IM_ARRAYSIZE( ElementLabel ) );
+                SAVE_CONFIG( ImGui::Combo( "Element Type", &OConfig.SelectedElement, ElementLabel, IM_ARRAYSIZE( ElementLabel ) ) )
                 ImGui::EndChild( );
 
-                ImGui::SameLine( );
-
-                ImGui::BeginChild( "DetailPanel##Damage", ImVec2( StatSplitWidth / 2 - ImGui::GetStyle( ).WindowPadding.x * 4, 0 ), ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysAutoResize );
-                ImGui::Combo( "Damage Type", &SelectedDamageType, DamageTypeLabel, IM_ARRAYSIZE( DamageTypeLabel ) );
-                ImGui::EndChild( );
-
+                ImGui::NewLine( );
                 ImGui::Separator( );
+                ImGui::NewLine( );
 
                 const auto  OptRunning = Opt.IsRunning( );
                 const float ButtonH    = OptRunning ? 0 : 0.384;
@@ -574,20 +615,16 @@ main( int argc, char** argv )
                 ImGui::PushStyleColor( ImGuiCol_ButtonActive, (ImVec4) ImColor::HSV( ButtonH, 0.8f, 0.8f ) );
                 if ( ImGui::Button( OptRunning ? "Re-Run" : "Run", ImVec2( -1, 0 ) ) )
                 {
-                    const auto BaseAttack = WeaponStats.flat_attack + CharacterStats.flat_attack;
-                    OptimizerParmSwitcher::SwitchRun( Opt, SelectedElement, SelectedDamageType, BaseAttack, GetCommonStat( ) );
+                    const auto BaseAttack = OConfig.WeaponStats.flat_attack + OConfig.CharacterStats.flat_attack;
+                    OptimizerParmSwitcher::SwitchRun( Opt, OConfig.SelectedElement, BaseAttack, GetCommonStat( ), &OConfig.OptimizeMultiplierConfig );
                 }
                 ImGui::PopStyleColor( 3 );
 
                 ImGui::SeparatorText( "Static Configurations" );
-                FloatTy SkillMultiplierMul100 = SkillMultiplier * 100;
-                ImGui::DragFloat( "Skill Multiplier", &SkillMultiplierMul100, 0.01, 0, 0, "%.2f" );
-                SkillMultiplier = SkillMultiplierMul100 / 100;
-
-                ImGui::SliderInt( "Character Level", &CharacterLevel, 1, 90 );
-                ImGui::SliderInt( "Enemy Level", &EnemyLevel, 1, 90 );
-                ImGui::SliderFloat( "Enemy Element Resistance", &ElementResistance, 0, 1, "%.2f" );
-                ImGui::SliderFloat( "Enemy Damage Reduction", &ElementDamageReduce, 0, 1, "%.2f" );
+                SAVE_CONFIG( ImGui::SliderInt( "Character Level", &OConfig.CharacterLevel, 1, 90 ) )
+                SAVE_CONFIG( ImGui::SliderInt( "Enemy Level", &OConfig.EnemyLevel, 1, 90 ) )
+                SAVE_CONFIG( ImGui::SliderFloat( "Enemy Element Resistance", &OConfig.ElementResistance, 0, 1, "%.2f" ) )
+                SAVE_CONFIG( ImGui::SliderFloat( "Enemy Damage Reduction", &OConfig.ElementDamageReduce, 0, 1, "%.2f" ) )
 
                 if ( ChosenCombination >= 0 )
                 {
@@ -596,6 +633,8 @@ main( int argc, char** argv )
 
                 ImGui::EndChild( );
                 ImGui::PopStyleVar( );
+
+#undef SAVE_CONFIG
             }
         }
 

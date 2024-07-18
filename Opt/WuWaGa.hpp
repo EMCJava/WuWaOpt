@@ -41,7 +41,7 @@ class WuWaGA
 private:
     template <char ElementType, CostSlotTemplate>
     inline void
-    Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack, EffectiveStats CommonStats );
+    Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack, EffectiveStats CommonStats, const MultiplierConfig* OptimizeMultiplierConfig );
 
 public:
     static constexpr int ResultLength = 100;
@@ -55,8 +55,8 @@ public:
         return m_GAReport;
     }
 
-    template <char ElementType, char DamageType>
-    inline void Run( FloatTy BaseAttack, const EffectiveStats& CommonStats );
+    template <char ElementType>
+    inline void Run( FloatTy BaseAttack, const EffectiveStats& CommonStats, const MultiplierConfig* OptimizeMultiplierConfig );
 
     auto& GetEffectiveEchos( ) const noexcept { return m_EffectiveEchos; }
 

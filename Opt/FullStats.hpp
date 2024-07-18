@@ -103,6 +103,14 @@ MatchColorToSet( std::tuple<int, int, int> Color ) noexcept
     return (EchoSet) SmallestDistanceAt;
 }
 
+struct MultiplierConfig {
+
+    FloatTy auto_attack_multiplier  = 0;
+    FloatTy heavy_attack_multiplier = 0;
+    FloatTy skill_multiplier        = 0;
+    FloatTy ult_multiplier          = 0;
+};
+
 struct EffectiveStats {
 
     EchoSet Set               = eFreezingFrost;
@@ -114,6 +122,11 @@ struct EffectiveStats {
     FloatTy buff_multiplier   = 0;
     FloatTy crit_rate         = 0;
     FloatTy crit_damage       = 0;
+
+    FloatTy auto_attack_buff  = 0;
+    FloatTy heavy_attack_buff = 0;
+    FloatTy skill_buff        = 0;
+    FloatTy ult_buff          = 0;
 
     EffectiveStats& operator+=( const EffectiveStats& Other ) noexcept
     {
@@ -127,6 +140,11 @@ struct EffectiveStats {
         buff_multiplier += Other.buff_multiplier;
         crit_rate += Other.crit_rate;
         crit_damage += Other.crit_damage;
+
+        auto_attack_buff += Other.auto_attack_buff;
+        heavy_attack_buff += Other.heavy_attack_buff;
+        skill_buff += Other.skill_buff;
+        ult_buff += Other.ult_buff;
 
         return *this;
     }
@@ -142,7 +160,11 @@ struct EffectiveStats {
             percentage_attack + Other.percentage_attack,
             buff_multiplier + Other.buff_multiplier,
             crit_rate + Other.crit_rate,
-            crit_damage + Other.crit_damage };
+            crit_damage + Other.crit_damage,
+            auto_attack_buff + Other.auto_attack_buff,
+            heavy_attack_buff + Other.heavy_attack_buff,
+            skill_buff + Other.skill_buff,
+            ult_buff + Other.ult_buff };
     }
 
     EffectiveStats operator-( const EffectiveStats& Other ) const noexcept
@@ -156,7 +178,11 @@ struct EffectiveStats {
             percentage_attack - Other.percentage_attack,
             buff_multiplier - Other.buff_multiplier,
             crit_rate - Other.crit_rate,
-            crit_damage - Other.crit_damage };
+            crit_damage - Other.crit_damage,
+            auto_attack_buff - Other.auto_attack_buff,
+            heavy_attack_buff - Other.heavy_attack_buff,
+            skill_buff - Other.skill_buff,
+            ult_buff - Other.ult_buff };
     }
 
     bool operator==( const EffectiveStats& Other ) const noexcept
@@ -172,6 +198,10 @@ struct EffectiveStats {
         if ( !CLOSE( buff_multiplier, Other.buff_multiplier ) ) return false;
         if ( !CLOSE( crit_rate, Other.crit_rate ) ) return false;
         if ( !CLOSE( crit_damage, Other.crit_damage ) ) return false;
+        if ( !CLOSE( auto_attack_buff, Other.auto_attack_buff ) ) return false;
+        if ( !CLOSE( heavy_attack_buff, Other.heavy_attack_buff ) ) return false;
+        if ( !CLOSE( skill_buff, Other.skill_buff ) ) return false;
+        if ( !CLOSE( ult_buff, Other.ult_buff ) ) return false;
 
 #undef CLOSE
 
@@ -193,19 +223,24 @@ struct EffectiveStats {
         return base_attack * ( 1 + percentage_attack ) + flat_attack;
     }
 
-    FloatTy NormalDamage( auto base_attack ) const noexcept
+    FloatTy NormalDamage( auto base_attack, const MultiplierConfig* multiplier_config ) const noexcept
     {
-        return AttackStat( base_attack ) * ( 1.f + buff_multiplier );
+        // clang-format off
+        return multiplier_config->auto_attack_multiplier  * AttackStat( base_attack ) * ( 1.f + buff_multiplier + auto_attack_buff  )
+             + multiplier_config->heavy_attack_multiplier * AttackStat( base_attack ) * ( 1.f + buff_multiplier + heavy_attack_buff )
+             + multiplier_config->skill_multiplier        * AttackStat( base_attack ) * ( 1.f + buff_multiplier + skill_buff        )
+             + multiplier_config->ult_multiplier          * AttackStat( base_attack ) * ( 1.f + buff_multiplier + ult_buff          );
+        // clang-format on
     }
 
-    FloatTy CritDamage( auto base_attack ) const noexcept
+    FloatTy CritDamage( auto base_attack, const MultiplierConfig* multiplier_config ) const noexcept
     {
-        return NormalDamage( base_attack ) * CritDamageStat( );
+        return NormalDamage( base_attack, multiplier_config ) * CritDamageStat( );
     }
 
-    FloatTy ExpectedDamage( auto base_attack ) const noexcept
+    FloatTy ExpectedDamage( auto base_attack, const MultiplierConfig* multiplier_config ) const noexcept
     {
-        return NormalDamage( base_attack ) * ( 1 + std::min( CritRateStat( ), (FloatTy) 1 ) * ( 0.5f + crit_damage ) );
+        return NormalDamage( base_attack, multiplier_config ) * ( 1 + std::min( CritRateStat( ), (FloatTy) 1 ) * ( 0.5f + crit_damage ) );
     }
 };
 
@@ -427,7 +462,7 @@ GetSkillBonusPtr( )
     std::unreachable( );
 }
 
-template <char ElementType, char DamageType>
+template <char ElementType>
 EffectiveStats
 ToEffectiveStats( const FullStats& MatchResult )
 {
@@ -438,9 +473,11 @@ ToEffectiveStats( const FullStats& MatchResult )
         .flat_attack       = MatchResult.Attack,
         .regen             = MatchResult.RegenPercentage,
         .percentage_attack = MatchResult.AttackPercentage,
-        .buff_multiplier =
-            MatchResult.*GetElementBonusPtr<ElementType>( )
-            + MatchResult.*GetSkillBonusPtr<DamageType>( ),
-        .crit_rate   = MatchResult.CritRate,
-        .crit_damage = MatchResult.CritDamage };
+        .buff_multiplier   = MatchResult.*GetElementBonusPtr<ElementType>( ),
+        .crit_rate         = MatchResult.CritRate,
+        .crit_damage       = MatchResult.CritDamage,
+        .auto_attack_buff  = MatchResult.AutoAttackDamagePercentage,
+        .heavy_attack_buff = MatchResult.HeavyAttackPercentage,
+        .skill_buff        = MatchResult.SkillDamagePercentage,
+        .ult_buff          = MatchResult.UltDamagePercentage };
 }
