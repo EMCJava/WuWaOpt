@@ -119,6 +119,8 @@ struct OptimizerConfig {
 int
 main( int argc, char** argv )
 {
+    spdlog::set_level( spdlog::level::trace );
+
     std::string EchoFilePath = "echoes.json";
     if ( argc > 1 )
     {
