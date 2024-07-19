@@ -110,6 +110,7 @@ main( )
     //        cv::waitKey( 1 );
     //    }
 
+    bool                  Terminate = false;
     std::binary_semaphore CardReading { 1 };
     const auto            ReadCardInLocations = [ & ]( auto&& Location ) {
         MouseToCard( Location[ 0 ].x, Location[ 0 ].y );
@@ -124,6 +125,11 @@ main( )
                 CardReading.release( );
             } }.detach( );
 
+            if ( GetAsyncKeyState( VK_SPACE ) )
+            {
+                Terminate = true;
+                return;
+            }
             MouseToCard( CardLocation.x, CardLocation.y );
 
             CardReading.acquire( );
@@ -140,6 +146,7 @@ main( )
         spdlog::info( "Scanning at page {}...", Page );
 
         ReadCardInLocations( ListOfCardIndex );
+        if ( Terminate ) break;
 
         for ( int i = 0; i < ( Page % 2 == 0 ? 24 : 23 ); ++i )
         {
@@ -158,7 +165,7 @@ main( )
         }
     }
 
-    if ( EchoLeftToScan != 0 )
+    if ( !Terminate && EchoLeftToScan != 0 )
     {
         const int  NumberOfRowLeft = std::ceil( EchoLeftToScan / 6.f );
         const auto StartingRow     = 4 - NumberOfRowLeft;

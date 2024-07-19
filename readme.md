@@ -15,7 +15,7 @@ See [echo file example](data/example_echos.json)
 1. Go to the echo page in you backpack (press b), scroll to the top
 2. Run `WuWaScan.exe` as administrator as Wuthering Waves also runs as administrator
 3. Enter the number of echoes to scan
-4. Wait
+4. Wait (You can terminate the scanning process with space bar)
 
 > ⚠️Only support 1280x720 in Traditional Chinese until Kuro fix this, or I have motivation to implementing echo scanning in character page\
 > ![Text overlapping](data/overlapping.png)\
