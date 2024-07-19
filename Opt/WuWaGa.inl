@@ -175,7 +175,7 @@ WuWaGA::Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack, E
 
     if ( 2000 < m_EffectiveEchos.size( ) )
     {
-        spdlog::critical( "{}: Too much echos", SL.function_name( ) );
+        spdlog::critical( "{}: Too much echoes", SL.function_name( ) );
         return;
     }
 
@@ -210,7 +210,7 @@ WuWaGA::Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack, E
          || CountByFixedCost[ eCost3 ] > AvailableThreeCount
          || CountByFixedCost[ eCost1 ] > AvailableOneCount )
     {
-        spdlog::critical( "{}: Not enough echos of specified costs", SL.function_name( ) );
+        spdlog::critical( "{}: Not enough echoes of specified costs", SL.function_name( ) );
         return;
     }
 
@@ -247,7 +247,7 @@ WuWaGA::Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack, E
 
         /*
          *
-         * Initialize population with random echos
+         * Initialize population with random echoes
          *
          * */
         for ( auto& Individual : Population )

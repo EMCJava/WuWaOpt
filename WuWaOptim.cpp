@@ -119,7 +119,7 @@ struct OptimizerConfig {
 int
 main( int argc, char** argv )
 {
-    std::string EchoFilePath = "echos.json";
+    std::string EchoFilePath = "echoes.json";
     if ( argc > 1 )
     {
         EchoFilePath = argv[ 1 ];
@@ -128,12 +128,12 @@ main( int argc, char** argv )
     std::ifstream EchoFile { EchoFilePath };
     if ( !EchoFile )
     {
-        spdlog::error( "Failed to open echos file." );
+        spdlog::error( "Failed to open echoes file." );
         system( "pause" );
         return 1;
     }
 
-    auto FullStatsList = json::parse( EchoFile )[ "echos" ].get<std::vector<FullStats>>( )
+    auto FullStatsList = json::parse( EchoFile )[ "echoes" ].get<std::vector<FullStats>>( )
         // | std::views::filter( []( const FullStats& FullEcho ) { return FullEcho.Level != 0; } )
         // | std::views::filter( []( const FullStats& FullEcho ) { return FullEcho.Set == eMoltenRift || FullEcho.Set == eFreezingFrost; } )
         | std::views::filter( []( const FullStats& FullEcho ) { return !FullEcho.EchoName.empty( ); } )

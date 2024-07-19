@@ -67,7 +67,7 @@ main( )
     MouseControl::MousePoint MouseLocation( 2 );
 
     json  ResultJson { };
-    auto& ResultJsonEchos = ResultJson[ "echos" ];
+    auto& ResultJsonEchos = ResultJson[ "echoes" ];
 
     std::vector<cv::Point> ListOfCardIndex;
     for ( int j = 0; j < 3; ++j )

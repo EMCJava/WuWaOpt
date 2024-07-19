@@ -6,7 +6,7 @@
 
 ## Echo Optimizer
 ```bash
-WuWaOptim.exe "path to echos.json"
+WuWaOptim.exe "path to echoes.json"
 ```
 See [echo file example](data/example_echos.json)
 
