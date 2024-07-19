@@ -37,16 +37,16 @@ GetGameWindow( )
     auto MessageCaptionHWND = FindWindowEx( MessageHWND, hLast, nullptr, DefaultCaption );
     if ( MessageCaptionHWND == nullptr ) throw std::runtime_error( "CaptionHWND not found" );
 
-    std::array<char, 256> WindowTitle { 0 };
-    HWND                  Foreground = nullptr;
+    std::wstring WindowTitle( 256, L'\0' );
+    HWND         Foreground = nullptr;
     while ( iotaFuture.wait_for( std::chrono::milliseconds( 100 ) ) != std::future_status::ready )
     {
         auto FG = GetForegroundWindow( );
         if ( FG == MessageHWND ) continue;
         if ( ( Foreground = FG ) )
         {
-            GetWindowText( Foreground, WindowTitle.data( ), WindowTitle.size( ) );
-            SetWindowText( MessageCaptionHWND, WindowTitle.data( ) );
+            GetWindowTextW( Foreground, WindowTitle.data( ), (int) WindowTitle.size( ) );
+            SetWindowTextW( MessageCaptionHWND, WindowTitle.data( ) );
         }
     }
 
