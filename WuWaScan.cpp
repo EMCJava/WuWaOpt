@@ -42,9 +42,10 @@ main( )
     spdlog::info( "Enter number of echoes to scan..." );
     std::cin >> EchoLeftToScan;
 
-    if ( EchoLeftToScan <= 0 )
+    if ( EchoLeftToScan < 18 )
     {
-        spdlog::error( "Number of echoes to scan must be a positive integer." );
+        spdlog::error( "Number of echoes to scan must be greater or equal to 18." );
+        system( "pause" );
         return 1;
     }
 
