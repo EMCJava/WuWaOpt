@@ -144,9 +144,22 @@ EchoExtractor::ExtractStat( const cv::Mat& Cimg, const cv::Mat& Timg, const cv::
 
     auto NResult = MatchEchoName( Nimg, "Echo Name" );
 
-    auto Types   = TResult | std::views::split( '\n' ) | std::views::transform( []( auto&& c ) -> char { return c.front( ); } );
+    auto Types   = TResult | std::views::split( '\n' ) | std::views::transform( []( auto&& c ) -> char {
+                     if ( c.empty( ) )
+                     {
+                         spdlog::warn( "Warning: Empty type detected in EchoExtractor::ExtractStat" );
+                         return '\0';
+                     }
+                     return c.front( );
+                 } );
     auto Numbers = CResult | std::views::split( '\n' )
         | std::views::transform( []( auto&& Number ) -> FloatTy {   // parse
+                       if ( Number.empty( ) )
+                       {
+                           spdlog::warn( "Warning: Empty number detected in EchoExtractor::ExtractStat" );
+                           return 0;
+                       }
+
                        FloatTy result;
 
                        if ( Number.back( ) == '%' )
@@ -218,7 +231,8 @@ EchoExtractor::ExtractStat( const cv::Mat& Cimg, const cv::Mat& Timg, const cv::
 FullStats
 EchoExtractor::ReadCard( const cv::Mat& Src )
 {
-    const cv::Rect NameRect { 880, 115, 200, 25 };
+    spdlog::info( "Analyzing Src({}x{}) image...", Src.cols, Src.rows );
+
     const cv::Rect NameRect { 872, 84, 200, 25 };
     const auto     NameImage = Src( NameRect );
 

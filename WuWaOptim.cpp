@@ -129,6 +129,7 @@ main( int argc, char** argv )
     if ( !EchoFile )
     {
         spdlog::error( "Failed to open echos file." );
+        system( "pause" );
         return 1;
     }
 

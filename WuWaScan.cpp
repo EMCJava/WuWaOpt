@@ -58,6 +58,7 @@ main( )
     catch ( const std::exception& e )
     {
         spdlog::error( "Error initializing game handle: {}", e.what( ) );
+        system( "pause" );
         return 1;
     }
 
@@ -173,5 +174,6 @@ main( )
     OutputJson << ResultJson << std::endl;
 
     spdlog::info( "Scanning completed!" );
-    std::cin.get( );
+
+    system( "pause" );
 }
