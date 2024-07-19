@@ -117,8 +117,13 @@ GameHandle::GameHandle( )
     m_ScreenDC  = GetDC( GetDesktopWindow( ) );
     m_CaptureDC = CreateCompatibleDC( m_ScreenDC );   // create a device context to use yourself
 
-    GetWindowRect( m_TargetWindowHandle, &m_WindowRect );
-    m_CaptureBitmap = CreateCompatibleBitmap( m_ScreenDC, m_WindowRect.right - m_WindowRect.left, m_WindowRect.bottom - m_WindowRect.top );   // create a bitmap
+    GetClientRect( m_TargetWindowHandle, &m_WindowSize );
+    if ( m_WindowSize.right != 1280 || m_WindowSize.bottom != 720 )
+    {
+        throw std::runtime_error( std::format( "Unexpected window size({}x{}), expected 1280x720", m_WindowSize.right, m_WindowSize.bottom ) );
+    }
+
+    m_CaptureBitmap = CreateCompatibleBitmap( m_ScreenDC, m_WindowSize.right, m_WindowSize.bottom );   // create a bitmap
 
     // use the previously created device context with the bitmap
     SelectObject( m_CaptureDC, m_CaptureBitmap );
@@ -147,12 +152,12 @@ GameHandle::SelectGameWindow( )
 cv::Mat
 GameHandle::ScreenCap( )
 {
-    // GetWindowRect( TargetWindowHandle, &m_WindowRect );
+    auto TopLeft = GetLeftTop( );
 
     BitBlt( m_CaptureDC,
-            0, 0, m_WindowRect.right - m_WindowRect.left, m_WindowRect.bottom - m_WindowRect.top,
+            0, 0, m_WindowSize.right, m_WindowSize.bottom,
             m_ScreenDC,
-            m_WindowRect.left, m_WindowRect.top, SRCCOPY );
+            TopLeft[ 0 ], TopLeft[ 1 ], SRCCOPY );
     return CVUtils::HBitmapToMat( m_CaptureBitmap );
 }
 
@@ -165,5 +170,8 @@ GameHandle::~GameHandle( )
 MouseControl::MousePoint
 GameHandle::GetLeftTop( ) const
 {
-    return { static_cast<float>( m_WindowRect.left ), static_cast<float>( m_WindowRect.top ) };
+    POINT WindowTopLeft = { 0, 0 };
+    ClientToScreen( m_TargetWindowHandle, &WindowTopLeft );
+
+    return { static_cast<float>( WindowTopLeft.x ), static_cast<float>( WindowTopLeft.y ) };
 }

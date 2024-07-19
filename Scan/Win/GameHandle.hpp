@@ -26,7 +26,7 @@ protected:
 
     HWND m_TargetWindowHandle = nullptr;
 
-    RECT    m_WindowRect { };
+    RECT    m_WindowSize { };
     HDC     m_CaptureDC     = nullptr;
     HDC     m_ScreenDC      = nullptr;
     HBITMAP m_CaptureBitmap = nullptr;

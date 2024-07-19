@@ -80,8 +80,8 @@ main( )
         static const int CardWidth  = 85;
         static const int CardHeight = 100;
 
-        MouseControl::MousePoint NextLocation = { 150 + CardSpaceWidth * X + CardWidth * (float) dis( gen ),
-                                                  115 + CardSpaceHeight * Y + CardHeight * (float) dis( gen ) };
+        MouseControl::MousePoint NextLocation = { 142 + CardSpaceWidth * X + CardWidth * (float) dis( gen ),
+                                                  84 + CardSpaceHeight * Y + CardHeight * (float) dis( gen ) };
         NextLocation += GameHandler->GetLeftTop( );
 
         MouseController.MoveMouse( MouseLocation, NextLocation, 300 + 80 * ( dis( gen ) - 0.5 ) );

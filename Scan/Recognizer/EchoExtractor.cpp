@@ -219,15 +219,16 @@ FullStats
 EchoExtractor::ReadCard( const cv::Mat& Src )
 {
     const cv::Rect NameRect { 880, 115, 200, 25 };
+    const cv::Rect NameRect { 872, 84, 200, 25 };
     const auto     NameImage = Src( NameRect );
 
-    const cv::Rect CostRect { 1148, 170, 76, 18 };
+    const cv::Rect CostRect { 1140, 139, 76, 18 };
     const auto     CostImage = Src( CostRect );
 
-    const cv::Rect LevelRect { 1202, 195, 28, 22 };
+    const cv::Rect LevelRect { 1194, 164, 28, 22 };
     const auto     LevelImage = Src( LevelRect );
 
-    const cv::Rect StatRect { 885, 305, 350, 220 };
+    const cv::Rect StatRect { 877, 274, 350, 220 };
     const auto     StatImage = Src( StatRect );
 
     const cv::Rect TypeRect { 0, 0, 26, 220 };
@@ -245,11 +246,10 @@ EchoExtractor::ReadCard( const cv::Mat& Src )
         return { };
     }
 
-    int SetColorCoordinateX = 977, SetColorCoordinateY = 242;
+    int SetColorCoordinateX = 969, SetColorCoordinateY = 211;
     FS.Set = MatchColorToSet( { Src.data[ Src.channels( ) * ( Src.cols * SetColorCoordinateY + SetColorCoordinateX ) + 2 ],
                                 Src.data[ Src.channels( ) * ( Src.cols * SetColorCoordinateY + SetColorCoordinateX ) + 1 ],
                                 Src.data[ Src.channels( ) * ( Src.cols * SetColorCoordinateY + SetColorCoordinateX ) + 0 ] } );
-
 
     const auto LevelChars = MatchText( LevelImage, "Level" );
     std::from_chars( LevelChars.data( ), LevelChars.data( ) + LevelChars.size( ), FS.Level, 10 );
