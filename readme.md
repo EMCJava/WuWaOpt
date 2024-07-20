@@ -17,13 +17,13 @@ See [echo file example](data/example_echos.json)
 3. Enter the number of echoes to scan
 4. Wait (You can terminate the scanning process with space bar)
 
-> ⚠️Only support 1280x720 in Traditional Chinese until Kuro fix this, or I have motivation to implementing echo scanning in character page\
+> ⚠️Only support 1280x720 in Simplified Chinese until Kuro fix this, or I have motivation to implementing echo scanning in character page\
 > ![Text overlapping](data/overlapping.png)\
 > Your echo page should look like the following **(4 by 6)**\
 > ![Text overlapping](data/echo_page.png)
 
-> Traditional Chinese
-> ![Traditional Chinese](data/tra_chi.png)
+> Simplified Chinese
+> ![Traditional Chinese](data/sim_chi.png)
 
 # Build from source
 
