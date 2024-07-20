@@ -158,7 +158,12 @@ main( int argc, char** argv )
      * Optimizer Configurations
      *
      * */
-    OptimizerConfig OConfig;
+    OptimizerConfig  OConfig;
+    MultiplierConfig OptimizeMultiplierDisplay {
+        .auto_attack_multiplier  = OConfig.OptimizeMultiplierConfig.auto_attack_multiplier * 100,
+        .heavy_attack_multiplier = OConfig.OptimizeMultiplierConfig.heavy_attack_multiplier * 100,
+        .skill_multiplier        = OConfig.OptimizeMultiplierConfig.skill_multiplier * 100,
+        .ult_multiplier          = OConfig.OptimizeMultiplierConfig.ult_multiplier * 100 };
 
     const auto GetCommonStat = [ & ]( ) {
         auto CommonStats        = OConfig.WeaponStats + OConfig.CharacterStats;
@@ -594,10 +599,17 @@ main( int argc, char** argv )
                 ImGui::Separator( );
                 ImGui::NewLine( );
 
-                SAVE_CONFIG( ImGui::DragFloat( "Auto Attack Kit Total %", &OConfig.OptimizeMultiplierConfig.auto_attack_multiplier ) )
-                SAVE_CONFIG( ImGui::DragFloat( "Heavy Attack Kit Total %", &OConfig.OptimizeMultiplierConfig.heavy_attack_multiplier ) )
-                SAVE_CONFIG( ImGui::DragFloat( "Skill Kit Total %", &OConfig.OptimizeMultiplierConfig.skill_multiplier ) )
-                SAVE_CONFIG( ImGui::DragFloat( "Ult Kit Total %", &OConfig.OptimizeMultiplierConfig.ult_multiplier ) )
+#define SAVE_MULTIPLIER_CONFIG( name, stat )                                          \
+    if ( ImGui::DragFloat( name, &OptimizeMultiplierDisplay.stat ) )                  \
+    {                                                                                 \
+        OConfig.OptimizeMultiplierConfig.stat = OptimizeMultiplierDisplay.stat / 100; \
+        OConfig.SaveConfig( );                                                        \
+    }
+                SAVE_MULTIPLIER_CONFIG( "Auto Attack Kit Total %", auto_attack_multiplier )
+                SAVE_MULTIPLIER_CONFIG( "Heavy Attack Kit Total %", heavy_attack_multiplier )
+                SAVE_MULTIPLIER_CONFIG( "Skill Kit Total %", skill_multiplier )
+                SAVE_MULTIPLIER_CONFIG( "Ult Kit Total %", ult_multiplier )
+#undef SAVE_MULTIPLIER_CONFIG
 
                 ImGui::NewLine( );
                 ImGui::Separator( );
