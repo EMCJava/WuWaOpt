@@ -12,6 +12,7 @@
 #include <implot.h>
 #include <implot_internal.h>
 
+#include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Clock.hpp>
@@ -335,9 +336,10 @@ main( int argc, char** argv )
             }
         };
 
-    const std::string              TopCombinationByTypeTitle = std::vformat( LanguageProvider[ "TopType" ], std::make_format_args( WuWaGA::ResultLength ) );
-    const std::string              TopCombinationTitle       = std::vformat( LanguageProvider[ "Top" ], std::make_format_args( WuWaGA::ResultLength ) );
     std::vector<ResultPlotDetails> TopCombination;
+
+    sf::Texture LanguageTexture;
+    LanguageTexture.loadFromFile( "data/translate_icon.png" );
 
     auto&     GAReport = Opt.GetReport( );
     sf::Clock deltaClock;
@@ -363,12 +365,10 @@ main( int argc, char** argv )
         default: ImGui::PushFont( EnglishFont );
         }
 
-        static bool             use_work_area = true;
-        static ImGuiWindowFlags flags         = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings;
-
-        const ImGuiViewport* viewport = ImGui::GetMainViewport( );
-        ImGui::SetNextWindowPos( use_work_area ? viewport->WorkPos : viewport->Pos );
-        ImGui::SetNextWindowSize( use_work_area ? viewport->WorkSize : viewport->Size );
+        static ImGuiWindowFlags flags    = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBringToFrontOnFocus;
+        const ImGuiViewport*    viewport = ImGui::GetMainViewport( );
+        ImGui::SetNextWindowPos( viewport->WorkPos );
+        ImGui::SetNextWindowSize( viewport->WorkSize );
         if ( ImGui::Begin( "Display", nullptr, flags ) )
         {
             {
@@ -411,7 +411,7 @@ main( int argc, char** argv )
                 }
 
                 TopCombination.clear( );
-                if ( ImPlot::BeginPlot( TopCombinationByTypeTitle.c_str( ) ) )
+                if ( ImPlot::BeginPlot( std::vformat( LanguageProvider[ "TopType" ], std::make_format_args( WuWaGA::ResultLength ) ).c_str( ) ) )
                 {
                     ImPlot::SetupLegend( ImPlotLocation_South, ImPlotLegendFlags_Horizontal | ImPlotLegendFlags_Outside );
                     ImPlot::SetupAxes( LanguageProvider[ "Rank" ], LanguageProvider[ "OptimalValue" ], ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit );
@@ -502,7 +502,7 @@ main( int argc, char** argv )
                     ImPlot::EndPlot( );
                 }
 
-                if ( ImPlot::BeginPlot( TopCombinationTitle.c_str( ) ) )
+                if ( ImPlot::BeginPlot( std::vformat( LanguageProvider[ "Top" ], std::make_format_args( WuWaGA::ResultLength ) ).c_str( ) ) )
                 {
                     ImPlot::SetupLegend( ImPlotLocation_South, ImPlotLegendFlags_Horizontal | ImPlotLegendFlags_Outside );
                     ImPlot::SetupAxes( LanguageProvider[ "Rank" ], LanguageProvider[ "OptimalValue" ], ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit );
@@ -673,10 +673,37 @@ main( int argc, char** argv )
 #undef SAVE_CONFIG
             }
         }
+        ImGui::End( );
 
-        ImGui::PopFont( );
+        const sf::Vector2f SLIconSize = sf::Vector2f( 30, 30 );
+        ImGui::SetNextWindowPos( ImVec2 { viewport->WorkSize.x - SLIconSize.x - 10, viewport->WorkPos.y }, ImGuiCond_Always );
+
+        ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, ImVec2 { 5, 5 } );
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2 { 0, 0 } );
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowRounding, 0 );
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowBorderSize, 0 );
+
+        if ( ImGui::Begin( "Language", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove ) )
+        {
+            if ( ImGui::ImageButton( LanguageTexture, SLIconSize ) )
+            {
+                ImGui::OpenPopup( "LanguageSelect" );
+            }
+        }
+
+        ImGui::PopStyleVar( 4 );
+
+        if ( ImGui::BeginPopupContextWindow( "LanguageSelect", ImGuiPopupFlags_NoReopen ) )
+        {
+            if ( ImGui::MenuItem( "en-US" ) ) LanguageProvider.LoadLanguage( Language::English );
+            if ( ImGui::MenuItem( "zh-CN" ) ) LanguageProvider.LoadLanguage( Language::SimplifiedChinese );
+
+            ImGui::EndPopup( );
+        }
 
         ImGui::End( );
+
+        ImGui::PopFont( );
 
         window.clear( );
         ImGui::SFML::Render( window );
