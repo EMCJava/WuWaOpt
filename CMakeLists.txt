@@ -4,6 +4,10 @@ set(VCPKG_TARGET_TRIPLET x64-windows-static)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 project(WuWaOpt)
 
+if (NOT MSVC)
+    message(FATAL_ERROR "MSVC should be used as compiler")
+endif ()
+
 set(CMAKE_CXX_STANDARD 23)
 
 find_package(OpenCV CONFIG REQUIRED)
@@ -16,16 +20,19 @@ find_package(spdlog CONFIG REQUIRED)
 include_directories(.)
 add_subdirectory(Scan)
 
+add_compile_options(/bigobj /utf-8)
 add_executable(WuWaScan WuWaScan.cpp)
 add_executable(WuWaOptim WuWaOptim.cpp)
 
+add_library(Loca Loca/Loca.hpp Loca/Loca.cpp)
 add_library(WuWaGA INTERFACE Opt/WuWaGa.hpp Opt/WuWaGa.inl)
 add_library(WuWaGASwitcher Opt/OptimizerParmSwitcher.hpp Opt/OptimizerParmSwitcher.cpp)
-target_link_libraries(WuWaGASwitcher nlohmann_json::nlohmann_json )
+target_link_libraries(WuWaGASwitcher nlohmann_json::nlohmann_json)
 target_link_libraries(WuWaGA INTERFACE nlohmann_json::nlohmann_json WuWaGASwitcher)
+target_link_libraries(Loca nlohmann_json::nlohmann_json spdlog::spdlog_header_only)
 
 target_link_libraries(WuWaScan PRIVATE opencv_highgui opencv_ml opencv_dnn opencv_core opencv_flann nlohmann_json::nlohmann_json Scan.lib)
-target_link_libraries(WuWaOptim PRIVATE WuWaGA nlohmann_json::nlohmann_json implot::implot sfml-system sfml-network sfml-graphics sfml-window ImGui-SFML::ImGui-SFML spdlog::spdlog_header_only)
+target_link_libraries(WuWaOptim PRIVATE WuWaGA Loca nlohmann_json::nlohmann_json implot::implot sfml-system sfml-network sfml-graphics sfml-window ImGui-SFML::ImGui-SFML spdlog::spdlog_header_only)
 
 set_target_properties(WuWaScan
         PROPERTIES
@@ -34,6 +41,7 @@ set_target_properties(WuWaScan
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/WuWaScan"
 )
 
+target_compile_definitions(WuWaOptim PUBLIC UNICODE _UNICODE)
 set_target_properties(WuWaOptim
         PROPERTIES
         ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/WuWaOptim"

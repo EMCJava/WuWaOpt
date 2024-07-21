@@ -23,6 +23,8 @@
 #include "Opt/OptUtil.hpp"
 #include "Opt/WuWaGa.hpp"
 
+#include "Loca/Loca.hpp"
+
 template <class T, class S, class C>
 auto&
 GetConstContainer( const std::priority_queue<T, S, C>& q )
@@ -121,6 +123,9 @@ main( int argc, char** argv )
 {
     spdlog::set_level( spdlog::level::trace );
 
+    Loca LanguageProvider;
+    spdlog::info( "Using language: {}", LanguageProvider[ "Name" ] );
+
     std::string EchoFilePath = "echoes.json";
     if ( argc > 1 )
     {
@@ -183,22 +188,27 @@ main( int argc, char** argv )
     };
 
     const char* ElementLabel[] = {
-        "Fire Damage",
-        "Air Damage",
-        "Ice Damage",
-        "Electric Damage",
-        "Dark Damage",
-        "Light Damage",
+        LanguageProvider[ "FireDamage" ],
+        LanguageProvider[ "AirDamage" ],
+        LanguageProvider[ "IceDamage" ],
+        LanguageProvider[ "ElectricDamage" ],
+        LanguageProvider[ "DarkDamage" ],
+        LanguageProvider[ "LightDamage" ],
     };
 
     WuWaGA Opt( FullStatsList );
 
     constexpr auto   ChartSplitWidth = 700;
     constexpr auto   StatSplitWidth  = 800;
-    sf::RenderWindow window( sf::VideoMode( ChartSplitWidth + StatSplitWidth, 1000 ), "WuWa Optimize" );
+    sf::RenderWindow window( sf::VideoMode( ChartSplitWidth + StatSplitWidth, 1000 ), LanguageProvider.GetDecodedString( "WinTitle" ) );
     window.setFramerateLimit( 60 );
-    if ( !ImGui::SFML::Init( window ) ) return -1;
+    if ( !ImGui::SFML::Init( window, false ) ) return -1;
     ImPlot::CreateContext( );
+
+    ImGuiIO& io          = ImGui::GetIO( );
+    auto*    EnglishFont = io.Fonts->AddFontDefault( );
+    auto*    ChineseFont = io.Fonts->AddFontFromFileTTF( "data/sim_chi.ttf", 15.0f, nullptr, io.Fonts->GetGlyphRangesChineseFull( ) );
+    ImGui::SFML::UpdateFontTexture( );
 
     {
         ImGui::StyleColorsClassic( );
@@ -275,57 +285,58 @@ main( int argc, char** argv )
                 }
             };
 
-            ImGui::SeparatorText( "Effective Stats" );
+            ImGui::SeparatorText( LanguageProvider[ "EffectiveStats" ] );
             if ( ImGui::BeginTable( "EffectiveStats", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg ) )
             {
                 const auto BaseAttack = OConfig.WeaponStats.flat_attack + OConfig.CharacterStats.flat_attack;
 
-                ImGui::TableSetupColumn( "Stat" );
-                ImGui::TableSetupColumn( "Number" );
+                ImGui::TableSetupColumn( LanguageProvider[ "Stat" ] );
+                ImGui::TableSetupColumn( LanguageProvider[ "Number" ] );
                 ImGui::TableHeadersRow( );
 
-                DisplayRow( "Flat Attack", SelectedStats.flat_attack, DisplayStats.flat_attack );
-                DisplayRow( "Regen", SelectedStats.regen * 100 + 100, DisplayStats.regen * 100 + 100 );
-                DisplayRow( "Percentage Attack", SelectedStats.percentage_attack * 100, DisplayStats.percentage_attack * 100 );
+                DisplayRow( LanguageProvider[ "FlatAttack" ], SelectedStats.flat_attack, DisplayStats.flat_attack );
+                DisplayRow( LanguageProvider[ "Regen%" ], SelectedStats.regen * 100 + 100, DisplayStats.regen * 100 + 100 );
+                DisplayRow( LanguageProvider[ "Attack%" ], SelectedStats.percentage_attack * 100, DisplayStats.percentage_attack * 100 );
 
-                DisplayRow( "Element Buff %", SelectedStats.buff_multiplier * 100, DisplayStats.buff_multiplier * 100 );
-                DisplayRow( "Auto Attack %", SelectedStats.auto_attack_buff * 100, DisplayStats.auto_attack_buff * 100 );
-                DisplayRow( "Heavy Attack %", SelectedStats.heavy_attack_buff * 100, DisplayStats.heavy_attack_buff * 100 );
-                DisplayRow( "Skill Damage %", SelectedStats.skill_buff * 100, DisplayStats.skill_buff * 100 );
-                DisplayRow( "Ult Damage %", SelectedStats.ult_buff * 100, DisplayStats.ult_buff * 100 );
+                DisplayRow( LanguageProvider[ "ElementBuff%" ], SelectedStats.buff_multiplier * 100, DisplayStats.buff_multiplier * 100 );
+                DisplayRow( LanguageProvider[ "AutoAttack%" ], SelectedStats.auto_attack_buff * 100, DisplayStats.auto_attack_buff * 100 );
+                DisplayRow( LanguageProvider[ "HeavyAttack%" ], SelectedStats.heavy_attack_buff * 100, DisplayStats.heavy_attack_buff * 100 );
+                DisplayRow( LanguageProvider[ "SkillDamage%" ], SelectedStats.skill_buff * 100, DisplayStats.skill_buff * 100 );
+                DisplayRow( LanguageProvider[ "UltDamage%" ], SelectedStats.ult_buff * 100, DisplayStats.ult_buff * 100 );
 
-                DisplayRow( "Crit rate", SelectedStats.CritRateStat( ) * 100, DisplayStats.CritRateStat( ) * 100 );
-                DisplayRow( "Crit Damage", SelectedStats.CritDamageStat( ) * 100, DisplayStats.CritDamageStat( ) * 100 );
-                DisplayRow( "Final Attack", SelectedStats.AttackStat( BaseAttack ), DisplayStats.AttackStat( BaseAttack ) );
+                DisplayRow( LanguageProvider[ "CritRate" ], SelectedStats.CritRateStat( ) * 100, DisplayStats.CritRateStat( ) * 100 );
+                DisplayRow( LanguageProvider[ "CritDamage" ], SelectedStats.CritDamageStat( ) * 100, DisplayStats.CritDamageStat( ) * 100 );
+                DisplayRow( LanguageProvider[ "FinalAttack" ], SelectedStats.AttackStat( BaseAttack ), DisplayStats.AttackStat( BaseAttack ) );
 
                 const FloatTy Resistances = OConfig.GetResistances( );
-                DisplayRow( "Non Crit Damage", SelectedStats.NormalDamage( BaseAttack, &OConfig.OptimizeMultiplierConfig ) * Resistances, DisplayStats.NormalDamage( BaseAttack, &OConfig.OptimizeMultiplierConfig ) * Resistances );
-                DisplayRow( "    Crit Damage", SelectedStats.CritDamage( BaseAttack, &OConfig.OptimizeMultiplierConfig ) * Resistances, DisplayStats.CritDamage( BaseAttack, &OConfig.OptimizeMultiplierConfig ) * Resistances );
-                DisplayRow( "Expected Damage", SelectedStats.ExpectedDamage( BaseAttack, &OConfig.OptimizeMultiplierConfig ) * Resistances, DisplayStats.ExpectedDamage( BaseAttack, &OConfig.OptimizeMultiplierConfig ) * Resistances );
+                DisplayRow( LanguageProvider[ "AlignedNonCritDamage" ], SelectedStats.NormalDamage( BaseAttack, &OConfig.OptimizeMultiplierConfig ) * Resistances, DisplayStats.NormalDamage( BaseAttack, &OConfig.OptimizeMultiplierConfig ) * Resistances );
+                DisplayRow( LanguageProvider[ "AlignedCritDamage" ], SelectedStats.CritDamage( BaseAttack, &OConfig.OptimizeMultiplierConfig ) * Resistances, DisplayStats.CritDamage( BaseAttack, &OConfig.OptimizeMultiplierConfig ) * Resistances );
+                DisplayRow( LanguageProvider[ "AlignedExpectedDamage" ], SelectedStats.ExpectedDamage( BaseAttack, &OConfig.OptimizeMultiplierConfig ) * Resistances, DisplayStats.ExpectedDamage( BaseAttack, &OConfig.OptimizeMultiplierConfig ) * Resistances );
+
 
                 ImGui::EndTable( );
             }
 
-            ImGui::SeparatorText( "Combination" );
+            ImGui::SeparatorText( LanguageProvider[ "Combination" ] );
             for ( int i = 0; i < DisplayEchoCount; ++i )
             {
                 const auto  Index        = DisplayCombination.Indices[ i ];
                 const auto& SelectedEcho = FullStatsList[ Index ];
                 ImGui::Text( "%s", std::format( "{:=^54}", Index ).c_str( ) );
 
-                ImGui::Text( "Set:" );
+                ImGui::Text( "%s", std::format( "{:8}:", LanguageProvider[ "EchoSet" ] ).c_str( ) );
                 ImGui::SameLine( );
                 ImGui::PushStyleColor( ImGuiCol_Text, EchoSetColor[ SelectedEcho.Set ] );
-                ImGui::Text( "%s", std::format( "{:31}", SelectedEcho.GetSetName( ) ).c_str( ) );
+                ImGui::Text( "%s", std::format( "{:26}", LanguageProvider[ SelectedEcho.GetSetName( ) ] ).c_str( ) );
                 ImGui::PopStyleColor( );
                 ImGui::SameLine( );
-                ImGui::Text( "%s", SelectedEcho.BriefStat( ).c_str( ) );
-                ImGui::Text( "%s", SelectedEcho.DetailStat( ).c_str( ) );
+                ImGui::Text( "%s", SelectedEcho.BriefStat( LanguageProvider ).c_str( ) );
+                ImGui::Text( "%s", SelectedEcho.DetailStat( LanguageProvider ).c_str( ) );
             }
         };
 
-    const std::string              TopCombinationByTypeTitle = std::format( "Top {} Combinations By Type", WuWaGA::ResultLength );
-    const std::string              TopCombinationTitle       = std::format( "Top {} Combinations", WuWaGA::ResultLength );
+    const std::string              TopCombinationByTypeTitle = std::vformat( LanguageProvider[ "TopType" ], std::make_format_args( WuWaGA::ResultLength ) );
+    const std::string              TopCombinationTitle       = std::vformat( LanguageProvider[ "Top" ], std::make_format_args( WuWaGA::ResultLength ) );
     std::vector<ResultPlotDetails> TopCombination;
 
     auto&     GAReport = Opt.GetReport( );
@@ -345,6 +356,13 @@ main( int argc, char** argv )
 
         ImGui::SFML::Update( window, deltaClock.restart( ) );
 
+        switch ( LanguageProvider.GetLanguage( ) )
+        {
+        case Language::English: ImGui::PushFont( EnglishFont ); break;
+        case Language::SimplifiedChinese: ImGui::PushFont( ChineseFont ); break;
+        default: ImGui::PushFont( EnglishFont );
+        }
+
         static bool             use_work_area = true;
         static ImGuiWindowFlags flags         = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings;
 
@@ -361,7 +379,7 @@ main( int argc, char** argv )
                                         return A + ( B <= 0 ? 1 : B );
                                     } ) / GARuntimeReport::MaxCombinationCount,
                                     ImVec2( -1.0f, 0.0f ) );
-                if ( ImPlot::BeginPlot( "Overview" ) )
+                if ( ImPlot::BeginPlot( LanguageProvider[ "Overview" ], ImVec2( -1, 0 ), ImPlotFlags_NoLegend ) )
                 {
                     // Labels and positions
                     static const double  positions[]    = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
@@ -369,22 +387,22 @@ main( int argc, char** argv )
                     static const FloatTy positionsp05[] = { 0.1, 1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1, 9.1, 10.1 };
 
                     // Setup
-                    ImPlot::SetupLegend( ImPlotLocation_South, ImPlotLegendFlags_Outside );
-                    ImPlot::SetupAxes( "Type", "Optimal Value", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit );
+                    ImPlot::SetupLegend( ImPlotLocation_South, ImPlotLegendFlags_Horizontal | ImPlotLegendFlags_Outside );
+                    ImPlot::SetupAxes( LanguageProvider[ "Type" ], LanguageProvider[ "OptimalValue" ], ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit );
 
                     // Set axis ticks
                     ImPlot::SetupAxisTicks( ImAxis_X1, positions, GARuntimeReport::MaxCombinationCount, glabels );
                     ImPlot::SetupAxisLimits( ImAxis_X1, -1, 11, ImPlotCond_Always );
 
-                    ImPlot::SetupAxis( ImAxis_X2, "Type", ImPlotAxisFlags_Lock | ImPlotAxisFlags_NoDecorations );
+                    ImPlot::SetupAxis( ImAxis_X2, LanguageProvider[ "Type" ], ImPlotAxisFlags_Lock | ImPlotAxisFlags_NoDecorations );
                     ImPlot::SetupAxisLimits( ImAxis_X2, -1, 11, ImPlotCond_Always );
 
-                    ImPlot::SetupAxis( ImAxis_Y2, "Progress", ImPlotAxisFlags_AuxDefault );
+                    ImPlot::SetupAxis( ImAxis_Y2, LanguageProvider[ "Progress" ], ImPlotAxisFlags_AuxDefault );
                     ImPlot::SetupAxisLimits( ImAxis_Y2, 0, 1, ImPlotCond_Always );
 
                     // Plot
                     ImPlot::SetAxes( ImAxis_X1, ImAxis_Y1 );
-                    ImPlot::PlotBars( "Optimal Value", positionsn05, GAReport.OptimalValue.data( ), GARuntimeReport::MaxCombinationCount, 0.2 );
+                    ImPlot::PlotBars( LanguageProvider[ "OptimalValue" ], positionsn05, GAReport.OptimalValue.data( ), GARuntimeReport::MaxCombinationCount, 0.2 );
 
                     ImPlot::SetAxes( ImAxis_X2, ImAxis_Y2 );
                     ImPlot::PlotBars( "Progress", positionsp05, GAReport.MutationProb.data( ), GARuntimeReport::MaxCombinationCount, 0.2 );
@@ -396,7 +414,7 @@ main( int argc, char** argv )
                 if ( ImPlot::BeginPlot( TopCombinationByTypeTitle.c_str( ) ) )
                 {
                     ImPlot::SetupLegend( ImPlotLocation_South, ImPlotLegendFlags_Horizontal | ImPlotLegendFlags_Outside );
-                    ImPlot::SetupAxes( "Rank", "Optimal Value", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit );
+                    ImPlot::SetupAxes( LanguageProvider[ "Rank" ], LanguageProvider[ "OptimalValue" ], ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit );
 
                     bool       HasData              = false;
                     const auto StaticStatMultiplier = OConfig.GetResistances( );
@@ -487,7 +505,7 @@ main( int argc, char** argv )
                 if ( ImPlot::BeginPlot( TopCombinationTitle.c_str( ) ) )
                 {
                     ImPlot::SetupLegend( ImPlotLocation_South, ImPlotLegendFlags_Horizontal | ImPlotLegendFlags_Outside );
-                    ImPlot::SetupAxes( "Rank", "Optimal Value", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit );
+                    ImPlot::SetupAxes( LanguageProvider[ "Rank" ], LanguageProvider[ "OptimalValue" ], ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit );
 
                     if ( !TopCombination.empty( ) )
                     {
@@ -570,29 +588,33 @@ main( int argc, char** argv )
                 ImGui::BeginChild( "DetailPanel", ImVec2( StatSplitWidth - ImGui::GetStyle( ).WindowPadding.x * 2, -1 ), ImGuiChildFlags_Border );
 
                 ImGui::BeginChild( "DetailPanel##Character", ImVec2( StatSplitWidth / 2 - ImGui::GetStyle( ).WindowPadding.x * 4, 0 ), ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysAutoResize );
-                ImGui::SeparatorText( "Character" );
-                SAVE_CONFIG( ImGui::DragFloat( "Flat Attack##Character", &OConfig.CharacterStats.flat_attack, 1, 0, 0, "%.0f" ) )
-                SAVE_CONFIG( ImGui::DragFloat( "Attack %##Character", &OConfig.CharacterStats.percentage_attack, 0.01, 0, 0, "%.2f" ) )
-                SAVE_CONFIG( ImGui::DragFloat( "Element Buff %##Character", &OConfig.CharacterStats.buff_multiplier, 0.01, 0, 0, "%.2f" ) )
-                SAVE_CONFIG( ImGui::DragFloat( "Auto Attack %##Character", &OConfig.CharacterStats.auto_attack_buff, 0.01, 0, 0, "%.2f" ) )
-                SAVE_CONFIG( ImGui::DragFloat( "Heavy Attack %##Character", &OConfig.CharacterStats.heavy_attack_buff, 0.01, 0, 0, "%.2f" ) )
-                SAVE_CONFIG( ImGui::DragFloat( "Skill Damage %##Character", &OConfig.CharacterStats.skill_buff, 0.01, 0, 0, "%.2f" ) )
-                SAVE_CONFIG( ImGui::DragFloat( "Ult Damage %##Character", &OConfig.CharacterStats.ult_buff, 0.01, 0, 0, "%.2f" ) )
-                SAVE_CONFIG( ImGui::DragFloat( "Crit Rate##Character", &OConfig.CharacterStats.crit_rate, 0.01, 0, 0, "%.2f" ) )
-                SAVE_CONFIG( ImGui::DragFloat( "Crit Damage##Character", &OConfig.CharacterStats.crit_damage, 0.01, 0, 0, "%.2f" ) )
+                ImGui::SeparatorText( LanguageProvider[ "Character" ] );
+                ImGui::PushID( "CharacterStat" );
+                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "FlatAttack" ], &OConfig.CharacterStats.flat_attack, 1, 0, 0, "%.0f" ) )
+                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "Attack%" ], &OConfig.CharacterStats.percentage_attack, 0.01, 0, 0, "%.2f" ) )
+                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "ElementBuff%" ], &OConfig.CharacterStats.buff_multiplier, 0.01, 0, 0, "%.2f" ) )
+                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "AutoAttack%" ], &OConfig.CharacterStats.auto_attack_buff, 0.01, 0, 0, "%.2f" ) )
+                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "HeavyAttack%" ], &OConfig.CharacterStats.heavy_attack_buff, 0.01, 0, 0, "%.2f" ) )
+                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "SkillDamage%" ], &OConfig.CharacterStats.skill_buff, 0.01, 0, 0, "%.2f" ) )
+                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "UltDamage%" ], &OConfig.CharacterStats.ult_buff, 0.01, 0, 0, "%.2f" ) )
+                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "CritRate" ], &OConfig.CharacterStats.crit_rate, 0.01, 0, 0, "%.2f" ) )
+                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "CritDamage" ], &OConfig.CharacterStats.crit_damage, 0.01, 0, 0, "%.2f" ) )
+                ImGui::PopID( );
                 ImGui::EndChild( );
                 ImGui::SameLine( );
                 ImGui::BeginChild( "DetailPanel##Weapon", ImVec2( StatSplitWidth / 2 - ImGui::GetStyle( ).WindowPadding.x * 4, 0 ), ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysAutoResize );
-                ImGui::SeparatorText( "Weapon" );
-                SAVE_CONFIG( ImGui::DragFloat( "Flat Attack##Weapon", &OConfig.WeaponStats.flat_attack, 1, 0, 0, "%.0f" ) )
-                SAVE_CONFIG( ImGui::DragFloat( "Attack %##Weapon", &OConfig.WeaponStats.percentage_attack, 0.01, 0, 0, "%.2f" ) )
-                SAVE_CONFIG( ImGui::DragFloat( "Element Buff %##Weapon", &OConfig.WeaponStats.buff_multiplier, 0.01, 0, 0, "%.2f" ) )
-                SAVE_CONFIG( ImGui::DragFloat( "Auto Attack %##Weapon", &OConfig.WeaponStats.auto_attack_buff, 0.01, 0, 0, "%.2f" ) )
-                SAVE_CONFIG( ImGui::DragFloat( "Heavy Attack %##Weapon", &OConfig.WeaponStats.heavy_attack_buff, 0.01, 0, 0, "%.2f" ) )
-                SAVE_CONFIG( ImGui::DragFloat( "Skill Damage %##Weapon", &OConfig.WeaponStats.skill_buff, 0.01, 0, 0, "%.2f" ) )
-                SAVE_CONFIG( ImGui::DragFloat( "Ult Damage %##Weapon", &OConfig.WeaponStats.ult_buff, 0.01, 0, 0, "%.2f" ) )
-                SAVE_CONFIG( ImGui::DragFloat( "Crit Rate##Weapon", &OConfig.WeaponStats.crit_rate, 0.01, 0, 0, "%.2f" ) )
-                SAVE_CONFIG( ImGui::DragFloat( "Crit Damage##Weapon", &OConfig.WeaponStats.crit_damage, 0.01, 0, 0, "%.2f" ) )
+                ImGui::SeparatorText( LanguageProvider[ "Weapon" ] );
+                ImGui::PushID( "WeaponStat" );
+                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "FlatAttack" ], &OConfig.WeaponStats.flat_attack, 1, 0, 0, "%.0f" ) )
+                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "Attack%" ], &OConfig.WeaponStats.percentage_attack, 0.01, 0, 0, "%.2f" ) )
+                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "ElementBuff%" ], &OConfig.WeaponStats.buff_multiplier, 0.01, 0, 0, "%.2f" ) )
+                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "AutoAttack%" ], &OConfig.WeaponStats.auto_attack_buff, 0.01, 0, 0, "%.2f" ) )
+                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "HeavyAttack%" ], &OConfig.WeaponStats.heavy_attack_buff, 0.01, 0, 0, "%.2f" ) )
+                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "SkillDamage%" ], &OConfig.WeaponStats.skill_buff, 0.01, 0, 0, "%.2f" ) )
+                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "UltDamage%" ], &OConfig.WeaponStats.ult_buff, 0.01, 0, 0, "%.2f" ) )
+                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "CritRate" ], &OConfig.WeaponStats.crit_rate, 0.01, 0, 0, "%.2f" ) )
+                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "CritDamage" ], &OConfig.WeaponStats.crit_damage, 0.01, 0, 0, "%.2f" ) )
+                ImGui::PopID( );
                 ImGui::EndChild( );
 
                 ImGui::NewLine( );
@@ -605,19 +627,17 @@ main( int argc, char** argv )
         OConfig.OptimizeMultiplierConfig.stat = OptimizeMultiplierDisplay.stat / 100; \
         OConfig.SaveConfig( );                                                        \
     }
-                SAVE_MULTIPLIER_CONFIG( "Auto Attack Kit Total %", auto_attack_multiplier )
-                SAVE_MULTIPLIER_CONFIG( "Heavy Attack Kit Total %", heavy_attack_multiplier )
-                SAVE_MULTIPLIER_CONFIG( "Skill Kit Total %", skill_multiplier )
-                SAVE_MULTIPLIER_CONFIG( "Ult Kit Total %", ult_multiplier )
+                SAVE_MULTIPLIER_CONFIG( LanguageProvider[ "AutoTotal%" ], auto_attack_multiplier )
+                SAVE_MULTIPLIER_CONFIG( LanguageProvider[ "HeavyTotal%" ], heavy_attack_multiplier )
+                SAVE_MULTIPLIER_CONFIG( LanguageProvider[ "SkillTotal%" ], skill_multiplier )
+                SAVE_MULTIPLIER_CONFIG( LanguageProvider[ "UltTotal%" ], ult_multiplier )
 #undef SAVE_MULTIPLIER_CONFIG
 
                 ImGui::NewLine( );
                 ImGui::Separator( );
                 ImGui::NewLine( );
 
-                ImGui::BeginChild( "DetailPanel##Element", ImVec2( StatSplitWidth / 2 - ImGui::GetStyle( ).WindowPadding.x * 4, 0 ), ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysAutoResize );
-                SAVE_CONFIG( ImGui::Combo( "Element Type", &OConfig.SelectedElement, ElementLabel, IM_ARRAYSIZE( ElementLabel ) ) )
-                ImGui::EndChild( );
+                SAVE_CONFIG( ImGui::Combo( LanguageProvider[ "ElementType" ], &OConfig.SelectedElement, ElementLabel, IM_ARRAYSIZE( ElementLabel ) ) )
 
                 ImGui::NewLine( );
                 ImGui::Separator( );
@@ -628,18 +648,19 @@ main( int argc, char** argv )
                 ImGui::PushStyleColor( ImGuiCol_Button, (ImVec4) ImColor::HSV( ButtonH, 0.6f, 0.6f ) );
                 ImGui::PushStyleColor( ImGuiCol_ButtonHovered, (ImVec4) ImColor::HSV( ButtonH, 0.7f, 0.7f ) );
                 ImGui::PushStyleColor( ImGuiCol_ButtonActive, (ImVec4) ImColor::HSV( ButtonH, 0.8f, 0.8f ) );
-                if ( ImGui::Button( OptRunning ? "Re-Run" : "Run", ImVec2( -1, 0 ) ) )
+                if ( ImGui::Button( OptRunning ? LanguageProvider[ "ReRun" ] : LanguageProvider[ "Run" ], ImVec2( -1, 0 ) ) )
                 {
                     const auto BaseAttack = OConfig.WeaponStats.flat_attack + OConfig.CharacterStats.flat_attack;
                     OptimizerParmSwitcher::SwitchRun( Opt, OConfig.SelectedElement, BaseAttack, GetCommonStat( ), &OConfig.OptimizeMultiplierConfig );
                 }
                 ImGui::PopStyleColor( 3 );
 
-                ImGui::SeparatorText( "Static Configurations" );
-                SAVE_CONFIG( ImGui::SliderInt( "Character Level", &OConfig.CharacterLevel, 1, 90 ) )
-                SAVE_CONFIG( ImGui::SliderInt( "Enemy Level", &OConfig.EnemyLevel, 1, 90 ) )
-                SAVE_CONFIG( ImGui::SliderFloat( "Enemy Element Resistance", &OConfig.ElementResistance, 0, 1, "%.2f" ) )
-                SAVE_CONFIG( ImGui::SliderFloat( "Enemy Damage Reduction", &OConfig.ElementDamageReduce, 0, 1, "%.2f" ) )
+                ImGui::NewLine( );
+                ImGui::SeparatorText( LanguageProvider[ "StaticConfig" ] );
+                SAVE_CONFIG( ImGui::SliderInt( LanguageProvider[ "CharLevel" ], &OConfig.CharacterLevel, 1, 90 ) )
+                SAVE_CONFIG( ImGui::SliderInt( LanguageProvider[ "EnemyLevel" ], &OConfig.EnemyLevel, 1, 90 ) )
+                SAVE_CONFIG( ImGui::SliderFloat( LanguageProvider[ "ElResistance" ], &OConfig.ElementResistance, 0, 1, "%.2f" ) )
+                SAVE_CONFIG( ImGui::SliderFloat( LanguageProvider[ "DamReduction" ], &OConfig.ElementDamageReduce, 0, 1, "%.2f" ) )
 
                 if ( ChosenCombination >= 0 )
                 {
@@ -652,6 +673,8 @@ main( int argc, char** argv )
 #undef SAVE_CONFIG
             }
         }
+
+        ImGui::PopFont( );
 
         ImGui::End( );
 
