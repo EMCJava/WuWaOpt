@@ -93,6 +93,8 @@ struct OptimizerConfig {
     FloatTy ElementResistance { };
     FloatTy ElementDamageReduce { };
 
+    Language LastUsedLanguage = Language::Undefined;
+
     [[nodiscard]] auto GetResistances( ) const noexcept
     {
         return ( (FloatTy) 100 + CharacterLevel ) / ( 199 + CharacterLevel + EnemyLevel ) * ( 1 - ElementResistance ) * ( 1 - ElementDamageReduce );
@@ -104,7 +106,19 @@ struct OptimizerConfig {
         std::ifstream OptimizerConfigFile( "oc.data", std::ios::binary );
         if ( OptimizerConfigFile )
         {
-            OptimizerConfigFile.read( (char*) this, sizeof( OptimizerConfig ) );
+            OptimizerConfigFile.ignore( std::numeric_limits<std::streamsize>::max( ) );
+            const auto FileLength = OptimizerConfigFile.gcount( );
+            OptimizerConfigFile.clear( );   //  Since ignore will have set eof.
+            OptimizerConfigFile.seekg( 0, std::ios_base::beg );
+
+            auto ActualReadSize = sizeof( OptimizerConfig );
+            if ( FileLength < ActualReadSize )
+            {
+                ActualReadSize = FileLength;
+                spdlog::warn( "Data file version mismatch, reading all available data." );
+            }
+
+            OptimizerConfigFile.read( (char*) this, ActualReadSize );
         }
     }
 
@@ -123,9 +137,6 @@ int
 main( int argc, char** argv )
 {
     spdlog::set_level( spdlog::level::trace );
-
-    Loca LanguageProvider;
-    spdlog::info( "Using language: {}", LanguageProvider[ "Name" ] );
 
     std::string EchoFilePath = "echoes.json";
     if ( argc > 1 )
@@ -170,6 +181,9 @@ main( int argc, char** argv )
         .heavy_attack_multiplier = OConfig.OptimizeMultiplierConfig.heavy_attack_multiplier * 100,
         .skill_multiplier        = OConfig.OptimizeMultiplierConfig.skill_multiplier * 100,
         .ult_multiplier          = OConfig.OptimizeMultiplierConfig.ult_multiplier * 100 };
+
+    Loca LanguageProvider( OConfig.LastUsedLanguage );
+    spdlog::info( "Using language: {}", LanguageProvider[ "Name" ] );
 
     const auto GetCommonStat = [ & ]( ) {
         auto CommonStats        = OConfig.WeaponStats + OConfig.CharacterStats;
@@ -695,8 +709,16 @@ main( int argc, char** argv )
 
         if ( ImGui::BeginPopupContextWindow( "LanguageSelect", ImGuiPopupFlags_NoReopen ) )
         {
-            if ( ImGui::MenuItem( "en-US" ) ) LanguageProvider.LoadLanguage( Language::English );
-            if ( ImGui::MenuItem( "zh-CN" ) ) LanguageProvider.LoadLanguage( Language::SimplifiedChinese );
+            if ( ImGui::MenuItem( "en-US" ) )
+            {
+                LanguageProvider.LoadLanguage( OConfig.LastUsedLanguage = Language::English );
+                OConfig.SaveConfig( );
+            }
+            if ( ImGui::MenuItem( "zh-CN" ) )
+            {
+                LanguageProvider.LoadLanguage( OConfig.LastUsedLanguage = Language::SimplifiedChinese );
+                OConfig.SaveConfig( );
+            }
 
             ImGui::EndPopup( );
         }
