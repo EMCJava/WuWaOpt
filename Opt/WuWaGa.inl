@@ -151,7 +151,7 @@ WuWaGA::Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack, E
     static constexpr int IndexBitsShift = 11;
     const auto ReproduceSizeBy5 = m_ReproduceSize / 5;
 
-    constexpr int  SlotCount      = GetSlotCount<CostSlotTemplateArgument>( );
+    constexpr int SlotCount = GetSlotCount<CostSlotTemplateArgument>( );
     static_assert( ( 1 << IndexBitsShift ) > MaxEchoCount && IndexBitsShift * SlotCount <= 64 );
     constexpr auto MaxPermutation = Factorial( SlotCount );
 
@@ -387,6 +387,22 @@ WuWaGA::Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack, E
             }
         }
 
+        /*
+         *
+         * Grouping elites
+         *
+         * */
+        // Make sure range won't overlap by sorting by index
+        std::ranges::sort( TopFitness_Index, []( auto& A, auto& B ) {
+            return A.second < B.second;
+        } );
+
+        // Write to first m_ReproduceSize th element in population
+        std::ranges::copy(
+            TopFitness_Index
+                | std::views::transform( [ &Population ]( auto& FI ) { return Population[ FI.second ]; } ),
+            Population.begin( ) );
+
         for ( auto& Individual : std::ranges::subrange( Population.begin( ) + TopFitness_Index.size( ), Population.end( ) ) )
         {
             /*
@@ -394,14 +410,14 @@ WuWaGA::Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack, E
              * Crossover
              *
              * */
-            const auto FirstPickIndex  = static_cast<int>( crossover_dist( random ) * ( TopFitness_Index.size( ) - 1 ) );
-            const auto SecondPickIndex = static_cast<int>( crossover_dist( random ) * ( TopFitness_Index.size( ) - 1 ) );
+            const auto FirstPickIndex  = static_cast<int>( crossover_dist( random ) * ( m_ReproduceSize - 1 ) );
+            const auto SecondPickIndex = static_cast<int>( crossover_dist( random ) * ( m_ReproduceSize - 1 ) );
 
             m_GAReport.ParentPickCount[ GAReportIndex ][ FirstPickIndex ]++;
             m_GAReport.ParentPickCount[ GAReportIndex ][ SecondPickIndex ]++;
 
-            auto FirstParentIter  = Population[ TopFitness_Index[ FirstPickIndex ].second ].begin( );
-            auto SecondParentIter = Population[ TopFitness_Index[ SecondPickIndex ].second ].begin( );
+            auto FirstParentIter  = Population[ FirstPickIndex ].begin( );
+            auto SecondParentIter = Population[ SecondPickIndex ].begin( );
 
             // Merge to parent set, eliminating duplicates
             for ( int CostIndex = eMaxCostIndex - 1; CostIndex >= 0; --CostIndex )
@@ -509,17 +525,6 @@ WuWaGA::Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack, E
                 }
             }
         }
-
-        // Make sure range won't overlap by sorting by index
-        std::ranges::sort( TopFitness_Index, []( auto& A, auto& B ) {
-            return A.second < B.second;
-        } );
-
-        // Write to first m_ReproduceSize th element in population
-        std::ranges::copy(
-            TopFitness_Index
-                | std::views::transform( [ &Population ]( auto& FI ) { return Population[ FI.second ]; } ),
-            Population.begin( ) );
     }
 
     spdlog::info( "Final rand: {}", random( ) );
