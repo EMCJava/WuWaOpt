@@ -51,6 +51,8 @@ struct ResultPlotDetails {
     }
 };
 
+inline const char* GTypeLabel[] = { "444", "4431", "3333", "44111", "41111", "43311", "43111", "31111", "33111", "33311", "11111" };
+
 ImPlotPoint
 ResultPlotDetailsImPlotGetter( int idx, void* user_data )
 {
@@ -95,6 +97,9 @@ struct OptimizerConfig {
 
     Language LastUsedLanguage = Language::Undefined;
 
+    // + 1 when saved to file
+    int InternalStateID = 0;
+
     [[nodiscard]] auto GetResistances( ) const noexcept
     {
         return ( (FloatTy) 100 + CharacterLevel ) / ( 199 + CharacterLevel + EnemyLevel ) * ( 1 - ElementResistance ) * ( 1 - ElementDamageReduce );
@@ -122,14 +127,162 @@ struct OptimizerConfig {
         }
     }
 
-    void SaveConfig( ) const
+    void SaveConfig( )
     {
+        InternalStateID++;
+
         static_assert( std::is_trivially_copy_assignable_v<OptimizerConfig> );
         std::ofstream OptimizerConfigFile( "oc.data", std::ios::binary );
         if ( OptimizerConfigFile )
         {
             OptimizerConfigFile.write( (char*) this, sizeof( OptimizerConfig ) );
         }
+    }
+
+    [[nodiscard]] auto GetBaseAttack( ) const noexcept
+    {
+        return WeaponStats.flat_attack + CharacterStats.flat_attack;
+    }
+};
+
+template <typename EffectiveEchoListTy>
+struct DisplayStatsCache {
+    explicit DisplayStatsCache( EffectiveEchoListTy& EchoList )
+        : EchoList( EchoList )
+    {
+    }
+
+    EffectiveEchoListTy& EchoList;
+
+    int            CachedConfigStateID { };
+    EffectiveStats ActualStats { };
+    EffectiveStats DisplayStats { };
+    EffectiveStats IncreasePayOff { };
+    EffectiveStats IncreasePayOffWeight { };
+    FloatTy        FinalAttack    = 0;
+    FloatTy        NormalDamage   = 0;
+    FloatTy        CritDamage     = 0;
+    FloatTy        ExpectedDamage = 0;
+
+    int CombinationIndex = 0;
+    int Rank             = 0;
+    int ElementOffset    = 0;
+    int SlotCount        = 0;
+
+    bool Valid = false;
+
+    std::array<int, 5> EchoIndices;
+
+    void Deactivate( )
+    {
+        Valid       = false;
+        ActualStats = DisplayStats = IncreasePayOff = { };
+    }
+
+    void SetAsCombination( const EffectiveStats& CommonStats,
+                           int EO, int CI, int R,
+                           const auto&            ResultBuffer,
+                           const OptimizerConfig& Config )
+    {
+        CombinationIndex = CI;
+        Rank             = R;
+        SlotCount        = (int) strlen( GTypeLabel[ CombinationIndex ] );
+
+        const auto&        CombinationUsed = ResultBuffer[ CombinationIndex ][ Rank ];
+        std::array<int, 5> NewEchoIndices { };
+        for ( int i = 0; i < SlotCount; ++i )
+            NewEchoIndices[ i ] = CombinationUsed.Indices[ i ];
+
+        // Check if the combination has changed
+        if ( Valid && ElementOffset == EO && CachedConfigStateID == Config.InternalStateID && std::ranges::equal( NewEchoIndices, EchoIndices ) ) return;
+        EchoIndices         = NewEchoIndices;
+        CachedConfigStateID = Config.InternalStateID;
+
+        ElementOffset = EO;
+        Valid         = true;
+
+        ActualStats = OptimizerParmSwitcher::SwitchCalculateCombinationalStat(
+            ElementOffset,
+            std::views::iota( 0, SlotCount )
+                | std::views::transform( [ & ]( int EchoIndex ) -> EffectiveStats {
+                      return EchoList[ EchoIndices[ EchoIndex ] ];
+                  } )
+                | std::ranges::to<std::vector>( ),
+            CommonStats );
+
+        DisplayStats.flat_attack       = ActualStats.flat_attack;
+        DisplayStats.regen             = ActualStats.regen * 100 + 100;
+        DisplayStats.percentage_attack = ActualStats.percentage_attack * 100;
+        DisplayStats.buff_multiplier   = ActualStats.buff_multiplier * 100;
+        DisplayStats.auto_attack_buff  = ActualStats.auto_attack_buff * 100;
+        DisplayStats.heavy_attack_buff = ActualStats.heavy_attack_buff * 100;
+        DisplayStats.skill_buff        = ActualStats.skill_buff * 100;
+        DisplayStats.ult_buff          = ActualStats.ult_buff * 100;
+        DisplayStats.crit_rate         = ActualStats.CritRateStat( ) * 100;
+        DisplayStats.crit_damage       = ActualStats.CritDamageStat( ) * 100;
+        FinalAttack                    = ActualStats.AttackStat( Config.GetBaseAttack( ) );
+
+        CalculateDamages( Config );
+    }
+
+    void CalculateDamages( const OptimizerConfig& Config )
+    {
+        const FloatTy Resistances = Config.GetResistances( );
+        const FloatTy BaseAttack  = Config.GetBaseAttack( );
+
+        ActualStats.ExpectedDamage( BaseAttack, &Config.OptimizeMultiplierConfig,
+                                    NormalDamage,
+                                    CritDamage,
+                                    ExpectedDamage );
+
+        static constexpr std::array<FloatTy EffectiveStats::*, 9> PercentageStats {
+            &EffectiveStats::regen,
+            &EffectiveStats::percentage_attack,
+            &EffectiveStats::buff_multiplier,
+            &EffectiveStats::crit_rate,
+            &EffectiveStats::crit_damage,
+            &EffectiveStats::auto_attack_buff,
+            &EffectiveStats::heavy_attack_buff,
+            &EffectiveStats::skill_buff,
+            &EffectiveStats::ult_buff,
+        };
+
+        FloatTy MaxDamageBuff = 0;
+
+        {
+            auto NewStat = ActualStats;
+            NewStat.flat_attack += 1;
+
+            const auto NewExpDmg = NewStat.ExpectedDamage( BaseAttack, &Config.OptimizeMultiplierConfig );
+            MaxDamageBuff        = std::max( IncreasePayOff.flat_attack = NewExpDmg - ExpectedDamage, MaxDamageBuff );
+        }
+
+        for ( auto StatSlot : PercentageStats )
+        {
+            auto NewStat = ActualStats;
+            NewStat.*StatSlot += 0.01f;
+
+            const auto NewExpDmg = NewStat.ExpectedDamage( BaseAttack, &Config.OptimizeMultiplierConfig );
+            MaxDamageBuff        = std::max( IncreasePayOff.*StatSlot = NewExpDmg - ExpectedDamage, MaxDamageBuff );
+        }
+
+        IncreasePayOffWeight.flat_attack = IncreasePayOff.flat_attack / MaxDamageBuff;
+        for ( auto StatSlot : PercentageStats )
+            IncreasePayOffWeight.*StatSlot = IncreasePayOff.*StatSlot / MaxDamageBuff;
+
+        NormalDamage *= Resistances;
+        CritDamage *= Resistances;
+        ExpectedDamage *= Resistances;
+    }
+
+    bool operator==( const DisplayStatsCache& Other ) const noexcept
+    {
+        return Valid == Other.Valid && CombinationIndex == Other.CombinationIndex && Rank == Other.Rank && ElementOffset == Other.ElementOffset;
+    }
+
+    bool operator!=( const DisplayStatsCache& Other ) const noexcept
+    {
+        return !( *this == Other );
     }
 };
 
@@ -239,32 +392,21 @@ main( int argc, char** argv )
     std::array<std::array<ResultPlotDetails, WuWaGA::ResultLength * 2>, GARuntimeReport::MaxCombinationCount> GroupedDisplayBuffer { };
     std::array<int, GARuntimeReport::MaxCombinationCount>                                                     CombinationLegendIndex { };
 
-    static const char* glabels[] = { "444", "4431", "3333", "44111", "41111", "43311", "43111", "31111", "33111", "33311", "11111" };
-
-    int            ChosenCombination = -1;
-    int            ChosenRank        = 0;
-    EffectiveStats SelectedStats;
+    DisplayStatsCache SelectedStatsCache { Opt.GetEffectiveEchos( ) };
+    DisplayStatsCache HoverStatsCache { Opt.GetEffectiveEchos( ) };
 
     const auto DisplayCombination =
-        [ & ]( int CombinationIndex, int Rank ) {
-            const bool ShowDifferent = ChosenCombination != CombinationIndex || ChosenRank != Rank;
+        [ & ]<typename Ty>( DisplayStatsCache<Ty>& MainDisplayStats ) {
+            const bool ShowDifferent = SelectedStatsCache != MainDisplayStats;
 
-            auto& DisplayCombination = ResultDisplayBuffer[ CombinationIndex ][ Rank ];
+            const auto DisplayRow = [ ShowDifferent ]( const char* Label, FloatTy OldValue, FloatTy Value, FloatTy Payoff = 0, FloatTy PayoffPerc = 0 ) {
+                ImGui::TableNextRow( );
 
-            const int      DisplayEchoCount = strlen( glabels[ CombinationIndex ] );
-            EffectiveStats DisplayStats     = OptimizerParmSwitcher::SwitchCalculateCombinationalStat(
-                OConfig.SelectedElement,
-                std::views::iota( 0, DisplayEchoCount )
-                    | std::views::transform( [ & ]( int EchoIndex ) {
-                          return Opt.GetEffectiveEchos( )[ DisplayCombination.Indices[ EchoIndex ] ];
-                      } )
-                    | std::ranges::to<std::vector>( ),
-                GetCommonStat( ) );
+                if ( Payoff != 0 )
+                    ImGui::TableSetBgColor( ImGuiTableBgTarget_RowBg1, ImGui::GetColorU32( ImVec4( PayoffPerc * 0.8f, 0.2f, 0.2f, 0.65f ) ) );
 
-            const auto DisplayRow = [ ShowDifferent ]( const char* Label, FloatTy OldValue, FloatTy Value ) {
                 if ( ShowDifferent )
                 {
-                    ImGui::TableNextRow( );
                     ImGui::TableSetColumnIndex( 0 );
                     ImGui::Text( "%s", Label );
                     ImGui::TableSetColumnIndex( 1 );
@@ -290,52 +432,66 @@ main( int argc, char** argv )
                         ImGui::SameLine( );
                         ImGui::Text( ")" );
                     }
+                    if ( Payoff != 0 )
+                    {
+                        ImGui::TableSetColumnIndex( 2 );
+                        ImGui::Text( "+%.3f", Payoff );
+                    }
                 } else
                 {
-                    ImGui::TableNextRow( );
                     ImGui::TableSetColumnIndex( 0 );
                     ImGui::Text( "%s", Label );
                     ImGui::TableSetColumnIndex( 1 );
                     ImGui::Text( "%.3f", Value );
+                    if ( Payoff != 0 )
+                    {
+                        ImGui::TableSetColumnIndex( 2 );
+                        ImGui::Text( "+%.3f", Payoff );
+                    }
                 }
             };
 
-            ImGui::SeparatorText( LanguageProvider[ "EffectiveStats" ] );
-            if ( ImGui::BeginTable( "EffectiveStats", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg ) )
-            {
-                const auto BaseAttack = OConfig.WeaponStats.flat_attack + OConfig.CharacterStats.flat_attack;
+            const auto DisplayRowHelper = [ & ]( const char* Label, auto& OldStat, auto& Stat, auto& PayoffStat, auto& PayoffPercStat, auto StatPtr ) {
+                DisplayRow( Label, OldStat.*StatPtr, Stat.*StatPtr, PayoffStat.*StatPtr, PayoffPercStat.*StatPtr );
+            };
 
+            ImGui::SeparatorText( LanguageProvider[ "EffectiveStats" ] );
+            if ( ImGui::BeginTable( "EffectiveStats", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg ) )
+            {
                 ImGui::TableSetupColumn( LanguageProvider[ "Stat" ] );
                 ImGui::TableSetupColumn( LanguageProvider[ "Number" ] );
+                ImGui::TableSetupColumn( LanguageProvider[ "ImprovePerColumn" ] );
                 ImGui::TableHeadersRow( );
 
-                DisplayRow( LanguageProvider[ "FlatAttack" ], SelectedStats.flat_attack, DisplayStats.flat_attack );
-                DisplayRow( LanguageProvider[ "Regen%" ], SelectedStats.regen * 100 + 100, DisplayStats.regen * 100 + 100 );
-                DisplayRow( LanguageProvider[ "Attack%" ], SelectedStats.percentage_attack * 100, DisplayStats.percentage_attack * 100 );
+                auto& SelectedStats     = SelectedStatsCache.DisplayStats;
+                auto& DisplayStats      = MainDisplayStats.DisplayStats;
+                auto& PayoffStats       = MainDisplayStats.IncreasePayOff;
+                auto& PayoffWeightStats = MainDisplayStats.IncreasePayOffWeight;
+                DisplayRowHelper( LanguageProvider[ "FlatAttack" ], SelectedStats, DisplayStats, PayoffStats, PayoffWeightStats, &EffectiveStats::flat_attack );
+                DisplayRowHelper( LanguageProvider[ "Regen%" ], SelectedStats, DisplayStats, PayoffStats, PayoffWeightStats, &EffectiveStats::regen );
+                DisplayRowHelper( LanguageProvider[ "Attack%" ], SelectedStats, DisplayStats, PayoffStats, PayoffWeightStats, &EffectiveStats::percentage_attack );
 
-                DisplayRow( LanguageProvider[ "ElementBuff%" ], SelectedStats.buff_multiplier * 100, DisplayStats.buff_multiplier * 100 );
-                DisplayRow( LanguageProvider[ "AutoAttack%" ], SelectedStats.auto_attack_buff * 100, DisplayStats.auto_attack_buff * 100 );
-                DisplayRow( LanguageProvider[ "HeavyAttack%" ], SelectedStats.heavy_attack_buff * 100, DisplayStats.heavy_attack_buff * 100 );
-                DisplayRow( LanguageProvider[ "SkillDamage%" ], SelectedStats.skill_buff * 100, DisplayStats.skill_buff * 100 );
-                DisplayRow( LanguageProvider[ "UltDamage%" ], SelectedStats.ult_buff * 100, DisplayStats.ult_buff * 100 );
+                DisplayRowHelper( LanguageProvider[ "ElementBuff%" ], SelectedStats, DisplayStats, PayoffStats, PayoffWeightStats, &EffectiveStats::buff_multiplier );
+                DisplayRowHelper( LanguageProvider[ "AutoAttack%" ], SelectedStats, DisplayStats, PayoffStats, PayoffWeightStats, &EffectiveStats::auto_attack_buff );
+                DisplayRowHelper( LanguageProvider[ "HeavyAttack%" ], SelectedStats, DisplayStats, PayoffStats, PayoffWeightStats, &EffectiveStats::heavy_attack_buff );
+                DisplayRowHelper( LanguageProvider[ "SkillDamage%" ], SelectedStats, DisplayStats, PayoffStats, PayoffWeightStats, &EffectiveStats::skill_buff );
+                DisplayRowHelper( LanguageProvider[ "UltDamage%" ], SelectedStats, DisplayStats, PayoffStats, PayoffWeightStats, &EffectiveStats::ult_buff );
 
-                DisplayRow( LanguageProvider[ "CritRate" ], SelectedStats.CritRateStat( ) * 100, DisplayStats.CritRateStat( ) * 100 );
-                DisplayRow( LanguageProvider[ "CritDamage" ], SelectedStats.CritDamageStat( ) * 100, DisplayStats.CritDamageStat( ) * 100 );
-                DisplayRow( LanguageProvider[ "FinalAttack" ], SelectedStats.AttackStat( BaseAttack ), DisplayStats.AttackStat( BaseAttack ) );
+                DisplayRowHelper( LanguageProvider[ "CritRate" ], SelectedStats, DisplayStats, PayoffStats, PayoffWeightStats, &EffectiveStats::crit_rate );
+                DisplayRowHelper( LanguageProvider[ "CritDamage" ], SelectedStats, DisplayStats, PayoffStats, PayoffWeightStats, &EffectiveStats::crit_damage );
+                DisplayRow( LanguageProvider[ "FinalAttack" ], SelectedStatsCache.FinalAttack, MainDisplayStats.FinalAttack );
 
-                const FloatTy Resistances = OConfig.GetResistances( );
-                DisplayRow( LanguageProvider[ "AlignedNonCritDamage" ], SelectedStats.NormalDamage( BaseAttack, &OConfig.OptimizeMultiplierConfig ) * Resistances, DisplayStats.NormalDamage( BaseAttack, &OConfig.OptimizeMultiplierConfig ) * Resistances );
-                DisplayRow( LanguageProvider[ "AlignedCritDamage" ], SelectedStats.CritDamage( BaseAttack, &OConfig.OptimizeMultiplierConfig ) * Resistances, DisplayStats.CritDamage( BaseAttack, &OConfig.OptimizeMultiplierConfig ) * Resistances );
-                DisplayRow( LanguageProvider[ "AlignedExpectedDamage" ], SelectedStats.ExpectedDamage( BaseAttack, &OConfig.OptimizeMultiplierConfig ) * Resistances, DisplayStats.ExpectedDamage( BaseAttack, &OConfig.OptimizeMultiplierConfig ) * Resistances );
-
+                DisplayRow( LanguageProvider[ "AlignedNonCritDamage" ], SelectedStatsCache.NormalDamage, MainDisplayStats.NormalDamage );
+                DisplayRow( LanguageProvider[ "AlignedCritDamage" ], SelectedStatsCache.CritDamage, MainDisplayStats.CritDamage );
+                DisplayRow( LanguageProvider[ "AlignedExpectedDamage" ], SelectedStatsCache.ExpectedDamage, MainDisplayStats.ExpectedDamage );
 
                 ImGui::EndTable( );
             }
 
             ImGui::SeparatorText( LanguageProvider[ "Combination" ] );
-            for ( int i = 0; i < DisplayEchoCount; ++i )
+            for ( int i = 0; i < MainDisplayStats.SlotCount; ++i )
             {
-                const auto  Index        = DisplayCombination.Indices[ i ];
+                const auto  Index        = MainDisplayStats.EchoIndices[ i ];
                 const auto& SelectedEcho = FullStatsList[ Index ];
                 ImGui::Text( "%s", std::format( "{:=^54}", Index ).c_str( ) );
 
@@ -405,7 +561,7 @@ main( int argc, char** argv )
                     ImPlot::SetupAxes( LanguageProvider[ "Type" ], LanguageProvider[ "OptimalValue" ], ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit );
 
                     // Set axis ticks
-                    ImPlot::SetupAxisTicks( ImAxis_X1, positions, GARuntimeReport::MaxCombinationCount, glabels );
+                    ImPlot::SetupAxisTicks( ImAxis_X1, positions, GARuntimeReport::MaxCombinationCount, GTypeLabel );
                     ImPlot::SetupAxisLimits( ImAxis_X1, -1, 11, ImPlotCond_Always );
 
                     ImPlot::SetupAxis( ImAxis_X2, LanguageProvider[ "Type" ], ImPlotAxisFlags_Lock | ImPlotAxisFlags_NoDecorations );
@@ -455,7 +611,7 @@ main( int argc, char** argv )
                                 Combination.CombinationRank = (int) Index;
                             }
 
-                            ImPlot::PlotLineG( glabels[ i ], ResultPlotDetailsImPlotGetter, ResultDisplayBuffer[ i ].data( ), WuWaGA::ResultLength );
+                            ImPlot::PlotLineG( GTypeLabel[ i ], ResultPlotDetailsImPlotGetter, ResultDisplayBuffer[ i ].data( ), WuWaGA::ResultLength );
 
                             TopCombination.insert( TopCombination.end( ), ResultDisplayBuffer[ i ].begin( ), ResultDisplayBuffer[ i ].end( ) );
 
@@ -493,23 +649,23 @@ main( int argc, char** argv )
                         ImPlot::PopPlotClipRect( );
 
                         ImGui::BeginTooltip( );
-                        DisplayCombination( ClosestCombination, Rank );
+                        HoverStatsCache.SetAsCombination( GetCommonStat( ),
+                                                          OConfig.SelectedElement,
+                                                          ClosestCombination, Rank,
+                                                          ResultDisplayBuffer,
+                                                          OConfig );
+                        DisplayCombination( HoverStatsCache );
                         ImGui::EndTooltip( );
 
                         // Select the echo combination
                         if ( sf::Mouse::isButtonPressed( sf::Mouse::Button::Left ) )
                         {
-                            ChosenCombination = ClosestCombination;
-                            ChosenRank        = Rank;
-
-                            SelectedStats = OptimizerParmSwitcher::SwitchCalculateCombinationalStat(
-                                OConfig.SelectedElement,
-                                std::views::iota( 0, (int) strlen( glabels[ ClosestCombination ] ) )
-                                    | std::views::transform( [ & ]( int EchoIndex ) {
-                                          return Opt.GetEffectiveEchos( )[ SelectedResult.Indices[ EchoIndex ] ];
-                                      } )
-                                    | std::ranges::to<std::vector>( ),
-                                GetCommonStat( ) );
+                            SelectedStatsCache.SetAsCombination( GetCommonStat( ),
+                                                                 OConfig.SelectedElement,
+                                                                 ClosestCombination,
+                                                                 Rank,
+                                                                 ResultDisplayBuffer,
+                                                                 OConfig );
                         }
                     }
 
@@ -543,7 +699,7 @@ main( int argc, char** argv )
 
                             CombinationLegendIndex[ i ] = CombinationIndex;
                             if ( HasData ) CombinationIndex++;
-                            ImPlot::PlotLineG( glabels[ i ], ResultSegmentPlotDetailsImPlotGetter, CurrentBuffer.data( ), WuWaGA::ResultLength * 2, ImPlotLineFlags_Segments | ( HasData ? 0 : ImPlotItemFlags_NoLegend ) );
+                            ImPlot::PlotLineG( GTypeLabel[ i ], ResultSegmentPlotDetailsImPlotGetter, CurrentBuffer.data( ), WuWaGA::ResultLength * 2, ImPlotLineFlags_Segments | ( HasData ? 0 : ImPlotItemFlags_NoLegend ) );
                         }
 
                         ImDrawList* draw_list = ImPlot::GetPlotDrawList( );
@@ -563,23 +719,23 @@ main( int argc, char** argv )
                                 ImPlot::PopPlotClipRect( );
 
                                 ImGui::BeginTooltip( );
-                                DisplayCombination( ClosestCombination, ClosestRank );
+                                HoverStatsCache.SetAsCombination( GetCommonStat( ),
+                                                                  OConfig.SelectedElement,
+                                                                  ClosestCombination, ClosestRank,
+                                                                  ResultDisplayBuffer,
+                                                                  OConfig );
+                                DisplayCombination( HoverStatsCache );
                                 ImGui::EndTooltip( );
 
                                 // Select the echo combination
                                 if ( sf::Mouse::isButtonPressed( sf::Mouse::Button::Left ) )
                                 {
-                                    ChosenCombination = ClosestCombination;
-                                    ChosenRank        = ClosestRank;
-
-                                    SelectedStats = OptimizerParmSwitcher::SwitchCalculateCombinationalStat(
-                                        OConfig.SelectedElement,
-                                        std::views::iota( 0, (int) strlen( glabels[ ClosestCombination ] ) )
-                                            | std::views::transform( [ & ]( int EchoIndex ) {
-                                                  return Opt.GetEffectiveEchos( )[ SelectedResult.Indices[ EchoIndex ] ];
-                                              } )
-                                            | std::ranges::to<std::vector>( ),
-                                        GetCommonStat( ) );
+                                    SelectedStatsCache.SetAsCombination( GetCommonStat( ),
+                                                                         OConfig.SelectedElement,
+                                                                         ClosestCombination,
+                                                                         ClosestRank,
+                                                                         ResultDisplayBuffer,
+                                                                         OConfig );
                                 }
                             }
                         }
@@ -664,7 +820,7 @@ main( int argc, char** argv )
                 ImGui::PushStyleColor( ImGuiCol_ButtonActive, (ImVec4) ImColor::HSV( ButtonH, 0.8f, 0.8f ) );
                 if ( ImGui::Button( OptRunning ? LanguageProvider[ "ReRun" ] : LanguageProvider[ "Run" ], ImVec2( -1, 0 ) ) )
                 {
-                    const auto BaseAttack = OConfig.WeaponStats.flat_attack + OConfig.CharacterStats.flat_attack;
+                    const auto BaseAttack = OConfig.GetBaseAttack( );
                     OptimizerParmSwitcher::SwitchRun( Opt, OConfig.SelectedElement, BaseAttack, GetCommonStat( ), &OConfig.OptimizeMultiplierConfig );
                 }
                 ImGui::PopStyleColor( 3 );
@@ -676,9 +832,9 @@ main( int argc, char** argv )
                 SAVE_CONFIG( ImGui::SliderFloat( LanguageProvider[ "ElResistance" ], &OConfig.ElementResistance, 0, 1, "%.2f" ) )
                 SAVE_CONFIG( ImGui::SliderFloat( LanguageProvider[ "DamReduction" ], &OConfig.ElementDamageReduce, 0, 1, "%.2f" ) )
 
-                if ( ChosenCombination >= 0 )
+                if ( SelectedStatsCache.Valid )
                 {
-                    DisplayCombination( ChosenCombination, ChosenRank );
+                    DisplayCombination( SelectedStatsCache );
                 }
 
                 ImGui::EndChild( );

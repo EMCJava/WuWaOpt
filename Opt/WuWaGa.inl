@@ -295,10 +295,12 @@ WuWaGA::Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack, E
         TopFitness_Index.clear( );
         for ( int i = 0, top_count = 0; i < m_PopulationSize; ++i )
         {
+            auto& CurrentCombination = Population[ i ];
+
             uint64_t CombinationID = 0;
             for ( int j = 0; j < SlotCount; ++j )
             {
-                CombinationID |= (uint64_t) Population[ i ][ j ] << j * IndexBitsShift;
+                CombinationID |= (uint64_t) CurrentCombination[ j ] << j * IndexBitsShift;
             }
 
             // Calculated in the current round
@@ -316,7 +318,7 @@ WuWaGA::Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack, E
                 Fitness = StatsCacheIt->second;
             } else
             {
-                std::ranges::copy( Population[ i ]
+                std::ranges::copy( CurrentCombination
                                        | std::views::transform( [ this ]( int EchoIndex ) {
                                              return m_EffectiveEchos[ EchoIndex ];
                                          } ),
@@ -565,6 +567,8 @@ WuWaGA::Run( FloatTy BaseAttack, const EffectiveStats& CommonStats, const Multip
               return EffectiveStats;
           } )
         | std::ranges::to<std::vector>( );
+
+    assert( m_EffectiveEchos.size( ) == m_Echos.size( ) );
 
     // clang-format off
     m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ElementType, 4, 4, 4, 0, 0>, this, std::placeholders::_1,  0, BaseAttack, CommonStats, OptimizeMultiplierConfig ) ) );

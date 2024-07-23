@@ -111,6 +111,11 @@ struct MultiplierConfig {
     FloatTy heavy_attack_multiplier = 0;
     FloatTy skill_multiplier        = 0;
     FloatTy ult_multiplier          = 0;
+
+    bool operator==( const MultiplierConfig& Other ) const noexcept
+    {
+        return auto_attack_multiplier == Other.auto_attack_multiplier && heavy_attack_multiplier == Other.heavy_attack_multiplier && skill_multiplier == Other.skill_multiplier && ult_multiplier == Other.ult_multiplier;
+    }
 };
 
 struct EffectiveStats {
@@ -243,6 +248,16 @@ struct EffectiveStats {
     FloatTy ExpectedDamage( auto base_attack, const MultiplierConfig* multiplier_config ) const noexcept
     {
         return NormalDamage( base_attack, multiplier_config ) * ( 1 + std::min( CritRateStat( ), (FloatTy) 1 ) * ( 0.5f + crit_damage ) );
+    }
+
+    void ExpectedDamage( auto base_attack, const MultiplierConfig* multiplier_config,
+                         FloatTy& ND,
+                         FloatTy& CD,
+                         FloatTy& ED ) const noexcept
+    {
+        ND = NormalDamage( base_attack, multiplier_config );
+        CD = ND * CritDamageStat( );
+        ED = ND * ( 1 + std::min( CritRateStat( ), (FloatTy) 1 ) * ( 0.5f + crit_damage ) );
     }
 };
 
