@@ -141,6 +141,22 @@ main( )
         ReadCard( );   // Read the final card
     };
 
+    // Make sure it is sorted by echo level
+    {
+        MouseControl::MousePoint ClickLocation { 250, 650 };
+        ClickLocation += GameHandler->GetLeftTop( );
+
+        MouseController.MoveMouse( MouseLocation, ClickLocation, 300 + 80 * ( dis( gen ) - 0.5 ) );
+        std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );
+        MouseController.LeftClick( );
+
+        MouseLocation = { 250, 450 };
+        MouseLocation += GameHandler->GetLeftTop( );
+        MouseController.MoveMouse( ClickLocation, MouseLocation, 300 + 80 * ( dis( gen ) - 0.5 ) );
+        std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );
+        MouseController.LeftClick( );
+    }
+
     for ( int Page = 0;; ++Page )
     {
         spdlog::info( "Scanning at page {}...", Page );
