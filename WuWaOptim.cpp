@@ -709,15 +709,31 @@ main( int argc, char** argv )
 
         if ( ImGui::BeginPopupContextWindow( "LanguageSelect", ImGuiPopupFlags_NoReopen ) )
         {
+            bool Modified = false;
             if ( ImGui::MenuItem( "en-US" ) )
             {
                 LanguageProvider.LoadLanguage( OConfig.LastUsedLanguage = Language::English );
-                OConfig.SaveConfig( );
+                Modified = true;
             }
             if ( ImGui::MenuItem( "zh-CN" ) )
             {
                 LanguageProvider.LoadLanguage( OConfig.LastUsedLanguage = Language::SimplifiedChinese );
+                Modified = true;
+            }
+
+            if ( Modified )
+            {
                 OConfig.SaveConfig( );
+
+                std::ranges::copy( std::initializer_list<const char*> {
+                                       LanguageProvider[ "FireDamage" ],
+                                       LanguageProvider[ "AirDamage" ],
+                                       LanguageProvider[ "IceDamage" ],
+                                       LanguageProvider[ "ElectricDamage" ],
+                                       LanguageProvider[ "DarkDamage" ],
+                                       LanguageProvider[ "LightDamage" ],
+                                   },
+                                   ElementLabel );
             }
 
             ImGui::EndPopup( );
