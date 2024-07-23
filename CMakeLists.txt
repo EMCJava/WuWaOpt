@@ -21,6 +21,7 @@ include_directories(.)
 add_subdirectory(Scan)
 
 add_compile_options(/bigobj /utf-8)
+add_compile_definitions(UNICODE _UNICODE)
 add_executable(WuWaScan WuWaScan.cpp)
 add_executable(WuWaOptim WuWaOptim.cpp)
 
@@ -31,7 +32,7 @@ target_link_libraries(WuWaGASwitcher nlohmann_json::nlohmann_json)
 target_link_libraries(WuWaGA INTERFACE nlohmann_json::nlohmann_json WuWaGASwitcher)
 target_link_libraries(Loca nlohmann_json::nlohmann_json spdlog::spdlog_header_only)
 
-target_link_libraries(WuWaScan PRIVATE opencv_highgui opencv_ml opencv_dnn opencv_core opencv_flann nlohmann_json::nlohmann_json Scan.lib)
+target_link_libraries(WuWaScan PRIVATE Loca opencv_highgui opencv_ml opencv_dnn opencv_core opencv_flann nlohmann_json::nlohmann_json Scan.lib)
 target_link_libraries(WuWaOptim PRIVATE WuWaGA Loca nlohmann_json::nlohmann_json implot::implot sfml-system sfml-network sfml-graphics sfml-window ImGui-SFML::ImGui-SFML spdlog::spdlog_header_only)
 
 set_target_properties(WuWaScan
@@ -41,7 +42,6 @@ set_target_properties(WuWaScan
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/WuWaScan"
 )
 
-target_compile_definitions(WuWaOptim PUBLIC UNICODE _UNICODE)
 set_target_properties(WuWaOptim
         PROPERTIES
         ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/WuWaOptim"

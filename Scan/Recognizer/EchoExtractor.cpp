@@ -257,7 +257,7 @@ EchoExtractor::ReadCard( const cv::Mat& Src )
         FS.Cost = Cost;
     } else
     {
-        return { };
+        throw std::runtime_error( "Failed to extract cost" );
     }
 
     int SetColorCoordinateX = 969, SetColorCoordinateY = 211;
@@ -269,8 +269,7 @@ EchoExtractor::ReadCard( const cv::Mat& Src )
     std::from_chars( LevelChars.data( ), LevelChars.data( ) + LevelChars.size( ), FS.Level, 10 );
     if ( FS.Level > 25 )
     {
-        spdlog::error( "Level is invalid: {}", FS.Level );
-        return { };
+        throw std::runtime_error( "Level is invalid" );
     }
 
     return FS;

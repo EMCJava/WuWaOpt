@@ -2,13 +2,8 @@
 // Created by EMCJava on 5/28/2024.
 //
 
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/ml/ml.hpp>
-
-#include <nlohmann/json.hpp>
-using json = nlohmann::json;
+#define NOMINMAX
+#include <windows.h>
 
 #include <semaphore>
 #include <chrono>
@@ -26,8 +21,18 @@ using json = nlohmann::json;
 #include "Scan/Win/MouseControl.hpp"
 #include "Scan/Win/GameHandle.hpp"
 #include "Scan/Recognizer/EchoExtractor.hpp"
+#include "Loca/Loca.hpp"
 
 #include <spdlog/spdlog.h>
+
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/ml/ml.hpp>
+
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
+
 
 std::random_device               rd;
 std::mt19937                     gen( rd( ) );
@@ -36,18 +41,30 @@ std::uniform_real_distribution<> dis( 0.15, 0.85 );
 int
 main( )
 {
+    spdlog::set_level( spdlog::level::trace );
     srand( time( nullptr ) );
 
+    Loca LanguageProvider;
+    spdlog::info( "Using language: {}", LanguageProvider[ "Name" ] );
+
     int EchoLeftToScan;
-    spdlog::info( "Enter number of echoes to scan..." );
+    spdlog::info( LanguageProvider[ "AskForNumEcho" ] );
     std::cin >> EchoLeftToScan;
 
     if ( EchoLeftToScan < 18 )
     {
-        spdlog::error( "Number of echoes to scan must be greater or equal to 18." );
+        spdlog::error( LanguageProvider[ "EchoLessThanReq" ] );
         system( "pause" );
         return 1;
     }
+
+    const bool StopAtUnEscalated =
+        MessageBox(
+            nullptr,
+            LanguageProvider.GetDecodedString( "StopScanQuestion" ).data( ),
+            LanguageProvider.GetDecodedString( "ScannerBeh" ).data( ),
+            MB_ICONQUESTION | MB_YESNO | MB_TOPMOST )
+        == IDYES;
 
     std::unique_ptr<GameHandle> GameHandler;
 
@@ -92,13 +109,43 @@ main( )
         MouseLocation = NextLocation;
     };
 
+    // Make sure it is sorted by echo level
+    {
+        MouseControl::MousePoint ClickLocation { 250, 650 };
+        ClickLocation += GameHandler->GetLeftTop( );
+
+        MouseController.MoveMouse( MouseLocation, ClickLocation, 300 + 80 * ( dis( gen ) - 0.5 ) );
+        std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );
+        MouseController.LeftClick( );
+
+        MouseLocation = { 250, 450 };
+        MouseLocation += GameHandler->GetLeftTop( );
+        MouseController.MoveMouse( ClickLocation, MouseLocation, 300 + 80 * ( dis( gen ) - 0.5 ) );
+        std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );
+        MouseController.LeftClick( );
+    }
+
     EchoExtractor Extractor;
     const auto    ReadCard = [ & ]( ) {
         spdlog::info( "Reading card..." );
-        Stopwatch  SW;
-        const auto FS = Extractor.ReadCard( GameHandler->ScreenCap( ) );
-        spdlog::trace( "{}", json( FS ).dump( ) );
-        ResultJsonEchos.push_back( FS );
+        Stopwatch SW;
+        try
+        {
+            const auto FS = Extractor.ReadCard( GameHandler->ScreenCap( ) );
+            spdlog::trace( "{}", json( FS ).dump( ) );
+            ResultJsonEchos.push_back( FS );
+
+            if ( StopAtUnEscalated && FS.Level == 0 )
+            {
+                return false;
+            }
+        }
+        catch ( const std::exception& e )
+        {
+            spdlog::error( "Error reading card: {}", e.what( ) );
+        }
+
+        return true;
     };
 
     //    while ( true )
@@ -118,21 +165,21 @@ main( )
 
         for ( const auto& CardLocation : Location | std::views::drop( 1 ) )
         {
-            std::thread { [ &CardReading, &ReadCard ] {
+            std::thread { [ & ] {
                 CardReading.acquire( );
                 std::this_thread::sleep_for( std::chrono::milliseconds( 300 ) );
-                ReadCard( );
+                Terminate = Terminate || !ReadCard( );
                 CardReading.release( );
             } }.detach( );
 
-            if ( GetAsyncKeyState( VK_SPACE ) )
+            MouseToCard( CardLocation.x, CardLocation.y );
+
+            CardReading.acquire( );
+            if ( Terminate || GetAsyncKeyState( VK_SPACE ) )
             {
                 Terminate = true;
                 return;
             }
-            MouseToCard( CardLocation.x, CardLocation.y );
-
-            CardReading.acquire( );
             MouseController.LeftClick( true );
             CardReading.release( );
         }
@@ -140,22 +187,6 @@ main( )
         std::this_thread::sleep_for( std::chrono::milliseconds( 120 ) );
         ReadCard( );   // Read the final card
     };
-
-    // Make sure it is sorted by echo level
-    {
-        MouseControl::MousePoint ClickLocation { 250, 650 };
-        ClickLocation += GameHandler->GetLeftTop( );
-
-        MouseController.MoveMouse( MouseLocation, ClickLocation, 300 + 80 * ( dis( gen ) - 0.5 ) );
-        std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );
-        MouseController.LeftClick( );
-
-        MouseLocation = { 250, 450 };
-        MouseLocation += GameHandler->GetLeftTop( );
-        MouseController.MoveMouse( ClickLocation, MouseLocation, 300 + 80 * ( dis( gen ) - 0.5 ) );
-        std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );
-        MouseController.LeftClick( );
-    }
 
     for ( int Page = 0;; ++Page )
     {

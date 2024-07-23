@@ -128,6 +128,10 @@
     "ZigZag": "阿嗞嗞",
     "EffectiveStats": "有效词条",
     "Stat": "词条",
-    "Number": "数值"
+    "Number": "数值",
+    "AskForNumEcho": "输入要扫描的声骸数量...",
+    "EchoLessThanReq": "要扫描的声骸数量必须大于或等于 18...",
+    "ScannerBeh": "扫描器行为",
+    "StopScanQuestion": "是否需要在遇到没升级的声骸时停止扫描？"
   }
 }

@@ -128,6 +128,10 @@
     "ZigZag": "Zig Zag",
     "EffectiveStats": "Effective Stats",
     "Stat": "Stat",
-    "Number": "Number"
+    "Number": "Number",
+    "AskForNumEcho": "Enter number of echoes to scan...",
+    "EchoLessThanReq": "Number of echoes to scan must be greater or equal to 18...",
+    "ScannerBeh": "Scanner Behaviour",
+    "StopScanQuestion": "Do you want to stop scanning when an un-escalated echo is reached?"
   }
 }
