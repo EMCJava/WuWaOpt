@@ -147,9 +147,9 @@ WuWaGA::Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack, E
 {
     const auto SL = std::source_location::current( );
 
-    static constexpr int MaxEchoCount   = 2000;
-    static constexpr int IndexBitsShift = 11;
-    const auto ReproduceSizeBy5 = m_ReproduceSize / 5;
+    static constexpr int MaxEchoCount     = 2000;
+    static constexpr int IndexBitsShift   = 11;
+    const auto           ReproduceSizeBy5 = m_ReproduceSize / 5;
 
     constexpr int SlotCount = GetSlotCount<CostSlotTemplateArgument>( );
     static_assert( ( 1 << IndexBitsShift ) > MaxEchoCount && IndexBitsShift * SlotCount <= 64 );
@@ -499,11 +499,12 @@ WuWaGA::Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack, E
                 const auto  MutationAtIndex    = MutationStart + int( random( ) % MutationCount );
                 const auto& AvailableEchoRange = EchoIndicesSubrangeByCost[ MutationAtCost ];
 
+                int MaxTries     = 100;
                 int NewEchoIndex = 0;
                 do
                 {
                     NewEchoIndex = AvailableEchoRange[ random( ) % AvailableEchoRange.size( ) ];
-                } while ( std::ranges::contains( Individual.data( ) + MutationStart, Individual.data( ) + MutationStart + MutationCount, NewEchoIndex ) );
+                } while ( --MaxTries && std::ranges::contains( Individual.data( ) + MutationStart, Individual.data( ) + MutationStart + MutationCount, NewEchoIndex ) );
 
                 // Basic one round bubble sort
                 if ( Individual[ MutationAtIndex ] > NewEchoIndex )
