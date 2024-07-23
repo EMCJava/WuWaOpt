@@ -499,12 +499,13 @@ WuWaGA::Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack, E
                 const auto  MutationAtIndex    = MutationStart + int( random( ) % MutationCount );
                 const auto& AvailableEchoRange = EchoIndicesSubrangeByCost[ MutationAtCost ];
 
-                int MaxTries     = 100;
+                int MaxTries     = 10;
                 int NewEchoIndex = 0;
                 do
                 {
                     NewEchoIndex = AvailableEchoRange[ random( ) % AvailableEchoRange.size( ) ];
                 } while ( --MaxTries && std::ranges::contains( Individual.data( ) + MutationStart, Individual.data( ) + MutationStart + MutationCount, NewEchoIndex ) );
+                if ( MaxTries == 0 ) break;
 
                 // Basic one round bubble sort
                 if ( Individual[ MutationAtIndex ] > NewEchoIndex )
