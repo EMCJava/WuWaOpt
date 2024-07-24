@@ -628,7 +628,7 @@ main( int argc, char** argv )
                     {
                         ImPlotPoint mouse = ImPlot::GetPlotMousePos( );
 
-                        int Rank  = std::round( mouse.x );
+                        int Rank  = std::clamp( (int) std::round( mouse.x ), 0, WuWaGA::ResultLength - 1 );
                         int Value = mouse.y;
 
                         FloatTy MinDiff            = std::numeric_limits<FloatTy>::max( );
@@ -708,7 +708,7 @@ main( int argc, char** argv )
                         if ( ImPlot::IsPlotHovered( ) )
                         {
                             ImPlotPoint mouse = ImPlot::GetPlotMousePos( );
-                            int         Rank  = std::round( mouse.x );
+                            int         Rank  = std::clamp( (int) std::round( mouse.x ), 0, WuWaGA::ResultLength - 1 );
 
                             auto& SelectedResult     = TopCombination[ Rank ];
                             int   ClosestCombination = SelectedResult.CombinationID;
