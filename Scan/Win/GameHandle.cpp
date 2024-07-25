@@ -71,7 +71,7 @@ EnumGameProc( HWND hwnd, LPARAM lParam )
         char executablePath[ MAX_PATH ] { 0 };
         if ( GetModuleFileNameEx( hProc, nullptr, executablePath, sizeof( executablePath ) / sizeof( char ) ) )
         {
-            if ( strstr( executablePath, "Wuthering Waves Game" ) != nullptr )
+            if ( strstr( executablePath, "Wuthering Waves" ) != nullptr )
             {
                 spdlog::info( "Found Wuthering Waves Game window: {}", executablePath );
                 *(HWND*) lParam = hwnd;
