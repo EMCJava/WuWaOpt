@@ -543,29 +543,9 @@ WuWaGA::Run( FloatTy BaseAttack, const EffectiveStats& CommonStats, const Multip
 {
     m_Threads.clear( );
 
-    const auto EchoNameSets = std::views::iota( 0, eEchoSetCount )
-        | std::views::transform( [ this ]( int Set ) {
-                                  return m_Echos
-                                      | std::views::filter( [ Set ]( const FullStats& Stat ) { return Stat.Set == Set; } )
-                                      | std::views::transform( []( const FullStats& Stat ) {
-                                             return Stat.EchoName;
-                                         } )
-                                      | std::ranges::to<std::set<std::string>>( );
-                              } )
-        | std::ranges::to<std::vector>( );
-
-    std::ranges::for_each( EchoNameSets, []( const auto& NameSet ) {
-        assert( NameSet.size( ) < std::numeric_limits<SetNameOccupation>::digits );
-    } );
-
     m_EffectiveEchos =
         m_Echos
-        | std::views::transform( [ & ]( const FullStats& Stats ) {
-              auto        EffectiveStats = ToEffectiveStats<ElementType>( Stats );
-              const auto& NameSets       = EchoNameSets[ Stats.Set ];
-              EffectiveStats.NameID      = std::distance( NameSets.begin( ), NameSets.find( Stats.EchoName ) );
-              return EffectiveStats;
-          } )
+        | std::views::transform( ToEffectiveStats<ElementType> )
         | std::ranges::to<std::vector>( );
 
     assert( m_EffectiveEchos.size( ) == m_Echos.size( ) );

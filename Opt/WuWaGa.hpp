@@ -65,7 +65,7 @@ public:
 protected:
     GARuntimeReport m_GAReport;
 
-    int m_PopulationSize = 2000, m_ReproduceSize = 0.2 * m_PopulationSize;
+    int m_PopulationSize = 200000, m_ReproduceSize = 0.2 * m_PopulationSize;
 
     const std::vector<FullStats>& m_Echos;
     std::vector<EffectiveStats>   m_EffectiveEchos;

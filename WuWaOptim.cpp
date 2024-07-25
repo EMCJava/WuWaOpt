@@ -585,17 +585,39 @@ main( int argc, char** argv )
     }
 
     std::ifstream EchoFile { EchoFilePath };
+    std::ifstream EchoNameFile { "data/EchoSetNameSet.json" };
     if ( !EchoFile )
     {
         spdlog::error( "Failed to open echoes file." );
         system( "pause" );
         return 1;
     }
+    if ( !EchoNameFile )
+    {
+        spdlog::error( "Failed to open echo name file." );
+        system( "pause" );
+        return 1;
+    }
+
+    std::map<std::string, std::vector<std::string>> EchoNameBySet;
+    json::parse( EchoNameFile )[ "sets" ].get_to( EchoNameBySet );
+    std::ranges::for_each( EchoNameBySet, []( const auto& NameSet ) {
+        assert( NameSet.second.size( ) < std::numeric_limits<SetNameOccupation>::digits );
+    } );
 
     auto FullStatsList = json::parse( EchoFile )[ "echoes" ].get<std::vector<FullStats>>( )
         // | std::views::filter( []( const FullStats& FullEcho ) { return FullEcho.Level != 0; } )
         // | std::views::filter( []( const FullStats& FullEcho ) { return FullEcho.Set == eMoltenRift || FullEcho.Set == eFreezingFrost; } )
-        | std::views::filter( []( const FullStats& FullEcho ) { return !FullEcho.EchoName.empty( ); } )
+        | std::views::filter( [ & ]( FullStats& FullEcho ) {
+                             const auto NameListIt = EchoNameBySet.find( FullEcho.GetSetName( ) );
+                             if ( NameListIt == EchoNameBySet.end( ) ) return false;
+
+                             const auto NameIt = std::ranges::find( NameListIt->second, FullEcho.EchoName );
+                             if ( NameIt == NameListIt->second.end( ) ) return false;
+
+                             FullEcho.NameID = std::distance( NameListIt->second.begin( ), NameIt );
+                             return true;
+                         } )
         | std::ranges::to<std::vector>( );
 
     if ( FullStatsList.empty( ) )

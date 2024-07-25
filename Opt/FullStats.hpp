@@ -311,6 +311,7 @@ struct FullStats {
     int         Level = 0;
     EchoSet     Set   = eEchoSetNone;
     std::string EchoName;
+    int         NameID = -1;
 
     /*
      *
@@ -508,7 +509,7 @@ ToEffectiveStats( const FullStats& MatchResult )
 {
     return EffectiveStats {
         .Set               = MatchResult.Set,
-        .NameID            = -1,
+        .NameID            = MatchResult.NameID,
         .Cost              = MatchResult.Cost,
         .flat_attack       = MatchResult.Attack,
         .regen             = MatchResult.RegenPercentage,
