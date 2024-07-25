@@ -40,6 +40,7 @@ set_target_properties(WuWaScan
         ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/WuWaScan"
         LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/WuWaScan"
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/WuWaScan"
+        LINK_FLAGS "/MANIFESTUAC:\"level='requireAdministrator' uiAccess='false'\""
 )
 
 set_target_properties(WuWaOptim
