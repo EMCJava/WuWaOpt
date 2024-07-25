@@ -585,7 +585,8 @@ main( int argc, char** argv )
                 {
                     ImPlot::SetupLegend( ImPlotLocation_South, ImPlotLegendFlags_Horizontal | ImPlotLegendFlags_Outside );
                     ImPlot::SetupAxes( LanguageProvider[ "Rank" ], LanguageProvider[ "OptimalValue" ], ImPlotAxisFlags_LockMin, ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_RangeFit );
-                    ImPlot::SetupAxesLimits( 0, WuWaGA::ResultLength, 0, 1, ImPlotCond_Once );
+                    ImPlot::SetupAxesLimits( 0, WuWaGA::ResultLength - 1, 0, 1, ImPlotCond_Once );
+                    ImPlot::SetupAxisZoomConstraints( ImAxis_X1, 0, WuWaGA::ResultLength - 1 );
 
                     bool       HasData              = false;
                     const auto StaticStatMultiplier = OConfig.GetResistances( );
@@ -677,7 +678,8 @@ main( int argc, char** argv )
                 {
                     ImPlot::SetupLegend( ImPlotLocation_South, ImPlotLegendFlags_Horizontal | ImPlotLegendFlags_Outside );
                     ImPlot::SetupAxes( LanguageProvider[ "Rank" ], LanguageProvider[ "OptimalValue" ], ImPlotAxisFlags_LockMin, ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_RangeFit );
-                    ImPlot::SetupAxesLimits( 0, WuWaGA::ResultLength, 0, 1, ImPlotCond_Once );
+                    ImPlot::SetupAxesLimits( 0, WuWaGA::ResultLength - 1, 0, 1, ImPlotCond_Once );
+                    ImPlot::SetupAxisZoomConstraints( ImAxis_X1, 0, WuWaGA::ResultLength - 1 );
 
                     if ( !TopCombination.empty( ) )
                     {
