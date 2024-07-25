@@ -4,6 +4,7 @@
 
 #define NOMINMAX
 #include <windows.h>
+#include <winrt/Windows.Foundation.h>
 
 #include <semaphore>
 #include <chrono>
@@ -38,6 +39,20 @@ std::random_device               rd;
 std::mt19937                     gen( rd( ) );
 std::uniform_real_distribution<> dis( 0.15, 0.85 );
 
+bool
+CheckResolution( )
+{
+    const POINT ptZero  = { 0, 0 };
+    HMONITOR    monitor = MonitorFromPoint( ptZero, MONITOR_DEFAULTTOPRIMARY );
+
+    MONITORINFOEX info = { sizeof( MONITORINFOEX ) };
+    winrt::check_bool( GetMonitorInfo( monitor, &info ) );
+    DEVMODE devmode = { };
+    devmode.dmSize  = sizeof( DEVMODE );
+    winrt::check_bool( EnumDisplaySettings( info.szDevice, ENUM_CURRENT_SETTINGS, &devmode ) );
+    return devmode.dmPelsWidth == info.rcMonitor.right && devmode.dmPelsHeight == info.rcMonitor.bottom;
+}
+
 int
 main( )
 {
@@ -46,6 +61,13 @@ main( )
 
     Loca LanguageProvider;
     spdlog::info( "Using language: {}", LanguageProvider[ "Name" ] );
+
+    if ( !CheckResolution( ) )
+    {
+        spdlog::error( LanguageProvider[ "ResolutionMismatch" ] );
+        system( "pause" );
+        return 1;
+    }
 
     int EchoLeftToScan;
     spdlog::info( LanguageProvider[ "AskForNumEcho" ] );

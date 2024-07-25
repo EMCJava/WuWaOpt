@@ -133,6 +133,7 @@
     "AskForNumEcho": "输入要扫描的声骸数量...",
     "EchoLessThanReq": "要扫描的声骸数量必须大于或等于 18...",
     "ScannerBeh": "扫描器行为",
-    "StopScanQuestion": "是否需要在遇到没升级的声骸时停止扫描？"
+    "StopScanQuestion": "是否需要在遇到没升级的声骸时停止扫描？",
+    "ResolutionMismatch": "有一个笨笨的小可爱没有阅读自述文件。你需要将“Windows屏幕显示缩放比例”设置为100％才能运行扫描仪。"
   }
 }
