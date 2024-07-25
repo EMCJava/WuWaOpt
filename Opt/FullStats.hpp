@@ -259,6 +259,28 @@ struct EffectiveStats {
         CD = ND * CritDamageStat( );
         ED = ND * ( 1 + std::min( CritRateStat( ), (FloatTy) 1 ) * ( 0.5f + crit_damage ) );
     }
+
+
+    static const char* GetStatName( const FloatTy EffectiveStats::*stat_type )
+    {
+#define PtrSwitch( x, y )                  \
+    if ( stat_type == &EffectiveStats::x ) \
+        return y;                          \
+    else
+
+        PtrSwitch( flat_attack, "FlatAttack" )
+            PtrSwitch( regen, "Regen%" )
+                PtrSwitch( percentage_attack, "Attack%" )
+                    PtrSwitch( buff_multiplier, "ElementBuff%" )
+                        PtrSwitch( crit_rate, "CritRate" )
+                            PtrSwitch( crit_damage, "CritDamage" )
+                                PtrSwitch( auto_attack_buff, "AutoAttack%" )
+                                    PtrSwitch( heavy_attack_buff, "HeavyAttack%" )
+                                        PtrSwitch( skill_buff, "SkillDamage%" )
+                                            PtrSwitch( ult_buff, "UltDamage%" ) return "NonEffective";
+
+#undef PtrSwitch
+    }
 };
 
 enum StatType : char {
