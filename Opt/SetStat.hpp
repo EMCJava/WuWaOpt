@@ -84,13 +84,14 @@ ApplySetEffect( EffectiveStats& Stats, int SetCount )
     }
 }
 
+using SetNameOccupation = uint32_t;
 template <int Index, EchoSet Set, EchoSet... Sets>
 inline void
 CountSet( auto& Counter, auto& OccupationMask, char ActualSet, int NameID )
 {
     if ( ActualSet == Set )
     {
-        const auto Mask = 1 << NameID;
+        const auto Mask = (SetNameOccupation) 1 << NameID;
         if ( ~OccupationMask[ Index ] & Mask )
         {
             // Unique name
@@ -111,8 +112,6 @@ ApplyAllSetByCount( EffectiveStats& Stat, auto& SetCounts )
     if constexpr ( sizeof...( Sets ) > 0 )
         ApplyAllSetByCount<Index + 1, Sets...>( Stat, SetCounts );
 }
-
-using SetNameOccupation = uint32_t;
 
 template <EchoSet... Sets>
 inline EffectiveStats
