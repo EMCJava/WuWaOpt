@@ -42,6 +42,12 @@ NLOHMANN_JSON_SERIALIZE_ENUM( EchoSet, {
                                            {      eEchoSetNone,       "eEchoSetNone"}
 } )
 
+inline std::string
+SetToString( EchoSet Set )
+{
+    return json( Set ).get<std::string>( );
+}
+
 constexpr std::array<std::tuple<int, int, int>, eEchoSetCount> EchoSetColorIndicators = {
     std::make_tuple( 66, 178, 255 ),
     std::make_tuple( 245, 118, 79 ),
@@ -355,7 +361,7 @@ struct FullStats {
 
     [[nodiscard]] std::string GetSetName( ) const noexcept
     {
-        return json( Set ).get<std::string>( );
+        return SetToString( Set );
     }
 
     [[nodiscard]] std::string BriefStat( const Loca& L ) const noexcept
