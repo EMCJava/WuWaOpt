@@ -124,6 +124,7 @@ struct MultiplierConfig {
     }
 };
 
+struct StatValueConfig;
 struct EffectiveStats {
 
     EchoSet Set               = eFreezingFrost;
@@ -221,6 +222,9 @@ struct EffectiveStats {
         return true;
     }
 
+    EffectiveStats
+    operator+( const struct StatValueConfig& StatValue ) const noexcept;
+
     FloatTy CritRateStat( ) const noexcept
     {
         return crit_rate + 0.05f;
@@ -288,6 +292,25 @@ struct EffectiveStats {
 #undef PtrSwitch
     }
 };
+
+struct StatValueConfig {
+    FloatTy EffectiveStats::*ValuePtr = { };
+    FloatTy                  Value    = { };
+
+    static const char* GetTypeString( void* user_data, int idx )
+    {
+        const auto This = static_cast<StatValueConfig*>( user_data ) + idx;
+        return EffectiveStats::GetStatName( This->ValuePtr );
+    }
+};
+
+inline EffectiveStats
+EffectiveStats::operator+( const struct StatValueConfig& StatValue ) const noexcept
+{
+    EffectiveStats Result = *this;
+    Result.*( StatValue.ValuePtr ) += StatValue.Value;
+    return Result;
+}
 
 enum StatType : char {
     eAttack                     = '#',
