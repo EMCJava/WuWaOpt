@@ -6,12 +6,20 @@
 
 #include <unordered_map>
 #include <string>
+#include <list>
 
 enum class Language {
     English,
     SimplifiedChinese,
     Undefined,
     LanguageSize = Undefined
+};
+
+class Loca;
+class LanguageObserver
+{
+public:
+    virtual void OnLanguageChanged( Loca* ) = 0;
 };
 
 class Loca
@@ -37,6 +45,9 @@ public:
 
     [[nodiscard]] Language GetLanguage( ) const noexcept { return m_Lang; }
 
+    void AttachObserver( LanguageObserver* observer );
+    void DetachObserver( LanguageObserver* observer );
+
 protected:
     StringDecodedType m_EmptyDecodedString;
     std::string       m_EmptyRawString;
@@ -44,4 +55,6 @@ protected:
     std::unordered_map<std::string, std::pair<StringDecodedType, std::string>> m_StringData;
 
     Language m_Lang;
+
+    std::list<LanguageObserver*> m_Observers;
 };

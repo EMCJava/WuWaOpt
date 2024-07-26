@@ -105,6 +105,11 @@ Loca::LoadLanguage( )
             continue;   // Continue to load the rest of the strings if one fails to parse
         }
     }
+
+    for ( auto* Observer : m_Observers )
+    {
+        Observer->OnLanguageChanged( this );
+    }
 }
 
 void
@@ -144,4 +149,17 @@ Loca::GetString( const std::string& Key ) const noexcept
 
     spdlog::error( "Failed to find key [{}]", Key );
     return m_EmptyRawString;
+}
+
+void
+Loca::AttachObserver( LanguageObserver* observer )
+{
+    observer->OnLanguageChanged( this );
+    m_Observers.push_back( observer );
+}
+
+void
+Loca::DetachObserver( LanguageObserver* observer )
+{
+    m_Observers.remove( observer );
 }
