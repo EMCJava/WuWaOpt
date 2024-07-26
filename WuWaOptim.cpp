@@ -2,6 +2,7 @@
 #include <iostream>
 #include <ranges>
 #include <utility>
+#include <random>
 #include <queue>
 #include <set>
 
@@ -17,8 +18,12 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
-#include <random>
 
+#include "Opt/UI/PlotCombinationMeta.hpp"
+#include "Opt/Tweak/CombinationMetaCache.hpp"
+#include "Opt/Tweak/CombinationTweaker.hpp"
+#include "Opt/Config/OptimizerConfig.hpp"
+#include "Opt/SubStatRolling/SubStatRollConfig.hpp"
 #include "Opt/OptimizerParmSwitcher.hpp"
 #include "Opt/FullStats.hpp"
 #include "Opt/OptUtil.hpp"
@@ -39,31 +44,6 @@ GetConstContainer( const std::priority_queue<T, S, C>& q )
     return HackedQueue::Container( q );
 }
 
-struct ResultPlotDetails {
-    FloatTy            Value;
-    int                CombinationID;
-    int                CombinationRank;
-    std::array<int, 5> Indices;
-
-    bool operator>( ResultPlotDetails Other ) const noexcept
-    {
-        return Value > Other.Value;
-    }
-};
-
-inline const char* GTypeLabel[] = { "444", "4431", "3333", "44111", "41111", "43311", "43111", "31111", "33111", "33311", "11111" };
-
-ImPlotPoint
-ResultPlotDetailsImPlotGetter( int idx, void* user_data )
-{
-    return { (double) idx, ( ( (ResultPlotDetails*) user_data ) + idx )->Value };
-}
-
-ImPlotPoint
-ResultSegmentPlotDetailsImPlotGetter( int idx, void* user_data )
-{
-    return { std::round( (double) idx / 2 ), ( ( (ResultPlotDetails*) user_data ) + idx )->Value };
-}
 
 std::array<ImU32, eEchoSetCount + 1> EchoSetColor {
     IM_COL32( 66, 178, 255, 255 ),
@@ -76,502 +56,6 @@ std::array<ImU32, eEchoSetCount + 1> EchoSetColor {
     IM_COL32( 255, 255, 255, 255 ),
     IM_COL32( 202, 44, 37, 255 ),
     IM_COL32( 243, 60, 241, 255 ) };
-
-struct OptimizerConfig {
-    EffectiveStats WeaponStats { };
-    EffectiveStats CharacterStats { };
-
-    MultiplierConfig OptimizeMultiplierConfig { };
-    int              SelectedElement { };
-
-    int     CharacterLevel { };
-    int     EnemyLevel { };
-    FloatTy ElementResistance { };
-    FloatTy ElementDamageReduce { };
-
-    Language LastUsedLanguage = Language::Undefined;
-
-    // + 1 when saved to file
-    int InternalStateID = 0;
-
-    [[nodiscard]] auto GetResistances( ) const noexcept
-    {
-        return ( (FloatTy) 100 + CharacterLevel ) / ( 199 + CharacterLevel + EnemyLevel ) * ( 1 - ElementResistance ) * ( 1 - ElementDamageReduce );
-    };
-
-    void ReadConfig( )
-    {
-        static_assert( std::is_trivially_copy_assignable_v<OptimizerConfig> );
-        std::ifstream OptimizerConfigFile( "oc.data", std::ios::binary );
-        if ( OptimizerConfigFile )
-        {
-            OptimizerConfigFile.ignore( std::numeric_limits<std::streamsize>::max( ) );
-            const auto FileLength = OptimizerConfigFile.gcount( );
-            OptimizerConfigFile.clear( );   //  Since ignore will have set eof.
-            OptimizerConfigFile.seekg( 0, std::ios_base::beg );
-
-            auto ActualReadSize = sizeof( OptimizerConfig );
-            if ( FileLength < ActualReadSize )
-            {
-                ActualReadSize = FileLength;
-                spdlog::warn( "Data file version mismatch, reading all available data." );
-            }
-
-            OptimizerConfigFile.read( (char*) this, ActualReadSize );
-        }
-    }
-
-    void SaveConfig( )
-    {
-        InternalStateID++;
-
-        static_assert( std::is_trivially_copy_assignable_v<OptimizerConfig> );
-        std::ofstream OptimizerConfigFile( "oc.data", std::ios::binary );
-        if ( OptimizerConfigFile )
-        {
-            OptimizerConfigFile.write( (char*) this, sizeof( OptimizerConfig ) );
-        }
-    }
-
-    [[nodiscard]] auto GetBaseAttack( ) const noexcept
-    {
-        return WeaponStats.flat_attack + CharacterStats.flat_attack;
-    }
-};
-
-struct StatsRoll {
-    FloatTy Value;
-
-    using RateTy = double;
-    RateTy Rate;
-};
-
-struct StatValueConfig {
-    FloatTy EffectiveStats::*ValuePtr { };
-    FloatTy                  Value { };
-
-    static const char* GetTypeString( void* user_data, int idx )
-    {
-        const auto This = static_cast<StatValueConfig*>( user_data ) + idx;
-        return EffectiveStats::GetStatName( This->ValuePtr );
-    }
-};
-
-struct SubStatRollConfig {
-    FloatTy EffectiveStats::*  ValuePtr { };
-    std::array<StatsRoll, 8>   Values { };
-    std::array<std::string, 8> ValueStrings { };
-    int                        PossibleRolls = 0;
-    bool                       IsEffective   = false;
-
-    void SetValueStrings( bool IsPercentage = true )
-    {
-        std::ranges::copy(
-            Values
-                | std::views::transform( [ IsPercentage ]( const StatsRoll& Roll ) {
-                      if ( IsPercentage )
-                      {
-                          return std::format( "{:.1f}", Roll.Value * 100 ) + "%";
-
-                      } else
-                      {
-                          return std::format( "{:.0f}", Roll.Value );
-                      }
-                  } ),
-            ValueStrings.begin( ) );
-    }
-
-    static const char* GetValueString( void* user_data, int idx )
-    {
-        const auto This = static_cast<SubStatRollConfig*>( user_data );
-        return This->ValueStrings[ idx ].c_str( );
-    }
-};
-
-template <typename EffectiveEchoListTy>
-struct DisplayStatsCache {
-    explicit DisplayStatsCache( EffectiveEchoListTy& EchoList )
-        : EchoList( EchoList )
-    {
-    }
-
-    EffectiveEchoListTy& EchoList;
-
-    int            CachedConfigStateID { };
-    EffectiveStats CommonStats { };
-    EffectiveStats ActualStats { };
-
-    OptimizerConfig OptimizerCfg;
-
-    // After taking off echo at index
-    std::array<std::vector<EffectiveStats>, 5> EchoesWithoutAt { };
-    std::array<FloatTy, 5>                     EDWithoutAt { };
-    std::array<FloatTy, 5>                     EdDropPercentageWithoutAt { };
-
-    // Mapped stats
-    EffectiveStats DisplayStats { };
-
-    // Increased Payoff per stat
-    EffectiveStats IncreasePayOff { };
-    EffectiveStats IncreasePayOffWeight { };
-
-    FloatTy FinalAttack    = 0;
-    FloatTy NormalDamage   = 0;
-    FloatTy CritDamage     = 0;
-    FloatTy ExpectedDamage = 0;
-
-    int CombinationIndex = 0;
-    int Rank             = 0;
-    int ElementOffset    = 0;
-    int SlotCount        = 0;
-
-    bool Valid = false;
-
-    std::array<int, 5> EchoIndices;
-
-    void Deactivate( )
-    {
-        Valid       = false;
-        ActualStats = DisplayStats = IncreasePayOff = { };
-    }
-
-    void SetAsCombination( const EffectiveStats& CS,
-                           int EO, int CI, int R,
-                           const auto&            ResultBuffer,
-                           const OptimizerConfig& Config )
-    {
-        CombinationIndex = CI;
-        Rank             = R;
-        SlotCount        = (int) strlen( GTypeLabel[ CombinationIndex ] );
-
-        const auto&        CombinationUsed = ResultBuffer[ CombinationIndex ][ Rank ];
-        std::array<int, 5> NewEchoIndices { };
-        for ( int i = 0; i < SlotCount; ++i )
-            NewEchoIndices[ i ] = CombinationUsed.Indices[ i ];
-
-        // Check if the combination has changed
-        if ( Valid && ElementOffset == EO && CachedConfigStateID == Config.InternalStateID && std::ranges::equal( NewEchoIndices, EchoIndices ) ) return;
-        EchoIndices         = NewEchoIndices;
-        CommonStats         = CS;
-        CachedConfigStateID = Config.InternalStateID;
-        OptimizerCfg        = Config;
-
-        ElementOffset = EO;
-        Valid         = true;
-
-        const auto IndexToEchoTransform =
-            std::views::transform( [ & ]( int EchoIndex ) -> EffectiveStats {
-                return EchoList[ EchoIndices[ EchoIndex ] ];
-            } );
-
-        ActualStats =
-            OptimizerParmSwitcher::SwitchCalculateCombinationalStat(
-                ElementOffset,
-                std::views::iota( 0, SlotCount )
-                    | IndexToEchoTransform
-                    | std::ranges::to<std::vector>( ),
-                CommonStats );
-
-        for ( int i = 0; i < SlotCount; ++i )
-        {
-            EchoesWithoutAt[ i ] =
-                std::views::iota( 0, SlotCount )
-                | std::views::filter( [ i ]( int EchoIndex ) { return EchoIndex != i; } )
-                | IndexToEchoTransform
-                | std::ranges::to<std::vector>( );
-        }
-
-        DisplayStats.flat_attack       = ActualStats.flat_attack;
-        DisplayStats.regen             = ActualStats.regen * 100 + 100;
-        DisplayStats.percentage_attack = ActualStats.percentage_attack * 100;
-        DisplayStats.buff_multiplier   = ActualStats.buff_multiplier * 100;
-        DisplayStats.auto_attack_buff  = ActualStats.auto_attack_buff * 100;
-        DisplayStats.heavy_attack_buff = ActualStats.heavy_attack_buff * 100;
-        DisplayStats.skill_buff        = ActualStats.skill_buff * 100;
-        DisplayStats.ult_buff          = ActualStats.ult_buff * 100;
-        DisplayStats.crit_rate         = ActualStats.CritRateStat( ) * 100;
-        DisplayStats.crit_damage       = ActualStats.CritDamageStat( ) * 100;
-        FinalAttack                    = ActualStats.AttackStat( Config.GetBaseAttack( ) );
-
-        CalculateDamages( );
-    }
-
-    void CalculateDamages( )
-    {
-        const FloatTy Resistances = OptimizerCfg.GetResistances( );
-        const FloatTy BaseAttack  = OptimizerCfg.GetBaseAttack( );
-
-        ActualStats.ExpectedDamage( BaseAttack, &OptimizerCfg.OptimizeMultiplierConfig,
-                                    NormalDamage,
-                                    CritDamage,
-                                    ExpectedDamage );
-
-        for ( int i = 0; i < SlotCount; ++i )
-        {
-            EDWithoutAt[ i ] =
-                OptimizerParmSwitcher::SwitchCalculateCombinationalStat(
-                    ElementOffset,
-                    EchoesWithoutAt[ i ],
-                    CommonStats )
-                    .ExpectedDamage( BaseAttack, &OptimizerCfg.OptimizeMultiplierConfig );
-
-            EdDropPercentageWithoutAt[ i ] = ExpectedDamage - EDWithoutAt[ i ];
-        }
-
-        const auto ExpectedDamageDrops = EdDropPercentageWithoutAt | std::views::take( SlotCount );
-        const auto MaxDropOff          = std::ranges::max( ExpectedDamageDrops );
-        const auto MinDropOff          = std::ranges::min( ExpectedDamageDrops );
-        const auto DropOffRange        = MaxDropOff - MinDropOff;
-
-        std::ranges::copy( ExpectedDamageDrops
-                               | std::views::transform( [ & ]( FloatTy DropOff ) {
-                                     return 1 - ( DropOff - MinDropOff ) / DropOffRange;
-                                 } ),
-                           EdDropPercentageWithoutAt.begin( ) );
-
-        static constexpr std::array<FloatTy EffectiveStats::*, 9> PercentageStats {
-            &EffectiveStats::regen,
-            &EffectiveStats::percentage_attack,
-            &EffectiveStats::buff_multiplier,
-            &EffectiveStats::crit_rate,
-            &EffectiveStats::crit_damage,
-            &EffectiveStats::auto_attack_buff,
-            &EffectiveStats::heavy_attack_buff,
-            &EffectiveStats::skill_buff,
-            &EffectiveStats::ult_buff,
-        };
-
-        FloatTy MaxDamageBuff = 0;
-
-        {
-            auto NewStat = ActualStats;
-            NewStat.flat_attack += 1;
-
-            const auto NewExpDmg = NewStat.ExpectedDamage( BaseAttack, &OptimizerCfg.OptimizeMultiplierConfig );
-            MaxDamageBuff        = std::max( IncreasePayOff.flat_attack = NewExpDmg - ExpectedDamage, MaxDamageBuff );
-        }
-
-        for ( auto StatSlot : PercentageStats )
-        {
-            auto NewStat = ActualStats;
-            NewStat.*StatSlot += 0.01f;
-
-            const auto NewExpDmg = NewStat.ExpectedDamage( BaseAttack, &OptimizerCfg.OptimizeMultiplierConfig );
-            MaxDamageBuff        = std::max( IncreasePayOff.*StatSlot = NewExpDmg - ExpectedDamage, MaxDamageBuff );
-        }
-
-        IncreasePayOffWeight.flat_attack = IncreasePayOff.flat_attack / MaxDamageBuff;
-        for ( auto StatSlot : PercentageStats )
-            IncreasePayOffWeight.*StatSlot = IncreasePayOff.*StatSlot / MaxDamageBuff;
-
-        NormalDamage *= Resistances;
-        CritDamage *= Resistances;
-        ExpectedDamage *= Resistances;
-    }
-
-    FloatTy GetEDReplaceEchoAt( int EchoIndex, EffectiveStats Echo )
-    {
-        const FloatTy Resistances = OptimizerCfg.GetResistances( );
-        const FloatTy BaseAttack  = OptimizerCfg.GetBaseAttack( );
-
-        // I don't like this
-        EchoesWithoutAt[ EchoIndex ].push_back( Echo );
-        const auto NewED =
-            OptimizerParmSwitcher::SwitchCalculateCombinationalStat(
-                ElementOffset,
-                EchoesWithoutAt[ EchoIndex ],
-                CommonStats )
-                .ExpectedDamage( BaseAttack, &OptimizerCfg.OptimizeMultiplierConfig )
-            * Resistances;
-        EchoesWithoutAt[ EchoIndex ].pop_back( );
-
-        return NewED;
-    }
-
-    bool operator==( const DisplayStatsCache& Other ) const noexcept
-    {
-        return Valid == Other.Valid && CombinationIndex == Other.CombinationIndex && Rank == Other.Rank && ElementOffset == Other.ElementOffset;
-    }
-
-    bool operator!=( const DisplayStatsCache& Other ) const noexcept
-    {
-        return !( *this == Other );
-    }
-};
-
-EffectiveStats
-AddStats( EffectiveStats Stats,
-          FloatTy EffectiveStats::*ValuePtr,
-          FloatTy                  Value )
-{
-    Stats.*ValuePtr += Value;
-    return Stats;
-}
-
-template <typename EffectiveEchoListTy>
-void
-ApplyStats(
-    std::vector<std::pair<FloatTy, StatsRoll::RateTy>>& Results,
-    DisplayStatsCache<EffectiveEchoListTy>&             Environment,
-    const SubStatRollConfig**                           PickedRollPtr,
-    const EffectiveStats&                               Stats,
-    int                                                 SlotIndex,
-    StatsRoll::RateTy                                   CurrentRate = 1 )
-{
-    if ( *PickedRollPtr == nullptr )
-    {
-        Results.emplace_back( Environment.GetEDReplaceEchoAt( SlotIndex, Stats ), CurrentRate );
-        std::ranges::push_heap( Results );
-        return;
-    }
-
-    const auto& PickedRoll = **PickedRollPtr;
-
-    if ( PickedRoll.IsEffective )
-    {
-        const auto Name = EffectiveStats::GetStatName( PickedRoll.ValuePtr );
-
-        for ( int i = 0; i < PickedRoll.PossibleRolls; ++i )
-        {
-            ApplyStats(
-                Results,
-                Environment,
-                PickedRollPtr + 1,
-                AddStats(
-                    Stats,
-                    PickedRoll.ValuePtr,
-                    PickedRoll.Values[ i ].Value ),
-                SlotIndex,
-                CurrentRate * PickedRoll.Values[ i ].Rate );
-        }
-    } else
-    {
-        // No change to stats
-        ApplyStats(
-            Results,
-            Environment,
-            PickedRollPtr + 1,
-            Stats,
-            SlotIndex,
-            CurrentRate );
-    }
-}
-
-struct EchoPotential {
-
-    FloatTy BaselineExpectedDamage { };
-    FloatTy HighestExpectedDamage { };
-    FloatTy LowestExpectedDamage { };
-
-    static constexpr size_t        CDFResolution = 100;
-    std::vector<FloatTy>           CDFChangeToED { };
-    std::vector<FloatTy>           CDFSmallOrEqED { };
-    std::vector<FloatTy>           CDFFloat { };
-    std::vector<StatsRoll::RateTy> CDF { };
-};
-
-template <typename EffectiveEchoListTy>
-void
-CalculateEchoPotential(
-    EchoPotential&                          Result,
-    std::vector<SubStatRollConfig>&         RollConfigs,
-    DisplayStatsCache<EffectiveEchoListTy>& Environment,
-    EffectiveStats                          CurrentSubStats,
-    const StatValueConfig&                  FirstMainStat,
-    const StatValueConfig&                  SecondMainStat,
-    int                                     RollRemaining,
-    int                                     SlotIndex )
-{
-    Stopwatch SP;
-
-    std::vector<std::pair<FloatTy, StatsRoll::RateTy>> AllPossibleEcho;
-
-    const auto PossibleRolls =
-        RollConfigs
-        | std::views::filter( [ & ]( SubStatRollConfig& Config ) {
-              return std::abs( CurrentSubStats.*( Config.ValuePtr ) ) < 0.001;
-          } )
-        | std::ranges::to<std::vector>( );
-
-    if ( PossibleRolls.size( ) < RollRemaining )
-    {
-        throw std::runtime_error( "Not enough rolls remaining to complete the combination." );
-    }
-
-    if ( FirstMainStat.ValuePtr != nullptr ) CurrentSubStats.*( FirstMainStat.ValuePtr ) += FirstMainStat.Value;
-    if ( SecondMainStat.ValuePtr != nullptr ) CurrentSubStats.*( SecondMainStat.ValuePtr ) += SecondMainStat.Value;
-
-    std::vector<const SubStatRollConfig*> PickedRoll( RollRemaining + /*  For terminating recursive call */ 1, nullptr );
-
-    std::string bitmask( RollRemaining, 1 );
-    bitmask.resize( PossibleRolls.size( ), 0 );
-
-    do
-    {
-        for ( int i = 0, poll_index = 0; i < PossibleRolls.size( ); ++i )
-        {
-            if ( bitmask[ i ] )
-            {
-                PickedRoll[ poll_index++ ] = &PossibleRolls[ i ];
-            }
-        }
-
-        ApplyStats(
-            AllPossibleEcho,
-            Environment,
-            PickedRoll.data( ),
-            CurrentSubStats,
-            SlotIndex );
-    } while ( std::prev_permutation( bitmask.begin( ), bitmask.end( ) ) );
-
-    std::ranges::sort_heap( AllPossibleEcho );
-
-    Result.BaselineExpectedDamage = Environment.ExpectedDamage;
-    Result.HighestExpectedDamage  = AllPossibleEcho.back( ).first;
-    Result.LowestExpectedDamage   = AllPossibleEcho.front( ).first;
-
-    Result.CDF.resize( EchoPotential::CDFResolution );
-    Result.CDFSmallOrEqED.resize( EchoPotential::CDFResolution );
-
-    const auto DamageIncreasePerTick = ( Result.HighestExpectedDamage - Result.LowestExpectedDamage ) / EchoPotential::CDFResolution;
-
-    StatsRoll::RateTy CumulatedRate = 0;
-    auto              It            = AllPossibleEcho.data( );
-    const auto        ItEnd         = &AllPossibleEcho.back( ) + 1;
-    for ( int i = 0; i < EchoPotential::CDFResolution; ++i )
-    {
-        const auto TickDamage = Result.LowestExpectedDamage + i * DamageIncreasePerTick;
-        while ( It->first <= TickDamage && It != ItEnd )
-        {
-            CumulatedRate += It->second;
-            It++;
-        }
-
-        Result.CDFSmallOrEqED[ i ] = TickDamage;
-        Result.CDF[ i ]            = CumulatedRate;
-    }
-
-    while ( It != ItEnd )
-    {
-        CumulatedRate += It->second;
-        It++;
-    }
-    Result.CDFSmallOrEqED.push_back( AllPossibleEcho.back( ).first );
-    Result.CDF.push_back( CumulatedRate );
-
-    Result.CDFChangeToED = Result.CDFSmallOrEqED;
-    for ( auto& ED : Result.CDFChangeToED )
-        ED = 100 * ED / Result.BaselineExpectedDamage - 100;
-
-    // 1 for every combination
-    Result.CDFFloat.resize( Result.CDF.size( ) );
-    for ( int i = 0; i < Result.CDF.size( ); ++i )
-    {
-        Result.CDFFloat[ i ] = Result.CDF[ i ] = 1 - Result.CDF[ i ] / Result.CDF.back( );
-    }
-
-    Result.CDFFloat.front( ) = Result.CDF.front( ) = 1;
-}
 
 int
 main( int argc, char** argv )
@@ -606,8 +90,6 @@ main( int argc, char** argv )
     } );
 
     auto FullStatsList = json::parse( EchoFile )[ "echoes" ].get<std::vector<FullStats>>( )
-        // | std::views::filter( []( const FullStats& FullEcho ) { return FullEcho.Level != 0; } )
-        // | std::views::filter( []( const FullStats& FullEcho ) { return FullEcho.Set == eMoltenRift || FullEcho.Set == eFreezingFrost; } )
         | std::views::filter( [ & ]( FullStats& FullEcho ) {
                              const auto NameListIt = EchoNameBySet.find( FullEcho.GetSetName( ) );
                              if ( NameListIt == EchoNameBySet.end( ) ) return false;
@@ -631,73 +113,6 @@ main( int argc, char** argv )
         if ( EchoA.Cost < EchoB.Cost ) return false;
         return false;
     } );
-
-    std::vector<SubStatRollConfig> RollConfigs;
-    {
-        SubStatRollConfig TemplateConfig;
-
-        for ( int i = 0; i < 5 /* Non-effective rolls */; ++i )
-            RollConfigs.push_back( TemplateConfig );
-
-        TemplateConfig.IsEffective   = true;
-        TemplateConfig.PossibleRolls = 8;
-        TemplateConfig.Values =
-            {
-                StatsRoll {0.064, 0.0739},
-                StatsRoll {0.071,  0.069},
-                StatsRoll {0.079, 0.2072},
-                StatsRoll {0.086,  0.249},
-                StatsRoll {0.094, 0.1823},
-                StatsRoll {0.101,  0.136},
-                StatsRoll {0.109, 0.0534},
-                StatsRoll {0.116, 0.0293}
-        };
-        TemplateConfig.SetValueStrings( );
-
-        TemplateConfig.ValuePtr = &EffectiveStats::percentage_attack;
-        RollConfigs.push_back( TemplateConfig );
-        TemplateConfig.ValuePtr = &EffectiveStats::ult_buff;
-        RollConfigs.push_back( TemplateConfig );
-        TemplateConfig.ValuePtr = &EffectiveStats::heavy_attack_buff;
-        RollConfigs.push_back( TemplateConfig );
-        TemplateConfig.ValuePtr = &EffectiveStats::skill_buff;
-        RollConfigs.push_back( TemplateConfig );
-        TemplateConfig.ValuePtr = &EffectiveStats::auto_attack_buff;
-        RollConfigs.push_back( TemplateConfig );
-
-        TemplateConfig.ValuePtr = &EffectiveStats::crit_rate;
-        std::ranges::for_each( std::views::zip(
-                                   std::vector<FloatTy> { 0.063, 0.069, 0.075, 0.081, 0.087, 0.093, 0.099, 0.105 },
-                                   TemplateConfig.Values ),
-                               []( std::pair<FloatTy, StatsRoll&> Pair ) {
-                                   Pair.second.Value = Pair.first;
-                               } );
-        TemplateConfig.SetValueStrings( );
-        RollConfigs.push_back( TemplateConfig );
-
-        TemplateConfig.ValuePtr = &EffectiveStats::crit_damage;
-        std::ranges::for_each( std::views::zip(
-                                   std::vector<FloatTy> { 0.126, 0.138, 0.15, 0.162, 0.174, 0.186, 0.198, 0.21 },
-                                   TemplateConfig.Values ),
-                               []( std::pair<FloatTy, StatsRoll&> Pair ) {
-                                   Pair.second.Value = Pair.first;
-                               } );
-        TemplateConfig.SetValueStrings( );
-        RollConfigs.push_back( TemplateConfig );
-
-        memset( &TemplateConfig.Values, 0, sizeof( TemplateConfig.Values ) );
-        TemplateConfig.ValuePtr      = &EffectiveStats::flat_attack;
-        TemplateConfig.PossibleRolls = 4;
-        TemplateConfig.Values =
-            {
-                StatsRoll {30, 0.1243},
-                StatsRoll {40, 0.4621},
-                StatsRoll {50, 0.3857},
-                StatsRoll {60, 0.0279}
-        };
-        TemplateConfig.SetValueStrings( false );
-        RollConfigs.push_back( TemplateConfig );
-    }
 
     /*
      *
@@ -742,61 +157,8 @@ main( int argc, char** argv )
         LanguageProvider[ "LightDamage" ],
     };
 
-    const FloatTy EffectiveStats::*SubStatPtr[] = {
-        nullptr,
-        &EffectiveStats::flat_attack,
-        &EffectiveStats::percentage_attack,
-        &EffectiveStats::crit_rate,
-        &EffectiveStats::crit_damage,
-        &EffectiveStats::auto_attack_buff,
-        &EffectiveStats::heavy_attack_buff,
-        &EffectiveStats::skill_buff,
-        &EffectiveStats::ult_buff,
-    };
-
-    const char* SetNames[] = {
-        LanguageProvider[ "eFreezingFrost" ],
-        LanguageProvider[ "eMoltenRift" ],
-        LanguageProvider[ "eVoidThunder" ],
-        LanguageProvider[ "eSierraGale" ],
-        LanguageProvider[ "eCelestialLight" ],
-        LanguageProvider[ "eSunSinkingEclipse" ],
-        LanguageProvider[ "eRejuvenatingGlow" ],
-        LanguageProvider[ "eMoonlitClouds" ],
-        LanguageProvider[ "eLingeringTunes" ] };
-
-    const char* CostNames[] = { "0", "1", "2", "3", "4" };
-
-    const char* SubStatLabel[ std::size( SubStatPtr ) ];
-    std::ranges::copy( SubStatPtr | std::views::transform( EffectiveStats::GetStatName ), SubStatLabel );
-
-    std::array<std::vector<StatValueConfig>, 5> MaxFirstMainStat {
-        std::vector<StatValueConfig> { },
-        std::vector<StatValueConfig> {
-                                      StatValueConfig { nullptr, 0 },
-                                      StatValueConfig { &EffectiveStats::percentage_attack, 0.3 } },
-        std::vector<StatValueConfig> { },
-        std::vector<StatValueConfig> {
-                                      StatValueConfig { nullptr, 0 },
-                                      StatValueConfig { &EffectiveStats::percentage_attack, 0.3 },
-                                      StatValueConfig { &EffectiveStats::buff_multiplier, 0.30 } },
-        std::vector<StatValueConfig> {
-                                      StatValueConfig { nullptr, 0 },
-                                      StatValueConfig { &EffectiveStats::percentage_attack, 0.33 },
-                                      StatValueConfig { &EffectiveStats::crit_rate, 0.22 },
-                                      StatValueConfig { &EffectiveStats::crit_damage, 0.44 },
-                                      }
-    };
-
-    std::array<StatValueConfig, 5> MaxSecondMainStat {
-        StatValueConfig { },
-        StatValueConfig { },
-        StatValueConfig { },
-        StatValueConfig { &EffectiveStats::flat_attack, 100 },
-        StatValueConfig { &EffectiveStats::flat_attack, 150 },
-    };
-
-    WuWaGA Opt( FullStatsList );
+    WuWaGA             Opt( FullStatsList );
+    CombinationTweaker CombinationTweak( LanguageProvider );
 
     constexpr auto   ChartSplitWidth = 700;
     constexpr auto   StatSplitWidth  = 800;
@@ -818,17 +180,17 @@ main( int argc, char** argv )
         Style.FrameBorderSize  = 1.0f;
     }
 
-    std::array<std::array<ResultPlotDetails, WuWaGA::ResultLength>, GARuntimeReport::MaxCombinationCount> ResultDisplayBuffer { };
+    std::array<std::array<PlotCombinationMeta, WuWaGA::ResultLength>, GARuntimeReport::MaxCombinationCount> ResultDisplayBuffer { };
 
-    std::array<std::array<ResultPlotDetails, WuWaGA::ResultLength * 2>, GARuntimeReport::MaxCombinationCount> GroupedDisplayBuffer { };
-    std::array<int, GARuntimeReport::MaxCombinationCount>                                                     CombinationLegendIndex { };
+    std::array<std::array<PlotCombinationMeta, WuWaGA::ResultLength * 2>, GARuntimeReport::MaxCombinationCount> GroupedDisplayBuffer { };
+    std::array<int, GARuntimeReport::MaxCombinationCount>                                                       CombinationLegendIndex { };
 
-    EchoPotential     SelectedEchoPotential;
-    DisplayStatsCache SelectedStatsCache { Opt.GetEffectiveEchos( ) };
-    DisplayStatsCache HoverStatsCache { Opt.GetEffectiveEchos( ) };
+    EchoPotential        SelectedEchoPotential;
+    CombinationMetaCache SelectedStatsCache { FullStatsList, Opt.GetEffectiveEchos( ) };
+    CombinationMetaCache HoverStatsCache { FullStatsList, Opt.GetEffectiveEchos( ) };
 
     const auto DisplayCombination =
-        [ & ]<typename Ty>( DisplayStatsCache<Ty>& MainDisplayStats ) {
+        [ & ]( CombinationMetaCache& MainDisplayStats ) {
             const bool ShowDifferent = SelectedStatsCache != MainDisplayStats;
 
             const auto DisplayRow = [ ShowDifferent ]( const char* Label, FloatTy OldValue, FloatTy Value, FloatTy Payoff = 0, FloatTy PayoffPerc = 0 ) {
@@ -895,10 +257,10 @@ main( int argc, char** argv )
                 ImGui::TableSetupColumn( LanguageProvider[ "ImprovePerColumn" ] );
                 ImGui::TableHeadersRow( );
 
-                auto& SelectedStats     = SelectedStatsCache.DisplayStats;
-                auto& DisplayStats      = MainDisplayStats.DisplayStats;
-                auto& PayoffStats       = MainDisplayStats.IncreasePayOff;
-                auto& PayoffWeightStats = MainDisplayStats.IncreasePayOffWeight;
+                auto& SelectedStats     = SelectedStatsCache.GetDisplayStats( );
+                auto& DisplayStats      = MainDisplayStats.GetDisplayStats( );
+                auto& PayoffStats       = MainDisplayStats.GetIncreasePayOff( );
+                auto& PayoffWeightStats = MainDisplayStats.GetIncreasePayOffWeight( );
                 DisplayRowHelper( LanguageProvider[ "FlatAttack" ], SelectedStats, DisplayStats, PayoffStats, PayoffWeightStats, &EffectiveStats::flat_attack );
                 DisplayRowHelper( LanguageProvider[ "Regen%" ], SelectedStats, DisplayStats, PayoffStats, PayoffWeightStats, &EffectiveStats::regen );
                 DisplayRowHelper( LanguageProvider[ "Attack%" ], SelectedStats, DisplayStats, PayoffStats, PayoffWeightStats, &EffectiveStats::percentage_attack );
@@ -911,11 +273,11 @@ main( int argc, char** argv )
 
                 DisplayRowHelper( LanguageProvider[ "CritRate" ], SelectedStats, DisplayStats, PayoffStats, PayoffWeightStats, &EffectiveStats::crit_rate );
                 DisplayRowHelper( LanguageProvider[ "CritDamage" ], SelectedStats, DisplayStats, PayoffStats, PayoffWeightStats, &EffectiveStats::crit_damage );
-                DisplayRow( LanguageProvider[ "FinalAttack" ], SelectedStatsCache.FinalAttack, MainDisplayStats.FinalAttack );
+                DisplayRow( LanguageProvider[ "FinalAttack" ], SelectedStatsCache.GetFinalAttack( ), MainDisplayStats.GetFinalAttack( ) );
 
-                DisplayRow( LanguageProvider[ "AlignedNonCritDamage" ], SelectedStatsCache.NormalDamage, MainDisplayStats.NormalDamage );
-                DisplayRow( LanguageProvider[ "AlignedCritDamage" ], SelectedStatsCache.CritDamage, MainDisplayStats.CritDamage );
-                DisplayRow( LanguageProvider[ "AlignedExpectedDamage" ], SelectedStatsCache.ExpectedDamage, MainDisplayStats.ExpectedDamage );
+                DisplayRow( LanguageProvider[ "AlignedNonCritDamage" ], SelectedStatsCache.GetNormalDamage( ), MainDisplayStats.GetNormalDamage( ) );
+                DisplayRow( LanguageProvider[ "AlignedCritDamage" ], SelectedStatsCache.GetCritDamage( ), MainDisplayStats.GetCritDamage( ) );
+                DisplayRow( LanguageProvider[ "AlignedExpectedDamage" ], SelectedStatsCache.GetExpectedDamage( ), MainDisplayStats.GetExpectedDamage( ) );
 
                 ImGui::EndTable( );
             }
@@ -924,15 +286,15 @@ main( int argc, char** argv )
 
             if ( ImGui::BeginTable( "EffectiveStats", 1, ImGuiTableFlags_Borders | ImGuiTableFlags_SizingStretchSame ) )
             {
-                for ( int i = 0; i < MainDisplayStats.SlotCount; ++i )
+                for ( int i = 0; i < MainDisplayStats.GetSlotCount( ); ++i )
                 {
                     ImGui::TableNextRow( );
                     ImGui::TableSetColumnIndex( 0 );
 
-                    if ( MainDisplayStats.EdDropPercentageWithoutAt[ i ] != 0 )
-                        ImGui::TableSetBgColor( ImGuiTableBgTarget_RowBg1, ImGui::GetColorU32( ImVec4( 0.2f + MainDisplayStats.EdDropPercentageWithoutAt[ i ] * 0.6f, 0.2f, 0.2f, 0.65f ) ) );
+                    if ( MainDisplayStats.GetEdDropPercentageWithoutAt( i ) != 0 )
+                        ImGui::TableSetBgColor( ImGuiTableBgTarget_RowBg1, ImGui::GetColorU32( ImVec4( 0.2f + MainDisplayStats.GetEdDropPercentageWithoutAt( i ) * 0.6f, 0.2f, 0.2f, 0.65f ) ) );
 
-                    const auto  Index        = MainDisplayStats.EchoIndices[ i ];
+                    const auto  Index        = MainDisplayStats.GetEchoIndexAtSlot( i );
                     const auto& SelectedEcho = FullStatsList[ Index ];
                     // ImGui::Text( "%s", std::format( "{:=^54}", Index ).c_str( ) );
 
@@ -950,7 +312,7 @@ main( int argc, char** argv )
             }
         };
 
-    std::vector<ResultPlotDetails> TopCombination;
+    std::vector<PlotCombinationMeta> TopCombination;
 
     sf::Texture LanguageTexture;
     LanguageTexture.loadFromFile( "data/translate_icon.png" );
@@ -985,8 +347,6 @@ main( int argc, char** argv )
         ImGui::SetNextWindowSize( viewport->WorkSize );
         if ( ImGui::Begin( "Display", nullptr, flags ) )
         {
-            ImGui::ShowDemoWindow( );
-
             {
                 ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 5.0f );
                 ImGui::BeginChild( "GAStats", ImVec2( ChartSplitWidth - Style.WindowPadding.x, -1 ), ImGuiChildFlags_Border );
@@ -1007,7 +367,7 @@ main( int argc, char** argv )
                     ImPlot::SetupAxes( LanguageProvider[ "Type" ], LanguageProvider[ "OptimalValue" ], ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit );
 
                     // Set axis ticks
-                    ImPlot::SetupAxisTicks( ImAxis_X1, positions, GARuntimeReport::MaxCombinationCount, GTypeLabel );
+                    ImPlot::SetupAxisTicks( ImAxis_X1, positions, GARuntimeReport::MaxCombinationCount, WuWaGA::CombinationLabels.data( ) );
                     ImPlot::SetupAxisLimits( ImAxis_X1, -1, 11, ImPlotCond_Always );
 
                     ImPlot::SetupAxis( ImAxis_X2, LanguageProvider[ "Type" ], ImPlotAxisFlags_Lock | ImPlotAxisFlags_NoDecorations );
@@ -1045,10 +405,10 @@ main( int argc, char** argv )
                             HasData = true;
                             std::ranges::copy( CopyList
                                                    | std::views::transform( [ i, StaticStatMultiplier ]( const auto& Record ) {
-                                                         return ResultPlotDetails { .Value           = Record.Value * StaticStatMultiplier,
-                                                                                    .CombinationID   = i,
-                                                                                    .CombinationRank = 0,
-                                                                                    .Indices         = Record.SlotToArray( ) };
+                                                         return PlotCombinationMeta { .Value           = Record.Value * StaticStatMultiplier,
+                                                                                      .CombinationID   = i,
+                                                                                      .CombinationRank = 0,
+                                                                                      .Indices         = Record.SlotToArray( ) };
                                                      } ),
                                                ResultDisplayBuffer[ i ].begin( ) );
 
@@ -1059,7 +419,7 @@ main( int argc, char** argv )
                                 Combination.CombinationRank = (int) Index;
                             }
 
-                            ImPlot::PlotLineG( GTypeLabel[ i ], ResultPlotDetailsImPlotGetter, ResultDisplayBuffer[ i ].data( ), WuWaGA::ResultLength );
+                            ImPlot::PlotLineG( WuWaGA::CombinationLabels[ i ], PlotCombinationMeta::PlotCombinationMetaImPlotGetter, ResultDisplayBuffer[ i ].data( ), WuWaGA::ResultLength );
 
                             TopCombination.insert( TopCombination.end( ), ResultDisplayBuffer[ i ].begin( ), ResultDisplayBuffer[ i ].end( ) );
 
@@ -1100,7 +460,7 @@ main( int argc, char** argv )
                         HoverStatsCache.SetAsCombination( GetCommonStat( ),
                                                           OConfig.SelectedElement,
                                                           ClosestCombination, Rank,
-                                                          ResultDisplayBuffer,
+                                                          SelectedResult,
                                                           OConfig );
                         DisplayCombination( HoverStatsCache );
                         ImGui::EndTooltip( );
@@ -1110,9 +470,8 @@ main( int argc, char** argv )
                         {
                             SelectedStatsCache.SetAsCombination( GetCommonStat( ),
                                                                  OConfig.SelectedElement,
-                                                                 ClosestCombination,
-                                                                 Rank,
-                                                                 ResultDisplayBuffer,
+                                                                 ClosestCombination, Rank,
+                                                                 SelectedResult,
                                                                  OConfig );
                         }
                     }
@@ -1143,13 +502,13 @@ main( int argc, char** argv )
                                     CurrentBuffer[ j * 2 + 1 ] = TopCombination[ j + 1 ];
                                 } else
                                 {
-                                    CurrentBuffer[ j * 2 ] = CurrentBuffer[ j * 2 + 1 ] = ResultPlotDetails { NAN };
+                                    CurrentBuffer[ j * 2 ] = CurrentBuffer[ j * 2 + 1 ] = PlotCombinationMeta { NAN };
                                 }
                             }
 
                             CombinationLegendIndex[ i ] = CombinationIndex;
                             if ( HasData ) CombinationIndex++;
-                            ImPlot::PlotLineG( GTypeLabel[ i ], ResultSegmentPlotDetailsImPlotGetter, CurrentBuffer.data( ), WuWaGA::ResultLength * 2, ImPlotLineFlags_Segments | ( HasData ? 0 : ImPlotItemFlags_NoLegend ) );
+                            ImPlot::PlotLineG( WuWaGA::CombinationLabels[ i ], PlotCombinationMeta::PlotCombinationMetaSegmentImPlotGetter, CurrentBuffer.data( ), WuWaGA::ResultLength * 2, ImPlotLineFlags_Segments | ( HasData ? 0 : ImPlotItemFlags_NoLegend ) );
                         }
 
                         ImDrawList* draw_list = ImPlot::GetPlotDrawList( );
@@ -1172,7 +531,7 @@ main( int argc, char** argv )
                                 HoverStatsCache.SetAsCombination( GetCommonStat( ),
                                                                   OConfig.SelectedElement,
                                                                   ClosestCombination, ClosestRank,
-                                                                  ResultDisplayBuffer,
+                                                                  ResultDisplayBuffer[ ClosestCombination ][ ClosestRank ],
                                                                   OConfig );
                                 DisplayCombination( HoverStatsCache );
                                 ImGui::EndTooltip( );
@@ -1184,7 +543,7 @@ main( int argc, char** argv )
                                                                          OConfig.SelectedElement,
                                                                          ClosestCombination,
                                                                          ClosestRank,
-                                                                         ResultDisplayBuffer,
+                                                                         ResultDisplayBuffer[ ClosestCombination ][ ClosestRank ],
                                                                          OConfig );
                                 }
                             }
@@ -1296,7 +655,7 @@ main( int argc, char** argv )
                 {
                     if ( ImGui::BeginTabItem( "Combination Detail" ) )
                     {
-                        if ( SelectedStatsCache.Valid )
+                        if ( SelectedStatsCache.IsValid( ) )
                         {
                             DisplayCombination( SelectedStatsCache );
                         }
@@ -1306,163 +665,12 @@ main( int argc, char** argv )
 
                     if ( ImGui::BeginTabItem( "Combination Tweak" ) )
                     {
-                        static int                            TweakingIndex        = -1;
-                        static int                            TweakingSubStatCount = 0;
-                        static int                            TweakingMainStat     = 0;
-                        static EchoSet                        TweakingEchoSet      = eFreezingFrost;
-                        static std::array<int, 5>             TweakingSubStatType;
-                        static std::array<int, 5>             TweakingSubStatValue;
-                        static std::array<StatValueConfig, 5> TweakingEchoConfigs;
-                        if ( SelectedStatsCache.Valid && ImGui::BeginTable( "SlotEffectiveness", SelectedStatsCache.SlotCount, ImGuiTableFlags_Borders | ImGuiTableFlags_SizingStretchProp ) )
-                        {
-                            ImGui::PushStyleVar( ImGuiStyleVar_SelectableTextAlign, ImVec2( 0.5f, 0.5f ) );
-                            ImGui::TableNextRow( );
-                            for ( int i = 0; i < SelectedStatsCache.SlotCount; ++i )
-                            {
-                                ImGui::TableSetColumnIndex( i );
-                                if ( SelectedStatsCache.EdDropPercentageWithoutAt[ i ] != 0 )
-                                    ImGui::TableSetBgColor( ImGuiTableBgTarget_CellBg, ImGui::GetColorU32( ImVec4( 0.2f + SelectedStatsCache.EdDropPercentageWithoutAt[ i ] * 0.6f, 0.2f, 0.2f, 0.65f ) ) );
-
-                                const auto* EchoName = LanguageProvider[ FullStatsList[ SelectedStatsCache.EchoIndices[ i ] ].EchoName ];
-
-                                ImGui::PushID( i );
-                                if ( ImGui::Selectable( EchoName, TweakingIndex == i ) )
-                                {
-                                    if ( TweakingIndex != i )
-                                        TweakingIndex = i;
-                                    else
-                                        TweakingIndex = -1;
-                                }
-                                ImGui::PopID( );
-                            }
-                            ImGui::PopStyleVar( );
-                            ImGui::EndTable( );
-                        }
-
-                        if ( TweakingIndex != -1 && TweakingIndex < SelectedStatsCache.SlotCount )
-                        {
-                            auto CurrentTweakingCost = FullStatsList[ SelectedStatsCache.EchoIndices[ TweakingIndex ] ].Cost;
-
-                            if ( ImGui::Button( "Run" )
-                                 && MaxFirstMainStat[ CurrentTweakingCost ].size( ) > TweakingMainStat )
-                            {
-                                EffectiveStats ConfiguredSubStats {
-                                    .Set    = TweakingEchoSet,
-                                    .NameID = /*FIXME*/ 30,
-                                    .Cost   = CurrentTweakingCost };
-
-                                for ( int i = 0; i < TweakingSubStatCount; ++i )
-                                {
-                                    if ( TweakingEchoConfigs[ i ].ValuePtr != nullptr )
-                                    {
-                                        ConfiguredSubStats.*( TweakingEchoConfigs[ i ].ValuePtr ) += TweakingEchoConfigs[ i ].Value;
-                                    }
-                                }
-
-                                CalculateEchoPotential( SelectedEchoPotential,
-                                                        RollConfigs,
-                                                        SelectedStatsCache,
-                                                        ConfiguredSubStats,
-                                                        MaxFirstMainStat[ CurrentTweakingCost ][ TweakingMainStat ],
-                                                        MaxSecondMainStat[ CurrentTweakingCost ],
-                                                        5 - TweakingSubStatCount,
-                                                        TweakingIndex );
-                            }
-
-                            ImGui::Separator( );
-
-                            ImGui::Combo( LanguageProvider[ "EchoSet" ],
-                                          (int*) &TweakingEchoSet,
-                                          SetNames,
-                                          IM_ARRAYSIZE( SetNames ) );
-                            ImGui::SameLine( );
-                            ImGui::BeginDisabled( );
-                            ImGui::SetNextItemWidth( 50 );
-                            ImGui::Combo( "Cost",
-                                          &CurrentTweakingCost,
-                                          CostNames,
-                                          IM_ARRAYSIZE( CostNames ) );
-                            ImGui::EndDisabled( );
-                            ImGui::SameLine( );
-                            ImGui::Combo( "Main Stat",
-                                          &TweakingMainStat,
-                                          StatValueConfig::GetTypeString,
-                                          MaxFirstMainStat[ CurrentTweakingCost ].data( ),
-                                          MaxFirstMainStat[ CurrentTweakingCost ].size( ) );
-
-                            const auto EchoConfigWidth = ImGui::GetWindowWidth( );
-                            for ( int i = 0; i < TweakingSubStatCount; ++i )
-                            {
-                                ImGui::PushID( i );
-                                ImGui::BeginChild( "EchoConfig", ImVec2( EchoConfigWidth - Style.WindowPadding.x * 2, 0 ), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY );
-                                bool Changed = ImGui::Combo( "SubStat Type", &TweakingSubStatType[ i ], SubStatLabel, IM_ARRAYSIZE( SubStatLabel ) );
-
-                                ImGui::SameLine( );
-
-                                const auto SelectedTypeIt =
-                                    std::ranges::find_if( RollConfigs | std::views::reverse,
-                                                          [ Ptr = SubStatPtr[ TweakingSubStatType[ i ] ] ]( SubStatRollConfig& Config ) {
-                                                              return Config.ValuePtr == Ptr || !Config.IsEffective;
-                                                          } );
-                                if ( !SelectedTypeIt->IsEffective ) ImGui::BeginDisabled( );
-                                Changed |= ImGui::Combo( "SubStat Value",
-                                                         &TweakingSubStatValue[ i ],
-                                                         SubStatRollConfig::GetValueString,
-                                                         &*SelectedTypeIt,
-                                                         SelectedTypeIt->PossibleRolls );
-                                if ( !SelectedTypeIt->IsEffective ) ImGui::EndDisabled( );
-                                ImGui::EndChild( );
-                                ImGui::PopID( );
-
-                                if ( Changed )
-                                {
-                                    TweakingEchoConfigs[ i ] = {
-                                        .ValuePtr = SelectedTypeIt->ValuePtr,
-                                        .Value    = SelectedTypeIt->Values[ TweakingSubStatValue[ i ] ].Value,
-                                    };
-                                }
-                            }
-
-                            ImGui::PushID( TweakingSubStatCount );
-                            ImGui::PushStyleVar( ImGuiStyleVar_SelectableTextAlign, ImVec2( 0.5f, 0.5f ) );
-
-                            const bool CantAdd = TweakingSubStatCount >= 5;
-                            if ( CantAdd ) ImGui::BeginDisabled( );
-                            if ( ImGui::Selectable( "+", true, ImGuiSelectableFlags_None, ImVec2( EchoConfigWidth / 2 - Style.WindowPadding.x * 2, 10 ) ) ) TweakingSubStatCount++;
-                            if ( CantAdd ) ImGui::EndDisabled( );
-
-                            ImGui::SameLine( );
-
-                            const bool CantSub = TweakingSubStatCount <= 0;
-                            if ( CantSub ) ImGui::BeginDisabled( );
-                            if ( ImGui::Selectable( "-", true, ImGuiSelectableFlags_None, ImVec2( EchoConfigWidth / 2 - Style.WindowPadding.x * 2, 10 ) ) ) TweakingSubStatCount--;
-                            if ( CantSub ) ImGui::EndDisabled( );
-                            ImGui::PopStyleVar( );
-                            ImGui::PopID( );
-
-                            ImGui::Separator( );
-                        }
-
-                        if ( !SelectedEchoPotential.CDF.empty( ) )
-                        {
-                            if ( ImPlot::BeginPlot( "Potential", ImVec2( -1, 0 ), ImPlotFlags_NoLegend ) )
-                            {
-                                ImPlot::SetupLegend( ImPlotLocation_South, ImPlotLegendFlags_Horizontal | ImPlotLegendFlags_Outside );
-                                ImPlot::SetupAxes( "Probability", "Improvement %", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit );
-
-                                ImPlot::PlotLine( LanguageProvider[ "OptimalValue" ],
-                                                  SelectedEchoPotential.CDFFloat.data( ),
-                                                  SelectedEchoPotential.CDFChangeToED.data( ),
-                                                  SelectedEchoPotential.CDF.size( ) );
-                                ImPlot::EndPlot( );
-                            }
-                        }
-
+                        CombinationTweak.TweakerMenu( SelectedStatsCache, EchoNameBySet );
                         ImGui::EndTabItem( );
                     }
+
                     ImGui::EndTabBar( );
                 }
-                ImGui::Separator( );
                 ImGui::EndChild( );
 
                 ImGui::PopStyleVar( );
