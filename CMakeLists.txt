@@ -25,15 +25,16 @@ add_compile_definitions(UNICODE _UNICODE)
 add_executable(WuWaScan WuWaScan.cpp)
 add_executable(WuWaOptim WuWaOptim.cpp)
 
-add_library(Loca Loca/Loca.hpp Loca/Loca.cpp)
+add_subdirectory(Loca)
+add_subdirectory(Opt)
+
 add_library(WuWaGA INTERFACE Opt/WuWaGa.hpp Opt/WuWaGa.inl)
 add_library(WuWaGASwitcher Opt/OptimizerParmSwitcher.hpp Opt/OptimizerParmSwitcher.cpp)
 target_link_libraries(WuWaGASwitcher nlohmann_json::nlohmann_json)
 target_link_libraries(WuWaGA INTERFACE nlohmann_json::nlohmann_json WuWaGASwitcher)
-target_link_libraries(Loca nlohmann_json::nlohmann_json spdlog::spdlog_header_only)
 
-target_link_libraries(WuWaScan PRIVATE Loca opencv_highgui opencv_ml opencv_dnn opencv_core opencv_flann nlohmann_json::nlohmann_json Scan.lib)
-target_link_libraries(WuWaOptim PRIVATE WuWaGA Loca nlohmann_json::nlohmann_json implot::implot sfml-system sfml-network sfml-graphics sfml-window ImGui-SFML::ImGui-SFML spdlog::spdlog_header_only)
+target_link_libraries(WuWaScan PRIVATE Loca.lib opencv_highgui opencv_ml opencv_dnn opencv_core opencv_flann nlohmann_json::nlohmann_json Scan.lib)
+target_link_libraries(WuWaOptim PRIVATE StringArrayObserver.lib OptimizerConfig.lib SubStatRollConfig.lib CombinationTweaker.lib CombinationMetaCache.lib WuWaGA Loca.lib nlohmann_json::nlohmann_json implot::implot sfml-system sfml-network sfml-graphics sfml-window ImGui-SFML::ImGui-SFML spdlog::spdlog_header_only)
 
 set_target_properties(WuWaScan
         PROPERTIES
