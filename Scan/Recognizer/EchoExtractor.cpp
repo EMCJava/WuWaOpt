@@ -49,9 +49,9 @@ EchoExtractor::MatchWithRecognizer( const cv::Mat&     Src,
         cv::Mat newImage = cv::Mat::zeros( std::max( m_MatchVisualizerImg.rows, MinimumHeight ), FinalWidth, m_MatchVisualizerImg.type( ) );
         m_MatchVisualizerImg.copyTo( newImage( cv::Rect( 0, 0, m_MatchVisualizerImg.cols, m_MatchVisualizerImg.rows ) ) );
 
-        cv::namedWindow( MatchName, cv::WINDOW_NORMAL );
-        cv::resizeWindow( MatchName, newImage.cols, newImage.rows );
-        cv::imshow( MatchName, newImage );
+        // cv::namedWindow( MatchName, cv::WINDOW_NORMAL );
+        // cv::resizeWindow( MatchName, newImage.cols, newImage.rows );
+        // cv::imshow( MatchName, newImage );
     }
 
     std::vector<char> Result;
