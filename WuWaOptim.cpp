@@ -349,8 +349,6 @@ main( int argc, char** argv )
         ImGui::SetNextWindowSize( viewport->WorkSize );
         if ( ImGui::Begin( "Display", nullptr, flags ) )
         {
-            ImGui::ShowDemoWindow( );
-
             {
                 ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 5.0f );
                 ImGui::BeginChild( "GAStats", ImVec2( ChartSplitWidth - Style.WindowPadding.x, -1 ), ImGuiChildFlags_Border );
