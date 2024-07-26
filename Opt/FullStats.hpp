@@ -296,12 +296,6 @@ struct EffectiveStats {
 struct StatValueConfig {
     FloatTy EffectiveStats::*ValuePtr = { };
     FloatTy                  Value    = { };
-
-    static const char* GetTypeString( void* user_data, int idx )
-    {
-        const auto This = static_cast<StatValueConfig*>( user_data ) + idx;
-        return EffectiveStats::GetStatName( This->ValuePtr );
-    }
 };
 
 inline EffectiveStats

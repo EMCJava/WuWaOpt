@@ -8,6 +8,7 @@
 #include <Opt/Tweak/CombinationMetaCache.hpp>
 #include <Opt/FullStats.hpp>
 
+#include <Loca/StringArrayObserver.hpp>
 #include <Loca/Loca.hpp>
 
 #include <vector>
@@ -26,14 +27,12 @@ struct EchoPotential {
     std::vector<ValueRollRate::RateTy> CDF            = { };
 };
 
-class CombinationTweaker
+class CombinationTweaker : public LanguageObserver
 {
     static constexpr int MaxRollCount = 5;
-    const Loca&          LanguageProvider;
 
     int                            m_EchoSlotIndex      = -1;
     int                            m_UsedSubStatCount   = 0;
-    std::vector<const char*>       m_EchoNames          = { };
     std::array<StatValueConfig, 5> m_EchoSubStatConfigs = { };
 
     double             m_DragEDTargetY               = 0;
@@ -49,9 +48,13 @@ class CombinationTweaker
 
     EchoPotential m_SelectedEchoPotential;
 
-    std::vector<const char*>                 m_SetNames;
+    StringArrayObserver                      m_EchoNames;
+    StringArrayObserver                      m_SetNames;
+    StringArrayObserver                      m_SubStatLabel;
     std::array<FloatTy EffectiveStats::*, 9> m_SubStatPtr;
-    std::array<const char*, 9>               m_SubStatLabel;
+
+    int /* First time setting up main stat */ PreviousTweakingCost = -1;
+    StringArrayObserver                       m_MainStatLabel;
 
     void
     ApplyStats(
@@ -77,7 +80,7 @@ class CombinationTweaker
     void InitializePascalTriangle( );
 
 public:
-    CombinationTweaker( const Loca& LanguageProvider );
+    CombinationTweaker( Loca& LanguageProvider );
 
     void TweakerMenu( CombinationMetaCache&                                  Target,
                       const std::map<std::string, std::vector<std::string>>& EchoNamesBySet );

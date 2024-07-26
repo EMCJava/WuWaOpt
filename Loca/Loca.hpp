@@ -15,13 +15,7 @@ enum class Language {
     LanguageSize = Undefined
 };
 
-class Loca;
-class LanguageObserver
-{
-public:
-    virtual void OnLanguageChanged( Loca* ) = 0;
-};
-
+class LanguageObserver;
 class Loca
 {
     using StringDecodedType = std::wstring;
@@ -57,4 +51,22 @@ protected:
     Language m_Lang;
 
     std::list<LanguageObserver*> m_Observers;
+};
+
+class LanguageObserver
+{
+protected:
+    Loca& LanguageProvider;
+
+public:
+    explicit LanguageObserver( Loca& LocaObj )
+        : LanguageProvider( LocaObj )
+    {
+        LanguageProvider.AttachObserver( this );
+    }
+    ~LanguageObserver( )
+    {
+        LanguageProvider.DetachObserver( this );
+    }
+    virtual void OnLanguageChanged( Loca* ) { }
 };

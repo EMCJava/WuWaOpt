@@ -29,6 +29,7 @@
 #include "Opt/OptUtil.hpp"
 #include "Opt/WuWaGa.hpp"
 
+#include "Loca/StringArrayObserver.hpp"
 #include "Loca/Loca.hpp"
 
 template <class T, class S, class C>
@@ -148,13 +149,14 @@ main( int argc, char** argv )
         return CommonStats;
     };
 
-    const char* ElementLabel[] = {
-        LanguageProvider[ "FireDamage" ],
-        LanguageProvider[ "AirDamage" ],
-        LanguageProvider[ "IceDamage" ],
-        LanguageProvider[ "ElectricDamage" ],
-        LanguageProvider[ "DarkDamage" ],
-        LanguageProvider[ "LightDamage" ],
+    StringArrayObserver ElementLabel {
+        LanguageProvider,
+        { "FireDamage",
+          "AirDamage",
+          "IceDamage",
+          "ElectricDamage",
+          "DarkDamage",
+          "LightDamage" }
     };
 
     WuWaGA             Opt( FullStatsList );
@@ -347,6 +349,8 @@ main( int argc, char** argv )
         ImGui::SetNextWindowSize( viewport->WorkSize );
         if ( ImGui::Begin( "Display", nullptr, flags ) )
         {
+            ImGui::ShowDemoWindow( );
+
             {
                 ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 5.0f );
                 ImGui::BeginChild( "GAStats", ImVec2( ChartSplitWidth - Style.WindowPadding.x, -1 ), ImGuiChildFlags_Border );
@@ -619,7 +623,7 @@ main( int argc, char** argv )
                 ImGui::Separator( );
                 ImGui::NewLine( );
 
-                SAVE_CONFIG( ImGui::Combo( LanguageProvider[ "ElementType" ], &OConfig.SelectedElement, ElementLabel, IM_ARRAYSIZE( ElementLabel ) ) )
+                SAVE_CONFIG( ImGui::Combo( LanguageProvider[ "ElementType" ], &OConfig.SelectedElement, ElementLabel.GetRawStrings( ), ElementLabel.GetStringCount( ) ) )
 
                 ImGui::NewLine( );
                 ImGui::Separator( );
@@ -653,7 +657,7 @@ main( int argc, char** argv )
                 ImGui::BeginChild( "DetailPanel", ImVec2( StatSplitWidth - Style.WindowPadding.x * 4, 0 ), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY );
                 if ( ImGui::BeginTabBar( "CombinationTweak" ) )
                 {
-                    if ( ImGui::BeginTabItem( "Combination Detail" ) )
+                    if ( ImGui::BeginTabItem( LanguageProvider[ "CombinationDetail" ] ) )
                     {
                         if ( SelectedStatsCache.IsValid( ) )
                         {
@@ -663,7 +667,7 @@ main( int argc, char** argv )
                         ImGui::EndTabItem( );
                     }
 
-                    if ( ImGui::BeginTabItem( "Combination Tweak" ) )
+                    if ( ImGui::BeginTabItem( LanguageProvider[ "CombinationTweak" ] ) )
                     {
                         CombinationTweak.TweakerMenu( SelectedStatsCache, EchoNameBySet );
                         ImGui::EndTabItem( );
@@ -701,31 +705,15 @@ main( int argc, char** argv )
 
         if ( ImGui::BeginPopupContextWindow( "LanguageSelect", ImGuiPopupFlags_NoReopen ) )
         {
-            bool Modified = false;
             if ( ImGui::MenuItem( "en-US" ) )
             {
                 LanguageProvider.LoadLanguage( OConfig.LastUsedLanguage = Language::English );
-                Modified = true;
+                OConfig.SaveConfig( );
             }
             if ( ImGui::MenuItem( "zh-CN" ) )
             {
                 LanguageProvider.LoadLanguage( OConfig.LastUsedLanguage = Language::SimplifiedChinese );
-                Modified = true;
-            }
-
-            if ( Modified )
-            {
                 OConfig.SaveConfig( );
-
-                std::ranges::copy( std::initializer_list<const char*> {
-                                       LanguageProvider[ "FireDamage" ],
-                                       LanguageProvider[ "AirDamage" ],
-                                       LanguageProvider[ "IceDamage" ],
-                                       LanguageProvider[ "ElectricDamage" ],
-                                       LanguageProvider[ "DarkDamage" ],
-                                       LanguageProvider[ "LightDamage" ],
-                                   },
-                                   ElementLabel );
             }
 
             ImGui::EndPopup( );

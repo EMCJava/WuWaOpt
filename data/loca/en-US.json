@@ -50,6 +50,8 @@
     "TopType": "Top {} Combinations By Type",
     "Top": "Top {} Combinations",
     "Combination": "Combination",
+    "CombinationDetail": "Combination Detail",
+    "CombinationTweak": "Combination Tweak",
     "AutoTotal%": "Auto Attack Kit Total %",
     "HeavyTotal%": "Heavy Attack Kit Total %",
     "SkillTotal%": "Skill Kit Total %",
@@ -133,7 +135,21 @@
     "AskForNumEcho": "Enter number of echoes to scan...",
     "EchoLessThanReq": "Number of echoes to scan must be greater or equal to 18...",
     "ScannerBeh": "Scanner Behaviour",
+    "NonEffective": "Non-Effective",
+    "Probability": "Probability",
+    "EDDelta%": "Expected Damage Delta %",
+    "Potential": "Potential",
+    "SubEchoCfg": "Substitute Echo Config",
+    "SubStats": "SubStats",
+    "PotentialEDDis": "Potential Expected Damage Distribution",
+    "BestED": "Best Expected Damage",
+    "WorstED": "Worst Expected Damage",
+    "Best%+": "Best Percentage Increase",
+    "Worst%-": "Worst Percentage Decrease",
+    "MainStat": "Main Stat",
+    "SubStatType": "SubStat Type",
+    "SubStatValue": "SubStat Value",
     "StopScanQuestion": "Do you want to stop scanning when an un-escalated echo is reached?",
-    "ResolutionMismatch": "Some one is being a naughty boy not reading the readme. You need to set your \"Windows Display Scaling\" to 100% to run the scanner."
+    "ResolutionMismatch": "Someone is being a naughty boy not reading the readme. You need to set your \"Windows Display Scaling\" to 100% to run the scanner."
   }
 }

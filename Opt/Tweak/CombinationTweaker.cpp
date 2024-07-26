@@ -38,6 +38,7 @@ CombinationTweaker::TweakerMenu( CombinationMetaCache&                          
 {
     if ( !Target.IsValid( ) ) return;
 
+    ImGui::Dummy( ImVec2 { 0, 5 } );
     if ( ImGui::BeginTable( "SlotEffectiveness", Target.GetSlotCount( ), ImGuiTableFlags_Borders | ImGuiTableFlags_SizingStretchProp ) )
     {
         ImGui::PushStyleVar( ImGuiStyleVar_SelectableTextAlign, ImVec2( 0.5f, 0.5f ) );
@@ -63,9 +64,18 @@ CombinationTweaker::TweakerMenu( CombinationMetaCache&                          
     if ( m_EchoSlotIndex != -1 && m_EchoSlotIndex < Target.GetSlotCount( ) )
     {
         auto CurrentTweakingCost = Target.GetEffectiveEchoAtSlot( m_EchoSlotIndex ).Cost;
+        if ( PreviousTweakingCost != CurrentTweakingCost )
+        {
+            CurrentTweakingCost = CurrentTweakingCost;
+            m_MainStatLabel.SetKeyStrings(
+                MaxFirstMainStat[ CurrentTweakingCost ]
+                | std::views::transform( []( auto& Config ) {
+                      return EffectiveStats::GetStatName( Config.ValuePtr );
+                  } ) );
+        }
 
         const auto& Style = ImGui::GetStyle( );
-        ImGui::SeparatorText( "Substitute echo config" );
+        ImGui::SeparatorText( LanguageProvider[ "SubEchoCfg" ] );
         {
             ImGui::BeginDisabled( );
             ImGui::SetNextItemWidth( 50 );
@@ -79,40 +89,40 @@ CombinationTweaker::TweakerMenu( CombinationMetaCache&                          
             ImGui::SetNextItemWidth( 160 );
             if ( ImGui::Combo( LanguageProvider[ "EchoSet" ],
                                &m_SelectedEchoSet,
-                               m_SetNames.data( ),
-                               m_SetNames.size( ) ) )
+                               m_SetNames.GetRawStrings( ),
+                               m_SetNames.GetStringCount( ) ) )
             {
-                m_EchoNames = EchoNamesBySet.at( SetToString( (EchoSet) m_SelectedEchoSet ) )
+                m_EchoNames.SetKeyStrings(
+                    EchoNamesBySet.at( SetToString( (EchoSet) m_SelectedEchoSet ) )
                     | std::views::transform( []( auto& Str ) {
-                                return Str.c_str( );
-                            } )
-                    | std::ranges::to<std::vector>( );
+                          return Str.c_str( );
+                      } )
+                    | std::ranges::to<std::vector>( ) );
             }
             ImGui::SameLine( );
 
-            ImGui::SetNextItemWidth( 140 );
-            ImGui::Combo( "Name",
+            ImGui::SetNextItemWidth( 160 );
+            ImGui::Combo( LanguageProvider[ "EchoName" ],
                           &m_SelectedEchoNameID,
-                          m_EchoNames.data( ),
-                          m_EchoNames.size( ) );
+                          m_EchoNames.GetRawStrings( ),
+                          m_EchoNames.GetStringCount( ) );
 
             ImGui::SameLine( );
             ImGui::SetNextItemWidth( 120 );
-            ImGui::Combo( "Main Stat",
+            ImGui::Combo( LanguageProvider[ "MainStat" ],
                           &m_SelectedMainStatTypeIndex,
-                          StatValueConfig::GetTypeString,
-                          MaxFirstMainStat[ CurrentTweakingCost ].data( ),
-                          MaxFirstMainStat[ CurrentTweakingCost ].size( ) );
+                          m_MainStatLabel.GetRawStrings( ),
+                          m_MainStatLabel.GetStringCount( ) );
         }
 
-        ImGui::SeparatorText( "SubStats" );
+        ImGui::SeparatorText( LanguageProvider[ "SubStats" ] );
         {
             const auto EchoConfigWidth = ImGui::GetWindowWidth( );
             for ( int i = 0; i < m_UsedSubStatCount; ++i )
             {
                 ImGui::PushID( i );
                 ImGui::BeginChild( "EchoConfig", ImVec2( EchoConfigWidth - Style.WindowPadding.x * 2, 0 ), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY );
-                bool Changed = ImGui::Combo( "SubStat Type", &m_SelectedSubStatTypeIndices[ i ], m_SubStatLabel.data( ), m_SubStatLabel.size( ) );
+                bool Changed = ImGui::Combo( LanguageProvider[ "SubStatType" ], &m_SelectedSubStatTypeIndices[ i ], m_SubStatLabel.GetRawStrings( ), m_SubStatLabel.GetStringCount( ) );
 
                 ImGui::SameLine( );
 
@@ -124,14 +134,14 @@ CombinationTweaker::TweakerMenu( CombinationMetaCache&                          
                 if ( SelectedTypeIt == m_SubStatRollConfigs.rend( ) )
                 {
                     ImGui::BeginDisabled( );
-                    ImGui::Combo( "SubStat Value",
+                    ImGui::Combo( LanguageProvider[ "SubStatValue" ],
                                   &m_SelectedSubStatValueIndices[ i ],
                                   SubStatRollConfig::GetValueString,
                                   nullptr, 0 );
                     ImGui::EndDisabled( );
                 } else
                 {
-                    Changed |= ImGui::Combo( "SubStat Value",
+                    Changed |= ImGui::Combo( LanguageProvider[ "SubStatValue" ],
                                              &m_SelectedSubStatValueIndices[ i ],
                                              SubStatRollConfig::GetValueString,
                                              (void*) &*SelectedTypeIt,
@@ -175,12 +185,12 @@ CombinationTweaker::TweakerMenu( CombinationMetaCache&                          
         }
 
         ImGui::NewLine( );
-        if ( ImGui::Button( "Run", ImVec2( -1, 0 ) ) )
+        if ( ImGui::Button( LanguageProvider[ "Run" ], ImVec2( -1, 0 ) ) )
         {
             if ( MaxFirstMainStat[ CurrentTweakingCost ].size( ) > m_SelectedMainStatTypeIndex
                  && m_SelectedMainStatTypeIndex < MaxFirstMainStat[ CurrentTweakingCost ].size( )
                  && m_SelectedEchoSet >= 0
-                 && m_SelectedEchoNameID < m_EchoNames.size( ) )
+                 && m_SelectedEchoNameID < m_EchoNames.GetStringCount( ) )
             {
                 EffectiveStats ConfiguredSubStats {
                     .Set    = (EchoSet) m_SelectedEchoSet,
@@ -209,13 +219,13 @@ CombinationTweaker::TweakerMenu( CombinationMetaCache&                          
 
     if ( !m_SelectedEchoPotential.CDF.empty( ) )
     {
-        ImGui::SeparatorText( "Potential Expected Damage Distribution" );
+        ImGui::SeparatorText( LanguageProvider[ "PotentialEDDis" ] );
         if ( ImGui::BeginTable( "PotentialStats", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_SizingStretchSame ) )
         {
-            ImGui::TableSetupColumn( "Best ED" );
-            ImGui::TableSetupColumn( "Worse ED" );
-            ImGui::TableSetupColumn( "Best %Inc." );
-            ImGui::TableSetupColumn( "Worse %Dec." );
+            ImGui::TableSetupColumn( LanguageProvider[ "BestED" ] );
+            ImGui::TableSetupColumn( LanguageProvider[ "WorstED" ] );
+            ImGui::TableSetupColumn( LanguageProvider[ "Best%+" ] );
+            ImGui::TableSetupColumn( LanguageProvider[ "Worst%-" ] );
             ImGui::TableHeadersRow( );
             ImGui::TableNextRow( );
 
@@ -224,18 +234,18 @@ CombinationTweaker::TweakerMenu( CombinationMetaCache&                          
             ImGui::TableNextColumn( );
             ImGui::Text( "%.2f", m_SelectedEchoPotential.LowestExpectedDamage );
             ImGui::TableNextColumn( );
-            ImGui::Text( "%.2f", m_SelectedEchoPotential.CDFChangeToED.back( ) );
+            ImGui::Text( "%.2f%%", m_SelectedEchoPotential.CDFChangeToED.back( ) );
             ImGui::TableNextColumn( );
-            ImGui::Text( "%.2f", m_SelectedEchoPotential.CDFChangeToED.front( ) );
+            ImGui::Text( "%.2f%%", m_SelectedEchoPotential.CDFChangeToED.front( ) );
 
             ImGui::EndTable( );
         }
 
 
-        if ( ImPlot::BeginPlot( "Potential", ImVec2( -1, 0 ), ImPlotFlags_NoLegend ) )
+        if ( ImPlot::BeginPlot( LanguageProvider[ "Potential" ], ImVec2( -1, 0 ), ImPlotFlags_NoLegend ) )
         {
             ImPlot::SetupLegend( ImPlotLocation_South, ImPlotLegendFlags_Horizontal | ImPlotLegendFlags_Outside );
-            ImPlot::SetupAxes( "Probability", "Improvement %", ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_Invert, ImPlotAxisFlags_AutoFit );
+            ImPlot::SetupAxes( LanguageProvider[ "Probability" ], LanguageProvider[ "EDDelta%" ], ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_Invert, ImPlotAxisFlags_AutoFit );
 
             ImPlot::PlotLine( LanguageProvider[ "OptimalValue" ],
                               m_SelectedEchoPotential.CDFFloat.data( ),
@@ -245,8 +255,8 @@ CombinationTweaker::TweakerMenu( CombinationMetaCache&                          
             ImPlot::DragLineY( 0, &m_DragEDTargetY, ImVec4( 1, 0, 0, 1 ), 1, ImPlotDragToolFlags_Delayed );
             ImPlot::TagY( m_DragEDTargetY, ImVec4( 1, 0, 0, 1 ), true );
             m_DragEDTargetY = std::clamp( m_DragEDTargetY,
-                                      (double) m_SelectedEchoPotential.CDFChangeToED.front( ),
-                                      (double) m_SelectedEchoPotential.CDFChangeToED.back( ) );
+                                          (double) m_SelectedEchoPotential.CDFChangeToED.front( ),
+                                          (double) m_SelectedEchoPotential.CDFChangeToED.back( ) );
 
             ImPlot::TagX( m_SelectedEchoPotential.CDF[ std::distance(
                               m_SelectedEchoPotential.CDFChangeToED.begin( ),
@@ -258,19 +268,24 @@ CombinationTweaker::TweakerMenu( CombinationMetaCache&                          
     }
 }
 
-CombinationTweaker::CombinationTweaker( const Loca& LanguageProvider )
-    : LanguageProvider( LanguageProvider )
+CombinationTweaker::CombinationTweaker( Loca& LanguageProvider )
+    : LanguageObserver( LanguageProvider )
+    , m_EchoNames( LanguageProvider )
+    , m_SetNames( LanguageProvider )
+    , m_SubStatLabel( LanguageProvider )
+    , m_MainStatLabel( LanguageProvider )
 {
-    m_SetNames = {
-        LanguageProvider[ "eFreezingFrost" ],
-        LanguageProvider[ "eMoltenRift" ],
-        LanguageProvider[ "eVoidThunder" ],
-        LanguageProvider[ "eSierraGale" ],
-        LanguageProvider[ "eCelestialLight" ],
-        LanguageProvider[ "eSunSinkingEclipse" ],
-        LanguageProvider[ "eRejuvenatingGlow" ],
-        LanguageProvider[ "eMoonlitClouds" ],
-        LanguageProvider[ "eLingeringTunes" ] };
+    CombinationTweaker::OnLanguageChanged( &LanguageProvider );
+
+    m_SetNames.SetKeyStrings( { "eFreezingFrost",
+                                "eMoltenRift",
+                                "eVoidThunder",
+                                "eSierraGale",
+                                "eCelestialLight",
+                                "eSunSinkingEclipse",
+                                "eRejuvenatingGlow",
+                                "eMoonlitClouds",
+                                "eLingeringTunes" } );
 
     m_SubStatPtr = {
         nullptr,
@@ -284,7 +299,7 @@ CombinationTweaker::CombinationTweaker( const Loca& LanguageProvider )
         &EffectiveStats::ult_buff,
     };
 
-    std::ranges::copy( m_SubStatPtr | std::views::transform( EffectiveStats::GetStatName ), m_SubStatLabel.begin( ) );
+    m_SubStatLabel.SetKeyStrings( m_SubStatPtr | std::views::transform( EffectiveStats::GetStatName ) );
 
     InitializeSubStatRollConfigs( );
     InitializePascalTriangle( );

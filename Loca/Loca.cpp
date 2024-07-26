@@ -154,7 +154,6 @@ Loca::GetString( const std::string& Key ) const noexcept
 void
 Loca::AttachObserver( LanguageObserver* observer )
 {
-    observer->OnLanguageChanged( this );
     m_Observers.push_back( observer );
 }
 
