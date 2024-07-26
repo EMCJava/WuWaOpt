@@ -59,6 +59,18 @@ Loca::LoadLanguage( )
 {
     const auto LanguageCode = ToLanguageCode( m_Lang );
     setlocale( LC_ALL, LanguageCode.c_str( ) );
+    if ( m_Lang == Language::SimplifiedChinese )
+    {
+        system( "chcp 65001" );
+
+        CONSOLE_FONT_INFOEX info = { 0 };
+        info.cbSize              = sizeof( info );
+        info.dwFontSize.Y        = 16;
+        info.FontWeight          = FW_NORMAL;
+        wcscpy( info.FaceName, L"Consolas" );
+        SetCurrentConsoleFontEx( GetStdHandle( STD_OUTPUT_HANDLE ), NULL, &info );
+    }
+
     spdlog::info( "Loading language file for {}", LanguageCode );
 
     std::wifstream InFile( std::format( "data/loca/{}.json", LanguageCode ) );
