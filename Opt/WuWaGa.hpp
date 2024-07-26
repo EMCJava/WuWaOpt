@@ -44,23 +44,24 @@ private:
     Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack, EffectiveStats CommonStats, const MultiplierConfig* OptimizeMultiplierConfig );
 
 public:
+    constexpr static std::array<const char*, 11> CombinationLabels { "444", "4431", "3333", "44111", "41111", "43311", "43111", "31111", "33111", "33311", "11111" };
+
+    static constexpr int GetCombinationLength( int Index ) { return std::char_traits<char>::length( CombinationLabels[ Index ] ); }
+
     static constexpr int ResultLength = 100;
 
     explicit WuWaGA( auto& Echos )
         : m_Echos( Echos )
     { }
 
-    [[nodiscard]] auto& GetReport( ) noexcept
-    {
-        return m_GAReport;
-    }
+    [[nodiscard]] auto& GetReport( ) noexcept { return m_GAReport; }
 
     template <char ElementType>
     inline void Run( FloatTy BaseAttack, const EffectiveStats& CommonStats, const MultiplierConfig* OptimizeMultiplierConfig );
 
-    auto& GetEffectiveEchos( ) const noexcept { return m_EffectiveEchos; }
+    [[nodiscard]] auto& GetEffectiveEchos( ) const noexcept { return m_EffectiveEchos; }
 
-    inline bool IsRunning( ) const;
+    [[nodiscard]] inline bool IsRunning( ) const;
 
 protected:
     GARuntimeReport m_GAReport;
