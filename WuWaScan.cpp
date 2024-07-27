@@ -131,6 +131,37 @@ main( )
         MouseLocation = NextLocation;
     };
 
+    EchoExtractor Extractor;
+    const auto    ReadCard = [ & ]( ) {
+        spdlog::info( "Reading card..." );
+        Stopwatch SW;
+        int       Retry;
+        for ( Retry = 0; Retry < 3; ++Retry )
+        {
+            try
+            {
+                const auto FS = Extractor.ReadCard( GameHandler->ScreenCap( ) );
+                spdlog::trace( "{}", json( FS ).dump( ) );
+                ResultJsonEchos.push_back( FS );
+
+                if ( StopAtUnEscalated && FS.Level == 0 )
+                {
+                    return false;
+                }
+
+                return true;
+            }
+            catch ( const std::exception& e )
+            {
+                spdlog::error( "Error reading card: {}", e.what( ) );
+                std::this_thread::sleep_for( std::chrono::milliseconds( 400 ) );
+            }
+        }
+
+        spdlog::error( "Unable to reading card after {} attempts", Retry );
+        return true;
+    };
+
     // Make sure it is sorted by echo level
     {
         MouseControl::MousePoint ClickLocation { 250, 650 };
@@ -146,29 +177,6 @@ main( )
         std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );
         MouseController.LeftClick( );
     }
-
-    EchoExtractor Extractor;
-    const auto    ReadCard = [ & ]( ) {
-        spdlog::info( "Reading card..." );
-        Stopwatch SW;
-        try
-        {
-            const auto FS = Extractor.ReadCard( GameHandler->ScreenCap( ) );
-            spdlog::trace( "{}", json( FS ).dump( ) );
-            ResultJsonEchos.push_back( FS );
-
-            if ( StopAtUnEscalated && FS.Level == 0 )
-            {
-                return false;
-            }
-        }
-        catch ( const std::exception& e )
-        {
-            spdlog::error( "Error reading card: {}", e.what( ) );
-        }
-
-        return true;
-    };
 
     //    while ( true )
     //    {

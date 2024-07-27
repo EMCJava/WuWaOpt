@@ -40,19 +40,23 @@ EchoExtractor::MatchWithRecognizer( const cv::Mat&     Src,
 
     auto& MatchRects = Recognizer.ExtractRect( m_GrayImg, m_MatchVisualizerImg );
 
-    if ( !MatchName.empty( ) )
-    {
-        const int MinimumWidth  = 300;
-        const int MinimumHeight = 300;
-        const int FinalWidth    = std::max( m_MatchVisualizerImg.cols + 100, MinimumWidth );
-
-        cv::Mat newImage = cv::Mat::zeros( std::max( m_MatchVisualizerImg.rows, MinimumHeight ), FinalWidth, m_MatchVisualizerImg.type( ) );
-        m_MatchVisualizerImg.copyTo( newImage( cv::Rect( 0, 0, m_MatchVisualizerImg.cols, m_MatchVisualizerImg.rows ) ) );
-
-        // cv::namedWindow( MatchName, cv::WINDOW_NORMAL );
-        // cv::resizeWindow( MatchName, newImage.cols, newImage.rows );
-        // cv::imshow( MatchName, newImage );
-    }
+//    if ( !MatchName.empty( ) )
+//    {
+//        const int MinimumWidth  = 300;
+//        const int MinimumHeight = 300;
+//        const int FinalWidth    = std::max( m_GrayImg.cols + 100, MinimumWidth );
+//
+//        cv::Mat newImage = cv::Mat::zeros( std::max( m_GrayImg.rows, MinimumHeight ), FinalWidth, m_GrayImg.type( ) );
+//        m_GrayImg.copyTo( newImage( cv::Rect( 0, 0, m_GrayImg.cols, m_GrayImg.rows ) ) );
+//
+//        if ( MatchName == "Stat Type" )
+//        {
+//            cv::namedWindow( MatchName, cv::WINDOW_NORMAL );
+//            cv::resizeWindow( MatchName, newImage.cols, newImage.rows );
+//            cv::imshow( MatchName, newImage );
+//            cv::waitKey( 0 );
+//        }
+//    }
 
     std::vector<char> Result;
 
@@ -144,14 +148,15 @@ EchoExtractor::ExtractStat( const cv::Mat& Cimg, const cv::Mat& Timg, const cv::
 
     auto NResult = MatchEchoName( Nimg, "Echo Name" );
 
-    auto Types   = TResult | std::views::split( '\n' ) | std::views::transform( []( auto&& c ) -> char {
+    auto Types = TResult | std::views::split( '\n' ) | std::views::transform( []( auto&& c ) -> char {
                      if ( c.empty( ) )
                      {
                          spdlog::warn( "Warning: Empty type detected in EchoExtractor::ExtractStat" );
                          return '\0';
                      }
                      return c.front( );
-                 } );
+                 } )
+        | std::ranges::to<std::vector>( );
     auto Numbers = CResult | std::views::split( '\n' )
         | std::views::transform( []( auto&& Number ) -> FloatTy {   // parse
                        if ( Number.empty( ) )
@@ -175,7 +180,13 @@ EchoExtractor::ExtractStat( const cv::Mat& Cimg, const cv::Mat& Timg, const cv::
                        }
 
                        return result;
-                   } );
+                   } )
+        | std::ranges::to<std::vector>( );
+
+    if ( Types.size( ) != Numbers.size( ) )
+    {
+        throw std::runtime_error( "SubStat types and numbers do not match" );
+    }
 
     FullStats Result;
     for ( auto [ Type, Number ] : std::views::zip( Types, Numbers ) )
