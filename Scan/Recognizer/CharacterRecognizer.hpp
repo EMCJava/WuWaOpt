@@ -21,11 +21,12 @@ public:
     }
 
 private:
-    std::array<Template, 11>
+    std::array<Template, 12>
         Templates {
             Template {'%', "percentage.png", cv::Scalar( 255, 248, 240 ), 190},
             Template {'0',          "0.png", cv::Scalar( 255, 255,   0 ), 205},
             Template {'1',          "1.png", cv::Scalar( 193, 182, 255 ), 220},
+            Template {'1',     "tall_1.png", cv::Scalar( 193, 182, 255 ), 220},
             Template {'2',          "2.png", cv::Scalar( 160, 158,  95 ), 210},
             Template {'3',          "3.png",  cv::Scalar( 80, 127, 255 ), 200},
             Template {'4',          "4.png", cv::Scalar( 169, 169, 169 ), 214},

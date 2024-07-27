@@ -250,7 +250,7 @@ EchoExtractor::ReadCard( const cv::Mat& Src )
     const cv::Rect CostRect { 1140, 139, 76, 18 };
     const auto     CostImage = Src( CostRect );
 
-    const cv::Rect LevelRect { 1194, 164, 28, 22 };
+    const cv::Rect LevelRect { 1193, 164, 28, 25 };
     const auto     LevelImage = Src( LevelRect );
 
     const cv::Rect StatRect { 877, 274, 350, 220 };
