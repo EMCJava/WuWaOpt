@@ -25,7 +25,7 @@ private:
     std::vector<Template>
         Templates {
             Template {                    eAttack,       "attack.png", cv::Scalar( 255, 248, 240 ), 200},
-            Template {eAutoAttackDamagePercentage,  "auto_attack.png", cv::Scalar( 255, 255,   0 ), 200},
+            Template {eAutoAttackDamagePercentage,  "auto_attack.png", cv::Scalar( 255, 255,   0 ), 180},
             Template {     eHeavyAttackPercentage, "heavy_attack.png", cv::Scalar( 193, 182, 255 ), 200},
             Template {       eUltDamagePercentage,   "ult_damage.png", cv::Scalar( 193, 182, 255 ), 180},
             Template {     eSkillDamagePercentage,    "skill_dmg.png", cv::Scalar( 255,   0, 245 ), 200},
