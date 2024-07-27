@@ -138,6 +138,7 @@
     "NonEffective": "Non-Effective",
     "Probability": "Probability",
     "EDDelta%": "Expected Damage Delta %",
+    "EEDDelta%": "Expected Delta %",
     "Potential": "Potential",
     "SubEchoCfg": "Substitute Echo Config",
     "SubStats": "SubStats",

@@ -242,26 +242,32 @@ CombinationTweaker::TweakerMenu( CombinationMetaCache&                          
         }
 
 
-        if ( ImPlot::BeginPlot( LanguageProvider[ "Potential" ], ImVec2( -1, 0 ), ImPlotFlags_NoLegend ) )
+        if ( ImPlot::BeginPlot( LanguageProvider[ "Potential" ], ImVec2( -1, 0 ) ) )
         {
-            ImPlot::SetupLegend( ImPlotLocation_South, ImPlotLegendFlags_Horizontal | ImPlotLegendFlags_Outside );
+            ImPlot::SetupLegend( ImPlotLocation_North | ImPlotLocation_West, ImPlotLegendFlags_Outside - 1 );
             ImPlot::SetupAxes( LanguageProvider[ "Probability" ], LanguageProvider[ "EDDelta%" ], ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_Invert, ImPlotAxisFlags_AutoFit );
 
-            ImPlot::PlotLine( LanguageProvider[ "OptimalValue" ],
+            ImPlot::PlotLine( "Delta%CDF",
                               m_SelectedEchoPotential.CDFFloat.data( ),
                               m_SelectedEchoPotential.CDFChangeToED.data( ),
-                              m_SelectedEchoPotential.CDF.size( ) );
+                              m_SelectedEchoPotential.CDF.size( ), ImPlotItemFlags_NoLegend );
+
+            ImPlot::DragLineY( 1, &m_SelectedEchoPotential.ExpectedChangeToED, ImVec4( 1, 1, 0, 1 ), 1, ImPlotDragToolFlags_NoInputs | ImPlotDragToolFlags_NoFit );
+            ImPlot::TagY( m_SelectedEchoPotential.ExpectedChangeToED, ImVec4( 1, 1, 0, 1 ), true );
 
             ImPlot::DragLineY( 0, &m_DragEDTargetY, ImVec4( 1, 0, 0, 1 ), 1, ImPlotDragToolFlags_Delayed );
             ImPlot::TagY( m_DragEDTargetY, ImVec4( 1, 0, 0, 1 ), true );
             m_DragEDTargetY = std::clamp( m_DragEDTargetY,
                                           (double) m_SelectedEchoPotential.CDFChangeToED.front( ),
                                           (double) m_SelectedEchoPotential.CDFChangeToED.back( ) );
-
             ImPlot::TagX( m_SelectedEchoPotential.CDF[ std::distance(
                               m_SelectedEchoPotential.CDFChangeToED.begin( ),
                               std::ranges::lower_bound( m_SelectedEchoPotential.CDFChangeToED, (FloatTy) m_DragEDTargetY ) ) ],
                           ImVec4( 0, 1, 0, 1 ), true );
+
+            ImPlot::SetNextLineStyle( ImVec4( 1, 1, 0, 1 ) );
+            ImPlot::PlotDummy( LanguageProvider[ "EEDDelta%" ] );
+            // ImPlot::PlotLine( "Expected Change", (double*) nullptr, 0, 1, 0ImPlotItemFlags_NoFit );
 
             ImPlot::EndPlot( );
         }
@@ -359,11 +365,11 @@ CombinationTweaker::CalculateEchoPotential( EchoPotential& Result, const std::ve
 
     std::vector<const SubStatRollConfig*> PickedRoll( RollRemaining + /*  For terminating recursive call */ 1, nullptr );
 
-    const auto NonEffectiveRollCount = ( MaxRollCount - RollRemaining ) - ( RollConfigs.size( ) - PossibleRolls.size( ) );
-    if ( NonEffectiveRollCount > m_NonEffectiveSubStatCount ) throw std::runtime_error( "Too many non-effective rolls" );
+    const auto UsedNonEffectiveRollCount = ( MaxRollCount - RollRemaining ) - ( RollConfigs.size( ) - PossibleRolls.size( ) );
+    if ( UsedNonEffectiveRollCount > m_NonEffectiveSubStatCount ) throw std::runtime_error( "Too many non-effective rolls" );
     for ( int EffectiveRolls = 0; EffectiveRolls <= RollRemaining; ++EffectiveRolls )
     {
-        const auto Duplicates = m_PascalTriangle[ m_NonEffectiveSubStatCount - NonEffectiveRollCount ][ RollRemaining - EffectiveRolls ];
+        const auto Duplicates = m_PascalTriangle[ m_NonEffectiveSubStatCount - UsedNonEffectiveRollCount ][ RollRemaining - EffectiveRolls ];
 
         std::string bitmask( EffectiveRolls, 1 );
         bitmask.resize( PossibleRolls.size( ), 0 );
@@ -401,13 +407,15 @@ CombinationTweaker::CalculateEchoPotential( EchoPotential& Result, const std::ve
     const auto DamageIncreasePerTick = ( Result.HighestExpectedDamage - Result.LowestExpectedDamage ) / EchoPotential::CDFResolution;
 
     ValueRollRate::RateTy CumulatedRate = 0;
-    auto                  It            = AllPossibleEcho.data( );
-    const auto            ItEnd         = &AllPossibleEcho.back( ) + 1;
+    Result.ExpectedChangeToED           = 0;
+    auto       It                       = AllPossibleEcho.data( );
+    const auto ItEnd                    = &AllPossibleEcho.back( ) + 1;
     for ( int i = 0; i < EchoPotential::CDFResolution; ++i )
     {
         const auto TickDamage = Result.LowestExpectedDamage + i * DamageIncreasePerTick;
         while ( It->first <= TickDamage && It != ItEnd )
         {
+            Result.ExpectedChangeToED += It->first * It->second;
             CumulatedRate += It->second;
             It++;
         }
@@ -418,6 +426,7 @@ CombinationTweaker::CalculateEchoPotential( EchoPotential& Result, const std::ve
 
     while ( It != ItEnd )
     {
+        Result.ExpectedChangeToED += It->first * It->second;
         CumulatedRate += It->second;
         It++;
     }
@@ -427,6 +436,9 @@ CombinationTweaker::CalculateEchoPotential( EchoPotential& Result, const std::ve
     Result.CDFChangeToED = Result.CDFSmallOrEqED;
     for ( auto& ED : Result.CDFChangeToED )
         ED = 100 * ED / Result.BaselineExpectedDamage - 100;
+
+    Result.ExpectedChangeToED /= Result.CDF.back( ) * Result.BaselineExpectedDamage / 100;
+    Result.ExpectedChangeToED -= 100;
 
     Result.CDFFloat.resize( Result.CDF.size( ) );
     for ( int i = 0; i < Result.CDF.size( ); ++i )

@@ -20,11 +20,12 @@ struct EchoPotential {
     FloatTy HighestExpectedDamage  = { };
     FloatTy LowestExpectedDamage   = { };
 
-    static constexpr size_t            CDFResolution  = 500;
-    std::vector<FloatTy>               CDFChangeToED  = { };
-    std::vector<FloatTy>               CDFSmallOrEqED = { };
-    std::vector<FloatTy>               CDFFloat       = { };
-    std::vector<ValueRollRate::RateTy> CDF            = { };
+    static constexpr size_t            CDFResolution      = 500;
+    std::vector<FloatTy>               CDFChangeToED      = { };
+    std::vector<FloatTy>               CDFSmallOrEqED     = { };
+    std::vector<FloatTy>               CDFFloat           = { };
+    std::vector<ValueRollRate::RateTy> CDF                = { };
+    ValueRollRate::RateTy              ExpectedChangeToED = { };
 };
 
 class CombinationTweaker : public LanguageObserver
