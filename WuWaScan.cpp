@@ -171,11 +171,11 @@ main( )
         std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );
         MouseController.LeftClick( );
 
-        MouseLocation = { 250, 450 };
+        MouseLocation = { 250, 455 };
         MouseLocation += GameHandler->GetLeftTop( );
         MouseController.MoveMouse( ClickLocation, MouseLocation, 300 + 80 * ( dis( gen ) - 0.5 ) );
         std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );
-        MouseController.LeftClick( );
+        MouseController.LeftClick( 3 );
     }
 
     //    while ( true )
@@ -191,7 +191,7 @@ main( )
     std::binary_semaphore CardReading { 1 };
     const auto            ReadCardInLocations = [ & ]( auto&& Location ) {
         MouseToCard( Location[ 0 ].x, Location[ 0 ].y );
-        MouseController.LeftClick( true );
+        MouseController.LeftClick( 3 );
 
         for ( const auto& CardLocation : Location | std::views::drop( 1 ) )
         {
@@ -210,11 +210,11 @@ main( )
                 Terminate = true;
                 return;
             }
-            MouseController.LeftClick( true );
+            MouseController.LeftClick( 3 );
             CardReading.release( );
         }
 
-        std::this_thread::sleep_for( std::chrono::milliseconds( 120 ) );
+        std::this_thread::sleep_for( std::chrono::milliseconds( 300 ) );
         ReadCard( );   // Read the final card
     };
 

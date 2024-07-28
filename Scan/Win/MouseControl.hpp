@@ -22,7 +22,7 @@ public:
 
     static void     LeftDown( );
     static void     LeftUp( );
-    void            LeftClick( bool DoubleClick = false, int Millisecond = -1 );
+    void            LeftClick( int ClickCount = 1, int Millisecond = -1 );
     static uint32_t ScrollMouse( int Delta );
 
 protected:

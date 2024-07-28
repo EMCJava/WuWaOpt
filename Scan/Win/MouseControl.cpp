@@ -94,18 +94,18 @@ MouseControl::LeftUp( )
 }
 
 void
-MouseControl::LeftClick( bool DoubleClick, int Millisecond )
+MouseControl::LeftClick( int ClickCount, int Millisecond )
 {
     LeftDown( );
-    if ( Millisecond == -1 ) Millisecond = 120 + 40 * ( MouseDist( RandGenerator ) - 0.5 );
+    if ( Millisecond == -1 ) Millisecond = 200 + 40 * ( MouseDist( RandGenerator ) - 0.5 );
     std::this_thread::sleep_for( std::chrono::microseconds( Millisecond ) );
     LeftUp( );
 
-    if ( DoubleClick )
+    if ( ClickCount > 1 )
     {
-        if ( Millisecond == -1 ) Millisecond = 120 + 40 * ( MouseDist( RandGenerator ) - 0.5 );
+        if ( Millisecond == -1 ) Millisecond = 200 + 40 * ( MouseDist( RandGenerator ) - 0.5 );
         std::this_thread::sleep_for( std::chrono::microseconds( Millisecond ) );
-        LeftClick( false, Millisecond );
+        LeftClick( ClickCount - 1, Millisecond );
     }
 }
 
