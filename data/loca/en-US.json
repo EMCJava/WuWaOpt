@@ -136,7 +136,7 @@
     "EchoLessThanReq": "Number of echoes to scan must be greater or equal to 18...",
     "ScannerBeh": "Scanner Behaviour",
     "NonEffective": "Non-Effective",
-    "Probability": "Probability",
+    "Probability%": "Probability %",
     "EDDelta%": "Expected Damage Delta %",
     "EEDDelta%": "Expected Delta %",
     "Potential": "Potential",

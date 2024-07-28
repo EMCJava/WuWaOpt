@@ -136,7 +136,7 @@
     "EchoLessThanReq": "要扫描的声骸数量必须大于或等于 18...",
     "ScannerBeh": "扫描器行为",
     "NonEffective": "无效词条",
-    "Probability": "概率",
+    "Probability%": "概率 %",
     "EDDelta%": "期望伤害百分比改變",
     "EEDDelta%": "期望百分比改變",
     "Potential": "潛力",

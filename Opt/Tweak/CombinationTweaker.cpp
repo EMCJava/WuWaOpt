@@ -241,16 +241,31 @@ CombinationTweaker::TweakerMenu( CombinationMetaCache&                          
             ImGui::EndTable( );
         }
 
-
         if ( ImPlot::BeginPlot( LanguageProvider[ "Potential" ], ImVec2( -1, 0 ) ) )
         {
             ImPlot::SetupLegend( ImPlotLocation_North | ImPlotLocation_West, ImPlotLegendFlags_Outside - 1 );
-            ImPlot::SetupAxes( LanguageProvider[ "Probability" ], LanguageProvider[ "EDDelta%" ], ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_Invert, ImPlotAxisFlags_AutoFit );
+            ImPlot::SetupAxes( LanguageProvider[ "Probability%" ], LanguageProvider[ "EDDelta%" ], ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_Invert, ImPlotAxisFlags_AutoFit );
+
+            const auto SelectedEDIndex =
+                std::distance(
+                    m_SelectedEchoPotential.CDFChangeToED.begin( ),
+                    std::ranges::lower_bound( m_SelectedEchoPotential.CDFChangeToED, (FloatTy) m_DragEDTargetY ) );
 
             ImPlot::PlotLine( "Delta%CDF",
                               m_SelectedEchoPotential.CDFFloat.data( ),
                               m_SelectedEchoPotential.CDFChangeToED.data( ),
                               m_SelectedEchoPotential.CDF.size( ), ImPlotItemFlags_NoLegend );
+
+            if ( m_SelectedEchoPotential.CDF.size( ) > SelectedEDIndex )
+            {
+                ImPlot::SetNextFillStyle( ImVec4 { 0, 1, 0, 1 }, 0.2 );
+                ImPlot::PlotShaded( "Delta%CDFS",
+                                    m_SelectedEchoPotential.CDFFloat.data( ) + SelectedEDIndex,
+                                    m_SelectedEchoPotential.CDFChangeToED.data( ) + SelectedEDIndex,
+                                    m_SelectedEchoPotential.CDF.size( ) - SelectedEDIndex, m_DragEDTargetY, ImPlotItemFlags_NoLegend );
+            }
+
+            ImPlot::TagX( m_SelectedEchoPotential.CDF[ SelectedEDIndex ], ImVec4( 0, 1, 0, 1 ), "%.2f%%", m_SelectedEchoPotential.CDF[ SelectedEDIndex ] );
 
             ImPlot::DragLineY( 1, &m_SelectedEchoPotential.ExpectedChangeToED, ImVec4( 1, 1, 0, 1 ), 1, ImPlotDragToolFlags_NoInputs | ImPlotDragToolFlags_NoFit );
             ImPlot::TagY( m_SelectedEchoPotential.ExpectedChangeToED, ImVec4( 1, 1, 0, 1 ), true );
@@ -260,10 +275,6 @@ CombinationTweaker::TweakerMenu( CombinationMetaCache&                          
             m_DragEDTargetY = std::clamp( m_DragEDTargetY,
                                           (double) m_SelectedEchoPotential.CDFChangeToED.front( ),
                                           (double) m_SelectedEchoPotential.CDFChangeToED.back( ) );
-            ImPlot::TagX( m_SelectedEchoPotential.CDF[ std::distance(
-                              m_SelectedEchoPotential.CDFChangeToED.begin( ),
-                              std::ranges::lower_bound( m_SelectedEchoPotential.CDFChangeToED, (FloatTy) m_DragEDTargetY ) ) ],
-                          ImVec4( 0, 1, 0, 1 ), true );
 
             ImPlot::SetNextLineStyle( ImVec4( 1, 1, 0, 1 ) );
             ImPlot::PlotDummy( LanguageProvider[ "EEDDelta%" ] );
@@ -437,16 +448,20 @@ CombinationTweaker::CalculateEchoPotential( EchoPotential& Result, const std::ve
     for ( auto& ED : Result.CDFChangeToED )
         ED = 100 * ED / Result.BaselineExpectedDamage - 100;
 
+    m_DragEDTargetY = std::clamp( m_DragEDTargetY,
+                                  (double) m_SelectedEchoPotential.CDFChangeToED.front( ),
+                                  (double) m_SelectedEchoPotential.CDFChangeToED.back( ) );
+
     Result.ExpectedChangeToED /= Result.CDF.back( ) * Result.BaselineExpectedDamage / 100;
     Result.ExpectedChangeToED -= 100;
 
     Result.CDFFloat.resize( Result.CDF.size( ) );
     for ( int i = 0; i < Result.CDF.size( ); ++i )
     {
-        Result.CDFFloat[ i ] = Result.CDF[ i ] = 1 - Result.CDF[ i ] / Result.CDF.back( );
+        Result.CDFFloat[ i ] = Result.CDF[ i ] = ( 1 - Result.CDF[ i ] / Result.CDF.back( ) ) * 100;
     }
 
-    Result.CDFFloat.front( ) = Result.CDF.front( ) = 1;
+    Result.CDFFloat.front( ) = Result.CDF.front( ) = 100;
 }
 
 void
