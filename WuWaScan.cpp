@@ -37,7 +37,7 @@ using json = nlohmann::json;
 
 std::random_device               rd;
 std::mt19937                     gen( rd( ) );
-std::uniform_real_distribution<> dis( 0.15, 0.85 );
+std::uniform_real_distribution<> dis( 0.3, 0.7 );
 
 bool
 CheckResolution( )
@@ -52,6 +52,18 @@ CheckResolution( )
     winrt::check_bool( EnumDisplaySettings( info.szDevice, ENUM_CURRENT_SETTINGS, &devmode ) );
     return devmode.dmPelsWidth == info.rcMonitor.right && devmode.dmPelsHeight == info.rcMonitor.bottom;
 }
+
+namespace GameCoordinateConfigs
+{
+MouseControl::MousePoint ScanLeftTop      = { 205, 120 };
+MouseControl::MousePoint ScanRightBottom  = { 1185, 915 };
+FloatTy                  SpaceToNextCardX = 166.8;
+FloatTy                  SpaceToNextCardY = 205.6;
+MouseControl::MousePoint CardSpacing      = { SpaceToNextCardX, SpaceToNextCardY };
+FloatTy                  CardWidth        = 147;
+FloatTy                  CardHeight       = 178;
+MouseControl::MousePoint CardSize         = { CardWidth, CardHeight };
+}   // namespace GameCoordinateConfigs
 
 int
 main( )
@@ -115,15 +127,10 @@ main( )
 
     MouseControl MouseController( "data/MouseTrail.txt" );
     const auto   MouseToCard = [ & ]( int X, int Y ) {
-        static const float CardSpaceWidth  = 111;
-        static const float CardSpaceHeight = 1230 / 9.f;
-
-        static const int CardWidth  = 60;
-        static const int CardHeight = 80;
-
-        MouseControl::MousePoint NextLocation = { 152 + CardSpaceWidth * X + CardWidth * (float) dis( gen ),
-                                                  104 + CardSpaceHeight * Y + CardHeight * (float) dis( gen ) };
-        NextLocation += GameHandler->GetLeftTop( );
+        using namespace GameCoordinateConfigs;
+        MouseControl::MousePoint NextLocation = CardSize;
+        NextLocation *= (float) dis( gen );
+        NextLocation += GameHandler->GetLeftTop( ) + ScanLeftTop + ( CardSpacing * MouseControl::MousePoint { (FloatTy) X, (FloatTy) Y } );
 
         MouseController.MoveMouse( MouseLocation, NextLocation, 300 + 80 * ( dis( gen ) - 0.5 ) );
         std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
@@ -164,14 +171,14 @@ main( )
 
     // Make sure it is sorted by echo level
     {
-        MouseControl::MousePoint ClickLocation { 250, 650 };
+        MouseControl::MousePoint ClickLocation { 435, 980 };
         ClickLocation += GameHandler->GetLeftTop( );
 
         MouseController.MoveMouse( MouseLocation, ClickLocation, 300 + 80 * ( dis( gen ) - 0.5 ) );
         std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );
         MouseController.LeftClick( );
 
-        MouseLocation = { 250, 455 };
+        MouseLocation = { 435, 690 };
         MouseLocation += GameHandler->GetLeftTop( );
         MouseController.MoveMouse( ClickLocation, MouseLocation, 300 + 80 * ( dis( gen ) - 0.5 ) );
         std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );
