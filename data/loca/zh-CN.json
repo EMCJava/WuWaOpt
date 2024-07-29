@@ -31,6 +31,8 @@
     "AlignedNonCritDamage": "非暴击伤害",
     "AlignedCritDamage": "  暴击伤害",
     "AlignedExpectedDamage": "  期望伤害",
+    "ExpectedDamage": "期望伤害",
+    "Baseline": "基线",
     "ImprovePerColumn": "每 ＋1（％）期望伤害提升",
     "ElementType": "造成傷害類型",
     "Run": "開始計算",

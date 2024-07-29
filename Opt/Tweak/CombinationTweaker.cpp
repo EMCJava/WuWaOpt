@@ -220,23 +220,24 @@ CombinationTweaker::TweakerMenu( CombinationMetaCache&                          
     if ( !m_SelectedEchoPotential.CDF.empty( ) )
     {
         ImGui::SeparatorText( LanguageProvider[ "PotentialEDDis" ] );
-        if ( ImGui::BeginTable( "PotentialStats", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_SizingStretchSame ) )
+        if ( ImGui::BeginTable( "PotentialStats", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_SizingStretchSame ) )
         {
             ImGui::TableSetupColumn( LanguageProvider[ "BestED" ] );
+            ImGui::TableSetupColumn( LanguageProvider[ "Baseline" ] );
             ImGui::TableSetupColumn( LanguageProvider[ "WorstED" ] );
-            ImGui::TableSetupColumn( LanguageProvider[ "Best%+" ] );
-            ImGui::TableSetupColumn( LanguageProvider[ "Worst%-" ] );
             ImGui::TableHeadersRow( );
             ImGui::TableNextRow( );
 
             ImGui::TableNextColumn( );
-            ImGui::Text( "%.2f", m_SelectedEchoPotential.HighestExpectedDamage );
+            ImGui::Text( m_SelectedEchoPotential.CDFChangeToED.back( ) > 0 ? "%.2f     (+%.2f%%)" : "%.2f     (%.2f%%)",
+                         m_SelectedEchoPotential.HighestExpectedDamage,
+                         m_SelectedEchoPotential.CDFChangeToED.back( ) );
             ImGui::TableNextColumn( );
-            ImGui::Text( "%.2f", m_SelectedEchoPotential.LowestExpectedDamage );
+            ImGui::Text( "%.2f", m_SelectedEchoPotential.BaselineExpectedDamage );
             ImGui::TableNextColumn( );
-            ImGui::Text( "%.2f%%", m_SelectedEchoPotential.CDFChangeToED.back( ) );
-            ImGui::TableNextColumn( );
-            ImGui::Text( "%.2f%%", m_SelectedEchoPotential.CDFChangeToED.front( ) );
+            ImGui::Text( m_SelectedEchoPotential.CDFChangeToED.front( ) > 0 ? "%.2f     (+%.2f%%)" : "%.2f     (%.2f%%)",
+                         m_SelectedEchoPotential.LowestExpectedDamage,
+                         m_SelectedEchoPotential.CDFChangeToED.front( ) );
 
             ImGui::EndTable( );
         }
@@ -245,12 +246,21 @@ CombinationTweaker::TweakerMenu( CombinationMetaCache&                          
         {
             ImPlot::SetupLegend( ImPlotLocation_North | ImPlotLocation_West, ImPlotLegendFlags_Outside - 1 );
             ImPlot::SetupAxes( LanguageProvider[ "Probability%" ], LanguageProvider[ "EDDelta%" ], ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_Invert, ImPlotAxisFlags_AutoFit );
+            ImPlot::SetupAxis( ImAxis_Y2, LanguageProvider[ "ExpectedDamage" ], ImPlotAxisFlags_AuxDefault );
+            ImPlot::SetupAxisLimitsConstraints( ImAxis_Y2, m_SelectedEchoPotential.CDFSmallOrEqED.front( ), m_SelectedEchoPotential.CDFSmallOrEqED.back( ) );
 
             const auto SelectedEDIndex =
                 std::distance(
                     m_SelectedEchoPotential.CDFChangeToED.begin( ),
                     std::ranges::lower_bound( m_SelectedEchoPotential.CDFChangeToED, (FloatTy) m_DragEDTargetY ) );
 
+            ImPlot::SetAxes( ImAxis_X1, ImAxis_Y2 );
+            ImPlot::PlotLine( "ED_CDF",
+                              m_SelectedEchoPotential.CDFFloat.data( ),
+                              m_SelectedEchoPotential.CDFSmallOrEqED.data( ),
+                              m_SelectedEchoPotential.CDF.size( ), ImPlotItemFlags_NoLegend );
+
+            ImPlot::SetAxes( ImAxis_X1, ImAxis_Y1 );
             ImPlot::PlotLine( "Delta%CDF",
                               m_SelectedEchoPotential.CDFFloat.data( ),
                               m_SelectedEchoPotential.CDFChangeToED.data( ),

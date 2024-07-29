@@ -31,6 +31,8 @@
     "AlignedNonCritDamage": "Non Crit Damage",
     "AlignedCritDamage": "    Crit Damage",
     "AlignedExpectedDamage": "Expected Damage",
+    "ExpectedDamage": "ExpectedDamage",
+    "Baseline": "Baseline",
     "ImprovePerColumn": "Exp. DMG Inc. per +1(%)",
     "ElementType": "Element Type",
     "Run": "Run",
