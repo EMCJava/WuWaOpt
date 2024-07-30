@@ -138,7 +138,7 @@ GameHandle::SelectGameWindow( )
         m_TargetWindowHandle = Win::GetGameWindow( );
         if ( m_TargetWindowHandle == nullptr )
         {
-            throw std::runtime_error( "Unable to find Wuthering Waves Game window" );
+            throw std::runtime_error( "NoGameHandle" );
         }
     }
 

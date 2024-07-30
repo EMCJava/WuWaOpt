@@ -152,6 +152,10 @@
     "MainStat": "主词条类型",
     "SubStatType": "副词条类型",
     "SubStatValue": "副词条数值",
+    "NoCost": "无法提取Cost",
+    "NoLevel": "无法提取等级",
+    "NoGameHandle": "无法找到游戏窗口",
+    "StatNumMisMatch": "副词条类型和数值不匹配，如果这种情况持续出现，请检查是否有更新版本可用。",
     "StopScanQuestion": "是否需要在遇到没升级的声骸时停止扫描？",
     "ResolutionMismatch": "有一个笨笨的小可爱没有阅读自述文件。你需要将“Windows屏幕显示缩放比例”设置为100％才能运行扫描仪。"
   }

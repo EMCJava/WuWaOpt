@@ -108,7 +108,7 @@ main( )
     }
     catch ( const std::exception& e )
     {
-        spdlog::error( "Error initializing game handle: {}", e.what( ) );
+        spdlog::error( "Error initializing game handle: [{}] {}", e.what( ), LanguageProvider[ e.what( ) ] );
         system( "pause" );
         return 1;
     }
@@ -160,7 +160,7 @@ main( )
             }
             catch ( const std::exception& e )
             {
-                spdlog::error( "Error reading card: {}", e.what( ) );
+                spdlog::error( "Error reading card: [{}] {}", e.what( ), LanguageProvider[ e.what( ) ] );
                 std::this_thread::sleep_for( std::chrono::milliseconds( 400 ) );
             }
         }

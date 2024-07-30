@@ -184,7 +184,7 @@ EchoExtractor::ExtractStat( const cv::Mat& Cimg, const cv::Mat& Timg, const cv::
 
     if ( Types.size( ) != Numbers.size( ) )
     {
-        throw std::runtime_error( "SubStat types and numbers do not match" );
+        throw std::runtime_error( "StatNumMisMatch" );
     }
 
     FullStats Result;
@@ -264,7 +264,7 @@ EchoExtractor::ReadCard( const cv::Mat& Src )
         FS.Cost = Cost;
     } else
     {
-        throw std::runtime_error( "Failed to extract cost" );
+        throw std::runtime_error( "NoCost" );
     }
 
     int SetColorCoordinateX = 1441, SetColorCoordinateY = 325;
@@ -276,7 +276,7 @@ EchoExtractor::ReadCard( const cv::Mat& Src )
     std::from_chars( LevelChars.data( ), LevelChars.data( ) + LevelChars.size( ), FS.Level, 10 );
     if ( FS.Level > 25 )
     {
-        throw std::runtime_error( "Level is invalid" );
+        throw std::runtime_error( "NoLevel" );
     }
 
     return FS;

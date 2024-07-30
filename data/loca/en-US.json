@@ -152,6 +152,10 @@
     "MainStat": "Main Stat",
     "SubStatType": "SubStat Type",
     "SubStatValue": "SubStat Value",
+    "NoCost": "Failed to extract cost",
+    "NoLevel": "Failed to extract level",
+    "NoGameHandle": "Unable to find Wuthering Waves Game window",
+    "StatNumMisMatch": "SubStat type and number count do not match, if this keeps appearing, please check if a newer version of Echo Scanner is available.",
     "StopScanQuestion": "Do you want to stop scanning when an un-escalated echo is reached?",
     "ResolutionMismatch": "Someone is being a naughty boy not reading the readme. You need to set your \"Windows Display Scaling\" to 100% to run the scanner."
   }
