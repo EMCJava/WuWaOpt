@@ -18,7 +18,7 @@ See [echo file example](data/example_echos.json)
 4. Wait (You can terminate the scanning process with space bar)
 
 > ⚠️Your Windows Display Scaling must be set to 100%\
-> ⚠️Only support 1280x720 in Simplified Chinese until Kuro fix this, or I have motivation to implementing echo scanning in character page\
+> ⚠️Only support 1920x1080 in Simplified Chinese until Kuro fix this, or I have motivation to implementing echo scanning in character page\
 > ![Text overlapping](data/overlapping.png)\
 > Your echo page should look like the following **(4 by 6)**\
 > ![Text overlapping](data/echo_page.png)
