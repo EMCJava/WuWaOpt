@@ -57,7 +57,7 @@ public:
                            const PlotCombinationMeta& CombinationDetails,
                            const OptimizerConfig&     Config );
 
-    FloatTy GetEDReplaceEchoAt( int EchoIndex, EffectiveStats Echo );
+    FloatTy GetEDReplaceEchoAt( int EchoIndex, EffectiveStats Echo ) const;
 
     void               Deactivate( );
     [[nodiscard]] bool IsValid( ) const noexcept { return m_Valid; }

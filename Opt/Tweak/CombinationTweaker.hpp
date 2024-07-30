@@ -60,7 +60,7 @@ class CombinationTweaker : public LanguageObserver
     void
     ApplyStats(
         std::vector<std::pair<FloatTy, ValueRollRate::RateTy>>& Results,
-        CombinationMetaCache&                                   Environment,
+        const CombinationMetaCache&                             Environment,
         const SubStatRollConfig**                               PickedRollPtr,
         const EffectiveStats&                                   Stats,
         int                                                     SlotIndex,
@@ -70,7 +70,7 @@ class CombinationTweaker : public LanguageObserver
     CalculateEchoPotential(
         EchoPotential&                        Result,
         const std::vector<SubStatRollConfig>& RollConfigs,
-        CombinationMetaCache&                 Environment,
+        const CombinationMetaCache&           Environment,
         EffectiveStats                        CurrentSubStats,
         const StatValueConfig&                FirstMainStat,
         const StatValueConfig&                SecondMainStat,
@@ -83,6 +83,6 @@ class CombinationTweaker : public LanguageObserver
 public:
     CombinationTweaker( Loca& LanguageProvider );
 
-    void TweakerMenu( CombinationMetaCache&                                  Target,
+    void TweakerMenu( const CombinationMetaCache&                            Target,
                       const std::map<std::string, std::vector<std::string>>& EchoNamesBySet );
 };

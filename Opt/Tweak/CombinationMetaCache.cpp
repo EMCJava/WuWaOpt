@@ -24,7 +24,7 @@ CombinationMetaCache::SetAsCombination( const EffectiveStats& CS, int EO, int CI
 {
     m_CostCombinationTypeIndex = CI;
     m_Rank                     = R;
-    SlotCount                = WuWaGA::GetCombinationLength( m_CostCombinationTypeIndex );
+    SlotCount                  = WuWaGA::GetCombinationLength( m_CostCombinationTypeIndex );
 
     std::array<int, 5> NewEchoIndices { };
     for ( int i = 0; i < SlotCount; ++i )
@@ -162,21 +162,20 @@ CombinationMetaCache::CalculateDamages( )
 }
 
 FloatTy
-CombinationMetaCache::GetEDReplaceEchoAt( int EchoIndex, EffectiveStats Echo )
+CombinationMetaCache::GetEDReplaceEchoAt( int EchoIndex, EffectiveStats Echo ) const
 {
     const FloatTy Resistances = m_OptimizerCfg.GetResistances( );
     const FloatTy BaseAttack  = m_OptimizerCfg.GetBaseAttack( );
 
     // I don't like this
-    m_EchoesWithoutAt[ EchoIndex ].push_back( Echo );
+    auto& EchoesReplaced = const_cast<std::vector<EffectiveStats>&>( m_EchoesWithoutAt[ EchoIndex ] );
+    EchoesReplaced.push_back( Echo );
     const auto NewED =
         OptimizerParmSwitcher::SwitchCalculateCombinationalStat(
-            m_ElementOffset,
-            m_EchoesWithoutAt[ EchoIndex ],
-            m_CommonStats )
+            m_ElementOffset, EchoesReplaced, m_CommonStats )
             .ExpectedDamage( BaseAttack, &m_OptimizerCfg.OptimizeMultiplierConfig )
         * Resistances;
-    m_EchoesWithoutAt[ EchoIndex ].pop_back( );
+    EchoesReplaced.pop_back( );
 
     return NewED;
 }

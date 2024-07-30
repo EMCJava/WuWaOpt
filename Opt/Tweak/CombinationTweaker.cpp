@@ -33,7 +33,7 @@ inline std::array<StatValueConfig, 5> MaxSecondMainStat {
 };
 
 void
-CombinationTweaker::TweakerMenu( CombinationMetaCache&                                  Target,
+CombinationTweaker::TweakerMenu( const CombinationMetaCache&                            Target,
                                  const std::map<std::string, std::vector<std::string>>& EchoNamesBySet )
 {
     if ( !Target.IsValid( ) ) return;
@@ -335,7 +335,7 @@ CombinationTweaker::CombinationTweaker( Loca& LanguageProvider )
 void
 CombinationTweaker::ApplyStats(
     std::vector<std::pair<FloatTy, ValueRollRate::RateTy>>& Results,
-    CombinationMetaCache&                                   Environment,
+    const CombinationMetaCache&                             Environment,
     const SubStatRollConfig**                               PickedRollPtr,
     const EffectiveStats&                                   Stats,
     int                                                     SlotIndex,
@@ -363,7 +363,7 @@ CombinationTweaker::ApplyStats(
 }
 
 void
-CombinationTweaker::CalculateEchoPotential( EchoPotential& Result, const std::vector<SubStatRollConfig>& RollConfigs, CombinationMetaCache& Environment, EffectiveStats CurrentSubStats, const StatValueConfig& FirstMainStat, const StatValueConfig& SecondMainStat, int RollRemaining, int SlotIndex )
+CombinationTweaker::CalculateEchoPotential( EchoPotential& Result, const std::vector<SubStatRollConfig>& RollConfigs, const CombinationMetaCache& Environment, EffectiveStats CurrentSubStats, const StatValueConfig& FirstMainStat, const StatValueConfig& SecondMainStat, int RollRemaining, int SlotIndex )
 {
     Stopwatch SP;
 
