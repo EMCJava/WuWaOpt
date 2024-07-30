@@ -106,6 +106,12 @@ main( )
     {
         GameHandler = std::make_unique<GameHandle>( );
     }
+    catch ( const ResolutionRuntimeError& e )
+    {
+        spdlog::error( std::vformat( LanguageProvider[ "WrongWinSize" ], std::make_format_args( e.ActualWidth, e.ActualHeight, e.DesiredWidth, e.DesiredHeight ) ) );
+        system( "pause" );
+        return 1;
+    }
     catch ( const std::exception& e )
     {
         spdlog::error( "Error initializing game handle: [{}] {}", e.what( ), LanguageProvider[ e.what( ) ] );

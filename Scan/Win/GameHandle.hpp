@@ -10,6 +10,11 @@
 
 #include "MouseControl.hpp"
 
+struct ResolutionRuntimeError {
+    int ActualWidth, ActualHeight;
+    int DesiredWidth, DesiredHeight;
+};
+
 class GameHandle
 {
 public:

@@ -120,7 +120,7 @@ GameHandle::GameHandle( )
     GetClientRect( m_TargetWindowHandle, &m_WindowSize );
     if ( m_WindowSize.right != 1920 || m_WindowSize.bottom != 1080 )
     {
-        throw std::runtime_error( std::format( "Unexpected window size({}x{}), expected 1280x1080", m_WindowSize.right, m_WindowSize.bottom ) );
+        throw ResolutionRuntimeError { m_WindowSize.right, m_WindowSize.bottom, 1920, 1080 };
     }
 
     m_CaptureBitmap = CreateCompatibleBitmap( m_ScreenDC, m_WindowSize.right, m_WindowSize.bottom );   // create a bitmap
