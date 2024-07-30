@@ -6,6 +6,8 @@
 #include <queue>
 #include <set>
 
+#include <httplib.h>
+
 #include <imgui.h>   // necessary for ImGui::*, imgui-SFML.h doesn't include imgui.h
 
 #include <imgui-SFML.h>   // for ImGui::SFML::* functions and SFML-specific overloads
@@ -32,6 +34,8 @@
 #include "Loca/StringArrayObserver.hpp"
 #include "Loca/Loca.hpp"
 
+#define WUWAOPT_VERSION "v1.1.4"
+
 template <class T, class S, class C>
 auto&
 GetConstContainer( const std::priority_queue<T, S, C>& q )
@@ -57,6 +61,58 @@ std::array<ImU32, eEchoSetCount + 1> EchoSetColor {
     IM_COL32( 255, 255, 255, 255 ),
     IM_COL32( 202, 44, 37, 255 ),
     IM_COL32( 243, 60, 241, 255 ) };
+
+bool
+CompareVersions( const std::string& version1, const std::string& version2 )
+{
+    std::regex  pattern( R"(v(\d+)\.(\d+)\.(\d+))" );
+    std::smatch match1, match2;
+
+    if ( std::regex_match( version1, match1, pattern )
+         && std::regex_match( version2, match2, pattern ) )
+    {
+        for ( int i = 1; i <= 3; ++i )
+        {
+            int v1 = std::stoi( match1[ i ] );
+            int v2 = std::stoi( match2[ i ] );
+            if ( v1 < v2 ) return true;
+            if ( v1 > v2 ) return false;
+        }
+    }
+
+    return false;
+}
+
+void
+CheckForUpdate( auto& LP, auto&& UpdateCallback )
+{
+    try
+    {
+        httplib::Client  cli( "https://api.github.com" );
+        httplib::Headers headers = {
+            { "Accept", "application/vnd.github.v3+json" }
+        };
+        if ( auto res = cli.Get( "/repos/EMCJava/WuWaOpt/releases/latest", headers ) )
+        {
+            if ( res->status == 200 )
+            {
+                const auto& Response      = json::parse( res->body );
+                const auto  VersionString = Response[ "tag_name" ].get<std::string>( );
+                if ( CompareVersions( WUWAOPT_VERSION, VersionString ) )
+                {
+                    UpdateCallback( VersionString );
+                }
+            }
+        } else
+        {
+            throw std::runtime_error( LP[ "FailFetchReleaseVer" ] + to_string( res.error( ) ) );
+        }
+    }
+    catch ( const std::exception& e )
+    {
+        spdlog::error( "{}", e.what( ) );
+    }
+}
 
 int
 main( int argc, char** argv )
@@ -168,6 +224,34 @@ main( int argc, char** argv )
     window.setFramerateLimit( 60 );
     if ( !ImGui::SFML::Init( window, false ) ) return -1;
     ImPlot::CreateContext( );
+
+    if ( !OConfig.AskedCheckForNewVersion )
+    {
+        OConfig.ShouldCheckForNewVersion =
+            MessageBox(
+                nullptr,
+                LanguageProvider.GetDecodedString( "OptCheckUpdateQuestion" ).data( ),
+                LanguageProvider.GetDecodedString( "OptBeh" ).data( ),
+                MB_ICONQUESTION | MB_YESNO | MB_TOPMOST )
+            == IDYES;
+        OConfig.AskedCheckForNewVersion = true;
+        OConfig.SaveConfig( );
+    }
+
+    if ( OConfig.ShouldCheckForNewVersion )
+    {
+        std::thread {
+            [ & ]( ) {
+                CheckForUpdate(
+                    LanguageProvider,
+                    [ & ]( const std::string& NewVersion ) {
+                        window.setTitle( LanguageProvider.GetDecodedString( "WinTitle" ) + L" " + LanguageProvider.GetDecodedString( "NewVerAva" ) + L" (" + std::wstring( NewVersion.begin( ), NewVersion.end( ) ) + L")" );
+                        spdlog::info( "New version available: {}", NewVersion );
+                        spdlog::info( "Your version: {}", WUWAOPT_VERSION );
+                    } );
+            } }
+            .detach( );
+    }
 
     ImGuiIO& io          = ImGui::GetIO( );
     auto*    EnglishFont = io.Fonts->AddFontDefault( );

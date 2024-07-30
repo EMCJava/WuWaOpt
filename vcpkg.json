@@ -6,6 +6,13 @@
     "imgui-sfml",
     "implot",
     {
+      "name": "cpp-httplib",
+      "default-features": false,
+      "features": [
+        "openssl"
+      ]
+    },
+    {
       "name": "spdlog",
       "default-features": false,
       "features": [

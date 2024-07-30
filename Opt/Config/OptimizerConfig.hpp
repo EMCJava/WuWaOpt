@@ -23,6 +23,9 @@ struct OptimizerConfig {
     // + 1 when saved to file
     int InternalStateID = 0;
 
+    bool AskedCheckForNewVersion = false;
+    bool ShouldCheckForNewVersion = false;
+
     [[nodiscard]] FloatTy GetResistances( ) const noexcept;
     [[nodiscard]] FloatTy GetBaseAttack( ) const noexcept;
 
