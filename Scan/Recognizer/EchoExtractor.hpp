@@ -14,7 +14,7 @@ class EchoExtractor
 {
 private:
     void ThresholdPreProcessor( const cv::Mat& Src );
-    void CostThresholdPreProcessor( const cv::Mat& Src );
+    void TypeThresholdPreProcessor( const cv::Mat& Src );
 
     void InYellowRangePreProcessor( const cv::Mat& Src );
 

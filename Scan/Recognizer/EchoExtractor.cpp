@@ -13,13 +13,12 @@ EchoExtractor::ThresholdPreProcessor( const cv::Mat& Src )
 }
 
 void
-EchoExtractor::CostThresholdPreProcessor( const cv::Mat& Src )
+EchoExtractor::TypeThresholdPreProcessor( const cv::Mat& Src )
 {
     cvtColor( Src, m_GrayImg, cv::COLOR_BGR2GRAY );
-    cv::adaptiveThreshold( m_GrayImg, m_GrayImg, 255, cv::ADAPTIVE_THRESH_MEAN_C, cv::THRESH_BINARY, 17, -10 );
+    cv::threshold( m_GrayImg, m_GrayImg, 106, 255, cv::THRESH_BINARY );
     cvtColor( m_GrayImg, m_MatchVisualizerImg, cv::COLOR_GRAY2BGR );
 }
-
 
 void
 EchoExtractor::InYellowRangePreProcessor( const cv::Mat& Src )
@@ -109,7 +108,7 @@ EchoExtractor::MatchWithRecognizer( const cv::Mat&     Src,
         }
 
         if ( !MatchRects.empty( )
-             && MatchRects.top( ).rect.y > CurrentMatch.rect.y + 10 )
+             && MatchRects.top( ).rect.y > CurrentMatch.rect.y + 15 )
             Result.push_back( '\n' );
     }
 
@@ -125,13 +124,13 @@ EchoExtractor::MatchText( const cv::Mat& Src, const std::string& MatchName )
 std::vector<char>
 EchoExtractor::MatchType( const cv::Mat& Src, const std::string& MatchName )
 {
-    return MatchWithRecognizer( Src, m_TRecognizer, MatchName );
+    return MatchWithRecognizer( Src, m_TRecognizer, MatchName, &EchoExtractor::TypeThresholdPreProcessor );
 }
 
 std::vector<char>
 EchoExtractor::MatchCost( const cv::Mat& Src, const std::string& MatchName )
 {
-    return MatchWithRecognizer( Src, m_TRecognizer, MatchName, &EchoExtractor::CostThresholdPreProcessor );
+    return MatchWithRecognizer( Src, m_TRecognizer, MatchName, &EchoExtractor::TypeThresholdPreProcessor );
 }
 
 std::vector<char>
@@ -289,7 +288,7 @@ EchoExtractor::ReadCard( const cv::Mat& Src )
 int
 EchoExtractor::ExtractCost( const cv::Mat& Timg )
 {
-    const auto CostChars = MatchCost( Timg );
+    const auto CostChars = MatchCost( Timg, "Cost" );
     if ( CostChars.empty( ) || CostChars[ 0 ] < '1' || CostChars[ 0 ] > '4' )
     {
         spdlog::error( "Cost is invalid: {} ({})", CostChars.empty( ) ? "null" : std::string( 1, CostChars[ 0 ] ), CostChars.size( ) );
