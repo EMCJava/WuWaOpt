@@ -215,8 +215,8 @@ main( int argc, char** argv )
           "LightDamage" }
     };
 
-    WuWaGA             Opt( FullStatsList );
-    CombinationTweaker CombinationTweak( LanguageProvider );
+    WuWaGA                        Opt( FullStatsList );
+    std::list<CombinationTweaker> CombinationTweaks;
 
     constexpr auto   ChartSplitWidth = 700;
     constexpr auto   StatSplitWidth  = 800;
@@ -433,6 +433,7 @@ main( int argc, char** argv )
         ImGui::SetNextWindowSize( viewport->WorkSize );
         if ( ImGui::Begin( "Display", nullptr, flags ) )
         {
+            ImGui::ShowDemoWindow( );
             {
                 ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 5.0f );
                 ImGui::BeginChild( "GAStats", ImVec2( ChartSplitWidth - Style.WindowPadding.x, -1 ), ImGuiChildFlags_Border );
@@ -739,6 +740,11 @@ main( int argc, char** argv )
                 ImGui::BeginChild( "DetailPanel", ImVec2( StatSplitWidth - Style.WindowPadding.x * 4, 0 ), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY );
                 if ( ImGui::BeginTabBar( "CombinationTweak" ) )
                 {
+                    if ( ImGui::TabItemButton( "+", ImGuiTabItemFlags_Trailing | ImGuiTabItemFlags_NoTooltip ) )
+                    {
+                        CombinationTweaks.emplace_back( LanguageProvider );
+                    }
+
                     if ( ImGui::BeginTabItem( LanguageProvider[ "CombinationDetail" ] ) )
                     {
                         if ( SelectedStatsCache.IsValid( ) )
@@ -749,11 +755,31 @@ main( int argc, char** argv )
                         ImGui::EndTabItem( );
                     }
 
-                    if ( ImGui::BeginTabItem( LanguageProvider[ "CombinationTweak" ] ) )
+                    // Submit our regular tabs
+                    int  Index   = 0;
+                    auto TweakIt = CombinationTweaks.begin( );
+                    while ( TweakIt != CombinationTweaks.end( ) )
                     {
-                        CombinationTweak.TweakerMenu( SelectedStatsCache, EchoNameBySet );
-                        ImGui::EndTabItem( );
+                        bool        KeepOpen = true;
+                        std::string Label    = LanguageProvider[ "CombinationTweak" ];
+                        Label += " #" + std::to_string( Index );
+                        if ( ImGui::BeginTabItem( Label.c_str( ), &KeepOpen, ImGuiTabItemFlags_None ) )
+                        {
+                            TweakIt->TweakerMenu( SelectedStatsCache, EchoNameBySet );
+
+                            ImGui::EndTabItem( );
+                        }
+
+                        if ( !KeepOpen )
+                        {
+                            TweakIt = CombinationTweaks.erase( TweakIt );
+                        } else
+                        {
+                            ++TweakIt;
+                            ++Index;
+                        }
                     }
+
 
                     ImGui::EndTabBar( );
                 }
