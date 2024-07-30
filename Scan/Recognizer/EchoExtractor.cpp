@@ -243,23 +243,20 @@ EchoExtractor::ReadCard( const cv::Mat& Src )
 {
     spdlog::info( "Analyzing Src({}x{}) image...", Src.cols, Src.rows );
 
-    const cv::Rect NameRect { 872, 84, 200, 25 };
+    const cv::Rect NameRect { 1310, 125, 280, 35 };
     const auto     NameImage = Src( NameRect );
 
-    const cv::Rect CostRect { 1140, 139, 76, 18 };
+    const cv::Rect CostRect { 1700, 210, 125, 25 };
     const auto     CostImage = Src( CostRect );
 
-    const cv::Rect LevelRect { 1193, 164, 28, 25 };
+    const cv::Rect LevelRect { 1770, 250, 60, 30 };
     const auto     LevelImage = Src( LevelRect );
 
-    const cv::Rect StatRect { 877, 274, 350, 220 };
-    const auto     StatImage = Src( StatRect );
+    const cv::Rect TypeRect { 1310, 420, 45, 320 };
+    const auto     TypeImage = Src( TypeRect );
 
-    const cv::Rect TypeRect { 0, 0, 26, 220 };
-    const auto     TypeImage = StatImage( TypeRect );
-
-    const cv::Rect NumberRect { 1150 - 885, 0, 80, 220 };
-    const auto     NumberImage = StatImage( NumberRect );
+    const cv::Rect NumberRect { 1720, 420, 110, 320 };
+    const auto     NumberImage = Src( NumberRect );
 
     auto FS = ExtractStat( NumberImage, TypeImage, NameImage );
     if ( int Cost = ExtractCost( CostImage ); Cost != 0 )
@@ -270,7 +267,7 @@ EchoExtractor::ReadCard( const cv::Mat& Src )
         throw std::runtime_error( "Failed to extract cost" );
     }
 
-    int SetColorCoordinateX = 969, SetColorCoordinateY = 211;
+    int SetColorCoordinateX = 1441, SetColorCoordinateY = 325;
     FS.Set = MatchColorToSet( { Src.data[ Src.channels( ) * ( Src.cols * SetColorCoordinateY + SetColorCoordinateX ) + 2 ],
                                 Src.data[ Src.channels( ) * ( Src.cols * SetColorCoordinateY + SetColorCoordinateX ) + 1 ],
                                 Src.data[ Src.channels( ) * ( Src.cols * SetColorCoordinateY + SetColorCoordinateX ) + 0 ] } );
