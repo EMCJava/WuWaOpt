@@ -158,6 +158,7 @@
     "SubStatValue": "SubStat Value",
     "NoCost": "Failed to extract cost",
     "NoLevel": "Failed to extract level",
+    "Result": "Result",
     "ProbGetMoreImp": "Probability of getting {:.1f}% or more improvement",
     "NoGameHandle": "Unable to find Wuthering Waves Game window",
     "WrongWinSize": "Unexpected window size({}x{}), expected {}x{}",

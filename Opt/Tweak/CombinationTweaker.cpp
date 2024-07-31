@@ -226,6 +226,7 @@ CombinationTweaker::TweakerMenu( const CombinationMetaCache&                    
 
     if ( !m_SelectedEchoPotential.CDF.empty( ) )
     {
+        ImGui::SeparatorText( LanguageProvider[ "Result" ] );
         const auto SelectedEDIndex =
             std::distance(
                 m_SelectedEchoPotential.CDFChangeToED.begin( ),
@@ -322,7 +323,6 @@ CombinationTweaker::TweakerMenu( const CombinationMetaCache&                    
             ImGui::NewLine( );
             DisplayNumberCompare( m_PinnedExpectedChange, m_SelectedEchoPotential.ExpectedChangeToED );
             ImGui::NewLine( );
-            ImGui::Separator( );
 
             ImGui::PopStyleColor( 3 );
 
