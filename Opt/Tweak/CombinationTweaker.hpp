@@ -43,6 +43,9 @@ class CombinationTweaker : public LanguageObserver
     std::array<int, 5> m_SelectedSubStatTypeIndices  = { };
     std::array<int, 5> m_SelectedSubStatValueIndices = { };
 
+    std::optional<FloatTy> m_PinnedTargetCDF;
+    std::optional<FloatTy> m_PinnedExpectedChange;
+
     int                                       m_NonEffectiveSubStatCount;
     std::vector<SubStatRollConfig>            m_SubStatRollConfigs;
     std::array<std::array<long long, 14>, 14> m_PascalTriangle { };

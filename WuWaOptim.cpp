@@ -21,6 +21,7 @@
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
 
+#include "Opt/UI/OptimizerUIConfig.hpp"
 #include "Opt/UI/PlotCombinationMeta.hpp"
 #include "Opt/Tweak/CombinationMetaCache.hpp"
 #include "Opt/Tweak/CombinationTweaker.hpp"
@@ -253,10 +254,12 @@ main( int argc, char** argv )
             .detach( );
     }
 
-    ImGuiIO& io          = ImGui::GetIO( );
-    auto*    EnglishFont = io.Fonts->AddFontDefault( );
-    auto*    ChineseFont = io.Fonts->AddFontFromFileTTF( "data/sim_chi.ttf", 15.0f, nullptr, io.Fonts->GetGlyphRangesChineseFull( ) );
-    ImGui::SFML::UpdateFontTexture( );
+    sf::Texture LanguageTexture;
+    LanguageTexture.loadFromFile( "data/translate_icon.png" );
+
+    OptimizerUIConfig UIConfig( LanguageProvider );
+    UIConfig.LoadTexture( "Lock", "data/lock.png" );
+    UIConfig.LoadTexture( "Unlock", "data/unlock.png" );
 
     auto& Style = ImGui::GetStyle( );
     {
@@ -400,9 +403,6 @@ main( int argc, char** argv )
 
     std::vector<PlotCombinationMeta> TopCombination;
 
-    sf::Texture LanguageTexture;
-    LanguageTexture.loadFromFile( "data/translate_icon.png" );
-
     auto&     GAReport = Opt.GetReport( );
     sf::Clock deltaClock;
     while ( window.isOpen( ) )
@@ -419,13 +419,7 @@ main( int argc, char** argv )
         }
 
         ImGui::SFML::Update( window, deltaClock.restart( ) );
-
-        switch ( LanguageProvider.GetLanguage( ) )
-        {
-        case Language::English: ImGui::PushFont( EnglishFont ); break;
-        case Language::SimplifiedChinese: ImGui::PushFont( ChineseFont ); break;
-        default: ImGui::PushFont( EnglishFont );
-        }
+        UIConfig.PushFont( );
 
         static ImGuiWindowFlags flags    = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBringToFrontOnFocus;
         const ImGuiViewport*    viewport = ImGui::GetMainViewport( );

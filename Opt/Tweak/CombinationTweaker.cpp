@@ -4,6 +4,13 @@
 
 #include "CombinationTweaker.hpp"
 
+#include <Opt/UI/OptimizerUIConfig.hpp>
+
+#include <imgui.h>
+#include <imgui-SFML.h>
+
+#include <format>
+
 inline const char* CostNames[] = { "0", "1", "2", "3", "4" };
 
 inline std::array<std::vector<StatValueConfig>, 5> MaxFirstMainStat {
@@ -38,6 +45,8 @@ CombinationTweaker::TweakerMenu( const CombinationMetaCache&                    
 {
     if ( !Target.IsValid( ) ) return;
 
+    const auto& Style           = ImGui::GetStyle( );
+    const auto  EchoConfigWidth = ImGui::GetWindowWidth( );
     ImGui::Dummy( ImVec2 { 0, 5 } );
     if ( ImGui::BeginTable( "SlotEffectiveness", Target.GetSlotCount( ), ImGuiTableFlags_Borders | ImGuiTableFlags_SizingStretchProp ) )
     {
@@ -74,7 +83,6 @@ CombinationTweaker::TweakerMenu( const CombinationMetaCache&                    
                   } ) );
         }
 
-        const auto& Style = ImGui::GetStyle( );
         ImGui::SeparatorText( LanguageProvider[ "SubEchoCfg" ] );
         {
             ImGui::BeginDisabled( );
@@ -117,7 +125,6 @@ CombinationTweaker::TweakerMenu( const CombinationMetaCache&                    
 
         ImGui::SeparatorText( LanguageProvider[ "SubStats" ] );
         {
-            const auto EchoConfigWidth = ImGui::GetWindowWidth( );
             for ( int i = 0; i < m_UsedSubStatCount; ++i )
             {
                 ImGui::PushID( i );
@@ -219,78 +226,178 @@ CombinationTweaker::TweakerMenu( const CombinationMetaCache&                    
 
     if ( !m_SelectedEchoPotential.CDF.empty( ) )
     {
-        ImGui::SeparatorText( LanguageProvider[ "PotentialEDDis" ] );
-        if ( ImGui::BeginTable( "PotentialStats", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_SizingStretchSame ) )
+        const auto SelectedEDIndex =
+            std::distance(
+                m_SelectedEchoPotential.CDFChangeToED.begin( ),
+                std::ranges::lower_bound( m_SelectedEchoPotential.CDFChangeToED, (FloatTy) m_DragEDTargetY ) );
+
         {
-            ImGui::TableSetupColumn( LanguageProvider[ "BestED" ] );
-            ImGui::TableSetupColumn( LanguageProvider[ "Baseline" ] );
-            ImGui::TableSetupColumn( LanguageProvider[ "WorstED" ] );
-            ImGui::TableHeadersRow( );
-            ImGui::TableNextRow( );
+            const auto SimpleViewWidth = EchoConfigWidth - Style.WindowPadding.x * 2;
+            ImGui::BeginChild( "SimpleView", ImVec2( SimpleViewWidth, 0 ), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY );
 
-            ImGui::TableNextColumn( );
-            ImGui::Text( m_SelectedEchoPotential.CDFChangeToED.back( ) > 0 ? "%.2f     (+%.2f%%)" : "%.2f     (%.2f%%)",
-                         m_SelectedEchoPotential.HighestExpectedDamage,
-                         m_SelectedEchoPotential.CDFChangeToED.back( ) );
-            ImGui::TableNextColumn( );
-            ImGui::Text( "%.2f", m_SelectedEchoPotential.BaselineExpectedDamage );
-            ImGui::TableNextColumn( );
-            ImGui::Text( m_SelectedEchoPotential.CDFChangeToED.front( ) > 0 ? "%.2f     (+%.2f%%)" : "%.2f     (%.2f%%)",
-                         m_SelectedEchoPotential.LowestExpectedDamage,
-                         m_SelectedEchoPotential.CDFChangeToED.front( ) );
+            const auto DisplayTextAt = [ = ]( auto&& Text, float Center ) {
+                const auto SV          = std::string_view { Text };
+                const auto WindowWidth = ImGui::GetWindowWidth( );
+                const auto TextWidth   = ImGui::CalcTextSize( SV.data( ) ).x;
+                ImGui::SetCursorPosX( WindowWidth * Center - TextWidth * 0.5f );
+                ImGui::Text( "%s", SV.data( ) );
+            };
 
-            ImGui::EndTable( );
+            const auto DisplayNumberCompare =
+                [ & ]( auto& OptionalLock, auto&& Value ) {
+                    const float NumberFrameWidth = SimpleViewWidth * 0.4;
+                    const float IconSize         = 30;
+
+                    OptimizerUIConfig::PushFont( OptimizerUIConfig::Big );
+
+                    if ( OptionalLock.has_value( ) )
+                    {
+                        bool ShouldResetValue = false;
+                        ImGui::SetCursorPosX( ( SimpleViewWidth - NumberFrameWidth * 2 ) / 4 );
+                        ImGui::BeginChild( (ImGuiID) &OptionalLock, ImVec2( NumberFrameWidth, 0 ), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY );
+                        ImGui::PushStyleColor( ImGuiCol_Border, ImVec4( 0.f, 0.f, 0.f, 0.f ) );
+
+                        DisplayTextAt( std::format( "{:.3f} %", OptionalLock.value( ) ).c_str( ), 0.5 );
+                        const auto LockIcon = OptimizerUIConfig::GetTexture( "Lock" );
+                        if ( LockIcon )
+                        {
+                            ImGui::SetCursorPos( ImVec2 { NumberFrameWidth - IconSize - Style.WindowPadding.x, 0 } );
+                            if ( ImGui::ImageButton( *LockIcon, sf::Vector2f( IconSize, IconSize ) ) )
+                                ShouldResetValue = true;
+                        }
+
+                        ImGui::PopStyleColor( 1 );
+                        ImGui::EndChild( );
+
+                        ImGui::SameLine( );
+                        DisplayTextAt( "->", 0.5 );
+                        ImGui::SameLine( );
+
+                        ImGui::SetCursorPosX( SimpleViewWidth / 2 + ( SimpleViewWidth - NumberFrameWidth * 2 ) / 4 );
+                        ImGui::BeginChild( (ImGuiID) &OptionalLock + 1, ImVec2( NumberFrameWidth, 0 ), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY );
+                        if ( Value - OptionalLock.value( ) > 0.001f )
+                            ImGui::PushStyleColor( ImGuiCol_Text, IM_COL32( 0, 255, 0, 255 ) );
+                        else if ( Value - OptionalLock.value( ) < -0.001f )
+                            ImGui::PushStyleColor( ImGuiCol_Text, IM_COL32( 255, 0, 0, 255 ) );
+                        else
+                            ImGui::PushStyleColor( ImGuiCol_Text, IM_COL32_WHITE );
+                        DisplayTextAt( std::format( "{:.3f} %", Value ).c_str( ), 0.5 );
+                        ImGui::PopStyleColor( );
+                        ImGui::EndChild( );
+
+                        if ( ShouldResetValue ) OptionalLock.reset( );
+                    } else
+                    {
+                        ImGui::SetCursorPosX( ( SimpleViewWidth - NumberFrameWidth ) / 2 );
+                        ImGui::BeginChild( (ImGuiID) &OptionalLock, ImVec2( NumberFrameWidth, 0 ), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY );
+                        ImGui::PushStyleColor( ImGuiCol_Border, ImVec4( 0.f, 0.f, 0.f, 0.f ) );
+
+                        DisplayTextAt( std::format( "{:.3f} %", Value ).c_str( ), 0.5 );
+                        const auto UnlockIcon = OptimizerUIConfig::GetTexture( "Unlock" );
+                        if ( UnlockIcon )
+                        {
+                            ImGui::SetCursorPos( ImVec2 { NumberFrameWidth - IconSize - Style.WindowPadding.x, 0 } );
+                            if ( ImGui::ImageButton( *UnlockIcon, sf::Vector2f( IconSize, IconSize ) ) )
+                                OptionalLock = Value;
+                        }
+
+                        ImGui::PopStyleColor( 1 );
+                        ImGui::EndChild( );
+                    }
+
+                    ImGui::PopFont( );
+                };
+
+            ImGui::PushStyleColor( ImGuiCol_Button, ImVec4( 0.f, 0.f, 0.f, 0.f ) );
+            ImGui::PushStyleColor( ImGuiCol_ButtonActive, ImVec4( 0.f, 0.f, 0.f, 0.f ) );
+            ImGui::PushStyleColor( ImGuiCol_ButtonHovered, ImVec4( 0.f, 0.f, 0.f, 0.f ) );
+
+            DisplayTextAt( std::vformat( LanguageProvider[ "ProbGetMoreImp" ], std::make_format_args( m_DragEDTargetY ) ), 0.5 );
+            ImGui::NewLine( );
+            DisplayNumberCompare( m_PinnedTargetCDF, m_SelectedEchoPotential.CDF[ SelectedEDIndex ] );
+            ImGui::NewLine( );
+            ImGui::Separator( );
+
+            DisplayTextAt( LanguageProvider[ "EEDDelta%" ], 0.5 );
+            ImGui::NewLine( );
+            DisplayNumberCompare( m_PinnedExpectedChange, m_SelectedEchoPotential.ExpectedChangeToED );
+            ImGui::NewLine( );
+            ImGui::Separator( );
+
+            ImGui::PopStyleColor( 3 );
+
+            ImGui::EndChild( );
         }
 
-        if ( ImPlot::BeginPlot( LanguageProvider[ "Potential" ], ImVec2( -1, 0 ) ) )
+        if ( ImGui::CollapsingHeader( LanguageProvider[ "PotentialEDDis" ] ) )
         {
-            ImPlot::SetupLegend( ImPlotLocation_North | ImPlotLocation_West, ImPlotLegendFlags_Outside - 1 );
-            ImPlot::SetupAxes( LanguageProvider[ "Probability%" ], LanguageProvider[ "EDDelta%" ], ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_Invert, ImPlotAxisFlags_AutoFit );
-            ImPlot::SetupAxis( ImAxis_Y2, LanguageProvider[ "ExpectedDamage" ], ImPlotAxisFlags_AuxDefault | ImPlotAxisFlags_AutoFit );
-            ImPlot::SetupAxisLimitsConstraints( ImAxis_Y2, m_SelectedEchoPotential.CDFSmallOrEqED.front( ), m_SelectedEchoPotential.CDFSmallOrEqED.back( ) );
-
-            const auto SelectedEDIndex =
-                std::distance(
-                    m_SelectedEchoPotential.CDFChangeToED.begin( ),
-                    std::ranges::lower_bound( m_SelectedEchoPotential.CDFChangeToED, (FloatTy) m_DragEDTargetY ) );
-
-            ImPlot::SetAxes( ImAxis_X1, ImAxis_Y2 );
-            ImPlot::PlotLine( "ED_CDF",
-                              m_SelectedEchoPotential.CDFFloat.data( ),
-                              m_SelectedEchoPotential.CDFSmallOrEqED.data( ),
-                              m_SelectedEchoPotential.CDF.size( ), ImPlotItemFlags_NoLegend );
-
-            ImPlot::SetAxes( ImAxis_X1, ImAxis_Y1 );
-            ImPlot::PlotLine( "Delta%CDF",
-                              m_SelectedEchoPotential.CDFFloat.data( ),
-                              m_SelectedEchoPotential.CDFChangeToED.data( ),
-                              m_SelectedEchoPotential.CDF.size( ), ImPlotItemFlags_NoLegend );
-
-            if ( m_SelectedEchoPotential.CDF.size( ) > SelectedEDIndex )
+            if ( ImGui::BeginTable( "PotentialStats", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_SizingStretchSame ) )
             {
-                ImPlot::SetNextFillStyle( ImVec4 { 0, 1, 0, 1 }, 0.2 );
-                ImPlot::PlotShaded( "Delta%CDFS",
-                                    m_SelectedEchoPotential.CDFFloat.data( ) + SelectedEDIndex,
-                                    m_SelectedEchoPotential.CDFChangeToED.data( ) + SelectedEDIndex,
-                                    m_SelectedEchoPotential.CDF.size( ) - SelectedEDIndex, m_DragEDTargetY, ImPlotItemFlags_NoLegend );
+                ImGui::TableSetupColumn( LanguageProvider[ "BestED" ] );
+                ImGui::TableSetupColumn( LanguageProvider[ "Baseline" ] );
+                ImGui::TableSetupColumn( LanguageProvider[ "WorstED" ] );
+                ImGui::TableHeadersRow( );
+                ImGui::TableNextRow( );
+
+                ImGui::TableNextColumn( );
+                ImGui::Text( m_SelectedEchoPotential.CDFChangeToED.back( ) > 0 ? "%.2f     (+%.2f%%)" : "%.2f     (%.2f%%)",
+                             m_SelectedEchoPotential.HighestExpectedDamage,
+                             m_SelectedEchoPotential.CDFChangeToED.back( ) );
+                ImGui::TableNextColumn( );
+                ImGui::Text( "%.2f", m_SelectedEchoPotential.BaselineExpectedDamage );
+                ImGui::TableNextColumn( );
+                ImGui::Text( m_SelectedEchoPotential.CDFChangeToED.front( ) > 0 ? "%.2f     (+%.2f%%)" : "%.2f     (%.2f%%)",
+                             m_SelectedEchoPotential.LowestExpectedDamage,
+                             m_SelectedEchoPotential.CDFChangeToED.front( ) );
+
+                ImGui::EndTable( );
             }
 
-            ImPlot::TagX( m_SelectedEchoPotential.CDF[ SelectedEDIndex ], ImVec4( 0, 1, 0, 1 ), "%.2f%%", m_SelectedEchoPotential.CDF[ SelectedEDIndex ] );
+            if ( ImPlot::BeginPlot( LanguageProvider[ "Potential" ], ImVec2( -1, 0 ) ) )
+            {
+                ImPlot::SetupLegend( ImPlotLocation_North | ImPlotLocation_West, ImPlotLegendFlags_Outside - 1 );
+                ImPlot::SetupAxes( LanguageProvider[ "Probability%" ], LanguageProvider[ "EDDelta%" ], ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_Invert, ImPlotAxisFlags_AutoFit );
+                ImPlot::SetupAxis( ImAxis_Y2, LanguageProvider[ "ExpectedDamage" ], ImPlotAxisFlags_AuxDefault | ImPlotAxisFlags_AutoFit );
+                ImPlot::SetupAxisLimitsConstraints( ImAxis_Y2, m_SelectedEchoPotential.CDFSmallOrEqED.front( ), m_SelectedEchoPotential.CDFSmallOrEqED.back( ) );
 
-            ImPlot::DragLineY( 1, &m_SelectedEchoPotential.ExpectedChangeToED, ImVec4( 1, 1, 0, 1 ), 1, ImPlotDragToolFlags_NoInputs | ImPlotDragToolFlags_NoFit );
-            ImPlot::TagY( m_SelectedEchoPotential.ExpectedChangeToED, ImVec4( 1, 1, 0, 1 ), true );
+                ImPlot::SetAxes( ImAxis_X1, ImAxis_Y2 );
+                ImPlot::PlotLine( "ED_CDF",
+                                  m_SelectedEchoPotential.CDFFloat.data( ),
+                                  m_SelectedEchoPotential.CDFSmallOrEqED.data( ),
+                                  m_SelectedEchoPotential.CDF.size( ), ImPlotItemFlags_NoLegend );
 
-            ImPlot::DragLineY( 0, &m_DragEDTargetY, ImVec4( 1, 0, 0, 1 ), 1, ImPlotDragToolFlags_Delayed );
-            ImPlot::TagY( m_DragEDTargetY, ImVec4( 1, 0, 0, 1 ), true );
-            m_DragEDTargetY = std::clamp( m_DragEDTargetY,
-                                          (double) m_SelectedEchoPotential.CDFChangeToED.front( ),
-                                          (double) m_SelectedEchoPotential.CDFChangeToED.back( ) );
+                ImPlot::SetAxes( ImAxis_X1, ImAxis_Y1 );
+                ImPlot::PlotLine( "Delta%CDF",
+                                  m_SelectedEchoPotential.CDFFloat.data( ),
+                                  m_SelectedEchoPotential.CDFChangeToED.data( ),
+                                  m_SelectedEchoPotential.CDF.size( ), ImPlotItemFlags_NoLegend );
 
-            ImPlot::SetNextLineStyle( ImVec4( 1, 1, 0, 1 ) );
-            ImPlot::PlotDummy( LanguageProvider[ "EEDDelta%" ] );
-            // ImPlot::PlotLine( "Expected Change", (double*) nullptr, 0, 1, 0ImPlotItemFlags_NoFit );
+                if ( m_SelectedEchoPotential.CDF.size( ) > SelectedEDIndex )
+                {
+                    ImPlot::SetNextFillStyle( ImVec4 { 0, 1, 0, 1 }, 0.2 );
+                    ImPlot::PlotShaded( "Delta%CDFS",
+                                        m_SelectedEchoPotential.CDFFloat.data( ) + SelectedEDIndex,
+                                        m_SelectedEchoPotential.CDFChangeToED.data( ) + SelectedEDIndex,
+                                        m_SelectedEchoPotential.CDF.size( ) - SelectedEDIndex, m_DragEDTargetY, ImPlotItemFlags_NoLegend );
+                }
 
-            ImPlot::EndPlot( );
+                ImPlot::TagX( m_SelectedEchoPotential.CDF[ SelectedEDIndex ], ImVec4( 0, 1, 0, 1 ), "%.2f%%", m_SelectedEchoPotential.CDF[ SelectedEDIndex ] );
+
+                ImPlot::DragLineY( 1, &m_SelectedEchoPotential.ExpectedChangeToED, ImVec4( 1, 1, 0, 1 ), 1, ImPlotDragToolFlags_NoInputs | ImPlotDragToolFlags_NoFit );
+                ImPlot::TagY( m_SelectedEchoPotential.ExpectedChangeToED, ImVec4( 1, 1, 0, 1 ), true );
+
+                ImPlot::DragLineY( 0, &m_DragEDTargetY, ImVec4( 1, 0, 0, 1 ), 1, ImPlotDragToolFlags_Delayed );
+                ImPlot::TagY( m_DragEDTargetY, ImVec4( 1, 0, 0, 1 ), true );
+                m_DragEDTargetY = std::clamp( m_DragEDTargetY,
+                                              (double) m_SelectedEchoPotential.CDFChangeToED.front( ),
+                                              (double) m_SelectedEchoPotential.CDFChangeToED.back( ) );
+
+                ImPlot::SetNextLineStyle( ImVec4( 1, 1, 0, 1 ) );
+                ImPlot::PlotDummy( LanguageProvider[ "EEDDelta%" ] );
+                // ImPlot::PlotLine( "Expected Change", (double*) nullptr, 0, 1, 0ImPlotItemFlags_NoFit );
+
+                ImPlot::EndPlot( );
+            }
         }
     }
 }

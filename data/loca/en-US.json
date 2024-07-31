@@ -158,6 +158,7 @@
     "SubStatValue": "SubStat Value",
     "NoCost": "Failed to extract cost",
     "NoLevel": "Failed to extract level",
+    "ProbGetMoreImp": "Probability of getting {:.1f}% or more improvement",
     "NoGameHandle": "Unable to find Wuthering Waves Game window",
     "WrongWinSize": "Unexpected window size({}x{}), expected {}x{}",
     "StatNumMisMatch": "SubStat type and number count do not match, if this keeps appearing, please check if a newer version of Echo Scanner is available.",
