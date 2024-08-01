@@ -30,12 +30,14 @@ add_subdirectory(Loca)
 add_subdirectory(Opt)
 
 add_library(WuWaGA INTERFACE Opt/WuWaGa.hpp Opt/WuWaGa.inl)
+target_link_libraries(WuWaGA INTERFACE EchoConstraint.lib)
+
 add_library(WuWaGASwitcher Opt/OptimizerParmSwitcher.hpp Opt/OptimizerParmSwitcher.cpp)
 target_link_libraries(WuWaGASwitcher nlohmann_json::nlohmann_json)
 target_link_libraries(WuWaGA INTERFACE nlohmann_json::nlohmann_json WuWaGASwitcher)
 
 target_link_libraries(WuWaScan PRIVATE Loca.lib opencv_highgui opencv_ml opencv_dnn opencv_core opencv_flann nlohmann_json::nlohmann_json Scan.lib)
-target_link_libraries(WuWaOptim PRIVATE OptimizerUIConfig.lib StringArrayObserver.lib OptimizerConfig.lib SubStatRollConfig.lib CombinationTweaker.lib CombinationMetaCache.lib WuWaGA httplib::httplib Loca.lib nlohmann_json::nlohmann_json implot::implot sfml-system sfml-network sfml-graphics sfml-window ImGui-SFML::ImGui-SFML spdlog::spdlog_header_only)
+target_link_libraries(WuWaOptim PRIVATE EchoConstraint.lib OptimizerUIConfig.lib StringArrayObserver.lib OptimizerConfig.lib SubStatRollConfig.lib CombinationTweaker.lib CombinationMetaCache.lib WuWaGA httplib::httplib Loca.lib nlohmann_json::nlohmann_json implot::implot sfml-system sfml-network sfml-graphics sfml-window ImGui-SFML::ImGui-SFML spdlog::spdlog_header_only)
 
 set_target_properties(WuWaScan
         PROPERTIES

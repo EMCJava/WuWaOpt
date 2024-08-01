@@ -21,8 +21,8 @@ SwitchCalculateCombinationalStat( int ElementOffset, auto&& Ranges, auto&& Effec
 }
 
 inline void
-SwitchRun( WuWaGA& GA, int ElementOffset, auto&& Ranges, auto&& EffectiveStats, const MultiplierConfig* OptimizeMultiplierConfig )
+SwitchRun( WuWaGA& GA, int ElementOffset, auto&& Ranges, auto&& EffectiveStats, const MultiplierConfig* OptimizeMultiplierConfig, const auto& Constraints )
 {
-    return ( GA.*RunPtrs[ ElementOffset ] )( Ranges, EffectiveStats, OptimizeMultiplierConfig );
+    return ( GA.*RunPtrs[ ElementOffset ] )( Ranges, EffectiveStats, OptimizeMultiplierConfig, Constraints );
 }
 };   // namespace OptimizerParmSwitcher

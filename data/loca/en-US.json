@@ -161,7 +161,7 @@
     "Result": "Result",
     "Done": "Done",
     "Constraint": "Echo Constraints",
-    "ConstraintDes": "All results must meet the following restrictions",
+    "ConstraintDes": "All results must meet the following restrictions\n(Enabling too much might lead to inaccurate results)",
     "ProbGetMoreImp": "Probability of getting {:.1f}% or more improvement",
     "NoGameHandle": "Unable to find Wuthering Waves Game window",
     "WrongWinSize": "Unexpected window size({}x{}), expected {}x{}",

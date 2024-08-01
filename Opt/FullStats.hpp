@@ -225,14 +225,22 @@ struct EffectiveStats {
     EffectiveStats
     operator+( const struct StatValueConfig& StatValue ) const noexcept;
 
-    FloatTy CritRateStat( ) const noexcept
+    static constexpr FloatTy CharacterDefaultRegen = 1;
+    FloatTy                  RegenStat( ) const noexcept
     {
-        return crit_rate + 0.05f;
+        return regen + CharacterDefaultRegen;
     }
 
-    FloatTy CritDamageStat( ) const noexcept
+    static constexpr FloatTy CharacterDefaultCritRate = 0.05;
+    FloatTy                  CritRateStat( ) const noexcept
     {
-        return crit_damage + 1.5f;
+        return crit_rate + CharacterDefaultCritRate;
+    }
+
+    static constexpr FloatTy CharacterDefaultCritDamage = 1.5;
+    FloatTy                  CritDamageStat( ) const noexcept
+    {
+        return crit_damage + CharacterDefaultCritDamage;
     }
 
     FloatTy AttackStat( auto base_attack ) const noexcept

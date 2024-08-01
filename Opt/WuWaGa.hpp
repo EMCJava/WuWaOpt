@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "Config/EchoConstraint.hpp"
 #include "OptUtil.hpp"
 
 #include <stop_token>
@@ -41,7 +42,7 @@ class WuWaGA
 private:
     template <char ElementType, CostSlotTemplate>
     inline void
-    Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack, EffectiveStats CommonStats, const MultiplierConfig* OptimizeMultiplierConfig );
+    Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack, EffectiveStats CommonStats, const MultiplierConfig* OptimizeMultiplierConfig, const EchoConstraint& Constraints );
 
 public:
     constexpr static std::array<const char*, 11> CombinationLabels { "444", "4431", "3333", "44111", "41111", "43311", "43111", "31111", "33111", "33311", "11111" };
@@ -57,7 +58,7 @@ public:
     [[nodiscard]] auto& GetReport( ) noexcept { return m_GAReport; }
 
     template <char ElementType>
-    inline void Run( FloatTy BaseAttack, const EffectiveStats& CommonStats, const MultiplierConfig* OptimizeMultiplierConfig );
+    inline void Run( FloatTy BaseAttack, const EffectiveStats& CommonStats, const MultiplierConfig* OptimizeMultiplierConfig, const EchoConstraint& Constraints );
 
     [[nodiscard]] auto& GetEffectiveEchos( ) const noexcept { return m_EffectiveEchos; }
 

@@ -73,7 +73,7 @@ CombinationMetaCache::SetAsCombination( const EffectiveStats& CS, int EO, int CI
     }
 
     m_DisplayStats.flat_attack       = m_CombinationStats.flat_attack;
-    m_DisplayStats.regen             = m_CombinationStats.regen * 100 + 100;
+    m_DisplayStats.regen             = m_CombinationStats.RegenStat( ) * 100;
     m_DisplayStats.percentage_attack = m_CombinationStats.percentage_attack * 100;
     m_DisplayStats.buff_multiplier   = m_CombinationStats.buff_multiplier * 100;
     m_DisplayStats.auto_attack_buff  = m_CombinationStats.auto_attack_buff * 100;

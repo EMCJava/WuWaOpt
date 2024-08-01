@@ -26,6 +26,7 @@
 #include "Opt/UI/PlotCombinationMeta.hpp"
 #include "Opt/Tweak/CombinationMetaCache.hpp"
 #include "Opt/Tweak/CombinationTweaker.hpp"
+#include "Opt/Config/EchoConstraint.hpp"
 #include "Opt/Config/OptimizerConfig.hpp"
 #include "Opt/SubStatRolling/SubStatRollConfig.hpp"
 #include "Opt/OptimizerParmSwitcher.hpp"
@@ -36,7 +37,7 @@
 #include "Loca/StringArrayObserver.hpp"
 #include "Loca/Loca.hpp"
 
-#define WUWAOPT_VERSION "v1.1.4"
+#define WUWAOPT_VERSION "v1.1.5"
 
 template <class T, class S, class C>
 auto&
@@ -260,6 +261,8 @@ main( int argc, char** argv )
     UIConfig.LoadTexture( "Settings", "data/settings.png" );
     UIConfig.LoadTexture( "Lock", "data/lock.png" );
     UIConfig.LoadTexture( "Unlock", "data/unlock.png" );
+
+    EchoConstraint Constraints( LanguageProvider );
 
     auto& Style = ImGui::GetStyle( );
     {
@@ -716,7 +719,7 @@ main( int argc, char** argv )
                 if ( ImGui::Button( ButtonText, ButtonSize ) )
                 {
                     const auto BaseAttack = OConfig.GetBaseAttack( );
-                    OptimizerParmSwitcher::SwitchRun( Opt, OConfig.SelectedElement, BaseAttack, GetCommonStat( ), &OConfig.OptimizeMultiplierConfig );
+                    OptimizerParmSwitcher::SwitchRun( Opt, OConfig.SelectedElement, BaseAttack, GetCommonStat( ), &OConfig.OptimizeMultiplierConfig, Constraints );
                 }
                 ImGui::PopStyleColor( 3 );
                 ImGui::SameLine( );
@@ -735,6 +738,8 @@ main( int argc, char** argv )
                     {
                         ImGui::Text( LanguageProvider[ "ConstraintDes" ] );
                         ImGui::Separator( );
+
+                        Constraints.DisplayConstraintMenu( );
 
                         if ( ImGui::Button( LanguageProvider[ "Done" ], ImVec2( -1, 0 ) ) )
                         {
@@ -800,7 +805,6 @@ main( int argc, char** argv )
                             ++Index;
                         }
                     }
-
 
                     ImGui::EndTabBar( );
                 }
