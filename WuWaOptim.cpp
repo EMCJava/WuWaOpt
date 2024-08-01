@@ -8,6 +8,7 @@
 
 #include <httplib.h>
 
+#define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui.h>   // necessary for ImGui::*, imgui-SFML.h doesn't include imgui.h
 
 #include <imgui-SFML.h>   // for ImGui::SFML::* functions and SFML-specific overloads
@@ -254,13 +255,9 @@ main( int argc, char** argv )
             .detach( );
     }
 
-    sf::Texture LanguageTexture;
-    if ( !LanguageTexture.loadFromFile( "data/translate_icon.png" ) )
-    {
-        spdlog::info( "Failed to load texture: data/translate_icon.png" );
-    }
-
     OptimizerUIConfig UIConfig( LanguageProvider );
+    UIConfig.LoadTexture( "Translate", "data/translate_icon.png" );
+    UIConfig.LoadTexture( "Settings", "data/settings.png" );
     UIConfig.LoadTexture( "Lock", "data/lock.png" );
     UIConfig.LoadTexture( "Unlock", "data/unlock.png" );
 
@@ -430,7 +427,6 @@ main( int argc, char** argv )
         ImGui::SetNextWindowSize( viewport->WorkSize );
         if ( ImGui::Begin( "Display", nullptr, flags ) )
         {
-            ImGui::ShowDemoWindow( );
             {
                 ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 5.0f );
                 ImGui::BeginChild( "GAStats", ImVec2( ChartSplitWidth - Style.WindowPadding.x, -1 ), ImGuiChildFlags_Border );
@@ -711,15 +707,43 @@ main( int argc, char** argv )
 
                 const auto  OptRunning = Opt.IsRunning( );
                 const float ButtonH    = OptRunning ? 0 : 0.384;
+                const auto  ButtonText = OptRunning ? LanguageProvider[ "ReRun" ] : LanguageProvider[ "Run" ];
+                const auto  TestSize   = ImGui::CalcTextSize( ButtonText );
+                const auto  ButtonSize = ImVec2 { ImGui::GetWindowWidth( ) - Style.WindowPadding.x * 2 - Style.FramePadding.x * 4 - TestSize.y, TestSize.y + Style.FramePadding.y * 2 };
                 ImGui::PushStyleColor( ImGuiCol_Button, (ImVec4) ImColor::HSV( ButtonH, 0.6f, 0.6f ) );
                 ImGui::PushStyleColor( ImGuiCol_ButtonHovered, (ImVec4) ImColor::HSV( ButtonH, 0.7f, 0.7f ) );
                 ImGui::PushStyleColor( ImGuiCol_ButtonActive, (ImVec4) ImColor::HSV( ButtonH, 0.8f, 0.8f ) );
-                if ( ImGui::Button( OptRunning ? LanguageProvider[ "ReRun" ] : LanguageProvider[ "Run" ], ImVec2( -1, 0 ) ) )
+                if ( ImGui::Button( ButtonText, ButtonSize ) )
                 {
                     const auto BaseAttack = OConfig.GetBaseAttack( );
                     OptimizerParmSwitcher::SwitchRun( Opt, OConfig.SelectedElement, BaseAttack, GetCommonStat( ), &OConfig.OptimizeMultiplierConfig );
                 }
                 ImGui::PopStyleColor( 3 );
+                ImGui::SameLine( );
+
+                {
+                    if ( ImGui::ImageButton( *UIConfig.GetTexture( "Settings" ), sf::Vector2f { TestSize.y, TestSize.y } ) )
+                    {
+                        ImGui::OpenPopup( LanguageProvider[ "Constraint" ] );
+                    }
+
+                    // Always center this window when appearing
+                    ImVec2 center = viewport->GetCenter( );
+                    ImGui::SetNextWindowPos( center, ImGuiCond_Appearing, ImVec2( 0.5f, 0.5f ) );
+
+                    if ( ImGui::BeginPopupModal( LanguageProvider[ "Constraint" ], nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove ) )
+                    {
+                        ImGui::Text( LanguageProvider[ "ConstraintDes" ] );
+                        ImGui::Separator( );
+
+                        if ( ImGui::Button( LanguageProvider[ "Done" ], ImVec2( -1, 0 ) ) )
+                        {
+                            ImGui::CloseCurrentPopup( );
+                        }
+                        ImGui::SetItemDefaultFocus( );
+                        ImGui::EndPopup( );
+                    }
+                }
 
                 ImGui::NewLine( );
                 ImGui::SeparatorText( LanguageProvider[ "StaticConfig" ] );
@@ -800,7 +824,7 @@ main( int argc, char** argv )
 
         if ( ImGui::Begin( "Language", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove ) )
         {
-            if ( ImGui::ImageButton( LanguageTexture, SLIconSize ) )
+            if ( ImGui::ImageButton( *UIConfig.GetTexture( "Translate" ), SLIconSize ) )
             {
                 ImGui::OpenPopup( "LanguageSelect" );
             }
