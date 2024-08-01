@@ -255,7 +255,10 @@ main( int argc, char** argv )
     }
 
     sf::Texture LanguageTexture;
-    LanguageTexture.loadFromFile( "data/translate_icon.png" );
+    if ( !LanguageTexture.loadFromFile( "data/translate_icon.png" ) )
+    {
+        spdlog::info( "Failed to load texture: data/translate_icon.png" );
+    }
 
     OptimizerUIConfig UIConfig( LanguageProvider );
     UIConfig.LoadTexture( "Lock", "data/lock.png" );

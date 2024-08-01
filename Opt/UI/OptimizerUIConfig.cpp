@@ -74,7 +74,10 @@ OptimizerUIConfig::PushFont( OptimizerUIConfig::FontSizeType Type )
 void
 OptimizerUIConfig::LoadTexture( const std::string& Names, const std::string& Path )
 {
-    ( m_Instance->m_TextureCache[ Names ] = std::make_unique<sf::Texture>( ) )->loadFromFile( Path );
+    if ( !( m_Instance->m_TextureCache[ Names ] = std::make_unique<sf::Texture>( ) )->loadFromFile( Path ) )
+    {
+        spdlog::info( "Failed to load texture [{}]: {}", Names, Path );
+    }
 }
 
 sf::Texture*
