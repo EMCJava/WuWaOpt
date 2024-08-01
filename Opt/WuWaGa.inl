@@ -268,9 +268,6 @@ WuWaGA::Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack, E
     auto& MutationProbability = m_GAReport.MutationProb[ GAReportIndex ] = 0;
     auto& OptimalValue = m_GAReport.OptimalValue[ GAReportIndex ] = std::numeric_limits<FloatTy>::lowest( );
 
-    m_GAReport.ParentPickCount[ GAReportIndex ].resize( m_ReproduceSize );
-
-
     // Pre-allocated memories
     std::unordered_map<uint64_t, FloatTy>    StatsCache;
     std::vector<EffectiveStats>              EffectiveStatsPlaceHolder( SlotCount );
@@ -415,9 +412,6 @@ WuWaGA::Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack, E
              * */
             const auto FirstPickIndex  = static_cast<int>( crossover_dist( random ) * ( m_ReproduceSize - 1 ) );
             const auto SecondPickIndex = static_cast<int>( crossover_dist( random ) * ( m_ReproduceSize - 1 ) );
-
-            m_GAReport.ParentPickCount[ GAReportIndex ][ FirstPickIndex ]++;
-            m_GAReport.ParentPickCount[ GAReportIndex ][ SecondPickIndex ]++;
 
             auto FirstParentIter  = Population[ FirstPickIndex ].begin( );
             auto SecondParentIter = Population[ SecondPickIndex ].begin( );

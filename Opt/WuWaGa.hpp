@@ -22,8 +22,6 @@ struct GARuntimeReport {
     std::array<FloatTy, MaxCombinationCount> OptimalValue { 0 };
     std::array<FloatTy, MaxCombinationCount> MutationProb { 0 };
 
-    std::array<std::vector<int>, MaxCombinationCount> ParentPickCount;
-
     struct DetailReportQueue {
         std::mutex         ReportLock;
         std::set<uint64_t> QueueSet;
