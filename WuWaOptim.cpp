@@ -37,7 +37,7 @@
 #include "Loca/StringArrayObserver.hpp"
 #include "Loca/Loca.hpp"
 
-#define WUWAOPT_VERSION "v1.1.5"
+#define WUWAOPT_VERSION "v1.1.6"
 
 template <class T, class S, class C>
 auto&
