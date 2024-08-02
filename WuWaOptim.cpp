@@ -22,6 +22,7 @@
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
 
+#include "Opt/UI/Backpack.hpp"
 #include "Opt/UI/OptimizerUIConfig.hpp"
 #include "Opt/UI/PlotCombinationMeta.hpp"
 #include "Opt/Tweak/CombinationMetaCache.hpp"
@@ -37,7 +38,7 @@
 #include "Loca/StringArrayObserver.hpp"
 #include "Loca/Loca.hpp"
 
-#define WUWAOPT_VERSION "v1.1.6"
+#define WUWAOPT_VERSION "v1.1.7"
 
 template <class T, class S, class C>
 auto&
@@ -55,7 +56,7 @@ GetConstContainer( const std::priority_queue<T, S, C>& q )
 
 std::array<ImU32, eEchoSetCount + 1> EchoSetColor {
     IM_COL32( 66, 178, 255, 255 ),
-    IM_COL32( 245, 118, 790, 255 ),
+    IM_COL32( 245, 118, 79, 255 ),
     IM_COL32( 182, 108, 255, 255 ),
     IM_COL32( 86, 255, 183, 255 ),
     IM_COL32( 247, 228, 107, 255 ),
@@ -171,6 +172,8 @@ main( int argc, char** argv )
     std::ranges::sort( FullStatsList, []( const auto& EchoA, const auto& EchoB ) {
         if ( EchoA.Cost > EchoB.Cost ) return true;
         if ( EchoA.Cost < EchoB.Cost ) return false;
+        if ( EchoA.Level > EchoB.Level ) return true;
+        if ( EchoA.Level < EchoB.Level ) return false;
         return false;
     } );
 
@@ -261,6 +264,25 @@ main( int argc, char** argv )
     UIConfig.LoadTexture( "Settings", "data/settings.png" );
     UIConfig.LoadTexture( "Lock", "data/lock.png" );
     UIConfig.LoadTexture( "Unlock", "data/unlock.png" );
+
+    for ( const auto& entry : std::filesystem::directory_iterator( "data/echo_img" ) )
+    {
+        if ( entry.is_regular_file( ) )
+        {
+            UIConfig.LoadTexture( entry.path( ).stem( ).string( ), entry.path( ).string( ) );
+        }
+    }
+
+    for ( const auto& entry : std::filesystem::directory_iterator( "data/set_img" ) )
+    {
+        if ( entry.is_regular_file( ) )
+        {
+            UIConfig.LoadTexture( entry.path( ).stem( ).string( ), entry.path( ).string( ) );
+        }
+    }
+
+    Backpack PlayerBackpack( LanguageProvider );
+    PlayerBackpack.Set( FullStatsList );
 
     EchoConstraint Constraints( LanguageProvider );
 
@@ -851,6 +873,8 @@ main( int argc, char** argv )
 
             ImGui::EndPopup( );
         }
+
+        PlayerBackpack.DisplayBackpack( );
 
         ImGui::End( );
 

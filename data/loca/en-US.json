@@ -160,6 +160,7 @@
     "NoLevel": "Failed to extract level",
     "Result": "Result",
     "Done": "Done",
+    "Backpack": "Backpack",
     "Constraint": "Echo Constraints",
     "ConstraintDes": "All results must meet the following restrictions\n(Enabling too much might lead to inaccurate results)",
     "ProbGetMoreImp": "Probability of getting {:.1f}% or more improvement",
