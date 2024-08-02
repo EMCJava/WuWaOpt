@@ -35,16 +35,19 @@ OptimizerUIConfig::SetupFont( )
     ImGuiIO& io = ImGui::GetIO( );
     io.Fonts->Clear( );
     ImFontConfig DefaultConfig;
-    DefaultConfig.OversampleH              = 2;
+    DefaultConfig.OversampleH              = 1;
     DefaultConfig.OversampleV              = 1;
     DefaultConfig.PixelSnapH               = true;
     DefaultConfig.SizePixels               = 13;
     m_EnglishFont[ FontSizeType::Default ] = io.Fonts->AddFontDefault( &DefaultConfig );
-    m_ChineseFont[ FontSizeType::Default ] = io.Fonts->AddFontFromFileTTF( "data/sim_chi.ttf", 15.0f, nullptr, io.Fonts->GetGlyphRangesChineseFull( ) );
+    DefaultConfig.SizePixels               = 15;
+    m_ChineseFont[ FontSizeType::Default ] = io.Fonts->AddFontFromFileTTF( "data/sim_chi.ttf", 15.0f, &DefaultConfig, io.Fonts->GetGlyphRangesChineseFull( ) );
 
     DefaultConfig.SizePixels           = 45;
     m_EnglishFont[ FontSizeType::Big ] = io.Fonts->AddFontDefault( &DefaultConfig );
-    m_ChineseFont[ FontSizeType::Big ] = io.Fonts->AddFontFromFileTTF( "data/sim_chi.ttf", 52.0f, nullptr, io.Fonts->GetGlyphRangesChineseFull( ) );
+    DefaultConfig.SizePixels           = 52;
+    m_ChineseFont[ FontSizeType::Big ] = io.Fonts->AddFontFromFileTTF( "data/sim_chi.ttf", 52.0f, &DefaultConfig, io.Fonts->GetGlyphRangesChineseFull( ) );
+
     ImGui::SFML::UpdateFontTexture( );
 }
 
