@@ -511,7 +511,7 @@ main( int argc, char** argv )
                             HasData = true;
                             std::ranges::copy( CopyList
                                                    | std::views::transform( [ i, StaticStatMultiplier ]( const auto& Record ) {
-                                                         return PlotCombinationMeta { .Value           = Record.Value * StaticStatMultiplier,
+                                                         return PlotCombinationMeta { .Value           = std::max( Record.Value, (FloatTy) 0 ) * StaticStatMultiplier,
                                                                                       .CombinationID   = i,
                                                                                       .CombinationRank = 0,
                                                                                       .Indices         = Record.SlotToArray( ) };
