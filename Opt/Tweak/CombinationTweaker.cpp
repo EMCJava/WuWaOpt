@@ -211,11 +211,11 @@ CombinationTweaker::TweakerMenu( const std::map<std::string, std::vector<std::st
                     }
                 }
 
-                CalculateEchoPotential( m_SelectedEchoPotential, m_SubStatRollConfigs,
+                CalculateEchoPotential( m_SelectedEchoPotential,
                                         m_TweakerTarget, ConfiguredSubStats,
                                         MaxFirstMainStat[ CurrentTweakingCost ][ m_SelectedMainStatTypeIndex ],
                                         MaxSecondMainStat[ CurrentTweakingCost ],
-                                        MaxRollCount - m_UsedSubStatCount, m_EchoSlotIndex );
+                                        MaxRollCount - m_UsedSubStatCount );
             } else
             {
                 m_SelectedEchoPotential.CDF.clear( );
@@ -445,12 +445,11 @@ CombinationTweaker::ApplyStats(
     const CombinationMetaCache&                             Environment,
     const SubStatRollConfig**                               PickedRollPtr,
     const EffectiveStats&                                   Stats,
-    int                                                     SlotIndex,
     ValueRollRate::RateTy                                   CurrentRate )
 {
     if ( *PickedRollPtr == nullptr )
     {
-        Results.emplace_back( Environment.GetEDReplaceEchoAt( SlotIndex, Stats ), CurrentRate );
+        Results.emplace_back( Environment.GetEDReplaceEchoAt( m_EchoSlotIndex, Stats ), CurrentRate );
         std::ranges::push_heap( Results );
         return;
     }
@@ -464,20 +463,19 @@ CombinationTweaker::ApplyStats(
             Environment,
             PickedRollPtr + 1,
             Stats + StatValueConfig { PickedRoll.ValuePtr, PickedRoll.Values[ i ].Value },
-            SlotIndex,
             CurrentRate * PickedRoll.Values[ i ].Rate );
     }
 }
 
 void
-CombinationTweaker::CalculateEchoPotential( EchoPotential& Result, const std::vector<SubStatRollConfig>& RollConfigs, const CombinationMetaCache& Environment, EffectiveStats CurrentSubStats, const StatValueConfig& FirstMainStat, const StatValueConfig& SecondMainStat, int RollRemaining, int SlotIndex )
+CombinationTweaker::CalculateEchoPotential( EchoPotential& Result, const CombinationMetaCache& Environment, EffectiveStats CurrentSubStats, const StatValueConfig& FirstMainStat, const StatValueConfig& SecondMainStat, int RollRemaining )
 {
     Stopwatch SP;
 
     std::vector<std::pair<FloatTy, ValueRollRate::RateTy>> AllPossibleEcho;
 
     const auto PossibleRolls =
-        RollConfigs
+        m_SubStatRollConfigs
         | std::views::filter( [ & ]( const SubStatRollConfig& Config ) {
               return std::abs( CurrentSubStats.*( Config.ValuePtr ) ) < 0.001;
           } )
@@ -493,7 +491,7 @@ CombinationTweaker::CalculateEchoPotential( EchoPotential& Result, const std::ve
 
     std::vector<const SubStatRollConfig*> PickedRoll( RollRemaining + /*  For terminating recursive call */ 1, nullptr );
 
-    const auto UsedNonEffectiveRollCount = ( MaxRollCount - RollRemaining ) - ( RollConfigs.size( ) - PossibleRolls.size( ) );
+    const auto UsedNonEffectiveRollCount = ( MaxRollCount - RollRemaining ) - ( m_SubStatRollConfigs.size( ) - PossibleRolls.size( ) );
     if ( UsedNonEffectiveRollCount > m_NonEffectiveSubStatCount ) throw std::runtime_error( "Too many non-effective rolls" );
     for ( int EffectiveRolls = 0; EffectiveRolls <= RollRemaining; ++EffectiveRolls )
     {
@@ -518,7 +516,6 @@ CombinationTweaker::CalculateEchoPotential( EchoPotential& Result, const std::ve
                 Environment,
                 PickedRoll.data( ),
                 CurrentSubStats,
-                SlotIndex,
                 1.0 * Duplicates );
         } while ( std::prev_permutation( bitmask.begin( ), bitmask.end( ) ) );
     }

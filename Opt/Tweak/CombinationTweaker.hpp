@@ -68,19 +68,16 @@ class CombinationTweaker : public LanguageObserver
         const CombinationMetaCache&                             Environment,
         const SubStatRollConfig**                               PickedRollPtr,
         const EffectiveStats&                                   Stats,
-        int                                                     SlotIndex,
         ValueRollRate::RateTy                                   CurrentRate = 1 );
 
     void
     CalculateEchoPotential(
-        EchoPotential&                        Result,
-        const std::vector<SubStatRollConfig>& RollConfigs,
-        const CombinationMetaCache&           Environment,
-        EffectiveStats                        CurrentSubStats,
-        const StatValueConfig&                FirstMainStat,
-        const StatValueConfig&                SecondMainStat,
-        int                                   RollRemaining,
-        int                                   SlotIndex );
+        EchoPotential&              Result,
+        const CombinationMetaCache& Environment,
+        EffectiveStats              CurrentSubStats,
+        const StatValueConfig&      FirstMainStat,
+        const StatValueConfig&      SecondMainStat,
+        int                         RollRemaining );
 
     void InitializeSubStatRollConfigs( );
     void InitializePascalTriangle( );
