@@ -190,7 +190,7 @@ WuWaGA::Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack, E
         while ( !MinHeapMaxCombinations.empty( ) )
             MinHeapMaxCombinations.pop( );
         for ( int i = 0; i < ResultLength; ++i )
-            MinHeapMaxCombinations.push( { .Value = std::numeric_limits<FloatTy>::min( ), .SlotCount = SlotCount } );
+            MinHeapMaxCombinations.push( { .Value = std::numeric_limits<FloatTy>::lowest( ), .SlotCount = SlotCount } );
     }
 
     using RNG = XoshiroCpp::Xoshiro256Plus;
