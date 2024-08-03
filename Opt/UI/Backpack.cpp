@@ -22,9 +22,10 @@ inline std::array<sf::Color, eEchoSetCount + 1> EchoSetSFColor {
     sf::Color( 202, 44, 37, 255 ),
     sf::Color( 243, 60, 241, 255 ) };
 
-void
+bool
 Backpack::DisplayBackpack( )
 {
+    bool        Changed  = false;
     const auto& Style    = ImGui::GetStyle( );
     const auto  BPressed = ImGui::IsKeyPressed( ImGuiKey_B );
 
@@ -65,6 +66,9 @@ Backpack::DisplayBackpack( )
                         if ( ImGui::IsMouseDoubleClicked( ImGuiMouseButton_Left ) )
                         {
                             m_ContentAvailable[ i ] = !m_ContentAvailable[ i ];
+
+                            Changed = true;
+                            UpdateSelectedContent( );
                         } else
                         {
                             if ( !Selected )
@@ -129,6 +133,8 @@ Backpack::DisplayBackpack( )
     {
         ImGui::OpenPopup( LanguageProvider[ "Backpack" ] );
     }
+
+    return Changed;
 }
 
 void

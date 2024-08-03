@@ -882,7 +882,10 @@ main( int argc, char** argv )
 
         if ( !Opt.IsRunning( ) )
         {
-            PlayerBackpack.DisplayBackpack( );
+            if ( PlayerBackpack.DisplayBackpack( ) )
+            {
+                spdlog::info( "Backpack changes" );
+            }
         }
 
         ImGui::End( );

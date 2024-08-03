@@ -28,7 +28,12 @@ public:
         m_FocusEcho = -1;
     }
 
-    void DisplayBackpack( );
+    /*
+     *
+     * Return true if content changed
+     *
+     * */
+    bool DisplayBackpack( );
 
     [[nodiscard]] std::size_t GetHash( ) const noexcept { return m_Hash; }
     [[nodiscard]] const auto& GetSelectedContent( ) const noexcept { return m_SelectedContent; }
