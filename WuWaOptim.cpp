@@ -880,7 +880,10 @@ main( int argc, char** argv )
             ImGui::EndPopup( );
         }
 
-        PlayerBackpack.DisplayBackpack( );
+        if ( !Opt.IsRunning( ) )
+        {
+            PlayerBackpack.DisplayBackpack( );
+        }
 
         ImGui::End( );
 
