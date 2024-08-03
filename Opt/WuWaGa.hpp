@@ -62,6 +62,8 @@ public:
 
     [[nodiscard]] inline bool IsRunning( ) const;
 
+    void Stop( ) { m_Threads.clear( ); }
+
 protected:
     GARuntimeReport m_GAReport;
 

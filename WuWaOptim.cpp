@@ -732,7 +732,7 @@ main( int argc, char** argv )
 
                 const auto  OptRunning = Opt.IsRunning( );
                 const float ButtonH    = OptRunning ? 0 : 0.384;
-                const auto  ButtonText = OptRunning ? LanguageProvider[ "ReRun" ] : LanguageProvider[ "Run" ];
+                const auto  ButtonText = OptRunning ? LanguageProvider[ "StopCal" ] : LanguageProvider[ "Run" ];
                 const auto  TestSize   = ImGui::CalcTextSize( ButtonText );
                 const auto  ButtonSize = ImVec2 { ImGui::GetWindowWidth( ) - Style.WindowPadding.x * 2 - Style.FramePadding.x * 4 - TestSize.y, TestSize.y + Style.FramePadding.y * 2 };
                 ImGui::PushStyleColor( ImGuiCol_Button, (ImVec4) ImColor::HSV( ButtonH, 0.6f, 0.6f ) );
@@ -740,8 +740,14 @@ main( int argc, char** argv )
                 ImGui::PushStyleColor( ImGuiCol_ButtonActive, (ImVec4) ImColor::HSV( ButtonH, 0.8f, 0.8f ) );
                 if ( ImGui::Button( ButtonText, ButtonSize ) )
                 {
-                    const auto BaseAttack = OConfig.GetBaseAttack( );
-                    OptimizerParmSwitcher::SwitchRun( Opt, OConfig.SelectedElement, BaseAttack, GetCommonStat( ), &OConfig.OptimizeMultiplierConfig, Constraints );
+                    if ( OptRunning )
+                    {
+                        Opt.Stop( );
+                    } else
+                    {
+                        const auto BaseAttack = OConfig.GetBaseAttack( );
+                        OptimizerParmSwitcher::SwitchRun( Opt, OConfig.SelectedElement, BaseAttack, GetCommonStat( ), &OConfig.OptimizeMultiplierConfig, Constraints );
+                    }
                 }
                 ImGui::PopStyleColor( 3 );
                 ImGui::SameLine( );

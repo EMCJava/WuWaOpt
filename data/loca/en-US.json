@@ -36,6 +36,7 @@
     "ImprovePerColumn": "Exp. DMG Inc. per +1(%)",
     "ElementType": "Element Type",
     "Run": "Run",
+    "StopCal": "Stop",
     "ReRun": "Re-Run",
     "StaticConfig": "Static Configurations",
     "CharLevel": "Character Level",

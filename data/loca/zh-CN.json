@@ -36,6 +36,7 @@
     "ImprovePerColumn": "每 ＋1（％）期望伤害提升",
     "ElementType": "造成傷害類型",
     "Run": "開始計算",
+    "StopCal": "停止計算",
     "ReRun": "重新計算",
     "StaticConfig": "静态配置（不影响计算）",
     "CharLevel": "角色等级",
