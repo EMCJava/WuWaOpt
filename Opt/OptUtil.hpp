@@ -8,6 +8,7 @@ using FloatTy = float;
 
 #include "FullStats.hpp"
 
+#include <source_location>
 #include <sstream>
 #include <chrono>
 #include <queue>
@@ -18,19 +19,22 @@ using FloatTy = float;
 class Stopwatch
 {
 public:
-    Stopwatch( )
+    Stopwatch( std::source_location loc = std::source_location::current( ) )
         : start_time( std::chrono::high_resolution_clock::now( ) )
+        , m_SourceLocation( loc )
     { }
 
     ~Stopwatch( )
     {
         auto end_time = std::chrono::high_resolution_clock::now( );
         auto duration = std::chrono::duration_cast<std::chrono::microseconds>( end_time - start_time ).count( );
-        spdlog::info( "Elapsed time: {} seconds", duration / 1000'000.f );
+        spdlog::info( "[{}] Elapsed time: {} seconds", m_SourceLocation.function_name( ), duration / 1000'000.f );
     }
 
 private:
     std::chrono::time_point<std::chrono::high_resolution_clock> start_time;
+
+    std::source_location m_SourceLocation;
 };
 
 template <std::size_t Count>
