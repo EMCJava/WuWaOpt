@@ -4,20 +4,23 @@
 
 #pragma once
 
+#include <Opt/UI/Backpack.hpp>
 #include <Opt/Config/OptimizerConfig.hpp>
 #include <Opt/UI/PlotCombinationMeta.hpp>
 #include <Opt/FullStats.hpp>
 
 class CombinationMetaCache
 {
-    const std::vector<FullStats>&      FullEchoList;
     const std::vector<EffectiveStats>& EffectiveEchoList;
 
-    std::array<int, 5>          m_CombinationEchoIndices { };
+    // This should only be used for comparing caches
+    std::array<int, 5> m_CombinationEchoIndices { };
+
     std::vector<EffectiveStats> m_Echoes { };
+    std::vector<FullStats>      m_FullEchoes { };
     std::vector<std::string>    m_EchoNames { };
 
-    int            m_CachedConfigStateID { };
+    int            m_CachedStateID { };
     EffectiveStats m_CommonStats { };
     EffectiveStats m_CombinationStats { };
 
@@ -40,20 +43,19 @@ class CombinationMetaCache
     FloatTy m_CritDamage     = 0;
     FloatTy m_ExpectedDamage = 0;
 
-    int m_CostCombinationTypeIndex = 0;
-    int m_ElementOffset            = 0;
-    int SlotCount                  = 0;
-    int m_Rank                     = 0;
+    int m_ElementOffset = 0;
+    int SlotCount       = 0;
 
     bool m_Valid = false;
 
     void CalculateDamages( );
 
 public:
-    explicit CombinationMetaCache( const std::vector<FullStats>& FullEchoList, const std::vector<EffectiveStats>& EffectiveEchoList );
+    explicit CombinationMetaCache( const std::vector<EffectiveStats>& EffectiveEchoList );
 
-    void SetAsCombination( const EffectiveStats& CS,
-                           int EO, int CI, int R,
+    void SetAsCombination( const Backpack&       BackPack,
+                           const EffectiveStats& CS,
+                           int EO,
                            const PlotCombinationMeta& CombinationDetails,
                            const OptimizerConfig&     Config );
 
@@ -70,15 +72,19 @@ public:
     [[nodiscard]] auto GetExpectedDamage( ) const noexcept { return m_ExpectedDamage; }
 
     [[nodiscard]] auto& GetEffectiveEchoAtSlot( int SlotIndex ) const noexcept { return m_Echoes[ SlotIndex ]; };
+    [[nodiscard]] auto& GetFullEchoAtSlot( int SlotIndex ) const noexcept { return m_FullEchoes[ SlotIndex ]; };
     [[nodiscard]] auto& GetEchoNameAtSlot( int SlotIndex ) const noexcept { return m_EchoNames[ SlotIndex ]; };
-    [[nodiscard]] auto  GetEchoIndexAtSlot( int SlotIndex ) const noexcept { return m_CombinationEchoIndices[ SlotIndex ]; };
     [[nodiscard]] auto  GetEdDropPercentageWithoutAt( int Index ) const noexcept { return m_EdDropPercentageWithoutAt[ Index ]; };
 
     [[nodiscard]] auto& GetIncreasePayOff( ) const noexcept { return m_IncreasePayOff; }
     [[nodiscard]] auto& GetIncreasePayOffWeight( ) const noexcept { return m_IncreasePayOffWeight; }
     [[nodiscard]] auto& GetDisplayStats( ) const noexcept { return m_DisplayStats; }
 
-    bool operator==( const CombinationMetaCache& Other ) const noexcept;
+    bool operator==( const CombinationMetaCache& Other ) const noexcept
+    {
+        return m_Valid == Other.m_Valid && m_CachedStateID == Other.m_CachedStateID && m_ElementOffset == Other.m_ElementOffset && std::ranges::equal( m_CombinationEchoIndices, Other.m_CombinationEchoIndices );
+    }
+
     bool operator!=( const CombinationMetaCache& Other ) const noexcept
     {
         return !( *this == Other );

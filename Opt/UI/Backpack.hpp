@@ -26,6 +26,9 @@ public:
 
         m_ContentAvailable.resize( m_Content.size( ), true );
         m_FocusEcho = -1;
+
+        m_Hash = 0;
+        UpdateSelectedContent( );
     }
 
     /*

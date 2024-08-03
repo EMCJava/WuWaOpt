@@ -538,12 +538,18 @@ WuWaGA::Run( FloatTy BaseAttack, const EffectiveStats& CommonStats, const Multip
 {
     m_Threads.clear( );
 
+    if ( m_Echos == nullptr )
+    {
+        spdlog::warn( "Empty echo set to optimize" );
+        return;
+    }
+
     m_EffectiveEchos =
-        m_Echos
+        ( *m_Echos )
         | std::views::transform( ToEffectiveStats<ElementType> )
         | std::ranges::to<std::vector>( );
 
-    assert( m_EffectiveEchos.size( ) == m_Echos.size( ) );
+    assert( m_EffectiveEchos.size( ) == m_Echos->size( ) );
 
     // clang-format off
     m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ElementType, 4, 4, 4, 0, 0>, this, std::placeholders::_1,  0, BaseAttack, CommonStats, OptimizeMultiplierConfig, Constraints ) ) );

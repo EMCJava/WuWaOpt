@@ -49,14 +49,12 @@ public:
 
     static constexpr int ResultLength = 100;
 
-    explicit WuWaGA( auto& Echos )
-        : m_Echos( Echos )
-    { }
-
     [[nodiscard]] auto& GetReport( ) noexcept { return m_GAReport; }
 
     template <char ElementType>
     inline void Run( FloatTy BaseAttack, const EffectiveStats& CommonStats, const MultiplierConfig* OptimizeMultiplierConfig, const EchoConstraint& Constraints );
+
+    void SetEchoes( const auto& Echoes ) noexcept { m_Echos = &Echoes; }
 
     [[nodiscard]] auto& GetEffectiveEchos( ) const noexcept { return m_EffectiveEchos; }
 
@@ -69,7 +67,7 @@ protected:
 
     int m_PopulationSize = 200000, m_ReproduceSize = 0.2 * m_PopulationSize;
 
-    const std::vector<FullStats>& m_Echos;
+    std::vector<FullStats> const* m_Echos = nullptr;
     std::vector<EffectiveStats>   m_EffectiveEchos;
 
     std::vector<std::unique_ptr<std::jthread>> m_Threads;

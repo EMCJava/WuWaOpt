@@ -6,9 +6,8 @@
 
 #include <Opt/OptimizerParmSwitcher.hpp>
 
-CombinationMetaCache::CombinationMetaCache( const std::vector<FullStats>& FullEchoList, const std::vector<EffectiveStats>& EffectiveEchoList )
-    : FullEchoList( FullEchoList )
-    , EffectiveEchoList( EffectiveEchoList )
+CombinationMetaCache::CombinationMetaCache( const std::vector<EffectiveStats>& EffectiveEchoList )
+    : EffectiveEchoList( EffectiveEchoList )
 {
 }
 
@@ -20,21 +19,19 @@ CombinationMetaCache::Deactivate( )
 }
 
 void
-CombinationMetaCache::SetAsCombination( const EffectiveStats& CS, int EO, int CI, int R, const PlotCombinationMeta& CombinationDetails, const OptimizerConfig& Config )
+CombinationMetaCache::SetAsCombination( const Backpack& BackPack, const EffectiveStats& CS, int EO, const PlotCombinationMeta& CombinationDetails, const OptimizerConfig& Config )
 {
-    m_CostCombinationTypeIndex = CI;
-    m_Rank                     = R;
-    SlotCount                  = WuWaGA::GetCombinationLength( m_CostCombinationTypeIndex );
+    SlotCount = std::distance( CombinationDetails.Indices.begin( ), std::ranges::find( CombinationDetails.Indices, -1 ) );
 
     std::array<int, 5> NewEchoIndices { };
     for ( int i = 0; i < SlotCount; ++i )
         NewEchoIndices[ i ] = CombinationDetails.Indices[ i ];
 
     // Check if the combination has changed
-    if ( m_Valid && m_ElementOffset == EO && m_CachedConfigStateID == Config.InternalStateID && std::ranges::equal( NewEchoIndices, m_CombinationEchoIndices ) ) return;
+    if ( m_Valid && m_ElementOffset == EO && m_CachedStateID == Config.InternalStateID + BackPack.GetHash( ) && std::ranges::equal( NewEchoIndices, m_CombinationEchoIndices ) ) return;
     m_CombinationEchoIndices = NewEchoIndices;
     m_CommonStats            = CS;
-    m_CachedConfigStateID    = Config.InternalStateID;
+    m_CachedStateID          = Config.InternalStateID + BackPack.GetHash( );
     m_OptimizerCfg           = Config;
 
     m_ElementOffset = EO;
@@ -50,10 +47,17 @@ CombinationMetaCache::SetAsCombination( const EffectiveStats& CS, int EO, int CI
         | IndexToEchoTransform
         | std::ranges::to<std::vector>( );
 
+    m_FullEchoes =
+        std::views::iota( 0, SlotCount )
+        | std::views::transform( [ & ]( int EchoIndex ) -> FullStats {
+              return BackPack.GetSelectedContent( )[ m_CombinationEchoIndices[ EchoIndex ] ];
+          } )
+        | std::ranges::to<std::vector>( );
+
     m_EchoNames =
         std::views::iota( 0, SlotCount )
         | std::views::transform( [ & ]( int EchoIndex ) {
-              return FullEchoList[ m_CombinationEchoIndices[ EchoIndex ] ].EchoName;
+              return BackPack.GetSelectedContent( )[ m_CombinationEchoIndices[ EchoIndex ] ].EchoName;
           } )
         | std::ranges::to<std::vector>( );
 
@@ -180,8 +184,9 @@ CombinationMetaCache::GetEDReplaceEchoAt( int EchoIndex, EffectiveStats Echo ) c
     return NewED;
 }
 
-bool
-CombinationMetaCache::operator==( const CombinationMetaCache& Other ) const noexcept
-{
-    return m_Valid == Other.m_Valid && m_CostCombinationTypeIndex == Other.m_CostCombinationTypeIndex && m_Rank == Other.m_Rank && m_ElementOffset == Other.m_ElementOffset;
-}
+// bool
+// CombinationMetaCache::operator==( const CombinationMetaCache& Other ) const noexcept
+//{
+//
+//     return m_Valid == Other.m_Valid && m_CachedStateID == Other.m_CachedStateID && m_ElementOffset == Other.m_ElementOffset && std::ranges::equal( m_CombinationEchoIndices, Other.m_CombinationEchoIndices );
+// }

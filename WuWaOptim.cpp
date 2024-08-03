@@ -221,7 +221,7 @@ main( int argc, char** argv )
           "LightDamage" }
     };
 
-    WuWaGA                        Opt( FullStatsList );
+    WuWaGA                        Opt;
     std::list<CombinationTweaker> CombinationTweaks;
 
     constexpr auto   ChartSplitWidth = 700;
@@ -261,6 +261,7 @@ main( int argc, char** argv )
 
     OptimizerUIConfig UIConfig( LanguageProvider );
     UIConfig.LoadTexture( "Translate", "data/translate_icon.png" );
+    UIConfig.LoadTexture( "Backpack", "data/backpack.png" );
     UIConfig.LoadTexture( "Settings", "data/settings.png" );
     UIConfig.LoadTexture( "Lock", "data/lock.png" );
     UIConfig.LoadTexture( "Unlock", "data/unlock.png" );
@@ -283,6 +284,7 @@ main( int argc, char** argv )
 
     Backpack PlayerBackpack( LanguageProvider );
     PlayerBackpack.Set( FullStatsList );
+    Opt.SetEchoes( PlayerBackpack.GetSelectedContent( ) );
 
     EchoConstraint Constraints( LanguageProvider );
 
@@ -300,8 +302,8 @@ main( int argc, char** argv )
     std::array<int, GARuntimeReport::MaxCombinationCount>                                                       CombinationLegendIndex { };
 
     EchoPotential        SelectedEchoPotential;
-    CombinationMetaCache SelectedStatsCache { FullStatsList, Opt.GetEffectiveEchos( ) };
-    CombinationMetaCache HoverStatsCache { FullStatsList, Opt.GetEffectiveEchos( ) };
+    CombinationMetaCache SelectedStatsCache { Opt.GetEffectiveEchos( ) };
+    CombinationMetaCache HoverStatsCache { Opt.GetEffectiveEchos( ) };
 
     const auto DisplayCombination =
         [ & ]( CombinationMetaCache& MainDisplayStats ) {
@@ -364,7 +366,7 @@ main( int argc, char** argv )
             };
 
             ImGui::SeparatorText( LanguageProvider[ "EffectiveStats" ] );
-            if ( ImGui::BeginTable( "EffectiveStats", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_SizingStretchSame ) )
+            if ( MainDisplayStats.IsValid( ) && ImGui::BeginTable( "EffectiveStats", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_SizingStretchSame ) )
             {
                 ImGui::TableSetupColumn( LanguageProvider[ "Stat" ] );
                 ImGui::TableSetupColumn( LanguageProvider[ "Number" ] );
@@ -398,7 +400,7 @@ main( int argc, char** argv )
 
             ImGui::SeparatorText( LanguageProvider[ "Combination" ] );
 
-            if ( ImGui::BeginTable( "EffectiveStats", 1, ImGuiTableFlags_Borders | ImGuiTableFlags_SizingStretchSame ) )
+            if ( MainDisplayStats.IsValid( ) && ImGui::BeginTable( "EffectiveStats", 1, ImGuiTableFlags_Borders | ImGuiTableFlags_SizingStretchSame ) )
             {
                 for ( int i = 0; i < MainDisplayStats.GetSlotCount( ); ++i )
                 {
@@ -408,8 +410,7 @@ main( int argc, char** argv )
                     if ( MainDisplayStats.GetEdDropPercentageWithoutAt( i ) != 0 )
                         ImGui::TableSetBgColor( ImGuiTableBgTarget_RowBg1, ImGui::GetColorU32( ImVec4( 0.2f + MainDisplayStats.GetEdDropPercentageWithoutAt( i ) * 0.6f, 0.2f, 0.2f, 0.65f ) ) );
 
-                    const auto  Index        = MainDisplayStats.GetEchoIndexAtSlot( i );
-                    const auto& SelectedEcho = FullStatsList[ Index ];
+                    const auto& SelectedEcho = MainDisplayStats.GetFullEchoAtSlot( i );
                     // ImGui::Text( "%s", std::format( "{:=^54}", Index ).c_str( ) );
 
                     ImGui::Text( "%s", std::format( "{:8}:", LanguageProvider[ "EchoSet" ] ).c_str( ) );
@@ -555,29 +556,33 @@ main( int argc, char** argv )
                             }
                         }
 
-                        auto& SelectedResult = ResultDisplayBuffer[ ClosestCombination ][ Rank ];
-
-                        ImPlot::PushPlotClipRect( );
-                        draw_list->AddCircleFilled( ImPlot::PlotToPixels( (float) Rank, SelectedResult.Value ), 5, IM_COL32( 255, 0, 0, 255 ) );
-                        ImPlot::PopPlotClipRect( );
-
-                        ImGui::BeginTooltip( );
-                        HoverStatsCache.SetAsCombination( GetCommonStat( ),
-                                                          OConfig.SelectedElement,
-                                                          ClosestCombination, Rank,
-                                                          SelectedResult,
-                                                          OConfig );
-                        DisplayCombination( HoverStatsCache );
-                        ImGui::EndTooltip( );
-
-                        // Select the echo combination
-                        if ( sf::Mouse::isButtonPressed( sf::Mouse::Button::Left ) )
+                        // Only allow hover/selection for valid result
+                        if ( ResultDisplayBuffer[ ClosestCombination ][ Rank ].Value > 0 )
                         {
-                            SelectedStatsCache.SetAsCombination( GetCommonStat( ),
-                                                                 OConfig.SelectedElement,
-                                                                 ClosestCombination, Rank,
-                                                                 SelectedResult,
-                                                                 OConfig );
+                            auto& SelectedResult = ResultDisplayBuffer[ ClosestCombination ][ Rank ];
+
+                            ImPlot::PushPlotClipRect( );
+                            draw_list->AddCircleFilled( ImPlot::PlotToPixels( (float) Rank, SelectedResult.Value ), 5, IM_COL32( 255, 0, 0, 255 ) );
+                            ImPlot::PopPlotClipRect( );
+
+                            ImGui::BeginTooltip( );
+                            HoverStatsCache.SetAsCombination( PlayerBackpack,
+                                                              GetCommonStat( ),
+                                                              OConfig.SelectedElement,
+                                                              SelectedResult,
+                                                              OConfig );
+                            DisplayCombination( HoverStatsCache );
+                            ImGui::EndTooltip( );
+
+                            // Select the echo combination
+                            if ( sf::Mouse::isButtonPressed( sf::Mouse::Button::Left ) )
+                            {
+                                SelectedStatsCache.SetAsCombination( PlayerBackpack,
+                                                                     GetCommonStat( ),
+                                                                     OConfig.SelectedElement,
+                                                                     SelectedResult,
+                                                                     OConfig );
+                            }
                         }
                     }
 
@@ -633,9 +638,9 @@ main( int argc, char** argv )
                                 ImPlot::PopPlotClipRect( );
 
                                 ImGui::BeginTooltip( );
-                                HoverStatsCache.SetAsCombination( GetCommonStat( ),
+                                HoverStatsCache.SetAsCombination( PlayerBackpack,
+                                                                  GetCommonStat( ),
                                                                   OConfig.SelectedElement,
-                                                                  ClosestCombination, ClosestRank,
                                                                   ResultDisplayBuffer[ ClosestCombination ][ ClosestRank ],
                                                                   OConfig );
                                 DisplayCombination( HoverStatsCache );
@@ -644,10 +649,9 @@ main( int argc, char** argv )
                                 // Select the echo combination
                                 if ( sf::Mouse::isButtonPressed( sf::Mouse::Button::Left ) )
                                 {
-                                    SelectedStatsCache.SetAsCombination( GetCommonStat( ),
+                                    SelectedStatsCache.SetAsCombination( PlayerBackpack,
+                                                                         GetCommonStat( ),
                                                                          OConfig.SelectedElement,
-                                                                         ClosestCombination,
-                                                                         ClosestRank,
                                                                          ResultDisplayBuffer[ ClosestCombination ][ ClosestRank ],
                                                                          OConfig );
                                 }
@@ -846,14 +850,13 @@ main( int argc, char** argv )
         }
         ImGui::End( );
 
-        const sf::Vector2f SLIconSize = sf::Vector2f( 30, 30 );
-        ImGui::SetNextWindowPos( ImVec2 { viewport->WorkSize.x - SLIconSize.x - 10, viewport->WorkPos.y }, ImGuiCond_Always );
-
         ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, ImVec2 { 5, 5 } );
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2 { 0, 0 } );
         ImGui::PushStyleVar( ImGuiStyleVar_WindowRounding, 0 );
         ImGui::PushStyleVar( ImGuiStyleVar_WindowBorderSize, 0 );
 
+        const sf::Vector2f SLIconSize = sf::Vector2f( 30, 30 );
+        ImGui::SetNextWindowPos( ImVec2 { viewport->WorkSize.x - SLIconSize.x - 10, viewport->WorkPos.y }, ImGuiCond_Always );
         if ( ImGui::Begin( "Language", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove ) )
         {
             if ( ImGui::ImageButton( *UIConfig.GetTexture( "Translate" ), SLIconSize ) )
@@ -880,11 +883,33 @@ main( int argc, char** argv )
             ImGui::EndPopup( );
         }
 
-        if ( !Opt.IsRunning( ) )
+        ImGui::End( );
+
+        ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, ImVec2 { 5, 5 } );
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2 { 0, 0 } );
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowRounding, 0 );
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowBorderSize, 0 );
+
+        const auto OptRunning = Opt.IsRunning( );
+        ImGui::SetNextWindowPos( ImVec2 { viewport->WorkSize.x - SLIconSize.x * 2 - 20, viewport->WorkPos.y }, ImGuiCond_Always );
+        if ( ImGui::Begin( "BackpackIcon", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove ) )
+        {
+            if ( OptRunning ) ImGui::BeginDisabled( );
+            if ( ImGui::ImageButton( *UIConfig.GetTexture( "Backpack" ), SLIconSize ) )
+            {
+                ImGui::OpenPopup( LanguageProvider[ "Backpack" ] );
+            }
+            if ( OptRunning ) ImGui::EndDisabled( );
+        }
+
+        ImGui::PopStyleVar( 4 );
+
+        if ( !OptRunning )
         {
             if ( PlayerBackpack.DisplayBackpack( ) )
             {
                 spdlog::info( "Backpack changes" );
+                Opt.SetEchoes( PlayerBackpack.GetSelectedContent( ) );
             }
         }
 
