@@ -47,7 +47,7 @@ public:
 
     static constexpr int GetCombinationLength( int Index ) { return std::char_traits<char>::length( CombinationLabels[ Index ] ); }
 
-    static constexpr int ResultLength = 100;
+    static constexpr int ResultLength = 30;
 
     [[nodiscard]] auto& GetReport( ) noexcept { return m_GAReport; }
 
