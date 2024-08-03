@@ -130,3 +130,18 @@ Backpack::DisplayBackpack( )
         ImGui::OpenPopup( LanguageProvider[ "Backpack" ] );
     }
 }
+
+void
+Backpack::UpdateSelectedContent( )
+{
+    auto SelectionResult =
+        m_Content
+        | std::views::filter( [ this ]( auto& C ) -> bool {
+              return m_ContentAvailable[ &C - m_Content.data( ) ];
+          } );
+
+    m_SelectedContent.clear( );
+    std::ranges::copy( SelectionResult, std::back_inserter( m_SelectedContent ) );
+
+    ++m_Hash;
+}
