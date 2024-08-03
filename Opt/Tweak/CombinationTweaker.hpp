@@ -32,6 +32,8 @@ class CombinationTweaker : public LanguageObserver
 {
     static constexpr int MaxRollCount = 5;
 
+    const CombinationMetaCache m_TweakerTarget;
+
     int                            m_EchoSlotIndex      = -1;
     int                            m_UsedSubStatCount   = 0;
     std::array<StatValueConfig, 5> m_EchoSubStatConfigs = { };
@@ -84,8 +86,7 @@ class CombinationTweaker : public LanguageObserver
     void InitializePascalTriangle( );
 
 public:
-    CombinationTweaker( Loca& LanguageProvider );
+    CombinationTweaker( Loca& LanguageProvider, CombinationMetaCache Target );
 
-    void TweakerMenu( const CombinationMetaCache&                            Target,
-                      const std::map<std::string, std::vector<std::string>>& EchoNamesBySet );
+    void TweakerMenu( const std::map<std::string, std::vector<std::string>>& EchoNamesBySet );
 };

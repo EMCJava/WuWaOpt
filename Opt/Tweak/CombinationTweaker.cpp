@@ -40,26 +40,25 @@ inline std::array<StatValueConfig, 5> MaxSecondMainStat {
 };
 
 void
-CombinationTweaker::TweakerMenu( const CombinationMetaCache&                            Target,
-                                 const std::map<std::string, std::vector<std::string>>& EchoNamesBySet )
+CombinationTweaker::TweakerMenu( const std::map<std::string, std::vector<std::string>>& EchoNamesBySet )
 {
-    if ( !Target.IsValid( ) ) return;
+    if ( !m_TweakerTarget.IsValid( ) ) return;
 
     const auto& Style           = ImGui::GetStyle( );
     const auto  EchoConfigWidth = ImGui::GetWindowWidth( );
     ImGui::Dummy( ImVec2 { 0, 5 } );
-    if ( ImGui::BeginTable( "SlotEffectiveness", Target.GetSlotCount( ), ImGuiTableFlags_Borders | ImGuiTableFlags_SizingStretchProp ) )
+    if ( ImGui::BeginTable( "SlotEffectiveness", m_TweakerTarget.GetSlotCount( ), ImGuiTableFlags_Borders | ImGuiTableFlags_SizingStretchProp ) )
     {
         ImGui::PushStyleVar( ImGuiStyleVar_SelectableTextAlign, ImVec2( 0.5f, 0.5f ) );
         ImGui::TableNextRow( );
-        for ( int i = 0; i < Target.GetSlotCount( ); ++i )
+        for ( int i = 0; i < m_TweakerTarget.GetSlotCount( ); ++i )
         {
             ImGui::TableSetColumnIndex( i );
-            const auto EDDrop = Target.GetEdDropPercentageWithoutAt( i );
+            const auto EDDrop = m_TweakerTarget.GetEdDropPercentageWithoutAt( i );
             if ( EDDrop != 0 )
                 ImGui::TableSetBgColor( ImGuiTableBgTarget_CellBg, ImGui::GetColorU32( ImVec4( 0.2f + EDDrop * 0.6f, 0.2f, 0.2f, 0.65f ) ) );
 
-            const auto* EchoName = LanguageProvider[ Target.GetEchoNameAtSlot( i ) ];
+            const auto* EchoName = LanguageProvider[ m_TweakerTarget.GetEchoNameAtSlot( i ) ];
 
             ImGui::PushID( i );
             if ( ImGui::Selectable( EchoName, m_EchoSlotIndex == i ) )
@@ -70,9 +69,9 @@ CombinationTweaker::TweakerMenu( const CombinationMetaCache&                    
         ImGui::EndTable( );
     }
 
-    if ( m_EchoSlotIndex != -1 && m_EchoSlotIndex < Target.GetSlotCount( ) )
+    if ( m_EchoSlotIndex != -1 && m_EchoSlotIndex < m_TweakerTarget.GetSlotCount( ) )
     {
-        auto CurrentTweakingCost = Target.GetEffectiveEchoAtSlot( m_EchoSlotIndex ).Cost;
+        auto CurrentTweakingCost = m_TweakerTarget.GetEffectiveEchoAtSlot( m_EchoSlotIndex ).Cost;
         if ( PreviousTweakingCost != CurrentTweakingCost )
         {
             CurrentTweakingCost = CurrentTweakingCost;
@@ -213,7 +212,7 @@ CombinationTweaker::TweakerMenu( const CombinationMetaCache&                    
                 }
 
                 CalculateEchoPotential( m_SelectedEchoPotential, m_SubStatRollConfigs,
-                                        Target, ConfiguredSubStats,
+                                        m_TweakerTarget, ConfiguredSubStats,
                                         MaxFirstMainStat[ CurrentTweakingCost ][ m_SelectedMainStatTypeIndex ],
                                         MaxSecondMainStat[ CurrentTweakingCost ],
                                         MaxRollCount - m_UsedSubStatCount, m_EchoSlotIndex );
@@ -402,12 +401,13 @@ CombinationTweaker::TweakerMenu( const CombinationMetaCache&                    
     }
 }
 
-CombinationTweaker::CombinationTweaker( Loca& LanguageProvider )
+CombinationTweaker::CombinationTweaker( Loca& LanguageProvider, CombinationMetaCache m_TweakerTarget )
     : LanguageObserver( LanguageProvider )
     , m_EchoNames( LanguageProvider )
     , m_SetNames( LanguageProvider )
     , m_SubStatLabel( LanguageProvider )
     , m_MainStatLabel( LanguageProvider )
+    , m_TweakerTarget( std::move( m_TweakerTarget ) )
 {
     CombinationTweaker::OnLanguageChanged( &LanguageProvider );
 

@@ -800,7 +800,7 @@ main( int argc, char** argv )
                 {
                     if ( ImGui::TabItemButton( "+", ImGuiTabItemFlags_Trailing | ImGuiTabItemFlags_NoTooltip ) )
                     {
-                        CombinationTweaks.emplace_back( LanguageProvider );
+                        CombinationTweaks.emplace_back( LanguageProvider, SelectedStatsCache );
                     }
 
                     if ( ImGui::BeginTabItem( LanguageProvider[ "CombinationDetail" ] ) )
@@ -823,7 +823,7 @@ main( int argc, char** argv )
                         Label += " #" + std::to_string( Index );
                         if ( ImGui::BeginTabItem( Label.c_str( ), &KeepOpen, ImGuiTabItemFlags_None ) )
                         {
-                            TweakIt->TweakerMenu( SelectedStatsCache, EchoNameBySet );
+                            TweakIt->TweakerMenu( EchoNameBySet );
 
                             ImGui::EndTabItem( );
                         }
