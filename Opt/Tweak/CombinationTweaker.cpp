@@ -39,6 +39,17 @@ inline std::array<StatValueConfig, 5> MaxSecondMainStat {
     StatValueConfig { &EffectiveStats::flat_attack, 150 },
 };
 
+
+void
+DisplayTextAt( auto&& Text, float Center )
+{
+    const auto SV          = std::string_view { Text };
+    const auto WindowWidth = ImGui::GetWindowWidth( );
+    const auto TextWidth   = ImGui::CalcTextSize( SV.data( ) ).x;
+    ImGui::SetCursorPosX( WindowWidth * Center - TextWidth * 0.5f );
+    ImGui::Text( "%s", SV.data( ) );
+}
+
 void
 CombinationTweaker::TweakerMenu( const std::map<std::string, std::vector<std::string>>& EchoNamesBySet )
 {
@@ -62,7 +73,10 @@ CombinationTweaker::TweakerMenu( const std::map<std::string, std::vector<std::st
 
             ImGui::PushID( i );
             if ( ImGui::Selectable( EchoName, m_EchoSlotIndex == i ) )
+            {
                 m_EchoSlotIndex = m_EchoSlotIndex != i ? i : -1;
+                ClearPotentialCache( );
+            }
             ImGui::PopID( );
         }
         ImGui::PopStyleVar( );
@@ -105,21 +119,28 @@ CombinationTweaker::TweakerMenu( const std::map<std::string, std::vector<std::st
                           return Str.c_str( );
                       } )
                     | std::ranges::to<std::vector>( ) );
+                ClearPotentialCache( );
             }
             ImGui::SameLine( );
 
             ImGui::SetNextItemWidth( 160 );
-            ImGui::Combo( LanguageProvider[ "EchoName" ],
-                          &m_SelectedEchoNameID,
-                          m_EchoNames.GetRawStrings( ),
-                          m_EchoNames.GetStringCount( ) );
+            if ( ImGui::Combo( LanguageProvider[ "EchoName" ],
+                               &m_SelectedEchoNameID,
+                               m_EchoNames.GetRawStrings( ),
+                               m_EchoNames.GetStringCount( ) ) )
+            {
+                ClearPotentialCache( );
+            }
 
             ImGui::SameLine( );
             ImGui::SetNextItemWidth( 120 );
-            ImGui::Combo( LanguageProvider[ "MainStat" ],
-                          &m_SelectedMainStatTypeIndex,
-                          m_MainStatLabel.GetRawStrings( ),
-                          m_MainStatLabel.GetStringCount( ) );
+            if ( ImGui::Combo( LanguageProvider[ "MainStat" ],
+                               &m_SelectedMainStatTypeIndex,
+                               m_MainStatLabel.GetRawStrings( ),
+                               m_MainStatLabel.GetStringCount( ) ) )
+            {
+                ClearPotentialCache( );
+            }
         }
 
         ImGui::SeparatorText( LanguageProvider[ "SubStats" ] );
@@ -212,9 +233,7 @@ CombinationTweaker::TweakerMenu( const std::map<std::string, std::vector<std::st
                 }
 
                 CalculateEchoPotential( m_SelectedEchoPotential,
-                                        m_TweakerTarget, ConfiguredSubStats,
-                                        MaxFirstMainStat[ CurrentTweakingCost ][ m_SelectedMainStatTypeIndex ],
-                                        MaxSecondMainStat[ CurrentTweakingCost ],
+                                        ConfiguredSubStats,
                                         MaxRollCount - m_UsedSubStatCount );
             } else
             {
@@ -231,17 +250,43 @@ CombinationTweaker::TweakerMenu( const std::map<std::string, std::vector<std::st
                 m_SelectedEchoPotential.CDFChangeToED.begin( ),
                 std::ranges::lower_bound( m_SelectedEchoPotential.CDFChangeToED, (FloatTy) m_DragEDTargetY ) );
 
+        if ( m_FullPotentialCache )
+        {
+            const auto SimpleViewWidth = EchoConfigWidth - Style.WindowPadding.x * 2;
+            ImGui::BeginChild( "Yes/No", ImVec2( SimpleViewWidth, 0 ), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY );
+            ImGui::Spacing( );
+
+            OptimizerUIConfig::PushFont( OptimizerUIConfig::Big );
+            static constexpr std::array<int, 6> CumulativeEXP { 0, 4400, 16500, 39600, 79100, 142600 };
+
+            const auto UsedEXP = CumulativeEXP[ m_UsedSubStatCount ];
+
+            const auto RenewableEXP  = static_cast<decltype( UsedEXP )>( UsedEXP * 0.75 );
+            const auto NewEchoEXPReq = CumulativeEXP.back( ) - RenewableEXP;
+
+            const auto ImprovementPerEXPNew   = m_FullPotentialCache->ExpectedChangeToED / NewEchoEXPReq;
+            const auto ImprovementPerEXPStick = m_SelectedEchoPotential.ExpectedChangeToED / ( CumulativeEXP.back( ) - UsedEXP );
+            if ( ImprovementPerEXPStick >= ImprovementPerEXPNew )
+            {
+                ImGui::PushStyleColor( ImGuiCol_Text, IM_COL32( 0, 255, 0, 255 ) );
+                DisplayTextAt( LanguageProvider[ "KeepUG" ], 0.5 );
+            } else
+            {
+                ImGui::PushStyleColor( ImGuiCol_Text, IM_COL32( 255, 0, 0, 255 ) );
+                DisplayTextAt( LanguageProvider[ "StopUG" ], 0.5 );
+            }
+            ImGui::PopStyleColor( );
+
+            ImGui::PopFont( );
+
+            ImGui::Spacing( );
+            ImGui::EndChild( );
+        }
+
+        if ( ImGui::CollapsingHeader( LanguageProvider[ "KeyEDDis" ] ) )
         {
             const auto SimpleViewWidth = EchoConfigWidth - Style.WindowPadding.x * 2;
             ImGui::BeginChild( "SimpleView", ImVec2( SimpleViewWidth, 0 ), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY );
-
-            const auto DisplayTextAt = [ = ]( auto&& Text, float Center ) {
-                const auto SV          = std::string_view { Text };
-                const auto WindowWidth = ImGui::GetWindowWidth( );
-                const auto TextWidth   = ImGui::CalcTextSize( SV.data( ) ).x;
-                ImGui::SetCursorPosX( WindowWidth * Center - TextWidth * 0.5f );
-                ImGui::Text( "%s", SV.data( ) );
-            };
 
             const auto DisplayNumberCompare =
                 [ & ]( auto& OptionalLock, auto&& Value ) {
@@ -442,15 +487,13 @@ CombinationTweaker::CombinationTweaker( Loca& LanguageProvider, CombinationMetaC
 void
 CombinationTweaker::ApplyStats(
     std::vector<std::pair<FloatTy, ValueRollRate::RateTy>>& Results,
-    const CombinationMetaCache&                             Environment,
     const SubStatRollConfig**                               PickedRollPtr,
     const EffectiveStats&                                   Stats,
     ValueRollRate::RateTy                                   CurrentRate )
 {
     if ( *PickedRollPtr == nullptr )
     {
-        Results.emplace_back( Environment.GetEDReplaceEchoAt( m_EchoSlotIndex, Stats ), CurrentRate );
-        std::ranges::push_heap( Results );
+        Results.emplace_back( m_TweakerTarget.GetEDReplaceEchoAt( m_EchoSlotIndex, Stats ), CurrentRate );
         return;
     }
 
@@ -460,7 +503,6 @@ CombinationTweaker::ApplyStats(
     {
         ApplyStats(
             Results,
-            Environment,
             PickedRollPtr + 1,
             Stats + StatValueConfig { PickedRoll.ValuePtr, PickedRoll.Values[ i ].Value },
             CurrentRate * PickedRoll.Values[ i ].Rate );
@@ -468,9 +510,64 @@ CombinationTweaker::ApplyStats(
 }
 
 void
-CombinationTweaker::CalculateEchoPotential( EchoPotential& Result, const CombinationMetaCache& Environment, EffectiveStats CurrentSubStats, const StatValueConfig& FirstMainStat, const StatValueConfig& SecondMainStat, int RollRemaining )
+CombinationTweaker::CalculateFullPotential( )
 {
     Stopwatch SP;
+    ClearPotentialCache( );
+
+    std::vector<std::pair<FloatTy, ValueRollRate::RateTy>> AllPossibleEcho;
+    const auto                                             TweakingCost = m_TweakerTarget.GetEffectiveEchoAtSlot( m_EchoSlotIndex ).Cost;
+    EffectiveStats                                         ConfiguredEcho {
+                                                .Set    = (EchoSet) m_SelectedEchoSet,
+                                                .NameID = m_SelectedEchoNameID,
+                                                .Cost   = TweakingCost };
+
+    {
+        const StatValueConfig& FirstMainStat  = MaxFirstMainStat[ TweakingCost ][ m_SelectedMainStatTypeIndex ];
+        const StatValueConfig& SecondMainStat = MaxSecondMainStat[ TweakingCost ];
+        ConfiguredEcho.*( MaxFirstMainStat[ TweakingCost ][ m_SelectedMainStatTypeIndex ].ValuePtr ) += FirstMainStat.Value;
+        ConfiguredEcho.*( MaxSecondMainStat[ TweakingCost ].ValuePtr ) += SecondMainStat.Value;
+    }
+
+    std::vector<const SubStatRollConfig*> PickedRoll( MaxRollCount + /*  For terminating recursive call */ 1, nullptr );
+
+    for ( int EffectiveRolls = 0; EffectiveRolls <= MaxRollCount; ++EffectiveRolls )
+    {
+        const auto Duplicates = m_PascalTriangle[ m_NonEffectiveSubStatCount ][ MaxRollCount - EffectiveRolls ];
+
+        std::string bitmask( EffectiveRolls, 1 );
+        bitmask.resize( m_SubStatRollConfigs.size( ), 0 );
+
+        std::ranges::fill( PickedRoll, nullptr );
+        do
+        {
+            uint32_t SubStatPickID = 0;
+            for ( int j = 0, poll_index = 0; j < m_SubStatRollConfigs.size( ); ++j )
+            {
+                if ( bitmask[ j ] )
+                {
+                    SubStatPickID <<= 6;
+                    SubStatPickID |= j;
+                    PickedRoll[ poll_index++ ] = &m_SubStatRollConfigs[ j ];
+                }
+            }
+
+            ApplyStats(
+                AllPossibleEcho,
+                PickedRoll.data( ),
+                ConfiguredEcho,
+                1.0 * Duplicates );
+        } while ( std::ranges::prev_permutation( bitmask ).found );
+    }
+
+    m_FullPotentialCache = std::make_unique<EchoPotential>( AnalyzeEchoPotential( AllPossibleEcho ) );
+}
+
+void
+CombinationTweaker::CalculateEchoPotential( EchoPotential& Result, EffectiveStats CurrentSubStats, int RollRemaining )
+{
+    Stopwatch SP;
+    if ( !m_FullPotentialCache ) CalculateFullPotential( );
 
     std::vector<std::pair<FloatTy, ValueRollRate::RateTy>> AllPossibleEcho;
 
@@ -486,8 +583,13 @@ CombinationTweaker::CalculateEchoPotential( EchoPotential& Result, const Combina
         throw std::runtime_error( "Not enough rolls remaining to complete the combination." );
     }
 
-    if ( FirstMainStat.ValuePtr != nullptr ) CurrentSubStats.*( FirstMainStat.ValuePtr ) += FirstMainStat.Value;
-    if ( SecondMainStat.ValuePtr != nullptr ) CurrentSubStats.*( SecondMainStat.ValuePtr ) += SecondMainStat.Value;
+    {
+        const auto             TweakingCost   = m_TweakerTarget.GetEffectiveEchoAtSlot( m_EchoSlotIndex ).Cost;
+        const StatValueConfig& FirstMainStat  = MaxFirstMainStat[ TweakingCost ][ m_SelectedMainStatTypeIndex ];
+        const StatValueConfig& SecondMainStat = MaxSecondMainStat[ TweakingCost ];
+        CurrentSubStats.*( MaxFirstMainStat[ TweakingCost ][ m_SelectedMainStatTypeIndex ].ValuePtr ) += FirstMainStat.Value;
+        CurrentSubStats.*( MaxSecondMainStat[ TweakingCost ].ValuePtr ) += SecondMainStat.Value;
+    }
 
     std::vector<const SubStatRollConfig*> PickedRoll( RollRemaining + /*  For terminating recursive call */ 1, nullptr );
 
@@ -511,71 +613,12 @@ CombinationTweaker::CalculateEchoPotential( EchoPotential& Result, const Combina
                 }
             }
 
-            ApplyStats(
-                AllPossibleEcho,
-                Environment,
-                PickedRoll.data( ),
-                CurrentSubStats,
-                1.0 * Duplicates );
-        } while ( std::prev_permutation( bitmask.begin( ), bitmask.end( ) ) );
+            ApplyStats( AllPossibleEcho, PickedRoll.data( ), CurrentSubStats, 1.0 * Duplicates );
+
+        } while ( std::ranges::prev_permutation( bitmask ).found );
     }
 
-    std::ranges::sort_heap( AllPossibleEcho );
-
-    Result.BaselineExpectedDamage = Environment.GetExpectedDamage( );
-    Result.HighestExpectedDamage  = AllPossibleEcho.back( ).first;
-    Result.LowestExpectedDamage   = AllPossibleEcho.front( ).first;
-
-    Result.CDF.resize( EchoPotential::CDFResolution );
-    Result.CDFSmallOrEqED.resize( EchoPotential::CDFResolution );
-
-    const auto DamageIncreasePerTick = ( Result.HighestExpectedDamage - Result.LowestExpectedDamage ) / EchoPotential::CDFResolution;
-
-    ValueRollRate::RateTy CumulatedRate = 0;
-    Result.ExpectedChangeToED           = 0;
-    auto       It                       = AllPossibleEcho.data( );
-    const auto ItEnd                    = &AllPossibleEcho.back( ) + 1;
-    for ( int i = 0; i < EchoPotential::CDFResolution; ++i )
-    {
-        const auto TickDamage = Result.LowestExpectedDamage + i * DamageIncreasePerTick;
-        while ( It->first <= TickDamage && It != ItEnd )
-        {
-            Result.ExpectedChangeToED += It->first * It->second;
-            CumulatedRate += It->second;
-            It++;
-        }
-
-        Result.CDFSmallOrEqED[ i ] = TickDamage;
-        Result.CDF[ i ]            = CumulatedRate;
-    }
-
-    while ( It != ItEnd )
-    {
-        Result.ExpectedChangeToED += It->first * It->second;
-        CumulatedRate += It->second;
-        It++;
-    }
-    Result.CDFSmallOrEqED.push_back( AllPossibleEcho.back( ).first );
-    Result.CDF.push_back( CumulatedRate );
-
-    Result.CDFChangeToED = Result.CDFSmallOrEqED;
-    for ( auto& ED : Result.CDFChangeToED )
-        ED = 100 * ED / Result.BaselineExpectedDamage - 100;
-
-    m_DragEDTargetY = std::clamp( m_DragEDTargetY,
-                                  (double) m_SelectedEchoPotential.CDFChangeToED.front( ),
-                                  (double) m_SelectedEchoPotential.CDFChangeToED.back( ) );
-
-    Result.ExpectedChangeToED /= Result.CDF.back( ) * Result.BaselineExpectedDamage / 100;
-    Result.ExpectedChangeToED -= 100;
-
-    Result.CDFFloat.resize( Result.CDF.size( ) );
-    for ( int i = 0; i < Result.CDF.size( ); ++i )
-    {
-        Result.CDFFloat[ i ] = Result.CDF[ i ] = ( 1 - Result.CDF[ i ] / Result.CDF.back( ) ) * 100;
-    }
-
-    Result.CDFFloat.front( ) = Result.CDF.front( ) = 100;
+    Result = AnalyzeEchoPotential( AllPossibleEcho );
 }
 
 void
@@ -662,4 +705,64 @@ CombinationTweaker::InitializePascalTriangle( )
             m_PascalTriangle[ i ][ j ] = m_PascalTriangle[ i - 1 ][ j - 1 ] + m_PascalTriangle[ i - 1 ][ j ];
         }
     }
+}
+
+EchoPotential
+CombinationTweaker::AnalyzeEchoPotential( std::vector<std::pair<FloatTy, ValueRollRate::RateTy>>& DamageDistribution )
+{
+    EchoPotential Result;
+    std::ranges::sort( DamageDistribution );
+
+    Result.BaselineExpectedDamage = m_TweakerTarget.GetExpectedDamage( );
+    Result.HighestExpectedDamage  = DamageDistribution.back( ).first;
+    Result.LowestExpectedDamage   = DamageDistribution.front( ).first;
+
+    Result.CDF.resize( EchoPotential::CDFResolution );
+    Result.CDFSmallOrEqED.resize( EchoPotential::CDFResolution );
+
+    const auto DamageIncreasePerTick = ( Result.HighestExpectedDamage - Result.LowestExpectedDamage ) / EchoPotential::CDFResolution;
+
+    ValueRollRate::RateTy CumulatedRate = 0;
+    Result.ExpectedChangeToED           = 0;
+    auto       It                       = DamageDistribution.data( );
+    const auto ItEnd                    = &DamageDistribution.back( ) + 1;
+    for ( int i = 0; i < EchoPotential::CDFResolution; ++i )
+    {
+        const auto TickDamage = Result.LowestExpectedDamage + i * DamageIncreasePerTick;
+        while ( It->first <= TickDamage && It != ItEnd )
+        {
+            Result.ExpectedChangeToED += It->first * It->second;
+            CumulatedRate += It->second;
+            It++;
+        }
+
+        Result.CDFSmallOrEqED[ i ] = TickDamage;
+        Result.CDF[ i ]            = CumulatedRate;
+    }
+
+    while ( It != ItEnd )
+    {
+        Result.ExpectedChangeToED += It->first * It->second;
+        CumulatedRate += It->second;
+        It++;
+    }
+    Result.CDFSmallOrEqED.push_back( DamageDistribution.back( ).first );
+    Result.CDF.push_back( CumulatedRate );
+
+    Result.CDFChangeToED = Result.CDFSmallOrEqED;
+    for ( auto& ED : Result.CDFChangeToED )
+        ED = 100 * ED / Result.BaselineExpectedDamage - 100;
+
+    Result.ExpectedChangeToED /= Result.CDF.back( ) * Result.BaselineExpectedDamage / 100;
+    Result.ExpectedChangeToED -= 100;
+
+    Result.CDFFloat.resize( Result.CDF.size( ) );
+    for ( int i = 0; i < Result.CDF.size( ); ++i )
+    {
+        Result.CDFFloat[ i ] = Result.CDF[ i ] = ( 1 - Result.CDF[ i ] / Result.CDF.back( ) ) * 100;
+    }
+
+    Result.CDFFloat.front( ) = Result.CDF.front( ) = 100;
+
+    return Result;
 }

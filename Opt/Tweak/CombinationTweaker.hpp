@@ -62,22 +62,30 @@ class CombinationTweaker : public LanguageObserver
     int /* First time setting up main stat */ PreviousTweakingCost = -1;
     StringArrayObserver                       m_MainStatLabel;
 
+    std::unique_ptr<EchoPotential> m_FullPotentialCache;
+
+    void CalculateFullPotential( );
+    void ClearPotentialCache( )
+    {
+        m_FullPotentialCache.reset( );
+    }
+
+    EchoPotential
+    AnalyzeEchoPotential( std::vector<std::pair<FloatTy, ValueRollRate::RateTy>>& DamageDistribution );
+
     void
     ApplyStats(
         std::vector<std::pair<FloatTy, ValueRollRate::RateTy>>& Results,
-        const CombinationMetaCache&                             Environment,
         const SubStatRollConfig**                               PickedRollPtr,
         const EffectiveStats&                                   Stats,
         ValueRollRate::RateTy                                   CurrentRate = 1 );
 
+
     void
     CalculateEchoPotential(
-        EchoPotential&              Result,
-        const CombinationMetaCache& Environment,
-        EffectiveStats              CurrentSubStats,
-        const StatValueConfig&      FirstMainStat,
-        const StatValueConfig&      SecondMainStat,
-        int                         RollRemaining );
+        EchoPotential& Result,
+        EffectiveStats CurrentSubStats,
+        int            RollRemaining );
 
     void InitializeSubStatRollConfigs( );
     void InitializePascalTriangle( );
