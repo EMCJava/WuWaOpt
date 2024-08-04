@@ -2,13 +2,14 @@ cmake_minimum_required(VERSION 3.28)
 
 set(VCPKG_TARGET_TRIPLET x64-windows-static)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-project(WuWaOpt)
+project(WuWaOpt VERSION 1.1.9 LANGUAGES CXX)
 
 if (NOT MSVC)
     message(FATAL_ERROR "MSVC should be used as compiler")
 endif ()
 
 set(CMAKE_CXX_STANDARD 23)
+add_compile_definitions(WUWAOPT_VERSION="v${PROJECT_VERSION}")
 
 find_package(OpenCV CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
@@ -41,15 +42,35 @@ target_link_libraries(WuWaOptim PRIVATE Backpack.lib EchoConstraint.lib Optimize
 
 set_target_properties(WuWaScan
         PROPERTIES
-        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/WuWaScan"
-        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/WuWaScan"
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/WuWaScan"
+        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/WuWaOpt"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/WuWaOpt"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/WuWaOpt"
         LINK_FLAGS "/MANIFESTUAC:\"level='requireAdministrator' uiAccess='false'\""
 )
 
 set_target_properties(WuWaOptim
         PROPERTIES
-        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/WuWaOptim"
-        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/WuWaOptim"
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/WuWaOptim"
+        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/WuWaOpt"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/WuWaOpt"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/WuWaOpt"
 )
+
+add_custom_target(
+        MakeReleaseFiles
+        COMMAND
+        ${CMAKE_COMMAND} -E copy_directory_if_different
+        "${CMAKE_CURRENT_SOURCE_DIR}/data/"
+        "data/"
+        COMMAND
+        ${CMAKE_COMMAND} -E tar
+        "cfv" "Release.zip" --format=zip
+        "WuWaOptim.exe"
+        "WuWaScan.exe"
+        "data/"
+        COMMAND
+        ${CMAKE_COMMAND} -E copy
+        "Release.zip"
+        "Release_v${PROJECT_VERSION}.zip"
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/WuWaOpt"
+        DEPENDS
+        WuWaScan WuWaOptim)

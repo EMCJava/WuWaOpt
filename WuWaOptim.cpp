@@ -38,8 +38,6 @@
 #include "Loca/StringArrayObserver.hpp"
 #include "Loca/Loca.hpp"
 
-#define WUWAOPT_VERSION "v1.1.9"
-
 template <class T, class S, class C>
 auto&
 GetConstContainer( const std::priority_queue<T, S, C>& q )
