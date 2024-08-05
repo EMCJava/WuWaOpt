@@ -5,6 +5,7 @@
     "sfml",
     "imgui-sfml",
     "implot",
+    "yaml-cpp",
     {
       "name": "cpp-httplib",
       "default-features": false,
