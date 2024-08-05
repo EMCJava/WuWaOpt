@@ -4,6 +4,7 @@
 
 #include "EffectiveStats.hpp"
 
+#include <magic_enum.hpp>
 
 EffectiveStats
 EffectiveStats::operator+( const StatValueConfig& StatValue ) const noexcept
@@ -172,4 +173,52 @@ EffectiveStats::GetStatName( const FloatTy EffectiveStats::*stat_type )
                                         PtrSwitch( ult_buff, "UltDamage%" ) return "NonEffective";
 
 #undef PtrSwitch
+}
+
+std::string_view
+EffectiveStats::GetSetName( ) const noexcept
+{
+    return magic_enum::enum_name( Set );
+}
+
+YAML::Node
+ToNode( const EffectiveStats& rhs ) noexcept
+{
+    YAML::Node Node;
+
+    Node[ "Set" ]  = std::string( rhs.GetSetName( ) );
+    Node[ "Cost" ] = rhs.Cost;
+
+    Node[ "flat_attack" ]       = std::format( "{}", rhs.flat_attack );
+    Node[ "regen" ]             = std::format( "{}", rhs.regen );
+    Node[ "percentage_attack" ] = std::format( "{}", rhs.percentage_attack );
+    Node[ "buff_multiplier" ]   = std::format( "{}", rhs.buff_multiplier );
+    Node[ "crit_rate" ]         = std::format( "{}", rhs.crit_rate );
+    Node[ "crit_damage" ]       = std::format( "{}", rhs.crit_damage );
+    Node[ "auto_attack_buff" ]  = std::format( "{}", rhs.auto_attack_buff );
+    Node[ "heavy_attack_buff" ] = std::format( "{}", rhs.heavy_attack_buff );
+    Node[ "skill_buff" ]        = std::format( "{}", rhs.skill_buff );
+    Node[ "ult_buff" ]          = std::format( "{}", rhs.ult_buff );
+
+    return Node;
+}
+
+bool
+FromNode( const YAML::Node& Node, EffectiveStats& rhs ) noexcept
+{
+    rhs.Set = magic_enum::enum_cast<EchoSet>( Node[ "Set" ].as<std::string>( ) ).value_or( EchoSet::eEchoSetNone );
+
+    rhs.Cost              = Node[ "Cost" ].as<int>( );
+    rhs.flat_attack       = Node[ "flat_attack" ].as<FloatTy>( );
+    rhs.regen             = Node[ "regen" ].as<FloatTy>( );
+    rhs.percentage_attack = Node[ "percentage_attack" ].as<FloatTy>( );
+    rhs.buff_multiplier   = Node[ "buff_multiplier" ].as<FloatTy>( );
+    rhs.crit_rate         = Node[ "crit_rate" ].as<FloatTy>( );
+    rhs.crit_damage       = Node[ "crit_damage" ].as<FloatTy>( );
+    rhs.auto_attack_buff  = Node[ "auto_attack_buff" ].as<FloatTy>( );
+    rhs.heavy_attack_buff = Node[ "heavy_attack_buff" ].as<FloatTy>( );
+    rhs.skill_buff        = Node[ "skill_buff" ].as<FloatTy>( );
+    rhs.ult_buff          = Node[ "ult_buff" ].as<FloatTy>( );
+
+    return true;
 }
