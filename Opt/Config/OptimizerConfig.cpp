@@ -5,6 +5,8 @@
 #include "OptimizerConfig.hpp"
 
 #include <spdlog/spdlog.h>
+
+#include <filesystem>
 #include <fstream>
 
 FloatTy
@@ -30,6 +32,12 @@ OptimizerConfig::ReadConfig( )
         {
             ActualReadSize = FileLength;
             spdlog::warn( "Data file version mismatch, reading all available data." );
+        } else if ( FileLength > ActualReadSize )
+        {
+            OptimizerConfigFile.close( );
+            std::filesystem::remove( "oc.data" );
+            spdlog::warn( "Data file version mismatch, discarding all data." );
+            return;
         }
 
         OptimizerConfigFile.read( (char*) this, ActualReadSize );
