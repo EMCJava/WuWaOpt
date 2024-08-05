@@ -280,6 +280,24 @@ main( int argc, char** argv )
         }
     }
 
+    std::vector<std::string> CharacterNames;
+    std::string              SelectionCharacterName;
+    for ( const auto& entry : std::filesystem::directory_iterator( "data/character_img" ) )
+    {
+        if ( entry.is_regular_file( ) )
+        {
+            const auto Name = entry.path( ).stem( ).string( );
+            UIConfig.LoadTexture( Name, entry.path( ).string( ) );
+            CharacterNames.push_back( Name );
+        }
+    }
+    if ( CharacterNames.empty( ) )
+    {
+        spdlog::error( "No character image found, character list empty" );
+        return 1;
+    }
+    SelectionCharacterName = CharacterNames.front( );
+
     Backpack PlayerBackpack( LanguageProvider );
     PlayerBackpack.Set( FullStatsList );
     Opt.SetEchoes( PlayerBackpack.GetSelectedContent( ) );
@@ -674,6 +692,94 @@ main( int argc, char** argv )
                 ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 5.0f );
                 ImGui::BeginChild( "ConfigPanel", ImVec2( StatSplitWidth - Style.WindowPadding.x * 4, 0 ), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysAutoResize );
 
+                {
+                    static float   ConfigHeight = 50;
+                    constexpr auto ImageSpace   = 20;
+
+                    ImGui::BeginChild( "StaticPanel##Config", ImVec2( ( StatSplitWidth - ConfigHeight - ImageSpace ) - Style.WindowPadding.x * 8, 0 ), ImGuiChildFlags_AutoResizeY );
+                    ImGui::SeparatorText( LanguageProvider[ "StaticConfig" ] );
+                    ImGui::PushItemWidth( -ImGui::CalcTextSize( LanguageProvider[ "ElResistance" ] ).x - Style.FramePadding.x );
+                    SAVE_CONFIG( ImGui::SliderInt( LanguageProvider[ "CharLevel" ], &OConfig.CharacterLevel, 1, 90 ) )
+                    SAVE_CONFIG( ImGui::SliderInt( LanguageProvider[ "EnemyLevel" ], &OConfig.EnemyLevel, 1, 90 ) )
+                    SAVE_CONFIG( ImGui::SliderFloat( LanguageProvider[ "ElResistance" ], &OConfig.ElementResistance, 0, 1, "%.2f" ) )
+                    SAVE_CONFIG( ImGui::SliderFloat( LanguageProvider[ "DamReduction" ], &OConfig.ElementDamageReduce, 0, 1, "%.2f" ) )
+                    ImGui::PopItemWidth( );
+                    ConfigHeight = ImGui::GetWindowHeight( );
+                    ImGui::EndChild( );
+
+                    ImGui::SameLine( 0, ImageSpace );
+
+                    ImGui::BeginChild( "StaticPanel##Image", ImVec2( ConfigHeight, ConfigHeight ), ImGuiChildFlags_AutoResizeY );
+                    {
+                        const auto ChildStartPos = ImGui::GetCursorPos( );
+                        if ( ImGui::Selectable( "##Click", false, ImGuiSelectableFlags_DontClosePopups | ImGuiSelectableFlags_AllowDoubleClick, ImVec2( ConfigHeight, ConfigHeight ) ) )
+                        {
+                            ImGui::OpenPopup( LanguageProvider[ "CharSel" ] );
+                        }
+                        ImGui::SetCursorPos( ChildStartPos );
+                        ImGui::Image( *UIConfig.GetTexture( SelectionCharacterName ), sf::Vector2f { ConfigHeight, ConfigHeight } );
+                    }
+
+                    ImGui::SetNextWindowPos( viewport->GetCenter( ), ImGuiCond_Appearing, ImVec2( 0.5f, 0.5f ) );
+                    if ( ImGui::BeginPopupModal( LanguageProvider[ "CharSel" ], nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize ) )
+                    {
+                        static constexpr auto CharacterImgSpacing = 20;
+                        static constexpr auto CharacterImgSize    = 150;
+
+                        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2 { } );
+                        ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, ImVec2 { } );
+                        ImGui::PushStyleVar( ImGuiStyleVar_ItemSpacing, ImVec2 { } );
+                        int X = 0, Y = 0;
+                        for ( int i = 0; i < CharacterNames.size( ); ++i )
+                        {
+                            auto& Name = CharacterNames[ i ];
+                            ImGui::PushID( std::hash<std::string>( )( "CharacterPick" ) + i );
+
+                            if ( X != 0 ) ImGui::SameLine( 0, CharacterImgSpacing );
+
+                            {
+                                ImGui::BeginChild( "CharacterCard", ImVec2( CharacterImgSize, CharacterImgSize ), ImGuiChildFlags_Border );
+                                const auto ChildStartPos = ImGui::GetCursorPos( );
+                                if ( ImGui::Selectable( "##Click", SelectionCharacterName == Name, ImGuiSelectableFlags_DontClosePopups | ImGuiSelectableFlags_AllowDoubleClick, ImVec2( CharacterImgSize, CharacterImgSize ) ) )
+                                {
+                                    SelectionCharacterName = Name;
+                                    ImGui::CloseCurrentPopup( );
+                                }
+
+                                ImGui::SetCursorPos( ChildStartPos );
+                                ImGui::Image( *OptimizerUIConfig::GetTexture( Name ), sf::Vector2f { CharacterImgSize, CharacterImgSize } );
+                                ImGui::EndChild( );
+                            }
+
+                            ++X;
+                            if ( X >= 6 )
+                            {
+                                Y++;
+                                X = 0;
+                                ImGui::ItemSize( ImVec2( 0, CharacterImgSpacing ) );
+                            }
+
+                            ImGui::PopID( );
+                        }
+                        ImGui::PopStyleVar( 3 );
+
+                        ImGui::Spacing( );
+                        ImGui::Separator( );
+                        ImGui::Spacing( );
+
+                        if ( ImGui::Button( LanguageProvider[ "Cancel" ], ImVec2( -1, 0 ) ) )
+                        {
+                            ImGui::CloseCurrentPopup( );
+                        }
+                        ImGui::SetItemDefaultFocus( );
+                        ImGui::EndPopup( );
+                    }
+
+                    ImGui::EndChild( );
+                }
+
+                ImGui::Separator( );
+
                 ImGui::BeginChild( "ConfigPanel##Character", ImVec2( StatSplitWidth / 2 - Style.WindowPadding.x * 4, 0 ), ImGuiChildFlags_AutoResizeY );
                 ImGui::SeparatorText( LanguageProvider[ "Character" ] );
                 ImGui::PushID( "CharacterStat" );
@@ -779,13 +885,6 @@ main( int argc, char** argv )
                         ImGui::EndPopup( );
                     }
                 }
-
-                ImGui::NewLine( );
-                ImGui::SeparatorText( LanguageProvider[ "StaticConfig" ] );
-                SAVE_CONFIG( ImGui::SliderInt( LanguageProvider[ "CharLevel" ], &OConfig.CharacterLevel, 1, 90 ) )
-                SAVE_CONFIG( ImGui::SliderInt( LanguageProvider[ "EnemyLevel" ], &OConfig.EnemyLevel, 1, 90 ) )
-                SAVE_CONFIG( ImGui::SliderFloat( LanguageProvider[ "ElResistance" ], &OConfig.ElementResistance, 0, 1, "%.2f" ) )
-                SAVE_CONFIG( ImGui::SliderFloat( LanguageProvider[ "DamReduction" ], &OConfig.ElementDamageReduce, 0, 1, "%.2f" ) )
 
                 ImGui::PopItemWidth( );
 
