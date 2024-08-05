@@ -6,6 +6,7 @@
     "imgui-sfml",
     "implot",
     "yaml-cpp",
+    "magic-enum",
     {
       "name": "cpp-httplib",
       "default-features": false,
