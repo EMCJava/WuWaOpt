@@ -953,7 +953,7 @@ main( int argc, char** argv )
         ImGui::PushStyleVar( ImGuiStyleVar_WindowBorderSize, 0 );
 
         const sf::Vector2f SLIconSize = sf::Vector2f( 30, 30 );
-        ImGui::SetNextWindowPos( ImVec2 { viewport->WorkSize.x - SLIconSize.x - 10, viewport->WorkPos.y }, ImGuiCond_Always );
+        ImGui::SetNextWindowPos( ImVec2 { viewport->WorkSize.x - SLIconSize.x - Style.FramePadding.x * 2, viewport->WorkPos.y }, ImGuiCond_Always );
         if ( ImGui::Begin( "Language", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove ) )
         {
             if ( ImGui::ImageButton( *UIConfig.GetTexture( "Translate" ), SLIconSize ) )
@@ -988,7 +988,7 @@ main( int argc, char** argv )
         ImGui::PushStyleVar( ImGuiStyleVar_WindowBorderSize, 0 );
 
         const auto OptRunning = Opt.IsRunning( );
-        ImGui::SetNextWindowPos( ImVec2 { viewport->WorkSize.x - SLIconSize.x * 2 - 20, viewport->WorkPos.y }, ImGuiCond_Always );
+        ImGui::SetNextWindowPos( ImVec2 { viewport->WorkSize.x - SLIconSize.x - Style.FramePadding.x * 2, viewport->WorkPos.y + SLIconSize.x + Style.FramePadding.x * 2 }, ImGuiCond_Always );
         if ( ImGui::Begin( "BackpackIcon", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove ) )
         {
             if ( OptRunning ) ImGui::BeginDisabled( );
