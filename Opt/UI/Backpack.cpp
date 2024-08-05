@@ -10,7 +10,7 @@
 #include <imgui-SFML.h>
 #include <imgui_internal.h>
 
-inline std::array<sf::Color, eEchoSetCount + 1> EchoSetSFColor {
+inline std::array<sf::Color, (int) EchoSet::eEchoSetCount + 1> EchoSetSFColor {
     sf::Color( 66, 178, 255, 255 ),
     sf::Color( 245, 118, 79, 255 ),
     sf::Color( 182, 108, 255, 255 ),
@@ -81,7 +81,7 @@ Backpack::DisplayBackpack( )
                     ImGui::SetCursorPos( ChildStartPos );
                     ImGui::Image( *OptimizerUIConfig::GetTexture( Echos.EchoName ), sf::Vector2f { EchoImageSize, EchoImageSize } );
                     ImGui::Separator( );
-                    ImGui::Image( *OptimizerUIConfig::GetTexture( SetToString( Echos.Set ) ), sf::Vector2f { SetImageSize, SetImageSize }, EchoSetSFColor[ Echos.Set ] );
+                    ImGui::Image( *OptimizerUIConfig::GetTexture( std::string( Echos.GetSetName( ) ) ), sf::Vector2f { SetImageSize, SetImageSize }, EchoSetSFColor[ (int) Echos.Set ] );
 
                     const auto LevelString = std::format( "+ {}", Echos.Level );
                     const auto LevelSize   = ImGui::CalcTextSize( LevelString.c_str( ) );

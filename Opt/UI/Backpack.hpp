@@ -4,8 +4,9 @@
 
 #pragma once
 
+#include <Common/Stat/FullStats.hpp>
+
 #include <Loca/Loca.hpp>
-#include <Opt/FullStats.hpp>
 
 #include <vector>
 #include <vector>

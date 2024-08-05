@@ -4,7 +4,9 @@
 
 #pragma once
 
-#include <Opt/OptUtil.hpp>
+#include <Common/Stat/EffectiveStats.hpp>
+
+#include <string>
 
 struct ValueRollRate {
     using RateTy = double;

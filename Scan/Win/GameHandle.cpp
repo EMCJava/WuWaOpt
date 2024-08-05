@@ -17,18 +17,18 @@ HWND
 GetGameWindow( )
 {
 
-    static constexpr char DefaultCaption[] = "Activate the game window and press OK";
-    auto                  iotaFuture       = std::async( std::launch::async,
-                                                         []( ) {
-                                      return MessageBox(
+    static constexpr wchar_t DefaultCaption[] = L"Activate the game window and press OK";
+    auto                     iotaFuture       = std::async( std::launch::async,
+                                                            []( ) {
+                                      return MessageBoxW(
                                           nullptr,
                                           DefaultCaption,
-                                          "Game Window Selection",
+                                          L"Game Window Selection",
                                           MB_ICONQUESTION | MB_OKCANCEL | MB_TOPMOST );
                                   } );
 
     HWND MessageHWND;
-    while ( !( MessageHWND = FindWindow( nullptr, "Game Window Selection" ) ) )
+    while ( !( MessageHWND = FindWindowW( nullptr, L"Game Window Selection" ) ) )
     {
         std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
     }
@@ -57,23 +57,24 @@ BOOL CALLBACK
 EnumGameProc( HWND hwnd, LPARAM lParam )
 {
     const int MAX_CLASS_NAME = 255;
-    char      className[ MAX_CLASS_NAME ];
 
-    GetClassName( hwnd, className, MAX_CLASS_NAME );
+    std::wstring className( MAX_CLASS_NAME, 0 );
 
-    if ( strcmp( className, "UnrealWindow" ) != 0 ) return TRUE;
+    GetClassNameW( hwnd, className.data( ), MAX_CLASS_NAME );
+
+    if ( !className.starts_with( L"UnrealWindow" ) ) return TRUE;
 
     DWORD dwProcId = 0;
     GetWindowThreadProcessId( hwnd, &dwProcId );
     HANDLE hProc = OpenProcess( PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, dwProcId );
     if ( hProc != nullptr )
     {
-        char executablePath[ MAX_PATH ] { 0 };
-        if ( GetModuleFileNameEx( hProc, nullptr, executablePath, sizeof( executablePath ) / sizeof( char ) ) )
+        std::wstring executablePath( MAX_PATH, 0 );
+        if ( GetModuleFileNameExW( hProc, nullptr, executablePath.data( ), sizeof( executablePath ) / sizeof( char ) ) )
         {
-            if ( strstr( executablePath, "Wuthering Waves" ) != nullptr )
+            if ( executablePath.find( L"Wuthering Waves" ) != std::wstring::npos )
             {
-                spdlog::info( "Found Wuthering Waves Game window: {}", executablePath );
+                spdlog::info( L"Found Wuthering Waves Game window: {}", executablePath );
                 *(HWND*) lParam = hwnd;
                 return FALSE;
             }

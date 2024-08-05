@@ -8,7 +8,7 @@
 #include "EchoNameRecognizer.hpp"
 #include "StatTypeRecognizer.hpp"
 
-#include <Opt/FullStats.hpp>
+#include <Common/Stat/FullStats.hpp>
 
 class EchoExtractor
 {

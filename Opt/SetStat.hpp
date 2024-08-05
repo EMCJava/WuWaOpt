@@ -4,12 +4,13 @@
 
 #pragma once
 
-#include "FullStats.hpp"
-#include "OptUtil.hpp"
+#include <Common/Stat/EffectiveStats.hpp>
+#include <Common/ElementType.hpp>
 
+#include <limits>
+#include <vector>
 #include <array>
 #include <tuple>
-#include <limits>
 
 // Assume all conditions are met, max buff applies
 template <EchoSet Set>
@@ -21,21 +22,21 @@ ApplyTwoSetEffect( EffectiveStats& Stats )
 
 template <>
 inline void
-ApplyTwoSetEffect<eLingeringTunes>( EffectiveStats& Stats )
+ApplyTwoSetEffect<EchoSet::eLingeringTunes>( EffectiveStats& Stats )
 {
     Stats.percentage_attack += 0.1f;
 }
 
 template <>
 inline void
-ApplyTwoSetEffect<eMoonlitClouds>( EffectiveStats& Stats )
+ApplyTwoSetEffect<EchoSet::eMoonlitClouds>( EffectiveStats& Stats )
 {
     Stats.regen += 0.1f;
 }
 
 template <>
 inline void
-ApplyTwoSetEffect<eRejuvenatingGlow>( EffectiveStats& Stats )
+ApplyTwoSetEffect<EchoSet::eRejuvenatingGlow>( EffectiveStats& Stats )
 {
     /* Healing Bonus increased by 10%. */
 }
@@ -50,21 +51,21 @@ ApplyFiveSetEffect( EffectiveStats& Stats )
 
 template <>
 inline void
-ApplyFiveSetEffect<eRejuvenatingGlow>( EffectiveStats& Stats )
+ApplyFiveSetEffect<EchoSet::eRejuvenatingGlow>( EffectiveStats& Stats )
 {
     /* When performing the Outro Skill, the ATK of the entire team's Resonator increases by 15%, lasting 30 seconds. */
 }
 
 template <>
 inline void
-ApplyFiveSetEffect<eMoonlitClouds>( EffectiveStats& Stats )
+ApplyFiveSetEffect<EchoSet::eMoonlitClouds>( EffectiveStats& Stats )
 {
     /* After using an Outro Skill, the ATK of the next Resonator to enter the field increases by 22.5%, lasting 15 seconds. */
 }
 
 template <>
 inline void
-ApplyFiveSetEffect<eLingeringTunes>( EffectiveStats& Stats )
+ApplyFiveSetEffect<EchoSet::eLingeringTunes>( EffectiveStats& Stats )
 {
     Stats.percentage_attack += 0.2f;
 }
@@ -87,7 +88,7 @@ ApplySetEffect( EffectiveStats& Stats, int SetCount )
 using SetNameOccupation = uint32_t;
 template <int Index, EchoSet Set, EchoSet... Sets>
 inline void
-CountSet( auto& Counter, auto& OccupationMask, char ActualSet, int NameID )
+CountSet( auto& Counter, auto& OccupationMask, EchoSet ActualSet, int NameID )
 {
     if ( ActualSet == Set )
     {
@@ -133,36 +134,36 @@ CountAndApplySets( auto&& EffectiveStatRanges, EffectiveStats CommonStats )
     return CommonStats;
 }
 
-template <char ElementType>
+template <ElementType ETy>
 inline EffectiveStats
 CalculateCombinationalStat( const std::vector<EffectiveStats>& EffectiveStatRanges, const EffectiveStats& CommonStats )
 {
 #define SWITCH_TYPE( type ) \
-    if constexpr ( ElementType == e##type )
+    if constexpr ( ETy == ElementType::e##type##Element )
 
-    SWITCH_TYPE( FireDamagePercentage )
+    SWITCH_TYPE( Fire )
     {
-        return CountAndApplySets<eMoltenRift, eMoonlitClouds, eLingeringTunes>( EffectiveStatRanges, CommonStats );
+        return CountAndApplySets<EchoSet::eMoltenRift, EchoSet::eMoonlitClouds, EchoSet::eLingeringTunes>( EffectiveStatRanges, CommonStats );
     }
-    else SWITCH_TYPE( AirDamagePercentage )
+    else SWITCH_TYPE( Air )
     {
-        return CountAndApplySets<eSierraGale, eMoonlitClouds, eLingeringTunes>( EffectiveStatRanges, CommonStats );
+        return CountAndApplySets<EchoSet::eSierraGale, EchoSet::eMoonlitClouds, EchoSet::eLingeringTunes>( EffectiveStatRanges, CommonStats );
     }
-    else SWITCH_TYPE( IceDamagePercentage )
+    else SWITCH_TYPE( Ice )
     {
-        return CountAndApplySets<eFreezingFrost, eMoonlitClouds, eLingeringTunes>( EffectiveStatRanges, CommonStats );
+        return CountAndApplySets<EchoSet::eFreezingFrost, EchoSet::eMoonlitClouds, EchoSet::eLingeringTunes>( EffectiveStatRanges, CommonStats );
     }
-    else SWITCH_TYPE( ElectricDamagePercentage )
+    else SWITCH_TYPE( Electric )
     {
-        return CountAndApplySets<eVoidThunder, eMoonlitClouds, eLingeringTunes>( EffectiveStatRanges, CommonStats );
+        return CountAndApplySets<EchoSet::eVoidThunder, EchoSet::eMoonlitClouds, EchoSet::eLingeringTunes>( EffectiveStatRanges, CommonStats );
     }
-    else SWITCH_TYPE( DarkDamagePercentage )
+    else SWITCH_TYPE( Dark )
     {
-        return CountAndApplySets<eSunSinkingEclipse, eMoonlitClouds, eLingeringTunes>( EffectiveStatRanges, CommonStats );
+        return CountAndApplySets<EchoSet::eSunSinkingEclipse, EchoSet::eMoonlitClouds, EchoSet::eLingeringTunes>( EffectiveStatRanges, CommonStats );
     }
-    else SWITCH_TYPE( LightDamagePercentage )
+    else SWITCH_TYPE( Light )
     {
-        return CountAndApplySets<eCelestialLight, eMoonlitClouds, eLingeringTunes>( EffectiveStatRanges, CommonStats );
+        return CountAndApplySets<EchoSet::eCelestialLight, EchoSet::eMoonlitClouds, EchoSet::eLingeringTunes>( EffectiveStatRanges, CommonStats );
     }
 
 #undef SWITCH_TYPE

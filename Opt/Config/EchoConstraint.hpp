@@ -5,7 +5,7 @@
 #pragma once
 
 #include <Loca/Loca.hpp>
-#include <Opt/FullStats.hpp>
+#include <Common/Stat/EffectiveStats.hpp>
 
 #include <vector>
 

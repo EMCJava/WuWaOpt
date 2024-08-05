@@ -4,20 +4,20 @@
 
 #include "OptimizerParmSwitcher.hpp"
 
-std::array<decltype( &::CalculateCombinationalStat<eFireDamagePercentage> ), /* 6 Elements */ 6> OptimizerParmSwitcher::CalculateCombinationalStatPtrs {
-    &::CalculateCombinationalStat<eFireDamagePercentage>,
-    &::CalculateCombinationalStat<eAirDamagePercentage>,
-    &::CalculateCombinationalStat<eIceDamagePercentage>,
-    &::CalculateCombinationalStat<eElectricDamagePercentage>,
-    &::CalculateCombinationalStat<eDarkDamagePercentage>,
-    &::CalculateCombinationalStat<eLightDamagePercentage>,
+std::array<decltype( &::CalculateCombinationalStat<ElementType::eFireElement> ), /* 6 Elements */ 6> OptimizerParmSwitcher::CalculateCombinationalStatPtrs {
+    &::CalculateCombinationalStat<ElementType::eFireElement>,
+    &::CalculateCombinationalStat<ElementType::eAirElement>,
+    &::CalculateCombinationalStat<ElementType::eIceElement>,
+    &::CalculateCombinationalStat<ElementType::eElectricElement>,
+    &::CalculateCombinationalStat<ElementType::eDarkElement>,
+    &::CalculateCombinationalStat<ElementType::eLightElement>,
 };
 
-std::array<decltype( &WuWaGA::Run<eFireDamagePercentage> ), /* 6 Elements */ 6> OptimizerParmSwitcher::RunPtrs {
-    &WuWaGA::Run<eFireDamagePercentage>,
-    &WuWaGA::Run<eAirDamagePercentage>,
-    &WuWaGA::Run<eIceDamagePercentage>,
-    &WuWaGA::Run<eElectricDamagePercentage>,
-    &WuWaGA::Run<eDarkDamagePercentage>,
-    &WuWaGA::Run<eLightDamagePercentage>,
+std::array<decltype( &WuWaGA::Run<ElementType::eFireElement> ), /* 6 Elements */ 6> OptimizerParmSwitcher::RunPtrs {
+    &WuWaGA::Run<ElementType::eFireElement>,
+    &WuWaGA::Run<ElementType::eAirElement>,
+    &WuWaGA::Run<ElementType::eIceElement>,
+    &WuWaGA::Run<ElementType::eElectricElement>,
+    &WuWaGA::Run<ElementType::eDarkElement>,
+    &WuWaGA::Run<ElementType::eLightElement>,
 };

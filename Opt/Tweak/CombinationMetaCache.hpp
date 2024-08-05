@@ -4,10 +4,11 @@
 
 #pragma once
 
+#include <Common/Stat/FullStats.hpp>
+
 #include <Opt/UI/Backpack.hpp>
 #include <Opt/Config/OptimizerConfig.hpp>
 #include <Opt/UI/PlotCombinationMeta.hpp>
-#include <Opt/FullStats.hpp>
 
 class CombinationMetaCache
 {

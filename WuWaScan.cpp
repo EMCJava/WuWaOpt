@@ -18,22 +18,24 @@
 #include <vector>
 #include <memory>
 
-#include "Opt/FullStats.hpp"
-#include "Scan/Win/MouseControl.hpp"
-#include "Scan/Win/GameHandle.hpp"
-#include "Scan/Recognizer/EchoExtractor.hpp"
-#include "Loca/Loca.hpp"
+#include <Common/Stat/FullStats.hpp>
+
+#include <Scan/Win/MouseControl.hpp>
+#include <Scan/Win/GameHandle.hpp>
+#include <Scan/Recognizer/EchoExtractor.hpp>
+
+#include <Opt/OptUtil.hpp>
+
+#include <Loca/Loca.hpp>
 
 #include <spdlog/spdlog.h>
+
+#include <yaml-cpp/yaml.h>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/ml/ml.hpp>
-
-#include <nlohmann/json.hpp>
-using json = nlohmann::json;
-
 
 std::random_device               rd;
 std::mt19937                     gen( rd( ) );
@@ -123,8 +125,7 @@ main( )
 
     MouseControl::MousePoint MouseLocation( 2 );
 
-    json  ResultJson { };
-    auto& ResultJsonEchos = ResultJson[ "echoes" ];
+    YAML::Node ResultYAMLEchos = { };
 
     std::vector<cv::Point> ListOfCardIndex;
     for ( int j = 0; j < 3; ++j )
@@ -154,8 +155,8 @@ main( )
             try
             {
                 const auto FS = Extractor.ReadCard( GameHandler->ScreenCap( ) );
-                spdlog::trace( "{}", json( FS ).dump( ) );
-                ResultJsonEchos.push_back( FS );
+                spdlog::trace( "{}", YAML::Dump( YAML::Node( FS ) ) );
+                ResultYAMLEchos.push_back( FS );
 
                 if ( StopAtUnEscalated && FS.Level == 0 )
                 {
@@ -267,8 +268,8 @@ main( )
         ReadCardInLocations( ListOfCardIndex );
     }
 
-    std::ofstream OutputJson( "echoes.json" );
-    OutputJson << ResultJson << std::endl;
+    std::ofstream OutputJson( "echoes.yaml" );
+    OutputJson << ResultYAMLEchos << std::endl;
 
     spdlog::info( "Scanning completed!" );
 

@@ -6,6 +6,10 @@
 
 #include <Opt/UI/OptimizerUIConfig.hpp>
 
+#include <Opt/OptUtil.hpp>
+
+#include <magic_enum.hpp>
+
 #include <imgui.h>
 #include <imgui-SFML.h>
 
@@ -114,7 +118,7 @@ CombinationTweaker::TweakerMenu( const std::map<std::string, std::vector<std::st
                                m_SetNames.GetStringCount( ) ) )
             {
                 m_EchoNames.SetKeyStrings(
-                    EchoNamesBySet.at( SetToString( (EchoSet) m_SelectedEchoSet ) )
+                    EchoNamesBySet.at( std::string( magic_enum::enum_name( static_cast<EchoSet>( m_SelectedEchoSet ) ) ) )
                     | std::views::transform( []( auto& Str ) {
                           return Str.c_str( );
                       } )
@@ -216,7 +220,7 @@ CombinationTweaker::TweakerMenu( const std::map<std::string, std::vector<std::st
         {
             if ( MaxFirstMainStat[ CurrentTweakingCost ].size( ) > m_SelectedMainStatTypeIndex
                  && m_SelectedMainStatTypeIndex < MaxFirstMainStat[ CurrentTweakingCost ].size( )
-                 && m_SelectedEchoSet >= 0
+                 && m_SelectedEchoSet != (int) EchoSet::eEchoSetNone
                  && m_SelectedEchoNameID < m_EchoNames.GetStringCount( ) )
             {
                 EffectiveStats ConfiguredSubStats {

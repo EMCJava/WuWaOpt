@@ -10,9 +10,10 @@
 #include <stop_token>
 #include <stdexcept>
 #include <algorithm>
+#include <utility>
+#include <numeric>
 #include <vector>
 #include <ranges>
-#include <utility>
 #include <random>
 
 enum ECostToIndex {
@@ -141,9 +142,9 @@ struct PreAllocatedBuffer {
     }
 };
 
-template <char ElementType, CostSlotTemplate>
+template <ElementType ETy, CostSlotTemplate>
 inline void
-WuWaGA::Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack, EffectiveStats CommonStats, const MultiplierConfig* OptimizeMultiplierConfig, const EchoConstraint& Constraints )
+WuWaGA::Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack, EffectiveStats CommonStats, const SkillMultiplierConfig* OptimizeMultiplierConfig, const EchoConstraint& Constraints )
 {
     const auto SL = std::source_location::current( );
 
@@ -322,7 +323,7 @@ WuWaGA::Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack, E
                                    EffectiveStatsPlaceHolder.begin( ) );
 
                 // First time calculating
-                const auto FinalStat = CalculateCombinationalStat<ElementType>( EffectiveStatsPlaceHolder, CommonStats );
+                const auto FinalStat = CalculateCombinationalStat<ETy>( EffectiveStatsPlaceHolder, CommonStats );
 
                 Fitness = Constraints( FinalStat )
                     ? FinalStat.ExpectedDamage( BaseAttack, OptimizeMultiplierConfig )
@@ -532,9 +533,9 @@ WuWaGA::Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack, E
     MutationProbability = -1;
 }
 
-template <char ElementType>
+template <ElementType ETy>
 inline void
-WuWaGA::Run( FloatTy BaseAttack, const EffectiveStats& CommonStats, const MultiplierConfig* OptimizeMultiplierConfig, const EchoConstraint& Constraints )
+WuWaGA::Run( FloatTy BaseAttack, const EffectiveStats& CommonStats, const SkillMultiplierConfig* OptimizeMultiplierConfig, const EchoConstraint& Constraints )
 {
     m_Threads.clear( );
 
@@ -546,23 +547,23 @@ WuWaGA::Run( FloatTy BaseAttack, const EffectiveStats& CommonStats, const Multip
 
     m_EffectiveEchos =
         ( *m_Echos )
-        | std::views::transform( ToEffectiveStats<ElementType> )
+        | std::views::transform( ToEffectiveStats<ETy> )
         | std::ranges::to<std::vector>( );
 
     assert( m_EffectiveEchos.size( ) == m_Echos->size( ) );
 
     // clang-format off
-    m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ElementType, 4, 4, 4, 0, 0>, this, std::placeholders::_1,  0, BaseAttack, CommonStats, OptimizeMultiplierConfig, Constraints ) ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ElementType, 4, 4, 3, 1, 0>, this, std::placeholders::_1,  1, BaseAttack, CommonStats, OptimizeMultiplierConfig, Constraints ) ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ElementType, 3, 3, 3, 3, 0>, this, std::placeholders::_1,  2, BaseAttack, CommonStats, OptimizeMultiplierConfig, Constraints ) ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ElementType, 4, 4, 1, 1, 1>, this, std::placeholders::_1,  3, BaseAttack, CommonStats, OptimizeMultiplierConfig, Constraints ) ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ElementType, 4, 1, 1, 1, 1>, this, std::placeholders::_1,  4, BaseAttack, CommonStats, OptimizeMultiplierConfig, Constraints ) ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ElementType, 4, 3, 3, 1, 1>, this, std::placeholders::_1,  5, BaseAttack, CommonStats, OptimizeMultiplierConfig, Constraints ) ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ElementType, 4, 3, 1, 1, 1>, this, std::placeholders::_1,  6, BaseAttack, CommonStats, OptimizeMultiplierConfig, Constraints ) ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ElementType, 3, 1, 1, 1, 1>, this, std::placeholders::_1,  7, BaseAttack, CommonStats, OptimizeMultiplierConfig, Constraints ) ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ElementType, 3, 3, 1, 1, 1>, this, std::placeholders::_1,  8, BaseAttack, CommonStats, OptimizeMultiplierConfig, Constraints ) ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ElementType, 3, 3, 3, 1, 1>, this, std::placeholders::_1,  9, BaseAttack, CommonStats, OptimizeMultiplierConfig, Constraints ) ) );
-    m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ElementType, 1, 1, 1, 1, 1>, this, std::placeholders::_1, 10, BaseAttack, CommonStats, OptimizeMultiplierConfig, Constraints ) ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ETy, 4, 4, 4, 0, 0>, this, std::placeholders::_1,  0, BaseAttack, CommonStats, OptimizeMultiplierConfig, Constraints ) ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ETy, 4, 4, 3, 1, 0>, this, std::placeholders::_1,  1, BaseAttack, CommonStats, OptimizeMultiplierConfig, Constraints ) ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ETy, 3, 3, 3, 3, 0>, this, std::placeholders::_1,  2, BaseAttack, CommonStats, OptimizeMultiplierConfig, Constraints ) ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ETy, 4, 4, 1, 1, 1>, this, std::placeholders::_1,  3, BaseAttack, CommonStats, OptimizeMultiplierConfig, Constraints ) ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ETy, 4, 1, 1, 1, 1>, this, std::placeholders::_1,  4, BaseAttack, CommonStats, OptimizeMultiplierConfig, Constraints ) ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ETy, 4, 3, 3, 1, 1>, this, std::placeholders::_1,  5, BaseAttack, CommonStats, OptimizeMultiplierConfig, Constraints ) ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ETy, 4, 3, 1, 1, 1>, this, std::placeholders::_1,  6, BaseAttack, CommonStats, OptimizeMultiplierConfig, Constraints ) ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ETy, 3, 1, 1, 1, 1>, this, std::placeholders::_1,  7, BaseAttack, CommonStats, OptimizeMultiplierConfig, Constraints ) ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ETy, 3, 3, 1, 1, 1>, this, std::placeholders::_1,  8, BaseAttack, CommonStats, OptimizeMultiplierConfig, Constraints ) ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ETy, 3, 3, 3, 1, 1>, this, std::placeholders::_1,  9, BaseAttack, CommonStats, OptimizeMultiplierConfig, Constraints ) ) );
+    m_Threads.emplace_back( std::make_unique<std::jthread>( std::bind(&WuWaGA::Run<ETy, 1, 1, 1, 1, 1>, this, std::placeholders::_1, 10, BaseAttack, CommonStats, OptimizeMultiplierConfig, Constraints ) ) );
     // clang-format on
 }
 

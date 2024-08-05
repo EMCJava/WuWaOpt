@@ -39,23 +39,23 @@ EchoExtractor::MatchWithRecognizer( const cv::Mat&     Src,
 
     auto& MatchRects = Recognizer.ExtractRect( m_GrayImg, m_MatchVisualizerImg );
 
-//    if ( !MatchName.empty( ) )
-//    {
-//        const int MinimumWidth  = 300;
-//        const int MinimumHeight = 300;
-//        const int FinalWidth    = std::max( m_GrayImg.cols + 100, MinimumWidth );
-//
-//        cv::Mat newImage = cv::Mat::zeros( std::max( m_GrayImg.rows, MinimumHeight ), FinalWidth, m_GrayImg.type( ) );
-//        m_GrayImg.copyTo( newImage( cv::Rect( 0, 0, m_GrayImg.cols, m_GrayImg.rows ) ) );
-//
-//        if ( MatchName == "Stat Type" )
-//        {
-//            cv::namedWindow( MatchName, cv::WINDOW_NORMAL );
-//            cv::resizeWindow( MatchName, newImage.cols, newImage.rows );
-//            cv::imshow( MatchName, newImage );
-//            cv::waitKey( 0 );
-//        }
-//    }
+    //    if ( !MatchName.empty( ) )
+    //    {
+    //        const int MinimumWidth  = 300;
+    //        const int MinimumHeight = 300;
+    //        const int FinalWidth    = std::max( m_GrayImg.cols + 100, MinimumWidth );
+    //
+    //        cv::Mat newImage = cv::Mat::zeros( std::max( m_GrayImg.rows, MinimumHeight ), FinalWidth, m_GrayImg.type( ) );
+    //        m_GrayImg.copyTo( newImage( cv::Rect( 0, 0, m_GrayImg.cols, m_GrayImg.rows ) ) );
+    //
+    //        if ( MatchName == "Stat Type" )
+    //        {
+    //            cv::namedWindow( MatchName, cv::WINDOW_NORMAL );
+    //            cv::resizeWindow( MatchName, newImage.cols, newImage.rows );
+    //            cv::imshow( MatchName, newImage );
+    //            cv::waitKey( 0 );
+    //        }
+    //    }
 
     std::vector<char> Result;
 
@@ -193,16 +193,16 @@ EchoExtractor::ExtractStat( const cv::Mat& Cimg, const cv::Mat& Timg, const cv::
         // Percentage number
         if ( Number < 0 )
         {
-            if ( Type == eAttack ) Type = eAttackPercentage;
-            if ( Type == eHealth ) Type = eHealthPercentage;
-            if ( Type == eDefence ) Type = eDefencePercentage;
+            if ( Type == (char) StatType::eAttack ) Type = (char) StatType::eAttackPercentage;
+            if ( Type == (char) StatType::eHealth ) Type = (char) StatType::eHealthPercentage;
+            if ( Type == (char) StatType::eDefence ) Type = (char) StatType::eDefencePercentage;
             Number = -Number;
         }
 
-        switch ( Type )
+        switch ( (char) Type )
         {
 #define SAVE( name ) \
-    case e##name: Result.name += Number; break;
+    case (char) StatType::e##name: Result.name += Number; break;
             SAVE( Attack )
             SAVE( AttackPercentage )
             SAVE( AutoAttackDamagePercentage )

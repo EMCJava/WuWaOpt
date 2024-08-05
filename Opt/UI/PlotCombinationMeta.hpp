@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include <implot.h>
+#include <Common/Types.hpp>
 
-#include <Opt/FullStats.hpp>
+#include <implot.h>
 
 #include <array>
 

@@ -4,6 +4,9 @@
 
 #include "SubStatRollConfig.hpp"
 
+#include <format>
+#include <ranges>
+
 void
 SubStatRollConfig::SetValueStrings( bool IsPercentage )
 {

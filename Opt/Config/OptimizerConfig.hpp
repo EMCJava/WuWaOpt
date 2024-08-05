@@ -4,13 +4,15 @@
 
 #pragma once
 
-#include <Opt/FullStats.hpp>
+#include <Common/Stat/EffectiveStats.hpp>
+
+#include <Loca/Loca.hpp>
 
 struct OptimizerConfig {
     EffectiveStats WeaponStats { };
     EffectiveStats CharacterStats { };
 
-    MultiplierConfig OptimizeMultiplierConfig { };
+    SkillMultiplierConfig OptimizeMultiplierConfig { };
     int              SelectedElement { };
 
     int     CharacterLevel { };

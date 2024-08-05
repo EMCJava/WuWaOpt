@@ -6,9 +6,25 @@
 #include <queue>
 #include <set>
 
+#include "Loca/StringArrayObserver.hpp"
+#include "Loca/Loca.hpp"
+
+#include "Opt/UI/Backpack.hpp"
+#include "Opt/UI/OptimizerUIConfig.hpp"
+#include "Opt/UI/PlotCombinationMeta.hpp"
+#include "Opt/Tweak/CombinationMetaCache.hpp"
+#include "Opt/Tweak/CombinationTweaker.hpp"
+#include "Opt/Config/EchoConstraint.hpp"
+#include "Opt/Config/OptimizerConfig.hpp"
+#include "Opt/SubStatRolling/SubStatRollConfig.hpp"
+#include "Opt/OptimizerParmSwitcher.hpp"
+#include "Opt/OptUtil.hpp"
+#include "Opt/WuWaGa.hpp"
+
 #include <httplib.h>
 
-#define IMGUI_DEFINE_MATH_OPERATORS
+#include <nlohmann/json.hpp>
+
 #include <imgui.h>   // necessary for ImGui::*, imgui-SFML.h doesn't include imgui.h
 
 #include <imgui-SFML.h>   // for ImGui::SFML::* functions and SFML-specific overloads
@@ -21,22 +37,6 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
-
-#include "Opt/UI/Backpack.hpp"
-#include "Opt/UI/OptimizerUIConfig.hpp"
-#include "Opt/UI/PlotCombinationMeta.hpp"
-#include "Opt/Tweak/CombinationMetaCache.hpp"
-#include "Opt/Tweak/CombinationTweaker.hpp"
-#include "Opt/Config/EchoConstraint.hpp"
-#include "Opt/Config/OptimizerConfig.hpp"
-#include "Opt/SubStatRolling/SubStatRollConfig.hpp"
-#include "Opt/OptimizerParmSwitcher.hpp"
-#include "Opt/FullStats.hpp"
-#include "Opt/OptUtil.hpp"
-#include "Opt/WuWaGa.hpp"
-
-#include "Loca/StringArrayObserver.hpp"
-#include "Loca/Loca.hpp"
 
 template <class T, class S, class C>
 auto&
@@ -52,7 +52,7 @@ GetConstContainer( const std::priority_queue<T, S, C>& q )
 }
 
 
-std::array<ImU32, eEchoSetCount + 1> EchoSetColor {
+std::array<ImU32, (int) EchoSet::eEchoSetCount + 1> EchoSetColor {
     IM_COL32( 66, 178, 255, 255 ),
     IM_COL32( 245, 118, 79, 255 ),
     IM_COL32( 182, 108, 255, 255 ),
@@ -98,7 +98,7 @@ CheckForUpdate( auto& LP, auto&& UpdateCallback )
         {
             if ( res->status == 200 )
             {
-                const auto& Response      = json::parse( res->body );
+                const auto& Response      = nlohmann::json::parse( res->body );
                 const auto  VersionString = Response[ "tag_name" ].get<std::string>( );
                 if ( CompareVersions( WUWAOPT_VERSION, VersionString ) )
                 {
@@ -121,7 +121,7 @@ main( int argc, char** argv )
 {
     spdlog::set_level( spdlog::level::trace );
 
-    std::string EchoFilePath = "echoes.json";
+    std::string EchoFilePath = "echoes.yaml";
     if ( argc > 1 )
     {
         EchoFilePath = argv[ 1 ];
@@ -143,14 +143,14 @@ main( int argc, char** argv )
     }
 
     std::map<std::string, std::vector<std::string>> EchoNameBySet;
-    json::parse( EchoNameFile )[ "sets" ].get_to( EchoNameBySet );
+    nlohmann::json::parse( EchoNameFile )[ "sets" ].get_to( EchoNameBySet );
     std::ranges::for_each( EchoNameBySet, []( const auto& NameSet ) {
         assert( NameSet.second.size( ) < std::numeric_limits<SetNameOccupation>::digits );
     } );
 
-    auto FullStatsList = json::parse( EchoFile )[ "echoes" ].get<std::vector<FullStats>>( )
+    auto FullStatsList = YAML::Load( EchoFile ).as<std::vector<FullStats>>( )
         | std::views::filter( [ & ]( FullStats& FullEcho ) {
-                             const auto NameListIt = EchoNameBySet.find( FullEcho.GetSetName( ) );
+                             const auto NameListIt = EchoNameBySet.find( std::string( FullEcho.GetSetName( ) ) );
                              if ( NameListIt == EchoNameBySet.end( ) ) return false;
 
                              const auto NameIt = std::ranges::find( NameListIt->second, FullEcho.EchoName );
@@ -183,7 +183,7 @@ main( int argc, char** argv )
     OptimizerConfig OConfig;
     OConfig.ReadConfig( );
 
-    MultiplierConfig OptimizeMultiplierDisplay {
+    SkillMultiplierConfig OptimizeMultiplierDisplay {
         .auto_attack_multiplier  = OConfig.OptimizeMultiplierConfig.auto_attack_multiplier * 100,
         .heavy_attack_multiplier = OConfig.OptimizeMultiplierConfig.heavy_attack_multiplier * 100,
         .skill_multiplier        = OConfig.OptimizeMultiplierConfig.skill_multiplier * 100,
@@ -431,8 +431,8 @@ main( int argc, char** argv )
 
                     ImGui::Text( "%s", std::format( "{:8}:", LanguageProvider[ "EchoSet" ] ).c_str( ) );
                     ImGui::SameLine( );
-                    ImGui::PushStyleColor( ImGuiCol_Text, EchoSetColor[ SelectedEcho.Set ] );
-                    ImGui::Text( "%s", std::format( "{:26}", LanguageProvider[ SelectedEcho.GetSetName( ) ] ).c_str( ) );
+                    ImGui::PushStyleColor( ImGuiCol_Text, EchoSetColor[ (int) SelectedEcho.Set ] );
+                    ImGui::Text( "%s", std::format( "{:26}", LanguageProvider[ std::string( SelectedEcho.GetSetName( ) ) ] ).c_str( ) );
                     ImGui::PopStyleColor( );
                     ImGui::SameLine( );
                     ImGui::Text( "%s", SelectedEcho.BriefStat( LanguageProvider ).c_str( ) );

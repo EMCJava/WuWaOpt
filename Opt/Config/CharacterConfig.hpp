@@ -11,7 +11,7 @@ class CharacterConfig
     EffectiveStats m_WeaponStats { };
     EffectiveStats m_CharacterStats { };
 
-    MultiplierConfig m_SkillMultiplierConfig { };
+    SkillMultiplierConfig m_SkillMultiplierConfig { };
     ElementType      m_CharacterElement { };
 
     int     m_CharacterLevel { };

@@ -9,7 +9,6 @@ if (NOT MSVC)
 endif ()
 
 set(CMAKE_CXX_STANDARD 23)
-add_compile_definitions(WUWAOPT_VERSION="v${PROJECT_VERSION}")
 
 find_package(OpenCV CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
@@ -19,23 +18,28 @@ find_package(ImGui-SFML CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(httplib CONFIG REQUIRED)
 find_package(yaml-cpp CONFIG REQUIRED)
-
-include_directories(.)
-add_subdirectory(Scan)
+find_package(magic_enum CONFIG REQUIRED)
 
 add_compile_options(/bigobj /utf-8)
-add_compile_definitions(UNICODE _UNICODE)
+add_compile_definitions(UNICODE _UNICODE IMGUI_DEFINE_MATH_OPERATORS)
+add_compile_definitions(WUWAOPT_VERSION="v${PROJECT_VERSION}")
+
+include_directories(.)
+
+add_subdirectory(Loca)
+add_subdirectory(Common)
+add_subdirectory(Scan)
+add_subdirectory(Opt)
+
 add_executable(WuWaScan WuWaScan.cpp)
 add_executable(WuWaOptim WuWaOptim.cpp)
 
-add_subdirectory(Loca)
-add_subdirectory(Opt)
-
 add_library(WuWaGA INTERFACE Opt/WuWaGa.hpp Opt/WuWaGa.inl)
+
 target_link_libraries(WuWaGA INTERFACE EchoConstraint.lib)
 
 add_library(WuWaGASwitcher Opt/OptimizerParmSwitcher.hpp Opt/OptimizerParmSwitcher.cpp)
-target_link_libraries(WuWaGASwitcher nlohmann_json::nlohmann_json)
+target_link_libraries(WuWaGASwitcher spdlog::spdlog_header_only)
 target_link_libraries(WuWaGA INTERFACE nlohmann_json::nlohmann_json WuWaGASwitcher)
 
 target_link_libraries(WuWaScan PRIVATE Loca.lib opencv_highgui opencv_ml opencv_dnn opencv_core opencv_flann nlohmann_json::nlohmann_json Scan.lib)

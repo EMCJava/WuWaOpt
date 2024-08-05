@@ -4,9 +4,7 @@
 
 #pragma once
 
-using FloatTy = float;
-
-#include "FullStats.hpp"
+#include <Common/Types.hpp>
 
 #include <source_location>
 #include <sstream>
@@ -35,50 +33,6 @@ private:
     std::chrono::time_point<std::chrono::high_resolution_clock> start_time;
 
     std::source_location m_SourceLocation;
-};
-
-template <std::size_t Count>
-struct BoolArray {
-    std::array<uint8_t, Count / 8 + 1> Value { 0 };
-    int                                TrueCount = 0;
-
-    constexpr void Reset( )
-    {
-        TrueCount = 0;
-        memset( Value.data( ), 0, sizeof( Value ) );
-    }
-
-    constexpr bool GetAt( int Index ) const
-    {
-        return ( Value[ Index / 8 ] >> ( Index % 8 ) );
-    }
-
-    template <bool Data = true>
-    constexpr bool SetAt( int Index )
-    {
-        auto&      Slot      = Value[ Index / 8 ];
-        const auto BitAtSlot = 1 << ( Index % 8 );
-
-        if constexpr ( Data )
-        {
-            if ( ~Slot & BitAtSlot )
-            {
-                Slot |= BitAtSlot;
-                TrueCount += 1;
-                return true;
-            }
-        } else
-        {
-            if ( Slot & BitAtSlot )
-            {
-                Slot &= ~BitAtSlot;
-                TrueCount -= 1;
-                return true;
-            }
-        }
-
-        return false;
-    }
 };
 
 struct CombinationRecord {

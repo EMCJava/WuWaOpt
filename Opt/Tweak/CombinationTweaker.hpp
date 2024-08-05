@@ -4,9 +4,11 @@
 
 #pragma once
 
+#include <Common/Stat/FullStats.hpp>
+#include <Common/Stat/EchoSet.hpp>
+
 #include <Opt/SubStatRolling/SubStatRollConfig.hpp>
 #include <Opt/Tweak/CombinationMetaCache.hpp>
-#include <Opt/FullStats.hpp>
 
 #include <Loca/StringArrayObserver.hpp>
 #include <Loca/Loca.hpp>
@@ -41,7 +43,7 @@ class CombinationTweaker : public LanguageObserver
     double             m_DragEDTargetY               = 0;
     int                m_SelectedMainStatTypeIndex   = -1;
     int                m_SelectedEchoNameID          = 0;
-    int                m_SelectedEchoSet             = static_cast<EchoSet>( -1 );
+    int                m_SelectedEchoSet             = (int) EchoSet::eEchoSetNone;
     std::array<int, 5> m_SelectedSubStatTypeIndices  = { };
     std::array<int, 5> m_SelectedSubStatValueIndices = { };
 
