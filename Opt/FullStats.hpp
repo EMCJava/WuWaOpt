@@ -111,6 +111,30 @@ MatchColorToSet( std::tuple<int, int, int> Color ) noexcept
     return (EchoSet) SmallestDistanceAt;
 }
 
+enum ElementType : uint8_t {
+    eFireElement,
+    eAirElement,
+    eIceElement,
+    eElectricElement,
+    eDarkElement,
+    eLightElement,
+};
+
+NLOHMANN_JSON_SERIALIZE_ENUM( ElementType, {
+                                               {    eFireElement,     "eFireElement"},
+                                               {     eAirElement,      "eAirElement"},
+                                               {     eIceElement,      "eIceElement"},
+                                               {eElectricElement, "eElectricElement"},
+                                               {    eDarkElement,     "eDarkElement"},
+                                               {   eLightElement,    "eLightElement"}
+} )
+
+inline std::string
+ElementToString( ElementType Element )
+{
+    return json( Element ).get<std::string>( );
+}
+
 struct MultiplierConfig {
 
     FloatTy auto_attack_multiplier  = 0;
