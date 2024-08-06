@@ -77,14 +77,19 @@ OptimizerUIConfig::PushFont( OptimizerUIConfig::FontSizeType Type )
     ImGui::PushFont( m_Instance->m_ActiveFont->at( Type ) );
 }
 
-void
-OptimizerUIConfig::LoadTexture( const std::string& Names, const std::string& Path )
+std::optional<sf::Texture*>
+OptimizerUIConfig::LoadTexture( const std::string& Names, const std::string& Path, const std::array<int, 4>& Rect )
 {
     auto& Texture = m_Instance->m_TextureCache[ Names ];
-    if ( !( Texture = std::make_unique<sf::Texture>( ) )->loadFromFile( Path ) )
+    if ( !( Texture = std::make_unique<sf::Texture>( ) )->loadFromFile( Path, reinterpret_cast<const sf::IntRect&>( Rect ) ) )
     {
         spdlog::info( "Failed to load texture [{}]: {}", Names, Path );
         Texture.reset( );
+        return std::nullopt;
+    } else
+    {
+        Texture->generateMipmap( );
+        return Texture.get( );
     }
 }
 

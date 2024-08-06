@@ -41,7 +41,7 @@ public:
 
     static void PushFont( FontSizeType Type = FontSizeType::Default );
 
-    static void                        LoadTexture( const std::string& Names, const std::string& Path );
+    static std::optional<sf::Texture*> LoadTexture( const std::string& Names, const std::string& Path, const std::array<int, 4>& Rect = { } );
     static std::optional<sf::Texture*> GetTexture( const std::string& Names );
     static sf::Texture*                GetTextureDefault( );
     static sf::Texture*                GetTextureOrDefault( const std::string& Names );
