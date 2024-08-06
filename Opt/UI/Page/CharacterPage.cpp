@@ -39,11 +39,15 @@ CharacterPage::CharacterPage( Loca& LocaObj )
     }
 
     // Merge two name set
-    std::ranges::for_each( m_CharactersNode
-                               | std::views::transform( []( const YAML::const_iterator::value_type& Node ) {
-                                     return Node.first.as<std::string>( );
-                                 } ),
-                           [ this ]( const auto& Name ) {
+    std::ranges::for_each( m_CharactersNode,
+                           [ this ]( const YAML::const_iterator ::value_type& Node ) {
+                               const auto  Name    = Node.first.as<std::string>( );
+                               const auto& Profile = Node.second[ "Profile" ];
+                               if ( Profile )
+                               {
+                                   // Replace by user defined texture
+                                   OptimizerUIConfig::LoadTexture( "CharImg_" + Name, Profile.as<std::string>( ) );
+                               }
                                if ( !std::ranges::contains( m_CharacterNames, Name ) )
                                    m_CharacterNames.push_back( Name );
                            } );
@@ -113,6 +117,20 @@ CharacterPage::DisplayCharacterInfo( float Width, float* HeightOut )
     ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 5.0f );
     ImGui::BeginChild( "ConfigPanel", ImVec2( Width - Style.WindowPadding.x * 4, 0 ), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysAutoResize );
 
+    const auto DisplayImageWithSize = []( const std::string& ImageName, float ImageSize ) {
+        const auto StartPos = ImGui::GetCursorPos( );
+        const auto Texture  = OptimizerUIConfig::GetTexture( "CharImg_" + ImageName );
+        if ( Texture.has_value( ) )
+        {
+            ImGui::Image( *Texture.value( ), sf::Vector2f { ImageSize, ImageSize } );
+        } else
+        {
+            ImGui::Image( *OptimizerUIConfig::GetTextureDefault( ), sf::Vector2f { ImageSize, ImageSize } );
+            ImGui::SetCursorPos( StartPos );
+            ImGui::Text( "%s", ImageName.c_str( ) );
+        }
+    };
+
     {
         static float   ConfigHeight = 50;
         constexpr auto ImageSpace   = 20;
@@ -138,7 +156,7 @@ CharacterPage::DisplayCharacterInfo( float Width, float* HeightOut )
                 ImGui::OpenPopup( LanguageProvider[ "CharSel" ] );
             }
             ImGui::SetCursorPos( ChildStartPos );
-            ImGui::Image( *OptimizerUIConfig::GetTexture( "CharImg_" + m_ActiveCharacterName ), sf::Vector2f { ConfigHeight, ConfigHeight } );
+            DisplayImageWithSize( m_ActiveCharacterName, ConfigHeight );
         }
 
         ImGui::SetNextWindowPos( ImGui::GetMainViewport( )->GetCenter( ), ImGuiCond_Appearing, ImVec2( 0.5f, 0.5f ) );
@@ -167,9 +185,8 @@ CharacterPage::DisplayCharacterInfo( float Width, float* HeightOut )
                         LoadCharacter( m_ActiveCharacterName = Name );
                         ImGui::CloseCurrentPopup( );
                     }
-
                     ImGui::SetCursorPos( ChildStartPos );
-                    ImGui::Image( *OptimizerUIConfig::GetTexture( "CharImg_" + Name ), sf::Vector2f { CharacterImgSize, CharacterImgSize } );
+                    DisplayImageWithSize( Name, CharacterImgSize );
                     ImGui::EndChild( );
                 }
 

@@ -53,6 +53,11 @@ ToNode( const CharacterConfig& rhs ) noexcept
     Node[ "EnemyElementResistance" ]   = std::format( "{}", rhs.ElementResistance );
     Node[ "EnemyElementDamageReduce" ] = std::format( "{}", rhs.ElementDamageReduce );
 
+    if ( !rhs.CharacterProfilePath.empty( ) )
+    {
+        Node[ "Profile" ] = rhs.CharacterProfilePath;
+    }
+
     return Node;
 }
 
@@ -67,6 +72,11 @@ FromNode( const YAML::Node& Node, CharacterConfig& rhs ) noexcept
     rhs.EnemyLevel            = Node[ "EnemyLevel" ].as<int>( );
     rhs.ElementResistance     = Node[ "EnemyElementResistance" ].as<FloatTy>( );
     rhs.ElementDamageReduce   = Node[ "EnemyElementDamageReduce" ].as<FloatTy>( );
+
+    if ( Node[ "Profile" ] )
+    {
+        rhs.CharacterProfilePath = Node[ "Profile" ].as<std::string>( );
+    }
 
     return true;
 }

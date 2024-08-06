@@ -20,6 +20,8 @@ struct CharacterConfig {
     FloatTy ElementResistance { };
     FloatTy ElementDamageReduce { };
 
+    std::string CharacterProfilePath { };
+
     // Incremental stage ID to identify different stats
     int InternalStageID = 0;
 
