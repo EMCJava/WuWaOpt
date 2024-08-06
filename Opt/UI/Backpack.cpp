@@ -79,9 +79,9 @@ Backpack::DisplayBackpack( )
                     }
 
                     ImGui::SetCursorPos( ChildStartPos );
-                    ImGui::Image( *OptimizerUIConfig::GetTexture( Echos.EchoName ), sf::Vector2f { EchoImageSize, EchoImageSize } );
+                    ImGui::Image( *OptimizerUIConfig::GetTextureOrDefault( Echos.EchoName ), sf::Vector2f { EchoImageSize, EchoImageSize } );
                     ImGui::Separator( );
-                    ImGui::Image( *OptimizerUIConfig::GetTexture( std::string( Echos.GetSetName( ) ) ), sf::Vector2f { SetImageSize, SetImageSize }, EchoSetSFColor[ (int) Echos.Set ] );
+                    ImGui::Image( *OptimizerUIConfig::GetTextureOrDefault( std::string( Echos.GetSetName( ) ) ), sf::Vector2f { SetImageSize, SetImageSize }, EchoSetSFColor[ (int) Echos.Set ] );
 
                     const auto LevelString = std::format( "+ {}", Echos.Level );
                     const auto LevelSize   = ImGui::CalcTextSize( LevelString.c_str( ) );
@@ -112,7 +112,7 @@ Backpack::DisplayBackpack( )
             ImGui::BeginChild( "EchoDetails", ImVec2( EchoImageSize * 5 + Style.WindowPadding.x * 2, 700 ), ImGuiChildFlags_Border );
             if ( m_FocusEcho != -1 )
             {
-                ImGui::Image( *OptimizerUIConfig::GetTexture( m_Content[ m_FocusEcho ].EchoName ), sf::Vector2f { EchoImageSize, EchoImageSize } * 5.f );
+                ImGui::Image( *OptimizerUIConfig::GetTextureOrDefault( m_Content[ m_FocusEcho ].EchoName ), sf::Vector2f { EchoImageSize, EchoImageSize } * 5.f );
                 ImGui::Separator( );
                 ImGui::Text( "%s", m_Content[ m_FocusEcho ].DetailStat( LanguageProvider ).c_str( ) );
             }

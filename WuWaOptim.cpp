@@ -687,7 +687,7 @@ main( int argc, char** argv )
                 ImGui::SameLine( );
 
                 {
-                    if ( ImGui::ImageButton( *UIConfig.GetTexture( "Settings" ), sf::Vector2f { TestSize.y, TestSize.y } ) )
+                    if ( ImGui::ImageButton( *UIConfig.GetTextureOrDefault( "Settings" ), sf::Vector2f { TestSize.y, TestSize.y } ) )
                     {
                         ImGui::OpenPopup( LanguageProvider[ "Constraint" ] );
                     }
@@ -775,7 +775,7 @@ main( int argc, char** argv )
         ImGui::SetNextWindowPos( ImVec2 { viewport->WorkSize.x - SLIconSize.x - Style.FramePadding.x * 2, viewport->WorkPos.y }, ImGuiCond_Always );
         if ( ImGui::Begin( "Language", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove ) )
         {
-            if ( ImGui::ImageButton( *UIConfig.GetTexture( "Translate" ), SLIconSize ) )
+            if ( ImGui::ImageButton( *UIConfig.GetTextureOrDefault( "Translate" ), SLIconSize ) )
             {
                 ImGui::OpenPopup( "LanguageSelect" );
             }
@@ -811,7 +811,7 @@ main( int argc, char** argv )
         if ( ImGui::Begin( "BackpackIcon", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove ) )
         {
             if ( OptRunning ) ImGui::BeginDisabled( );
-            if ( ImGui::ImageButton( *UIConfig.GetTexture( "Backpack" ), SLIconSize ) )
+            if ( ImGui::ImageButton( *UIConfig.GetTextureOrDefault( "Backpack" ), SLIconSize ) )
             {
                 ImGui::OpenPopup( LanguageProvider[ "Backpack" ] );
             }

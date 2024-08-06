@@ -6,6 +6,7 @@
 
 #include <Loca/Loca.hpp>
 
+#include <optional>
 #include <memory>
 #include <array>
 
@@ -40,8 +41,10 @@ public:
 
     static void PushFont( FontSizeType Type = FontSizeType::Default );
 
-    static void         LoadTexture( const std::string& Names, const std::string& Path );
-    static sf::Texture* GetTexture( const std::string& Names );
+    static void                        LoadTexture( const std::string& Names, const std::string& Path );
+    static std::optional<sf::Texture*> GetTexture( const std::string& Names );
+    static sf::Texture*                GetTextureDefault( );
+    static sf::Texture*                GetTextureOrDefault( const std::string& Names );
 
     void OnLanguageChanged( Loca* NewLanguage ) override;
 
@@ -51,6 +54,7 @@ protected:
     std::array<ImFont*, FontSizeType::Size>  m_ChineseFont;
 
     std::unordered_map<std::string, std::unique_ptr<sf::Texture>> m_TextureCache;
+    sf::Texture*                                                  m_DefaultTexture;
 
     static OptimizerUIConfig* m_Instance;
 };

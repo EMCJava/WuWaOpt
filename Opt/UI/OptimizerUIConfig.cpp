@@ -23,6 +23,9 @@ OptimizerUIConfig::OptimizerUIConfig( Loca& LocaObj )
     m_Instance = this;
     SetupFont( );
     OptimizerUIConfig::OnLanguageChanged( &LanguageProvider );
+
+    LoadTexture( "TextureMissing", "data/texture_missing.png" );
+    m_DefaultTexture = m_TextureCache[ "TextureMissing" ].get( );
 }
 
 OptimizerUIConfig::~OptimizerUIConfig( )
@@ -77,13 +80,15 @@ OptimizerUIConfig::PushFont( OptimizerUIConfig::FontSizeType Type )
 void
 OptimizerUIConfig::LoadTexture( const std::string& Names, const std::string& Path )
 {
-    if ( !( m_Instance->m_TextureCache[ Names ] = std::make_unique<sf::Texture>( ) )->loadFromFile( Path ) )
+    auto& Texture = m_Instance->m_TextureCache[ Names ];
+    if ( !( Texture = std::make_unique<sf::Texture>( ) )->loadFromFile( Path ) )
     {
         spdlog::info( "Failed to load texture [{}]: {}", Names, Path );
+        Texture.reset( );
     }
 }
 
-sf::Texture*
+std::optional<sf::Texture*>
 OptimizerUIConfig::GetTexture( const std::string& Names )
 {
     const auto TextureIt = m_Instance->m_TextureCache.find( Names );
@@ -92,5 +97,17 @@ OptimizerUIConfig::GetTexture( const std::string& Names )
         return TextureIt->second.get( );
     }
 
-    return nullptr;
+    return std::nullopt;
+}
+
+sf::Texture*
+OptimizerUIConfig::GetTextureDefault( )
+{
+    return m_Instance->m_DefaultTexture;
+}
+
+sf::Texture*
+OptimizerUIConfig::GetTextureOrDefault( const std::string& Names )
+{
+    return GetTexture( Names ).value_or( GetTextureDefault( ) );
 }

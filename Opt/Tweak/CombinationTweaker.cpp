@@ -307,7 +307,7 @@ CombinationTweaker::TweakerMenu( const std::map<std::string, std::vector<std::st
                         ImGui::PushStyleColor( ImGuiCol_Border, ImVec4( 0.f, 0.f, 0.f, 0.f ) );
 
                         DisplayTextAt( std::format( "{:.3f} %", OptionalLock.value( ) ).c_str( ), 0.5 );
-                        const auto LockIcon = OptimizerUIConfig::GetTexture( "Lock" );
+                        const auto LockIcon = OptimizerUIConfig::GetTextureOrDefault( "Lock" );
                         if ( LockIcon )
                         {
                             ImGui::SetCursorPos( ImVec2 { NumberFrameWidth - IconSize - Style.WindowPadding.x, 0 } );
@@ -342,7 +342,7 @@ CombinationTweaker::TweakerMenu( const std::map<std::string, std::vector<std::st
                         ImGui::PushStyleColor( ImGuiCol_Border, ImVec4( 0.f, 0.f, 0.f, 0.f ) );
 
                         DisplayTextAt( std::format( "{:.3f} %", Value ).c_str( ), 0.5 );
-                        const auto UnlockIcon = OptimizerUIConfig::GetTexture( "Unlock" );
+                        const auto UnlockIcon = OptimizerUIConfig::GetTextureOrDefault( "Unlock" );
                         if ( UnlockIcon )
                         {
                             ImGui::SetCursorPos( ImVec2 { NumberFrameWidth - IconSize - Style.WindowPadding.x, 0 } );
