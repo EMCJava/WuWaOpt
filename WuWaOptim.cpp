@@ -660,8 +660,6 @@ main( int argc, char** argv )
                     {
                         UserBackpack.CharacterUnEquipEchoes( UserCharacterPage.GetActiveCharacterNames( ) );
                         UserBackpack.CharacterEquipEchoes( UserCharacterPage.GetActiveCharacterNames( ), SelectedStatsCache.GetCombinationIndices( ) );
-
-                        // FIXME: deactive selected stats cache whenever indices changes
                     }
                     if ( !SelectedStatsCache.IsValid( ) ) ImGui::EndDisabled( );
                 }
@@ -807,6 +805,7 @@ main( int argc, char** argv )
             if ( UserBackpack.DisplayBackpack( ) )
             {
                 spdlog::info( "Backpack changes" );
+                SelectedStatsCache.Deactivate( );
                 Opt.SetEchoes( UserBackpack.GetSelectedContent( ) );
                 memset( &ResultDisplayBuffer, 0, sizeof( ResultDisplayBuffer ) );
             }
