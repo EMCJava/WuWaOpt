@@ -26,7 +26,7 @@ CharacterPage::CharacterPage( Loca& LocaObj )
                          "DarkDamage",
                          "LightDamage" } )
 {
-    if(std::filesystem::exists( CharacterFileName ) )
+    if ( std::filesystem::exists( CharacterFileName ) )
     {
         m_CharactersNode = YAML::LoadFile( CharacterFileName );
     }
