@@ -610,7 +610,7 @@ main( int argc, char** argv )
                             int   ClosestCombination = SelectedResult.CombinationID;
                             int   ClosestRank        = SelectedResult.CombinationRank;
 
-                            if ( ImPlot::GetCurrentContext( )->CurrentItems->GetLegendItem( CombinationLegendIndex[ ClosestCombination ] )->Show )
+                            if ( SelectedResult.Value > 0 && ImPlot::GetCurrentContext( )->CurrentItems->GetLegendItem( CombinationLegendIndex[ ClosestCombination ] )->Show )
                             {
                                 ImPlot::PushPlotClipRect( );
                                 draw_list->AddCircleFilled( ImPlot::PlotToPixels( (float) Rank, SelectedResult.Value ), 5, IM_COL32( 255, 0, 0, 255 ) );
@@ -827,6 +827,7 @@ main( int argc, char** argv )
             {
                 spdlog::info( "Backpack changes" );
                 Opt.SetEchoes( PlayerBackpack.GetSelectedContent( ) );
+                memset( &ResultDisplayBuffer, 0, sizeof( ResultDisplayBuffer ) );
             }
         }
 
