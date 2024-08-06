@@ -186,8 +186,8 @@ ToNode( const EffectiveStats& rhs ) noexcept
 {
     YAML::Node Node;
 
-    Node[ "Set" ]  = std::string( rhs.GetSetName( ) );
-    Node[ "Cost" ] = rhs.Cost;
+    if ( rhs.Set != EchoSet::eEchoSetNone ) Node[ "Set" ] = std::string( rhs.GetSetName( ) );
+    if ( rhs.Cost != 0 ) Node[ "Cost" ] = rhs.Cost;
 
     Node[ "flat_attack" ]       = std::format( "{}", rhs.flat_attack );
     Node[ "regen" ]             = std::format( "{}", rhs.regen );
@@ -206,9 +206,16 @@ ToNode( const EffectiveStats& rhs ) noexcept
 bool
 FromNode( const YAML::Node& Node, EffectiveStats& rhs ) noexcept
 {
-    rhs.Set = magic_enum::enum_cast<EchoSet>( Node[ "Set" ].as<std::string>( ) ).value_or( EchoSet::eEchoSetNone );
+    if ( Node[ "Set" ] )
+        rhs.Set = magic_enum::enum_cast<EchoSet>( Node[ "Set" ].as<std::string>( ) ).value_or( EchoSet::eEchoSetNone );
+    else
+        rhs.Set = EchoSet::eEchoSetNone;   // Reset to default if "Set" field is missing
 
-    rhs.Cost              = Node[ "Cost" ].as<int>( );
+    if ( Node[ "Cost" ] )
+        rhs.Cost = Node[ "Cost" ].as<int>( );
+    else
+        rhs.Cost = 0;   // Reset to default if "Cost" field is missing
+
     rhs.flat_attack       = Node[ "flat_attack" ].as<FloatTy>( );
     rhs.regen             = Node[ "regen" ].as<FloatTy>( );
     rhs.percentage_attack = Node[ "percentage_attack" ].as<FloatTy>( );
