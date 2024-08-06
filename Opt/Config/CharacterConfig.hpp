@@ -19,6 +19,10 @@ struct CharacterConfig {
     int     m_EnemyLevel { };
     FloatTy m_ElementResistance { };
     FloatTy m_ElementDamageReduce { };
+    
+    [[nodiscard]] FloatTy GetResistances( ) const noexcept;
+    [[nodiscard]] FloatTy GetBaseAttack( ) const noexcept;
+
 };
 
 YAML::Node ToNode( const CharacterConfig& rhs ) noexcept;

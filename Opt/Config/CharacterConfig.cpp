@@ -6,6 +6,19 @@
 
 #include <magic_enum.hpp>
 
+FloatTy
+CharacterConfig::GetResistances( ) const noexcept
+{
+    return ( (FloatTy) 100 + m_CharacterLevel ) / ( 199 + m_CharacterLevel + m_EnemyLevel ) * ( 1 - m_ElementResistance ) * ( 1 - m_ElementDamageReduce );
+}
+
+FloatTy
+CharacterConfig::GetBaseAttack( ) const noexcept
+{
+    return m_WeaponStats.flat_attack + m_CharacterStats.flat_attack;
+}
+
+
 YAML::Node
 ToNode( const CharacterConfig& rhs ) noexcept
 {
