@@ -241,6 +241,7 @@ main( int argc, char** argv )
     UIConfig.LoadTexture( "Settings", "data/settings.png" );
     UIConfig.LoadTexture( "Lock", "data/lock.png" );
     UIConfig.LoadTexture( "Unlock", "data/unlock.png" );
+    UIConfig.LoadTexture( "Filter", "data/filter.png" );
 
     for ( const auto& entry : std::filesystem::directory_iterator( "data/echo_img" ) )
     {

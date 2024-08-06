@@ -5,6 +5,7 @@
 #pragma once
 
 #include <Common/Stat/FullStats.hpp>
+#include <Common/Stat/EchoSet.hpp>
 
 #include <Loca/Loca.hpp>
 
@@ -18,7 +19,7 @@ private:
     void UpdateSelectedContent( );
 
 public:
-    using LanguageObserver::LanguageObserver;
+    Backpack( Loca& LocaObj );
 
     void Set( auto&& Stats )
     {
@@ -45,6 +46,8 @@ public:
 protected:
     std::vector<FullStats> m_Content;
     std::vector<bool>      m_ContentAvailable;
+
+    std::array<bool, (int) EchoSet::eEchoSetCount> m_SetFilter { true };
 
     std::vector<FullStats> m_SelectedContent;
 

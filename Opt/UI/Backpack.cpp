@@ -10,6 +10,8 @@
 #include <imgui-SFML.h>
 #include <imgui_internal.h>
 
+#include <magic_enum.hpp>
+
 inline std::array<sf::Color, (int) EchoSet::eEchoSetCount + 1> EchoSetSFColor {
     sf::Color( 66, 178, 255, 255 ),
     sf::Color( 245, 118, 79, 255 ),
@@ -21,6 +23,12 @@ inline std::array<sf::Color, (int) EchoSet::eEchoSetCount + 1> EchoSetSFColor {
     sf::Color( 255, 255, 255, 255 ),
     sf::Color( 202, 44, 37, 255 ),
     sf::Color( 243, 60, 241, 255 ) };
+
+Backpack::Backpack( Loca& LocaObj )
+    : LanguageObserver( LocaObj )
+{
+    m_SetFilter.fill( true );
+}
 
 bool
 Backpack::DisplayBackpack( )
@@ -35,6 +43,8 @@ Backpack::DisplayBackpack( )
 
     if ( ImGui::BeginPopupModal( LanguageProvider[ "Backpack" ], nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize ) )
     {
+        const auto ModalStartPosition = ImGui::GetCursorPos( );
+
         static constexpr auto EchoCardSpacing = 10;
         static constexpr auto EchoImageSize   = 80;
         static constexpr auto SetImageSize    = 20;
@@ -119,6 +129,60 @@ Backpack::DisplayBackpack( )
             ImGui::EndChild( );
         }
 
+        {
+            const auto         BackPackSize     = ImGui::GetWindowSize( );
+            const auto         EndChildPosition = ImGui::GetCursorPos( );
+            const sf::Vector2f SLIconSize       = sf::Vector2f( 30, 30 );
+            const ImVec2       FilterImagePos   = { BackPackSize.x - SLIconSize.x - Style.WindowPadding.x - Style.FramePadding.x * 2, ModalStartPosition.y };
+
+            ImGui::SetCursorPos( FilterImagePos );
+            if ( ImGui::BeginChild( "ESSChi", ImVec2 { SLIconSize.x, SLIconSize.y } + Style.FramePadding * 2 ) )
+            {
+                if ( ImGui::ImageButton( *OptimizerUIConfig::GetTextureOrDefault( "Filter" ), SLIconSize ) )
+                {
+                    ImGui::OpenPopup( "EchoSetSelect" );
+                }
+            }
+
+            if ( ImGui::BeginPopupContextWindow( "EchoSetSelect", ImGuiPopupFlags_NoReopen ) )
+            {
+                for ( int SetIndex = 0; SetIndex < (int) EchoSet::eEchoSetCount; ++SetIndex )
+                {
+                    const std::string ElementName { magic_enum::enum_name( (EchoSet) SetIndex ) };
+                    ImGui::PushID( SetIndex + 1 );
+
+                    if ( ImGui::Checkbox( "##CB", m_SetFilter.data( ) + SetIndex ) )
+                    {
+                        for(int i = 0; i < m_Content.size( ); ++i )
+                        {
+                            if( m_Content[ i ].Set == (EchoSet) SetIndex)
+                            {
+                                m_ContentAvailable[ i ] = m_SetFilter[ SetIndex ];
+                                Changed = true;
+                            }
+                        }
+
+                        UpdateSelectedContent( );
+                    }
+
+                    ImGui::SameLine( );
+                    if ( !m_SetFilter[ SetIndex ] ) ImGui::BeginDisabled( );
+                    const auto ElementImageSize = ( ImGui::GetFontSize( ) + Style.FramePadding.y * 2 );
+                    ImGui::Image( *OptimizerUIConfig::GetTextureOrDefault( ElementName ), sf::Vector2f { ElementImageSize, ElementImageSize }, EchoSetSFColor[ SetIndex ] );
+                    ImGui::SameLine( );
+                    ImGui::Text( LanguageProvider[ ElementName ] );
+                    if ( !m_SetFilter[ SetIndex ] ) ImGui::EndDisabled( );
+
+                    ImGui::PopID( );
+                }
+
+                ImGui::EndPopup( );
+            }
+
+            ImGui::EndChild( );
+            ImGui::SetCursorPos( EndChildPosition );
+        }
+
         ImGui::Spacing( );
         ImGui::Separator( );
         ImGui::Spacing( );
@@ -128,6 +192,7 @@ Backpack::DisplayBackpack( )
             ImGui::CloseCurrentPopup( );
         }
         ImGui::SetItemDefaultFocus( );
+
         ImGui::EndPopup( );
     } else if ( BPressed )
     {
@@ -142,7 +207,7 @@ Backpack::UpdateSelectedContent( )
 {
     auto SelectionResult =
         m_Content
-        | std::views::filter( [ this ]( auto& C ) -> bool {
+        | std::views::filter( [ this ]( FullStats& C ) -> bool {
               return m_ContentAvailable[ &C - m_Content.data( ) ];
           } );
 
