@@ -60,7 +60,7 @@ EnumGameProc( HWND hwnd, LPARAM lParam )
 
     std::wstring className( MAX_CLASS_NAME, 0 );
 
-    GetClassNameW( hwnd, className.data( ), MAX_CLASS_NAME );
+    GetClassNameW( hwnd, className.data( ), className.size( ) );
 
     if ( !className.starts_with( L"UnrealWindow" ) ) return TRUE;
 
@@ -70,7 +70,7 @@ EnumGameProc( HWND hwnd, LPARAM lParam )
     if ( hProc != nullptr )
     {
         std::wstring executablePath( MAX_PATH, 0 );
-        if ( GetModuleFileNameExW( hProc, nullptr, executablePath.data( ), sizeof( executablePath ) / sizeof( char ) ) )
+        if ( GetModuleFileNameExW( hProc, nullptr, executablePath.data( ), executablePath.size( ) ) )
         {
             if ( executablePath.find( L"Wuthering Waves" ) != std::wstring::npos )
             {
