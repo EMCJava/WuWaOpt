@@ -1,0 +1,68 @@
+Changli:
+  Weapon:
+    flat_attack: 587
+    regen: 0
+    percentage_attack: 12
+    buff_multiplier: 0
+    crit_rate: 24.3
+    crit_damage: 0
+    auto_attack_buff: 0
+    heavy_attack_buff: 0
+    skill_buff: 0
+    ult_buff: 0
+  Character:
+    flat_attack: 412
+    regen: 0
+    percentage_attack: 12
+    buff_multiplier: 20
+    crit_rate: 8
+    crit_damage: 0
+    auto_attack_buff: 0
+    heavy_attack_buff: 0
+    skill_buff: 0
+    ult_buff: 0
+  Multiplier:
+    AutoAttack: 2.7886999
+    HeavyAttack: 1.63
+    Skill: 31.9289
+    Ultimate: 12.1275
+  Element: eFireElement
+  CharacterLevel: 80
+  EnemyLevel: 82
+  EnemyElementResistance: 0.1
+  EnemyElementDamageReduce: 0
+  # Profile: Path to your custom profile image to replace default image
+Changli_6p5:
+  Weapon:
+    flat_attack: 587
+    regen: 0
+    percentage_attack: 12
+    buff_multiplier: 0
+    crit_rate: 24.3
+    crit_damage: 0
+    auto_attack_buff: 0
+    heavy_attack_buff: 0
+    skill_buff: 0
+    ult_buff: 0
+  Character:
+    flat_attack: 412
+    regen: 0
+    percentage_attack: 12
+    buff_multiplier: 20
+    crit_rate: 8
+    crit_damage: 0
+    auto_attack_buff: 0
+    heavy_attack_buff: 0
+    skill_buff: 0
+    ult_buff: 0
+  Multiplier:
+    AutoAttack: 2.7886999
+    HeavyAttack: 1.63
+    Skill: 31.9289
+    Ultimate: 12.1275
+  Element: eFireElement
+  CharacterLevel: 80
+  EnemyLevel: 82
+  EnemyElementResistance: 0.1
+  EnemyElementDamageReduce: 0
+  Profile: C65.png # Optional
