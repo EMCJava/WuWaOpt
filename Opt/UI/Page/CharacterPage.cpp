@@ -26,7 +26,10 @@ CharacterPage::CharacterPage( Loca& LocaObj )
                          "DarkDamage",
                          "LightDamage" } )
 {
-    m_CharactersNode = YAML::LoadFile( CharacterFileName );
+    if(std::filesystem::exists( CharacterFileName ) )
+    {
+        m_CharactersNode = YAML::LoadFile( CharacterFileName );
+    }
 
     for ( const auto& entry : std::filesystem::directory_iterator( "data/character_img" ) )
     {

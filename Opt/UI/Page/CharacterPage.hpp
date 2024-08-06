@@ -32,7 +32,7 @@ public:
 
 protected:
     std::vector<std::string> m_CharacterNames;
-    YAML::Node               m_CharactersNode;
+    YAML::Node               m_CharactersNode { };
 
     std::string           m_ActiveCharacterName;
     YAML::Node            m_ActiveCharacterNode;
