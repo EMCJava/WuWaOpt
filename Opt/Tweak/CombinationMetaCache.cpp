@@ -19,7 +19,7 @@ CombinationMetaCache::Deactivate( )
 }
 
 void
-CombinationMetaCache::SetAsCombination( const Backpack& BackPack, const EffectiveStats& CS, int EO, const PlotCombinationMeta& CombinationDetails, const OptimizerConfig& Config )
+CombinationMetaCache::SetAsCombination( const Backpack& BackPack, const EffectiveStats& CS, int EO, const PlotCombinationMeta& CombinationDetails, const CharacterConfig& Config )
 {
     SlotCount = std::distance( CombinationDetails.Indices.begin( ), std::ranges::find( CombinationDetails.Indices, -1 ) );
 
@@ -28,11 +28,11 @@ CombinationMetaCache::SetAsCombination( const Backpack& BackPack, const Effectiv
         NewEchoIndices[ i ] = CombinationDetails.Indices[ i ];
 
     // Check if the combination has changed
-    if ( m_Valid && m_ElementOffset == EO && m_CachedStateID == Config.InternalStateID + BackPack.GetHash( ) && std::ranges::equal( NewEchoIndices, m_CombinationEchoIndices ) ) return;
+    if ( m_Valid && m_ElementOffset == EO && m_CachedStateID == Config.InternalStageID + BackPack.GetHash( ) && std::ranges::equal( NewEchoIndices, m_CombinationEchoIndices ) ) return;
     m_CombinationEchoIndices = NewEchoIndices;
     m_CommonStats            = CS;
-    m_CachedStateID          = Config.InternalStateID + BackPack.GetHash( );
-    m_OptimizerCfg           = Config;
+    m_CachedStateID          = Config.InternalStageID + BackPack.GetHash( );
+    m_CharacterCfg           = Config;
 
     m_ElementOffset = EO;
     m_Valid         = true;
@@ -86,7 +86,7 @@ CombinationMetaCache::SetAsCombination( const Backpack& BackPack, const Effectiv
     m_DisplayStats.ult_buff          = m_CombinationStats.ult_buff * 100;
     m_DisplayStats.crit_rate         = m_CombinationStats.CritRateStat( ) * 100;
     m_DisplayStats.crit_damage       = m_CombinationStats.CritDamageStat( ) * 100;
-    m_FinalAttack                    = m_CombinationStats.AttackStat( Config.GetBaseAttack( ) );
+    m_FinalAttack                    = m_CombinationStats.AttackStat( m_CharacterCfg.GetBaseAttack( ) );
 
     CalculateDamages( );
 }
@@ -94,10 +94,10 @@ CombinationMetaCache::SetAsCombination( const Backpack& BackPack, const Effectiv
 void
 CombinationMetaCache::CalculateDamages( )
 {
-    const FloatTy Resistances = m_OptimizerCfg.GetResistances( );
-    const FloatTy BaseAttack  = m_OptimizerCfg.GetBaseAttack( );
+    const FloatTy Resistances = m_CharacterCfg.GetResistances( );
+    const FloatTy BaseAttack  = m_CharacterCfg.GetBaseAttack( );
 
-    m_CombinationStats.ExpectedDamage( BaseAttack, &m_OptimizerCfg.OptimizeMultiplierConfig,
+    m_CombinationStats.ExpectedDamage( BaseAttack, &m_CharacterCfg.SkillMultiplierConfig,
                                        m_NormalDamage,
                                        m_CritDamage,
                                        m_ExpectedDamage );
@@ -109,7 +109,7 @@ CombinationMetaCache::CalculateDamages( )
                 m_ElementOffset,
                 m_EchoesWithoutAt[ i ],
                 m_CommonStats )
-                .ExpectedDamage( BaseAttack, &m_OptimizerCfg.OptimizeMultiplierConfig );
+                .ExpectedDamage( BaseAttack, &m_CharacterCfg.SkillMultiplierConfig );
 
         m_EdDropPercentageWithoutAt[ i ] = m_ExpectedDamage - m_EDWithoutAt[ i ];
     }
@@ -143,7 +143,7 @@ CombinationMetaCache::CalculateDamages( )
         auto NewStat = m_CombinationStats;
         NewStat.flat_attack += 1;
 
-        const auto NewExpDmg = NewStat.ExpectedDamage( BaseAttack, &m_OptimizerCfg.OptimizeMultiplierConfig );
+        const auto NewExpDmg = NewStat.ExpectedDamage( BaseAttack, &m_CharacterCfg.SkillMultiplierConfig );
         MaxDamageBuff        = std::max( m_IncreasePayOff.flat_attack = NewExpDmg - m_ExpectedDamage, MaxDamageBuff );
     }
 
@@ -152,7 +152,7 @@ CombinationMetaCache::CalculateDamages( )
         auto NewStat = m_CombinationStats;
         NewStat.*StatSlot += 0.01f;
 
-        const auto NewExpDmg = NewStat.ExpectedDamage( BaseAttack, &m_OptimizerCfg.OptimizeMultiplierConfig );
+        const auto NewExpDmg = NewStat.ExpectedDamage( BaseAttack, &m_CharacterCfg.SkillMultiplierConfig );
         MaxDamageBuff        = std::max( m_IncreasePayOff.*StatSlot = NewExpDmg - m_ExpectedDamage, MaxDamageBuff );
     }
 
@@ -168,8 +168,8 @@ CombinationMetaCache::CalculateDamages( )
 FloatTy
 CombinationMetaCache::GetEDReplaceEchoAt( int EchoIndex, EffectiveStats Echo ) const
 {
-    const FloatTy Resistances = m_OptimizerCfg.GetResistances( );
-    const FloatTy BaseAttack  = m_OptimizerCfg.GetBaseAttack( );
+    const FloatTy Resistances = m_CharacterCfg.GetResistances( );
+    const FloatTy BaseAttack  = m_CharacterCfg.GetBaseAttack( );
 
     // I don't like this
     auto& EchoesReplaced = const_cast<std::vector<EffectiveStats>&>( m_EchoesWithoutAt[ EchoIndex ] );
@@ -177,16 +177,9 @@ CombinationMetaCache::GetEDReplaceEchoAt( int EchoIndex, EffectiveStats Echo ) c
     const auto NewED =
         OptimizerParmSwitcher::SwitchCalculateCombinationalStat(
             m_ElementOffset, EchoesReplaced, m_CommonStats )
-            .ExpectedDamage( BaseAttack, &m_OptimizerCfg.OptimizeMultiplierConfig )
+            .ExpectedDamage( BaseAttack, &m_CharacterCfg.SkillMultiplierConfig )
         * Resistances;
     EchoesReplaced.pop_back( );
 
     return NewED;
 }
-
-// bool
-// CombinationMetaCache::operator==( const CombinationMetaCache& Other ) const noexcept
-//{
-//
-//     return m_Valid == Other.m_Valid && m_CachedStateID == Other.m_CachedStateID && m_ElementOffset == Other.m_ElementOffset && std::ranges::equal( m_CombinationEchoIndices, Other.m_CombinationEchoIndices );
-// }

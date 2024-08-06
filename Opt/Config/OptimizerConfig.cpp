@@ -9,12 +9,6 @@
 #include <filesystem>
 #include <fstream>
 
-FloatTy
-OptimizerConfig::GetResistances( ) const noexcept
-{
-    return ( (FloatTy) 100 + CharacterLevel ) / ( 199 + CharacterLevel + EnemyLevel ) * ( 1 - ElementResistance ) * ( 1 - ElementDamageReduce );
-}
-
 void
 OptimizerConfig::ReadConfig( )
 {
@@ -55,10 +49,4 @@ OptimizerConfig::SaveConfig( )
     {
         OptimizerConfigFile.write( (char*) this, sizeof( OptimizerConfig ) );
     }
-}
-
-FloatTy
-OptimizerConfig::GetBaseAttack( ) const noexcept
-{
-    return WeaponStats.flat_attack + CharacterStats.flat_attack;
 }

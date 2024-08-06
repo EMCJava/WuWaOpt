@@ -7,8 +7,8 @@
 #include <Common/Stat/FullStats.hpp>
 
 #include <Opt/UI/Backpack.hpp>
-#include <Opt/Config/OptimizerConfig.hpp>
 #include <Opt/UI/PlotCombinationMeta.hpp>
+#include <Opt/Config/CharacterConfig.hpp>
 
 class CombinationMetaCache
 {
@@ -25,7 +25,7 @@ class CombinationMetaCache
     EffectiveStats m_CommonStats { };
     EffectiveStats m_CombinationStats { };
 
-    OptimizerConfig m_OptimizerCfg;
+    CharacterConfig m_CharacterCfg;
 
     // After taking off echo at index
     std::array<std::vector<EffectiveStats>, 5> m_EchoesWithoutAt { };
@@ -54,11 +54,11 @@ class CombinationMetaCache
 public:
     explicit CombinationMetaCache( const std::vector<EffectiveStats>& EffectiveEchoList );
 
-    void SetAsCombination( const Backpack&       BackPack,
-                           const EffectiveStats& CS,
-                           int EO,
+    void SetAsCombination( const Backpack&            BackPack,
+                           const EffectiveStats&      CS,
+                           int                        EO,
                            const PlotCombinationMeta& CombinationDetails,
-                           const OptimizerConfig&     Config );
+                           const CharacterConfig&     Config );
 
     FloatTy GetEDReplaceEchoAt( int EchoIndex, EffectiveStats Echo ) const;
 

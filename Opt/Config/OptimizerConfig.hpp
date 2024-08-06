@@ -9,17 +9,6 @@
 #include <Loca/Loca.hpp>
 
 struct OptimizerConfig {
-    EffectiveStats WeaponStats { };
-    EffectiveStats CharacterStats { };
-
-    SkillMultiplierConfig OptimizeMultiplierConfig { };
-    int              SelectedElement { };
-
-    int     CharacterLevel { };
-    int     EnemyLevel { };
-    FloatTy ElementResistance { };
-    FloatTy ElementDamageReduce { };
-
     Language LastUsedLanguage = Language::Undefined;
 
     // + 1 when saved to file
@@ -27,9 +16,6 @@ struct OptimizerConfig {
 
     bool AskedCheckForNewVersion = false;
     bool ShouldCheckForNewVersion = false;
-
-    [[nodiscard]] FloatTy GetResistances( ) const noexcept;
-    [[nodiscard]] FloatTy GetBaseAttack( ) const noexcept;
 
     void ReadConfig( );
     void SaveConfig( );

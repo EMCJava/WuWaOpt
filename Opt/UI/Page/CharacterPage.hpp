@@ -4,6 +4,9 @@
 
 #pragma once
 
+#include <Loca/Loca.hpp>
+#include <Loca/StringArrayObserver.hpp>
+
 #include <Opt/Config/CharacterConfig.hpp>
 
 #include <yaml-cpp/yaml.h>
@@ -11,24 +14,31 @@
 #include <vector>
 #include <string>
 
-class CharacterPage
+class CharacterPage : public LanguageObserver
 {
     static constexpr char CharacterFileName[] = "characters.yaml";
 
 public:
-    CharacterPage( );
-
-    [[nodiscard]] std::vector<std::string> GetCharacterList( ) const;
+    CharacterPage( Loca& LocaObj );
 
     bool LoadCharacter( const std::string& CharacterName );
     void SaveCharacters( );
 
-    [[nodiscard]] auto& GetActiveConfig( ) { return m_ActiveCharacterConfig; }
+    [[nodiscard]] std::vector<std::string> GetCharacterList( ) const;
+    [[nodiscard]] auto&                    GetActiveConfig( ) { return m_ActiveCharacterConfig; }
+
+    // Return true if active character changed
+    bool DisplayCharacterInfo( float Width, float* HeightOut = nullptr );
 
 protected:
-    YAML::Node m_CharactersNode;
+    std::vector<std::string> m_CharacterNames;
+    YAML::Node               m_CharactersNode;
 
-    std::string     m_ActiveCharacterName;
-    YAML::Node      m_ActiveCharacterNode;
-    CharacterConfig m_ActiveCharacterConfig;
+    std::string           m_ActiveCharacterName;
+    YAML::Node            m_ActiveCharacterNode;
+    CharacterConfig       m_ActiveCharacterConfig;
+    SkillMultiplierConfig m_ActiveSKillMultiplierDisplay;
+
+    // UIs
+    StringArrayObserver m_ElementLabels;
 };

@@ -12,6 +12,7 @@
 #include "Opt/UI/Backpack.hpp"
 #include "Opt/UI/OptimizerUIConfig.hpp"
 #include "Opt/UI/PlotCombinationMeta.hpp"
+#include "Opt/UI/Page/CharacterPage.hpp"
 #include "Opt/Tweak/CombinationMetaCache.hpp"
 #include "Opt/Tweak/CombinationTweaker.hpp"
 #include "Opt/Config/EchoConstraint.hpp"
@@ -183,31 +184,8 @@ main( int argc, char** argv )
     OptimizerConfig OConfig;
     OConfig.ReadConfig( );
 
-    SkillMultiplierConfig OptimizeMultiplierDisplay {
-        .auto_attack_multiplier  = OConfig.OptimizeMultiplierConfig.auto_attack_multiplier * 100,
-        .heavy_attack_multiplier = OConfig.OptimizeMultiplierConfig.heavy_attack_multiplier * 100,
-        .skill_multiplier        = OConfig.OptimizeMultiplierConfig.skill_multiplier * 100,
-        .ult_multiplier          = OConfig.OptimizeMultiplierConfig.ult_multiplier * 100 };
-
     Loca LanguageProvider( OConfig.LastUsedLanguage );
     spdlog::info( "Using language: {}", LanguageProvider[ "Name" ] );
-
-    const auto GetCommonStat = [ & ]( ) {
-        auto CommonStats        = OConfig.WeaponStats + OConfig.CharacterStats;
-        CommonStats.flat_attack = 0;
-
-        CommonStats.crit_damage /= 100;
-        CommonStats.crit_rate /= 100;
-        CommonStats.percentage_attack /= 100;
-        CommonStats.buff_multiplier /= 100;
-        CommonStats.regen /= 100;
-        CommonStats.auto_attack_buff /= 100;
-        CommonStats.heavy_attack_buff /= 100;
-        CommonStats.skill_buff /= 100;
-        CommonStats.ult_buff /= 100;
-
-        return CommonStats;
-    };
 
     StringArrayObserver ElementLabel {
         LanguageProvider,
@@ -280,23 +258,7 @@ main( int argc, char** argv )
         }
     }
 
-    std::vector<std::string> CharacterNames;
-    std::string              SelectionCharacterName;
-    for ( const auto& entry : std::filesystem::directory_iterator( "data/character_img" ) )
-    {
-        if ( entry.is_regular_file( ) )
-        {
-            const auto Name = entry.path( ).stem( ).string( );
-            UIConfig.LoadTexture( Name, entry.path( ).string( ) );
-            CharacterNames.push_back( Name );
-        }
-    }
-    if ( CharacterNames.empty( ) )
-    {
-        spdlog::error( "No character image found, character list empty" );
-        return 1;
-    }
-    SelectionCharacterName = CharacterNames.front( );
+    CharacterPage UserCharacterPage( LanguageProvider );
 
     Backpack PlayerBackpack( LanguageProvider );
     PlayerBackpack.Set( FullStatsList );
@@ -517,7 +479,7 @@ main( int argc, char** argv )
                     ImPlot::SetupAxisZoomConstraints( ImAxis_X1, 0, WuWaGA::ResultLength - 1 );
 
                     bool       HasData              = false;
-                    const auto StaticStatMultiplier = OConfig.GetResistances( );
+                    const auto StaticStatMultiplier = UserCharacterPage.GetActiveConfig( ).GetResistances( );
                     for ( int i = 0; i < GARuntimeReport::MaxCombinationCount; i++ )
                     {
                         std::lock_guard Lock( GAReport.DetailReports[ i ].ReportLock );
@@ -583,10 +545,10 @@ main( int argc, char** argv )
 
                             ImGui::BeginTooltip( );
                             HoverStatsCache.SetAsCombination( PlayerBackpack,
-                                                              GetCommonStat( ),
-                                                              OConfig.SelectedElement,
+                                                              UserCharacterPage.GetActiveConfig( ).GetCombinedStats( ),
+                                                              (int) UserCharacterPage.GetActiveConfig( ).CharacterElement,
                                                               SelectedResult,
-                                                              OConfig );
+                                                              UserCharacterPage.GetActiveConfig( ) );
                             DisplayCombination( HoverStatsCache );
                             ImGui::EndTooltip( );
 
@@ -594,10 +556,10 @@ main( int argc, char** argv )
                             if ( sf::Mouse::isButtonPressed( sf::Mouse::Button::Left ) )
                             {
                                 SelectedStatsCache.SetAsCombination( PlayerBackpack,
-                                                                     GetCommonStat( ),
-                                                                     OConfig.SelectedElement,
+                                                                     UserCharacterPage.GetActiveConfig( ).GetCombinedStats( ),
+                                                                     (int) UserCharacterPage.GetActiveConfig( ).CharacterElement,
                                                                      SelectedResult,
-                                                                     OConfig );
+                                                                     UserCharacterPage.GetActiveConfig( ) );
                             }
                         }
                     }
@@ -655,10 +617,10 @@ main( int argc, char** argv )
 
                                 ImGui::BeginTooltip( );
                                 HoverStatsCache.SetAsCombination( PlayerBackpack,
-                                                                  GetCommonStat( ),
-                                                                  OConfig.SelectedElement,
+                                                                  UserCharacterPage.GetActiveConfig( ).GetCombinedStats( ),
+                                                                  (int) UserCharacterPage.GetActiveConfig( ).CharacterElement,
                                                                   ResultDisplayBuffer[ ClosestCombination ][ ClosestRank ],
-                                                                  OConfig );
+                                                                  UserCharacterPage.GetActiveConfig( ) );
                                 DisplayCombination( HoverStatsCache );
                                 ImGui::EndTooltip( );
 
@@ -666,10 +628,10 @@ main( int argc, char** argv )
                                 if ( sf::Mouse::isButtonPressed( sf::Mouse::Button::Left ) )
                                 {
                                     SelectedStatsCache.SetAsCombination( PlayerBackpack,
-                                                                         GetCommonStat( ),
-                                                                         OConfig.SelectedElement,
+                                                                         UserCharacterPage.GetActiveConfig( ).GetCombinedStats( ),
+                                                                         (int) UserCharacterPage.GetActiveConfig( ).CharacterElement,
                                                                          ResultDisplayBuffer[ ClosestCombination ][ ClosestRank ],
-                                                                         OConfig );
+                                                                         UserCharacterPage.GetActiveConfig( ) );
                                 }
                             }
                         }
@@ -685,158 +647,17 @@ main( int argc, char** argv )
             ImGui::SameLine( );
 
             {
-#define SAVE_CONFIG( x ) \
-    if ( x ) OConfig.SaveConfig( );
-
                 ImGui::BeginChild( "Right" );
-                ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 5.0f );
-                ImGui::BeginChild( "ConfigPanel", ImVec2( StatSplitWidth - Style.WindowPadding.x * 4, 0 ), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysAutoResize );
 
+                float ConfigHeight;
+                if ( UserCharacterPage.DisplayCharacterInfo( StatSplitWidth, &ConfigHeight ) )
                 {
-                    static float   ConfigHeight = 50;
-                    constexpr auto ImageSpace   = 20;
-
-                    ImGui::BeginChild( "StaticPanel##Config", ImVec2( ( StatSplitWidth - ConfigHeight - ImageSpace ) - Style.WindowPadding.x * 8, 0 ), ImGuiChildFlags_AutoResizeY );
-                    ImGui::SeparatorText( LanguageProvider[ "StaticConfig" ] );
-                    ImGui::PushItemWidth( -ImGui::CalcTextSize( LanguageProvider[ "ElResistance" ] ).x - Style.FramePadding.x );
-                    SAVE_CONFIG( ImGui::SliderInt( LanguageProvider[ "CharLevel" ], &OConfig.CharacterLevel, 1, 90 ) )
-                    SAVE_CONFIG( ImGui::SliderInt( LanguageProvider[ "EnemyLevel" ], &OConfig.EnemyLevel, 1, 90 ) )
-                    SAVE_CONFIG( ImGui::SliderFloat( LanguageProvider[ "ElResistance" ], &OConfig.ElementResistance, 0, 1, "%.2f" ) )
-                    SAVE_CONFIG( ImGui::SliderFloat( LanguageProvider[ "DamReduction" ], &OConfig.ElementDamageReduce, 0, 1, "%.2f" ) )
-                    ImGui::PopItemWidth( );
-                    ConfigHeight = ImGui::GetWindowHeight( );
-                    ImGui::EndChild( );
-
-                    ImGui::SameLine( 0, ImageSpace );
-
-                    ImGui::BeginChild( "StaticPanel##Image", ImVec2( ConfigHeight, ConfigHeight ), ImGuiChildFlags_AutoResizeY );
-                    {
-                        const auto ChildStartPos = ImGui::GetCursorPos( );
-                        if ( ImGui::Selectable( "##Click", false, ImGuiSelectableFlags_DontClosePopups | ImGuiSelectableFlags_AllowDoubleClick, ImVec2( ConfigHeight, ConfigHeight ) ) )
-                        {
-                            ImGui::OpenPopup( LanguageProvider[ "CharSel" ] );
-                        }
-                        ImGui::SetCursorPos( ChildStartPos );
-                        ImGui::Image( *UIConfig.GetTexture( SelectionCharacterName ), sf::Vector2f { ConfigHeight, ConfigHeight } );
-                    }
-
-                    ImGui::SetNextWindowPos( viewport->GetCenter( ), ImGuiCond_Appearing, ImVec2( 0.5f, 0.5f ) );
-                    if ( ImGui::BeginPopupModal( LanguageProvider[ "CharSel" ], nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize ) )
-                    {
-                        static constexpr auto CharacterImgSpacing = 20;
-                        static constexpr auto CharacterImgSize    = 150;
-
-                        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2 { } );
-                        ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, ImVec2 { } );
-                        ImGui::PushStyleVar( ImGuiStyleVar_ItemSpacing, ImVec2 { } );
-                        int X = 0, Y = 0;
-                        for ( int i = 0; i < CharacterNames.size( ); ++i )
-                        {
-                            auto& Name = CharacterNames[ i ];
-                            ImGui::PushID( std::hash<std::string>( )( "CharacterPick" ) + i );
-
-                            if ( X != 0 ) ImGui::SameLine( 0, CharacterImgSpacing );
-
-                            {
-                                ImGui::BeginChild( "CharacterCard", ImVec2( CharacterImgSize, CharacterImgSize ), ImGuiChildFlags_Border );
-                                const auto ChildStartPos = ImGui::GetCursorPos( );
-                                if ( ImGui::Selectable( "##Click", SelectionCharacterName == Name, ImGuiSelectableFlags_DontClosePopups | ImGuiSelectableFlags_AllowDoubleClick, ImVec2( CharacterImgSize, CharacterImgSize ) ) )
-                                {
-                                    SelectionCharacterName = Name;
-                                    ImGui::CloseCurrentPopup( );
-                                }
-
-                                ImGui::SetCursorPos( ChildStartPos );
-                                ImGui::Image( *OptimizerUIConfig::GetTexture( Name ), sf::Vector2f { CharacterImgSize, CharacterImgSize } );
-                                ImGui::EndChild( );
-                            }
-
-                            ++X;
-                            if ( X >= 6 )
-                            {
-                                Y++;
-                                X = 0;
-                                ImGui::ItemSize( ImVec2( 0, CharacterImgSpacing ) );
-                            }
-
-                            ImGui::PopID( );
-                        }
-                        ImGui::PopStyleVar( 3 );
-
-                        ImGui::Spacing( );
-                        ImGui::Separator( );
-                        ImGui::Spacing( );
-
-                        if ( ImGui::Button( LanguageProvider[ "Cancel" ], ImVec2( -1, 0 ) ) )
-                        {
-                            ImGui::CloseCurrentPopup( );
-                        }
-                        ImGui::SetItemDefaultFocus( );
-                        ImGui::EndPopup( );
-                    }
-
-                    ImGui::EndChild( );
+                    SelectedStatsCache.Deactivate( );
+                    HoverStatsCache.Deactivate( );
                 }
 
-                ImGui::Separator( );
-
-                ImGui::BeginChild( "ConfigPanel##Character", ImVec2( StatSplitWidth / 2 - Style.WindowPadding.x * 4, 0 ), ImGuiChildFlags_AutoResizeY );
-                ImGui::SeparatorText( LanguageProvider[ "Character" ] );
-                ImGui::PushID( "CharacterStat" );
-                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "FlatAttack" ], &OConfig.CharacterStats.flat_attack, 1, 0, 0, "%.0f" ) )
-                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "Attack%" ], &OConfig.CharacterStats.percentage_attack, 0.01, 0, 0, "%.2f" ) )
-                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "ElementBuff%" ], &OConfig.CharacterStats.buff_multiplier, 0.01, 0, 0, "%.2f" ) )
-                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "AutoAttack%" ], &OConfig.CharacterStats.auto_attack_buff, 0.01, 0, 0, "%.2f" ) )
-                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "HeavyAttack%" ], &OConfig.CharacterStats.heavy_attack_buff, 0.01, 0, 0, "%.2f" ) )
-                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "SkillDamage%" ], &OConfig.CharacterStats.skill_buff, 0.01, 0, 0, "%.2f" ) )
-                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "UltDamage%" ], &OConfig.CharacterStats.ult_buff, 0.01, 0, 0, "%.2f" ) )
-                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "CritRate" ], &OConfig.CharacterStats.crit_rate, 0.01, 0, 0, "%.2f" ) )
-                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "CritDamage" ], &OConfig.CharacterStats.crit_damage, 0.01, 0, 0, "%.2f" ) )
-                ImGui::PopID( );
-                ImGui::EndChild( );
-                ImGui::SameLine( );
-                ImGui::BeginChild( "ConfigPanel##Weapon", ImVec2( StatSplitWidth / 2 - Style.WindowPadding.x * 4, 0 ), ImGuiChildFlags_AutoResizeY );
-                ImGui::SeparatorText( LanguageProvider[ "Weapon" ] );
-                ImGui::PushID( "WeaponStat" );
-                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "FlatAttack" ], &OConfig.WeaponStats.flat_attack, 1, 0, 0, "%.0f" ) )
-                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "Attack%" ], &OConfig.WeaponStats.percentage_attack, 0.01, 0, 0, "%.2f" ) )
-                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "ElementBuff%" ], &OConfig.WeaponStats.buff_multiplier, 0.01, 0, 0, "%.2f" ) )
-                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "AutoAttack%" ], &OConfig.WeaponStats.auto_attack_buff, 0.01, 0, 0, "%.2f" ) )
-                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "HeavyAttack%" ], &OConfig.WeaponStats.heavy_attack_buff, 0.01, 0, 0, "%.2f" ) )
-                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "SkillDamage%" ], &OConfig.WeaponStats.skill_buff, 0.01, 0, 0, "%.2f" ) )
-                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "UltDamage%" ], &OConfig.WeaponStats.ult_buff, 0.01, 0, 0, "%.2f" ) )
-                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "CritRate" ], &OConfig.WeaponStats.crit_rate, 0.01, 0, 0, "%.2f" ) )
-                SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "CritDamage" ], &OConfig.WeaponStats.crit_damage, 0.01, 0, 0, "%.2f" ) )
-                ImGui::PopID( );
-                ImGui::EndChild( );
-
-                ImGui::NewLine( );
-                ImGui::Separator( );
-                ImGui::NewLine( );
-
-                ImGui::PushItemWidth( -200 );
-
-#define SAVE_MULTIPLIER_CONFIG( name, stat )                                          \
-    if ( ImGui::DragFloat( name, &OptimizeMultiplierDisplay.stat ) )                  \
-    {                                                                                 \
-        OConfig.OptimizeMultiplierConfig.stat = OptimizeMultiplierDisplay.stat / 100; \
-        OConfig.SaveConfig( );                                                        \
-    }
-                SAVE_MULTIPLIER_CONFIG( LanguageProvider[ "AutoTotal%" ], auto_attack_multiplier )
-                SAVE_MULTIPLIER_CONFIG( LanguageProvider[ "HeavyTotal%" ], heavy_attack_multiplier )
-                SAVE_MULTIPLIER_CONFIG( LanguageProvider[ "SkillTotal%" ], skill_multiplier )
-                SAVE_MULTIPLIER_CONFIG( LanguageProvider[ "UltTotal%" ], ult_multiplier )
-#undef SAVE_MULTIPLIER_CONFIG
-
-                ImGui::NewLine( );
-                ImGui::Separator( );
-                ImGui::NewLine( );
-
-                SAVE_CONFIG( ImGui::Combo( LanguageProvider[ "ElementType" ], &OConfig.SelectedElement, ElementLabel.GetRawStrings( ), ElementLabel.GetStringCount( ) ) )
-
-                ImGui::NewLine( );
-                ImGui::Separator( );
-                ImGui::NewLine( );
+                ImGui::SetNextWindowSizeConstraints( ImVec2 { -1, viewport->WorkSize.y - ConfigHeight - Style.WindowPadding.y * 2 - Style.FramePadding.y }, { -1, FLT_MAX } );
+                ImGui::BeginChild( "DetailPanel", ImVec2( StatSplitWidth - Style.WindowPadding.x * 4, 0 ), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY );
 
                 const auto  OptRunning = Opt.IsRunning( );
                 const float ButtonH    = OptRunning ? 0 : 0.384;
@@ -853,8 +674,13 @@ main( int argc, char** argv )
                         Opt.Stop( );
                     } else
                     {
-                        const auto BaseAttack = OConfig.GetBaseAttack( );
-                        OptimizerParmSwitcher::SwitchRun( Opt, OConfig.SelectedElement, BaseAttack, GetCommonStat( ), &OConfig.OptimizeMultiplierConfig, Constraints );
+                        const auto BaseAttack = UserCharacterPage.GetActiveConfig( ).GetBaseAttack( );
+                        OptimizerParmSwitcher::SwitchRun( Opt,
+                                                          UserCharacterPage.GetActiveConfig( ).CharacterElement,
+                                                          BaseAttack,
+                                                          UserCharacterPage.GetActiveConfig( ).GetCombinedStats( ),
+                                                          &UserCharacterPage.GetActiveConfig( ).SkillMultiplierConfig,
+                                                          Constraints );
                     }
                 }
                 ImGui::PopStyleColor( 3 );
@@ -886,13 +712,8 @@ main( int argc, char** argv )
                     }
                 }
 
-                ImGui::PopItemWidth( );
+                ImGui::Separator( );
 
-                const auto ConfigHeight = ImGui::GetWindowHeight( );
-                ImGui::EndChild( );
-
-                ImGui::SetNextWindowSizeConstraints( ImVec2 { -1, viewport->WorkSize.y - ConfigHeight - Style.WindowPadding.y * 2 - Style.FramePadding.y }, { -1, FLT_MAX } );
-                ImGui::BeginChild( "DetailPanel", ImVec2( StatSplitWidth - Style.WindowPadding.x * 4, 0 ), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY );
                 if ( ImGui::BeginTabBar( "CombinationTweak" ) )
                 {
                     if ( ImGui::TabItemButton( "+", ImGuiTabItemFlags_Trailing | ImGuiTabItemFlags_NoTooltip ) )
@@ -941,8 +762,6 @@ main( int argc, char** argv )
 
                 ImGui::PopStyleVar( );
                 ImGui::EndChild( );
-
-#undef SAVE_CONFIG
             }
         }
         ImGui::End( );

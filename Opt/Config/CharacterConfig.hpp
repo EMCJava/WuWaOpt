@@ -9,20 +9,24 @@
 #include <yaml-cpp/yaml.h>
 
 struct CharacterConfig {
-    EffectiveStats m_WeaponStats { };
-    EffectiveStats m_CharacterStats { };
+    EffectiveStats WeaponStats { };
+    EffectiveStats CharacterStats { };
 
-    SkillMultiplierConfig m_SkillMultiplierConfig { };
-    ElementType           m_CharacterElement { };
+    SkillMultiplierConfig SkillMultiplierConfig { };
+    ElementType           CharacterElement { };
 
-    int     m_CharacterLevel { };
-    int     m_EnemyLevel { };
-    FloatTy m_ElementResistance { };
-    FloatTy m_ElementDamageReduce { };
-    
+    int     CharacterLevel { };
+    int     EnemyLevel { };
+    FloatTy ElementResistance { };
+    FloatTy ElementDamageReduce { };
+
+    // Incremental stage ID to identify different stats
+    int InternalStageID = 0;
+
     [[nodiscard]] FloatTy GetResistances( ) const noexcept;
     [[nodiscard]] FloatTy GetBaseAttack( ) const noexcept;
 
+    EffectiveStats GetCombinedStats( ) const noexcept;
 };
 
 YAML::Node ToNode( const CharacterConfig& rhs ) noexcept;

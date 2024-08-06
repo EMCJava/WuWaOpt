@@ -6,7 +6,7 @@
 
 #include <cstdint>
 
-enum class ElementType : uint8_t {
+enum class ElementType : int {
     eFireElement,
     eAirElement,
     eIceElement,
