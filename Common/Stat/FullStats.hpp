@@ -64,6 +64,8 @@ struct FullStats {
     FloatTy CritDamage = 0;
     FloatTy CritRate   = 0;
 
+    std::string Occupation;
+
     [[nodiscard]] std::string_view GetSetName( ) const noexcept;
     [[nodiscard]] std::string      BriefStat( const Loca& L ) const noexcept;
     [[nodiscard]] std::string      DetailStat( const Loca& L ) const noexcept;

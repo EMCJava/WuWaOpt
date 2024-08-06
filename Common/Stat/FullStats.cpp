@@ -85,6 +85,9 @@ ToNode( const FullStats& rhs ) noexcept
     if ( std::abs( rhs.Health ) > 0.001 ) Node[ "Health" ] = std::format( "{}", rhs.Health );
     if ( std::abs( rhs.CritDamage ) > 0.001 ) Node[ "CritDamage" ] = std::format( "{}", rhs.CritDamage );
     if ( std::abs( rhs.CritRate ) > 0.001 ) Node[ "CritRate" ] = std::format( "{}", rhs.CritRate );
+
+    if ( !rhs.Occupation.empty( ) ) Node[ "Occupation" ] = rhs.Occupation;
+
     return Node;
 }
 
@@ -116,6 +119,7 @@ FromNode( const YAML::Node& Node, FullStats& rhs ) noexcept
     if ( const auto Value = Node[ "Health" ]; Value ) rhs.Health = Value.as<FloatTy>( );
     if ( const auto Value = Node[ "CritDamage" ]; Value ) rhs.CritDamage = Value.as<FloatTy>( );
     if ( const auto Value = Node[ "CritRate" ]; Value ) rhs.CritRate = Value.as<FloatTy>( );
+    if ( const auto Value = Node[ "Occupation" ]; Value ) rhs.Occupation = Value.as<std::string>( );
 
     return true;
 }
