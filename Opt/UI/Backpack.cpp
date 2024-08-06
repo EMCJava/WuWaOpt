@@ -12,6 +12,10 @@
 
 #include <magic_enum.hpp>
 
+#include <spdlog/spdlog.h>
+
+#include <fstream>
+
 inline std::array<sf::Color, (int) EchoSet::eEchoSetCount + 1> EchoSetSFColor {
     sf::Color( 66, 178, 255, 255 ),
     sf::Color( 245, 118, 79, 255 ),
@@ -24,10 +28,49 @@ inline std::array<sf::Color, (int) EchoSet::eEchoSetCount + 1> EchoSetSFColor {
     sf::Color( 202, 44, 37, 255 ),
     sf::Color( 243, 60, 241, 255 ) };
 
-Backpack::Backpack( Loca& LocaObj )
+Backpack::Backpack( const std::string& EchoesPath, const std::map<std::string, std::vector<std::string>>& EchoNamesBySet, Loca& LocaObj )
     : LanguageObserver( LocaObj )
+    , m_EchoesPath( EchoesPath )
 {
     m_SetFilter.fill( true );
+
+    std::ifstream EchoFile { m_EchoesPath };
+    if ( !EchoFile )
+    {
+        spdlog::error( "Failed to open echoes file." );
+        system( "pause" );
+        exit( 1 );
+    }
+
+    auto FullStatsList = YAML::Load( EchoFile ).as<std::vector<FullStats>>( )
+        | std::views::filter( [ & ]( FullStats& FullEcho ) {
+                             const auto NameListIt = EchoNamesBySet.find( std::string( FullEcho.GetSetName( ) ) );
+                             if ( NameListIt == EchoNamesBySet.end( ) ) return false;
+
+                             const auto NameIt = std::ranges::find( NameListIt->second, FullEcho.EchoName );
+                             if ( NameIt == NameListIt->second.end( ) ) return false;
+
+                             FullEcho.NameID = std::distance( NameListIt->second.begin( ), NameIt );
+                             return true;
+                         } )
+        | std::ranges::to<std::vector>( );
+
+    if ( FullStatsList.empty( ) )
+    {
+        spdlog::critical( "No valid echoes found in the provided file." );
+        system( "pause" );
+        exit( 1 );
+    }
+
+    std::ranges::sort( FullStatsList, []( const auto& EchoA, const auto& EchoB ) {
+        if ( EchoA.Cost > EchoB.Cost ) return true;
+        if ( EchoA.Cost < EchoB.Cost ) return false;
+        if ( EchoA.Level > EchoB.Level ) return true;
+        if ( EchoA.Level < EchoB.Level ) return false;
+        return false;
+    } );
+
+    Set( FullStatsList );
 }
 
 bool
@@ -45,10 +88,10 @@ Backpack::DisplayBackpack( )
     {
         const auto ModalStartPosition = ImGui::GetCursorPos( );
 
-        static constexpr auto EchoCardSpacing = 10;
-        static constexpr auto EchoImageSize   = 120;
-        static constexpr auto SetImageSize    = 20;
-        static constexpr auto CharImageSize   = 30;
+        static constexpr auto EchoCardSpacing = 15;
+        static constexpr auto EchoImageSize   = 140;
+        static constexpr auto SetImageSize    = 25;
+        static constexpr auto CharImageSize   = 40;
 
         {
             ImGui::BeginChild( "EchoList", ImVec2( EchoImageSize * 6 + EchoCardSpacing * 5 + Style.WindowPadding.x * 2 + Style.ScrollbarSize, 700 ), ImGuiChildFlags_Border );
@@ -99,12 +142,13 @@ Backpack::DisplayBackpack( )
 
                     if ( !Echos.Occupation.empty( ) )
                     {
+                        ImGui::PushStyleColor( ImGuiCol_ChildBg, IM_COL32( 255, 247, 134, 255 ) );
                         ImGui::PushStyleColor( ImGuiCol_Border, IM_COL32( 255, 247, 134, 255 ) );
                         ImGui::SetCursorPos( ChildStartPos + ImVec2 { 5, 5 } );
                         ImGui::BeginChild( "Card", ImVec2( CharImageSize, CharImageSize ), ImGuiChildFlags_Border );
                         ImGui::Image( *OptimizerUIConfig::GetTextureOrDefault( std::string( "SmallCharImg_" ) + Echos.Occupation ), sf::Vector2f { CharImageSize, CharImageSize } );
                         ImGui::EndChild( );
-                        ImGui::PopStyleColor( );
+                        ImGui::PopStyleColor( 2 );
                     }
 
                     const auto LevelString = std::format( "+ {}", Echos.Level );
@@ -133,10 +177,10 @@ Backpack::DisplayBackpack( )
 
         {
             ImGui::SameLine( );
-            ImGui::BeginChild( "EchoDetails", ImVec2( EchoImageSize * 4 + Style.WindowPadding.x * 2, 700 ), ImGuiChildFlags_Border );
+            ImGui::BeginChild( "EchoDetails", ImVec2( EchoImageSize * 3 + Style.WindowPadding.x * 2, 700 ), ImGuiChildFlags_Border );
             if ( m_FocusEcho != -1 )
             {
-                ImGui::Image( *OptimizerUIConfig::GetTextureOrDefault( m_Content[ m_FocusEcho ].EchoName ), sf::Vector2f { EchoImageSize, EchoImageSize } * 4.f );
+                ImGui::Image( *OptimizerUIConfig::GetTextureOrDefault( m_Content[ m_FocusEcho ].EchoName ), sf::Vector2f { EchoImageSize, EchoImageSize } * 3.f );
                 ImGui::Separator( );
                 ImGui::Text( "%s", m_Content[ m_FocusEcho ].DetailStat( LanguageProvider ).c_str( ) );
             }
@@ -229,4 +273,63 @@ Backpack::UpdateSelectedContent( )
     std::ranges::copy( SelectionResult, std::back_inserter( m_SelectedContent ) );
 
     ++m_Hash;
+}
+
+void
+Backpack::CharacterUnEquipEchoes( const std::string& CharacterName )
+{
+    for ( auto& Echo : m_Content )
+    {
+        if ( Echo.Occupation == CharacterName )
+        {
+            Echo.Occupation = "";
+        }
+    }
+
+    WriteToFile( );
+}
+
+void
+Backpack::CharacterEquipEchoes( const std::string& CharacterName, std::vector<int> EchoIndices )
+{
+    auto SelectionResult =
+        m_Content
+        | std::views::filter( [ this ]( FullStats& C ) -> bool {
+              return m_ContentAvailable[ &C - m_Content.data( ) ];
+          } );
+    auto SelectionResultIt = SelectionResult.begin( );
+
+    int EchoesIndex = 0;
+    for ( int SelectedIndex : EchoIndices )
+    {
+        while ( EchoesIndex != SelectedIndex )
+        {
+            SelectionResultIt++;
+            EchoesIndex++;
+        }
+
+        if ( !SelectionResultIt->Occupation.empty( ) )
+        {
+            spdlog::warn( "Echo was own by {}, replace by {}", SelectionResultIt->Occupation, CharacterName );
+        }
+
+        SelectionResultIt->Occupation = CharacterName;
+    }
+
+    WriteToFile( );
+}
+
+void
+Backpack::WriteToFile( ) const
+{
+    std::ofstream File( m_EchoesPath );
+    if ( File.is_open( ) )
+    {
+        YAML::Node ResultYAMLEchos { m_Content };
+        File << ResultYAMLEchos;
+        File.close( );
+    } else
+    {
+        spdlog::error( "Unable to open {} for writing", m_EchoesPath );
+    }
 }

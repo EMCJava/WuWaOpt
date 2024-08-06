@@ -183,3 +183,9 @@ CombinationMetaCache::GetEDReplaceEchoAt( int EchoIndex, EffectiveStats Echo ) c
 
     return NewED;
 }
+
+std::vector<int>
+CombinationMetaCache::GetCombinationIndices( ) const noexcept
+{
+    return m_CombinationEchoIndices | std::views::take( SlotCount ) | std::ranges::to<std::vector>( );
+}

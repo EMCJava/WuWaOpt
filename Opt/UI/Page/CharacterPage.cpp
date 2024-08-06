@@ -54,6 +54,7 @@ CharacterPage::CharacterPage( Loca& LocaObj )
                                                          SmallSize,
                                                      } ) )
             {
+                SmallTexture.value( )->generateMipmap( );
                 SmallTexture.value( )->setSmooth( true );
             }
         }

@@ -21,6 +21,8 @@ class CharacterPage : public LanguageObserver
 public:
     CharacterPage( Loca& LocaObj );
 
+    auto& GetActiveCharacterNames( ) { return m_ActiveCharacterName; }
+
     bool LoadCharacter( const std::string& CharacterName );
     void SaveCharacters( );
 

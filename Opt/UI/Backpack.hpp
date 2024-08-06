@@ -19,7 +19,12 @@ private:
     void UpdateSelectedContent( );
 
 public:
-    Backpack( Loca& LocaObj );
+    Backpack( const std::string& EchoesPath, const std::map<std::string, std::vector<std::string>>& EchoNamesBySet, Loca& LocaObj );
+
+    void WriteToFile( ) const;
+
+    void CharacterEquipEchoes( const std::string& CharacterName, std::vector<int> EchoIndices );
+    void CharacterUnEquipEchoes( const std::string& CharacterName );
 
     void Set( auto&& Stats )
     {
@@ -44,6 +49,8 @@ public:
     [[nodiscard]] const auto& GetSelectedContent( ) const noexcept { return m_SelectedContent; }
 
 protected:
+    std::string m_EchoesPath;
+
     std::vector<FullStats> m_Content;
     std::vector<bool>      m_ContentAvailable;
 

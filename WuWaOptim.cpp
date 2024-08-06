@@ -128,14 +128,7 @@ main( int argc, char** argv )
         EchoFilePath = argv[ 1 ];
     }
 
-    std::ifstream EchoFile { EchoFilePath };
     std::ifstream EchoNameFile { "data/EchoSetNameSet.json" };
-    if ( !EchoFile )
-    {
-        spdlog::error( "Failed to open echoes file." );
-        system( "pause" );
-        return 1;
-    }
     if ( !EchoNameFile )
     {
         spdlog::error( "Failed to open echo name file." );
@@ -147,33 +140,6 @@ main( int argc, char** argv )
     nlohmann::json::parse( EchoNameFile )[ "sets" ].get_to( EchoNameBySet );
     std::ranges::for_each( EchoNameBySet, []( const auto& NameSet ) {
         assert( NameSet.second.size( ) < std::numeric_limits<SetNameOccupation>::digits );
-    } );
-
-    auto FullStatsList = YAML::Load( EchoFile ).as<std::vector<FullStats>>( )
-        | std::views::filter( [ & ]( FullStats& FullEcho ) {
-                             const auto NameListIt = EchoNameBySet.find( std::string( FullEcho.GetSetName( ) ) );
-                             if ( NameListIt == EchoNameBySet.end( ) ) return false;
-
-                             const auto NameIt = std::ranges::find( NameListIt->second, FullEcho.EchoName );
-                             if ( NameIt == NameListIt->second.end( ) ) return false;
-
-                             FullEcho.NameID = std::distance( NameListIt->second.begin( ), NameIt );
-                             return true;
-                         } )
-        | std::ranges::to<std::vector>( );
-
-    if ( FullStatsList.empty( ) )
-    {
-        spdlog::critical( "No valid echoes found in the provided file." );
-        return 1;
-    }
-
-    std::ranges::sort( FullStatsList, []( const auto& EchoA, const auto& EchoB ) {
-        if ( EchoA.Cost > EchoB.Cost ) return true;
-        if ( EchoA.Cost < EchoB.Cost ) return false;
-        if ( EchoA.Level > EchoB.Level ) return true;
-        if ( EchoA.Level < EchoB.Level ) return false;
-        return false;
     } );
 
     /*
@@ -242,6 +208,7 @@ main( int argc, char** argv )
     UIConfig.LoadTexture( "Lock", "data/lock.png" );
     UIConfig.LoadTexture( "Unlock", "data/unlock.png" );
     UIConfig.LoadTexture( "Filter", "data/filter.png" );
+    UIConfig.LoadTexture( "Equip", "data/equip.png" );
 
     for ( const auto& entry : std::filesystem::directory_iterator( "data/echo_img" ) )
     {
@@ -261,9 +228,8 @@ main( int argc, char** argv )
 
     CharacterPage UserCharacterPage( LanguageProvider );
 
-    Backpack PlayerBackpack( LanguageProvider );
-    PlayerBackpack.Set( FullStatsList );
-    Opt.SetEchoes( PlayerBackpack.GetSelectedContent( ) );
+    Backpack UserBackpack( EchoFilePath, EchoNameBySet, LanguageProvider );
+    Opt.SetEchoes( UserBackpack.GetSelectedContent( ) );
 
     EchoConstraint Constraints( LanguageProvider );
 
@@ -545,7 +511,7 @@ main( int argc, char** argv )
                             ImPlot::PopPlotClipRect( );
 
                             ImGui::BeginTooltip( );
-                            HoverStatsCache.SetAsCombination( PlayerBackpack,
+                            HoverStatsCache.SetAsCombination( UserBackpack,
                                                               UserCharacterPage.GetActiveConfig( ).GetCombinedStats( ),
                                                               (int) UserCharacterPage.GetActiveConfig( ).CharacterElement,
                                                               SelectedResult,
@@ -556,7 +522,7 @@ main( int argc, char** argv )
                             // Select the echo combination
                             if ( sf::Mouse::isButtonPressed( sf::Mouse::Button::Left ) )
                             {
-                                SelectedStatsCache.SetAsCombination( PlayerBackpack,
+                                SelectedStatsCache.SetAsCombination( UserBackpack,
                                                                      UserCharacterPage.GetActiveConfig( ).GetCombinedStats( ),
                                                                      (int) UserCharacterPage.GetActiveConfig( ).CharacterElement,
                                                                      SelectedResult,
@@ -617,7 +583,7 @@ main( int argc, char** argv )
                                 ImPlot::PopPlotClipRect( );
 
                                 ImGui::BeginTooltip( );
-                                HoverStatsCache.SetAsCombination( PlayerBackpack,
+                                HoverStatsCache.SetAsCombination( UserBackpack,
                                                                   UserCharacterPage.GetActiveConfig( ).GetCombinedStats( ),
                                                                   (int) UserCharacterPage.GetActiveConfig( ).CharacterElement,
                                                                   ResultDisplayBuffer[ ClosestCombination ][ ClosestRank ],
@@ -628,7 +594,7 @@ main( int argc, char** argv )
                                 // Select the echo combination
                                 if ( sf::Mouse::isButtonPressed( sf::Mouse::Button::Left ) )
                                 {
-                                    SelectedStatsCache.SetAsCombination( PlayerBackpack,
+                                    SelectedStatsCache.SetAsCombination( UserBackpack,
                                                                          UserCharacterPage.GetActiveConfig( ).GetCombinedStats( ),
                                                                          (int) UserCharacterPage.GetActiveConfig( ).CharacterElement,
                                                                          ResultDisplayBuffer[ ClosestCombination ][ ClosestRank ],
@@ -663,8 +629,8 @@ main( int argc, char** argv )
                 const auto  OptRunning = Opt.IsRunning( );
                 const float ButtonH    = OptRunning ? 0 : 0.384;
                 const auto  ButtonText = OptRunning ? LanguageProvider[ "StopCal" ] : LanguageProvider[ "Run" ];
-                const auto  TestSize   = ImGui::CalcTextSize( ButtonText );
-                const auto  ButtonSize = ImVec2 { ImGui::GetWindowWidth( ) - Style.WindowPadding.x * 2 - Style.FramePadding.x * 4 - TestSize.y, TestSize.y + Style.FramePadding.y * 2 };
+                const auto  TextSize   = ImGui::CalcTextSize( ButtonText );
+                const auto  ButtonSize = ImVec2 { ImGui::GetWindowWidth( ) - Style.WindowPadding.x * 2 - Style.FramePadding.x * 4 - ( TextSize.y + Style.FramePadding.x * 2 ) * 2, TextSize.y + Style.FramePadding.y * 2 };
                 ImGui::PushStyleColor( ImGuiCol_Button, (ImVec4) ImColor::HSV( ButtonH, 0.6f, 0.6f ) );
                 ImGui::PushStyleColor( ImGuiCol_ButtonHovered, (ImVec4) ImColor::HSV( ButtonH, 0.7f, 0.7f ) );
                 ImGui::PushStyleColor( ImGuiCol_ButtonActive, (ImVec4) ImColor::HSV( ButtonH, 0.8f, 0.8f ) );
@@ -685,10 +651,25 @@ main( int argc, char** argv )
                     }
                 }
                 ImGui::PopStyleColor( 3 );
+
                 ImGui::SameLine( );
 
                 {
-                    if ( ImGui::ImageButton( *UIConfig.GetTextureOrDefault( "Settings" ), sf::Vector2f { TestSize.y, TestSize.y } ) )
+                    if ( !SelectedStatsCache.IsValid( ) ) ImGui::BeginDisabled( );
+                    if ( ImGui::ImageButton( *UIConfig.GetTextureOrDefault( "Equip" ), sf::Vector2f { TextSize.y, TextSize.y } ) )
+                    {
+                        UserBackpack.CharacterUnEquipEchoes( UserCharacterPage.GetActiveCharacterNames( ) );
+                        UserBackpack.CharacterEquipEchoes( UserCharacterPage.GetActiveCharacterNames( ), SelectedStatsCache.GetCombinationIndices( ) );
+
+                        // FIXME: deactive selected stats cache whenever indices changes
+                    }
+                    if ( !SelectedStatsCache.IsValid( ) ) ImGui::EndDisabled( );
+                }
+
+                ImGui::SameLine( );
+
+                {
+                    if ( ImGui::ImageButton( *UIConfig.GetTextureOrDefault( "Settings" ), sf::Vector2f { TextSize.y, TextSize.y } ) )
                     {
                         ImGui::OpenPopup( LanguageProvider[ "Constraint" ] );
                     }
@@ -823,10 +804,10 @@ main( int argc, char** argv )
 
         if ( !OptRunning )
         {
-            if ( PlayerBackpack.DisplayBackpack( ) )
+            if ( UserBackpack.DisplayBackpack( ) )
             {
                 spdlog::info( "Backpack changes" );
-                Opt.SetEchoes( PlayerBackpack.GetSelectedContent( ) );
+                Opt.SetEchoes( UserBackpack.GetSelectedContent( ) );
                 memset( &ResultDisplayBuffer, 0, sizeof( ResultDisplayBuffer ) );
             }
         }

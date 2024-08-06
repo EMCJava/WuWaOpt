@@ -72,6 +72,8 @@ public:
     [[nodiscard]] auto GetCritDamage( ) const noexcept { return m_CritDamage; }
     [[nodiscard]] auto GetExpectedDamage( ) const noexcept { return m_ExpectedDamage; }
 
+    [[nodiscard]] std::vector<int> GetCombinationIndices( ) const noexcept;
+
     [[nodiscard]] auto& GetEffectiveEchoAtSlot( int SlotIndex ) const noexcept { return m_Echoes[ SlotIndex ]; };
     [[nodiscard]] auto& GetFullEchoAtSlot( int SlotIndex ) const noexcept { return m_FullEchoes[ SlotIndex ]; };
     [[nodiscard]] auto& GetEchoNameAtSlot( int SlotIndex ) const noexcept { return m_EchoNames[ SlotIndex ]; };
