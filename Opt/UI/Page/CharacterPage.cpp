@@ -6,6 +6,8 @@
 
 #include <Opt/UI/OptimizerUIConfig.hpp>
 
+#include <SFML/Graphics.hpp>
+
 #include <imgui.h>
 #include <imgui-SFML.h>
 #include <imgui_internal.h>
@@ -35,9 +37,25 @@ CharacterPage::CharacterPage( Loca& LocaObj )
     {
         if ( entry.is_regular_file( ) )
         {
+            const constexpr auto DefaultCharacterSize = 256;
+
             const auto Name = entry.path( ).stem( ).string( );
             OptimizerUIConfig::LoadTexture( "CharImg_" + Name, entry.path( ).string( ) );
             m_CharacterNames.push_back( Name );
+
+            const constexpr double CharacterZoomFactor = 0.75;
+            const constexpr int    SmallSize           = DefaultCharacterSize * CharacterZoomFactor;
+            if ( auto SmallTexture =
+                     OptimizerUIConfig::LoadTexture( "SmallCharImg_" + Name, entry.path( ).string( ),
+                                                     {
+                                                         ( DefaultCharacterSize - SmallSize ) / 2,
+                                                         ( DefaultCharacterSize - SmallSize ) / 2,
+                                                         SmallSize,
+                                                         SmallSize,
+                                                     } ) )
+            {
+                SmallTexture.value( )->setSmooth( true );
+            }
         }
     }
 

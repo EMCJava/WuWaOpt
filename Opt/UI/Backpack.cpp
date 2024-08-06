@@ -46,8 +46,9 @@ Backpack::DisplayBackpack( )
         const auto ModalStartPosition = ImGui::GetCursorPos( );
 
         static constexpr auto EchoCardSpacing = 10;
-        static constexpr auto EchoImageSize   = 80;
+        static constexpr auto EchoImageSize   = 120;
         static constexpr auto SetImageSize    = 20;
+        static constexpr auto CharImageSize   = 30;
 
         {
             ImGui::BeginChild( "EchoList", ImVec2( EchoImageSize * 6 + EchoCardSpacing * 5 + Style.WindowPadding.x * 2 + Style.ScrollbarSize, 700 ), ImGuiChildFlags_Border );
@@ -55,6 +56,9 @@ Backpack::DisplayBackpack( )
             ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2 { } );
             ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, ImVec2 { } );
             ImGui::PushStyleVar( ImGuiStyleVar_ItemSpacing, ImVec2 { } );
+            ImGui::PushStyleVar( ImGuiStyleVar_ChildBorderSize, 3 );
+            ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 3 );
+
             int X = 0, Y = 0;
             for ( int i = 0; i < m_Content.size( ); ++i )
             {
@@ -65,7 +69,7 @@ Backpack::DisplayBackpack( )
 
                 {
                     if ( m_ContentAvailable[ i ] )
-                        ImGui::PushStyleColor( ImGuiCol_Border, IM_COL32( 0, 255, 0, 255 ) );
+                        ImGui::PushStyleColor( ImGuiCol_Border, IM_COL32( 255, 255, 255, 255 ) );
                     else
                         ImGui::PushStyleColor( ImGuiCol_Border, IM_COL32( 255, 0, 0, 255 ) );
                     ImGui::BeginChild( "Card", ImVec2( EchoImageSize, EchoImageSize + SetImageSize ), ImGuiChildFlags_Border );
@@ -93,6 +97,16 @@ Backpack::DisplayBackpack( )
                     ImGui::Separator( );
                     ImGui::Image( *OptimizerUIConfig::GetTextureOrDefault( std::string( Echos.GetSetName( ) ) ), sf::Vector2f { SetImageSize, SetImageSize }, EchoSetSFColor[ (int) Echos.Set ] );
 
+                    if ( !Echos.Occupation.empty( ) )
+                    {
+                        ImGui::PushStyleColor( ImGuiCol_Border, IM_COL32( 255, 247, 134, 255 ) );
+                        ImGui::SetCursorPos( ChildStartPos + ImVec2 { 5, 5 } );
+                        ImGui::BeginChild( "Card", ImVec2( CharImageSize, CharImageSize ), ImGuiChildFlags_Border );
+                        ImGui::Image( *OptimizerUIConfig::GetTextureOrDefault( std::string( "SmallCharImg_" ) + Echos.Occupation ), sf::Vector2f { CharImageSize, CharImageSize } );
+                        ImGui::EndChild( );
+                        ImGui::PopStyleColor( );
+                    }
+
                     const auto LevelString = std::format( "+ {}", Echos.Level );
                     const auto LevelSize   = ImGui::CalcTextSize( LevelString.c_str( ) );
                     ImGui::SetCursorPos( { EchoImageSize - LevelSize.x - 5, EchoImageSize + ( SetImageSize - LevelSize.y ) / 2 } );
@@ -112,17 +126,17 @@ Backpack::DisplayBackpack( )
 
                 ImGui::PopID( );
             }
-            ImGui::PopStyleVar( 3 );
+            ImGui::PopStyleVar( 5 );
 
             ImGui::EndChild( );
         }
 
         {
             ImGui::SameLine( );
-            ImGui::BeginChild( "EchoDetails", ImVec2( EchoImageSize * 5 + Style.WindowPadding.x * 2, 700 ), ImGuiChildFlags_Border );
+            ImGui::BeginChild( "EchoDetails", ImVec2( EchoImageSize * 4 + Style.WindowPadding.x * 2, 700 ), ImGuiChildFlags_Border );
             if ( m_FocusEcho != -1 )
             {
-                ImGui::Image( *OptimizerUIConfig::GetTextureOrDefault( m_Content[ m_FocusEcho ].EchoName ), sf::Vector2f { EchoImageSize, EchoImageSize } * 5.f );
+                ImGui::Image( *OptimizerUIConfig::GetTextureOrDefault( m_Content[ m_FocusEcho ].EchoName ), sf::Vector2f { EchoImageSize, EchoImageSize } * 4.f );
                 ImGui::Separator( );
                 ImGui::Text( "%s", m_Content[ m_FocusEcho ].DetailStat( LanguageProvider ).c_str( ) );
             }
@@ -153,12 +167,12 @@ Backpack::DisplayBackpack( )
 
                     if ( ImGui::Checkbox( "##CB", m_SetFilter.data( ) + SetIndex ) )
                     {
-                        for(int i = 0; i < m_Content.size( ); ++i )
+                        for ( int i = 0; i < m_Content.size( ); ++i )
                         {
-                            if( m_Content[ i ].Set == (EchoSet) SetIndex)
+                            if ( m_Content[ i ].Set == (EchoSet) SetIndex )
                             {
                                 m_ContentAvailable[ i ] = m_SetFilter[ SetIndex ];
-                                Changed = true;
+                                Changed                 = true;
                             }
                         }
 
