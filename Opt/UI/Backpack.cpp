@@ -145,9 +145,21 @@ Backpack::DisplayBackpack( )
                         ImGui::PushStyleColor( ImGuiCol_ChildBg, IM_COL32( 255, 247, 134, 255 ) );
                         ImGui::PushStyleColor( ImGuiCol_Border, IM_COL32( 255, 247, 134, 255 ) );
                         ImGui::SetCursorPos( ChildStartPos + ImVec2 { 5, 5 } );
-                        ImGui::BeginChild( "Card", ImVec2( CharImageSize, CharImageSize ), ImGuiChildFlags_Border );
-                        ImGui::Image( *OptimizerUIConfig::GetTextureOrDefault( std::string( "SmallCharImg_" ) + Echos.Occupation ), sf::Vector2f { CharImageSize, CharImageSize } );
-                        ImGui::EndChild( );
+                        {
+                            ImGui::BeginChild( "CharImg", ImVec2( CharImageSize, CharImageSize ), ImGuiChildFlags_Border );
+                            const auto CharacterStartPosition = ImGui::GetCursorPos( );
+                            if ( ImGui::Selectable( "Char##Click", Selected, ImGuiSelectableFlags_DontClosePopups | ImGuiSelectableFlags_AllowDoubleClick, ImVec2( CharImageSize, CharImageSize ) ) )
+                            {
+                                if ( ImGui::IsMouseDoubleClicked( ImGuiMouseButton_Left ) )
+                                {
+                                    Echos.Occupation.clear( );
+                                    WriteToFile( );
+                                }
+                            }
+                            ImGui::SetCursorPos( CharacterStartPosition );
+                            ImGui::Image( *OptimizerUIConfig::GetTextureOrDefault( std::string( "SmallCharImg_" ) + Echos.Occupation ), sf::Vector2f { CharImageSize, CharImageSize } );
+                            ImGui::EndChild( );
+                        }
                         ImGui::PopStyleColor( 2 );
                     }
 
@@ -350,7 +362,7 @@ Backpack::BanEquippedEchoesExcept( std::string& CharacterName )
 {
     for ( int i = 0; i < m_Content.size( ); ++i )
     {
-        m_ContentAvailable[ i ] = m_ContentAvailable[ i ] && (m_Content[ i ].Occupation.empty() || m_Content[ i ].Occupation == CharacterName);
+        m_ContentAvailable[ i ] = m_ContentAvailable[ i ] && ( m_Content[ i ].Occupation.empty( ) || m_Content[ i ].Occupation == CharacterName );
     }
 
     UpdateSelectedContent( );
