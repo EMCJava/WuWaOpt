@@ -23,6 +23,9 @@ public:
 
     void WriteToFile( ) const;
 
+    void RefreshEchoBan( );
+    void BanEquippedEchoesExcept( std::string& CharacterName );
+
     void CharacterEquipEchoes( const std::string& CharacterName, std::vector<int> EchoIndices );
     void CharacterUnEquipEchoes( const std::string& CharacterName );
 

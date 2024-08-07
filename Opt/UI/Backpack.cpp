@@ -333,3 +333,25 @@ Backpack::WriteToFile( ) const
         spdlog::error( "Unable to open {} for writing", m_EchoesPath );
     }
 }
+
+void
+Backpack::RefreshEchoBan( )
+{
+    for ( int i = 0; i < m_Content.size( ); ++i )
+    {
+        m_ContentAvailable[ i ] = m_SetFilter[ (int) m_Content[ i ].Set ];
+    }
+
+    UpdateSelectedContent( );
+}
+
+void
+Backpack::BanEquippedEchoesExcept( std::string& CharacterName )
+{
+    for ( int i = 0; i < m_Content.size( ); ++i )
+    {
+        m_ContentAvailable[ i ] = m_ContentAvailable[ i ] && (m_Content[ i ].Occupation.empty() || m_Content[ i ].Occupation == CharacterName);
+    }
+
+    UpdateSelectedContent( );
+}

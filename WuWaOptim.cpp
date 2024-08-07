@@ -229,6 +229,7 @@ main( int argc, char** argv )
     CharacterPage UserCharacterPage( LanguageProvider );
 
     Backpack UserBackpack( EchoFilePath, EchoNameBySet, LanguageProvider );
+    UserBackpack.BanEquippedEchoesExcept( UserCharacterPage.GetActiveCharacterNames( ) );
     Opt.SetEchoes( UserBackpack.GetSelectedContent( ) );
 
     EchoConstraint Constraints( LanguageProvider );
@@ -621,6 +622,9 @@ main( int argc, char** argv )
                 {
                     SelectedStatsCache.Deactivate( );
                     HoverStatsCache.Deactivate( );
+
+                    UserBackpack.RefreshEchoBan( );
+                    UserBackpack.BanEquippedEchoesExcept( UserCharacterPage.GetActiveCharacterNames( ) );
                 }
 
                 ImGui::SetNextWindowSizeConstraints( ImVec2 { -1, viewport->WorkSize.y - ConfigHeight - Style.WindowPadding.y * 2 - Style.FramePadding.y }, { -1, FLT_MAX } );
