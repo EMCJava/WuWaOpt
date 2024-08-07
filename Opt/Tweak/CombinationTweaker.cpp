@@ -117,12 +117,14 @@ CombinationTweaker::TweakerMenu( const std::map<std::string, std::vector<std::st
                                m_SetNames.GetRawStrings( ),
                                m_SetNames.GetStringCount( ) ) )
             {
-                m_EchoNames.SetKeyStrings(
+                auto Names =
                     EchoNamesBySet.at( std::string( magic_enum::enum_name( static_cast<EchoSet>( m_SelectedEchoSet ) ) ) )
                     | std::views::transform( []( auto& Str ) {
                           return Str.c_str( );
                       } )
-                    | std::ranges::to<std::vector>( ) );
+                    | std::ranges::to<std::vector>( );
+                Names.insert( Names.begin( ), "Versatile" );
+                m_EchoNames.SetKeyStrings( Names );
                 ClearPotentialCache( );
             }
             ImGui::SameLine( );
@@ -224,8 +226,9 @@ CombinationTweaker::TweakerMenu( const std::map<std::string, std::vector<std::st
                  && m_SelectedEchoNameID < m_EchoNames.GetStringCount( ) )
             {
                 EffectiveStats ConfiguredSubStats {
-                    .Set    = (EchoSet) m_SelectedEchoSet,
-                    .NameID = m_SelectedEchoNameID,
+                    .Set = (EchoSet) m_SelectedEchoSet,
+                    // Versatile option
+                    .NameID = ( m_SelectedEchoNameID == 0 ? (int) m_EchoNames.GetStringCount( ) : m_SelectedEchoNameID ) - 1,
                     .Cost   = CurrentTweakingCost };
 
                 for ( int i = 0; i < m_UsedSubStatCount; ++i )
