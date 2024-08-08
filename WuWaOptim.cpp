@@ -346,15 +346,19 @@ main( int argc, char** argv )
 
             ImGui::SeparatorText( LanguageProvider[ "Combination" ] );
 
-            if ( MainDisplayStats.IsValid( ) && ImGui::BeginTable( "EffectiveStats", 1, ImGuiTableFlags_Borders | ImGuiTableFlags_SizingStretchSame ) )
+            const auto MaxStatLineCount = 1 /* Name */ + 2 /* Main stat */ + 5 /* Sub-Stat */;
+            const auto MaxStatHeight    = ImGui::GetFrameHeightWithSpacing( ) /* BriefStat */ + MaxStatLineCount * ImGui::GetTextLineHeight( ) + Style.WindowPadding.y;
+
+            const auto EchoImgSize = sf::Vector2f( MaxStatHeight - Style.WindowPadding.y * 2, MaxStatHeight - Style.WindowPadding.y * 2 );
+
+            if ( MainDisplayStats.IsValid( ) )
             {
                 for ( int i = 0; i < MainDisplayStats.GetSlotCount( ); ++i )
                 {
-                    ImGui::TableNextRow( );
-                    ImGui::TableSetColumnIndex( 0 );
-
                     if ( MainDisplayStats.GetEdDropPercentageWithoutAt( i ) != 0 )
-                        ImGui::TableSetBgColor( ImGuiTableBgTarget_RowBg1, ImGui::GetColorU32( ImVec4( 0.2f + MainDisplayStats.GetEdDropPercentageWithoutAt( i ) * 0.6f, 0.2f, 0.2f, 0.65f ) ) );
+                        ImGui::PushStyleColor( ImGuiCol_ChildBg, ImGui::GetColorU32( ImVec4( 0.2f + MainDisplayStats.GetEdDropPercentageWithoutAt( i ) * 0.5f, 0.2f, 0.2f, 0.65f ) ) );
+
+                    ImGui::BeginChild( std::hash<std::string> { }( "EchoCard" ) + i, ImVec2( 0, MaxStatHeight ), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeX );
 
                     const auto& SelectedEcho = MainDisplayStats.GetFullEchoAtSlot( i );
                     // ImGui::Text( "%s", std::format( "{:=^54}", Index ).c_str( ) );
@@ -366,10 +370,20 @@ main( int argc, char** argv )
                     ImGui::PopStyleColor( );
                     ImGui::SameLine( );
                     ImGui::Text( "%s", SelectedEcho.BriefStat( LanguageProvider ).c_str( ) );
-                    ImGui::Text( "%s", SelectedEcho.DetailStat( LanguageProvider ).c_str( ) );
-                }
+                    ImGui::SameLine( );
+                    const auto ImgXFromLeft = ImGui::GetCursorPosX( );
+                    ImGui::NewLine( );
 
-                ImGui::EndTable( );
+                    ImGui::Text( "%s", SelectedEcho.DetailStat( LanguageProvider ).c_str( ) );
+
+                    const auto ImgXFromRight = ImGui::GetWindowWidth( ) - EchoImgSize.x - Style.WindowPadding.x * 2;
+                    ImGui::SetCursorPos( ImVec2( std::max( ImgXFromLeft, ImgXFromRight ), Style.WindowPadding.y ) );
+                    ImGui::Image( *UIConfig.GetTextureOrDefault( SelectedEcho.EchoName ), EchoImgSize );
+
+                    ImGui::EndChild( );
+                    if ( MainDisplayStats.GetEdDropPercentageWithoutAt( i ) != 0 )
+                        ImGui::PopStyleColor( );
+                }
             }
         };
 
