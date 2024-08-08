@@ -71,7 +71,7 @@ CombinationTweaker::TweakerMenu( const std::map<std::string, std::vector<std::st
             ImGui::TableSetColumnIndex( i );
             const auto EDDrop = m_TweakerTarget.GetEdDropPercentageWithoutAt( i );
             if ( EDDrop != 0 )
-                ImGui::TableSetBgColor( ImGuiTableBgTarget_CellBg, ImGui::GetColorU32( ImVec4( 0.2f + EDDrop * 0.6f, 0.2f, 0.2f, 0.65f ) ) );
+                ImGui::TableSetBgColor( ImGuiTableBgTarget_CellBg, ImGui::GetColorU32( ImVec4( 0.2f + EDDrop * 0.5f, 0.2f, 0.2f, 0.65f ) ) );
 
             const auto* EchoName = LanguageProvider[ m_TweakerTarget.GetEchoNameAtSlot( i ) ];
 

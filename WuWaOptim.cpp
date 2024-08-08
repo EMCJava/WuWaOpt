@@ -259,7 +259,7 @@ main( int argc, char** argv )
                 ImGui::TableNextRow( );
 
                 if ( Payoff != 0 )
-                    ImGui::TableSetBgColor( ImGuiTableBgTarget_RowBg1, ImGui::GetColorU32( ImVec4( 0.2f + PayoffPerc * 0.6f, 0.2f, 0.2f, 0.65f ) ) );
+                    ImGui::TableSetBgColor( ImGuiTableBgTarget_RowBg1, ImGui::GetColorU32( ImVec4( 0.2f + PayoffPerc * 0.5f, 0.2f, 0.2f, 0.65f ) ) );
 
                 if ( ShowDifferent )
                 {
