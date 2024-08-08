@@ -172,6 +172,16 @@ main( )
             }
         }
 
+        time_t t = std::time( nullptr );
+        tm     buf { };
+        localtime_s( &buf, &t );
+
+        std::stringstream FileName;
+        FileName << std::put_time( &buf, "%d_%m_%Y_%H_%M_%S" ) << "_defective.png";
+
+        cv::imwrite( FileName.str( ), GameHandler->ScreenCap( ) );
+        std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );
+
         spdlog::error( "Unable to reading card after {} attempts", Retry );
         return true;
     };
