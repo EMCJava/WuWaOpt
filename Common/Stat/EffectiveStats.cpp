@@ -125,11 +125,13 @@ EffectiveStats::AttackStat( FloatTy base_attack ) const noexcept
 FloatTy
 EffectiveStats::NormalDamage( FloatTy base_attack, const SkillMultiplierConfig* multiplier_config ) const noexcept
 {
+    const auto FinalAttackStat = AttackStat( base_attack );
+
     // clang-format off
-    return multiplier_config->auto_attack_multiplier * AttackStat( base_attack ) * ( 1.f + buff_multiplier + auto_attack_buff  )
-        + multiplier_config->heavy_attack_multiplier * AttackStat( base_attack ) * ( 1.f + buff_multiplier + heavy_attack_buff )
-        + multiplier_config->skill_multiplier        * AttackStat( base_attack ) * ( 1.f + buff_multiplier + skill_buff        )
-        + multiplier_config->ult_multiplier          * AttackStat( base_attack ) * ( 1.f + buff_multiplier + ult_buff          );
+    return multiplier_config->auto_attack_multiplier * FinalAttackStat * ( 1.f + buff_multiplier + auto_attack_buff  )
+        + multiplier_config->heavy_attack_multiplier * FinalAttackStat * ( 1.f + buff_multiplier + heavy_attack_buff )
+        + multiplier_config->skill_multiplier        * FinalAttackStat * ( 1.f + buff_multiplier + skill_buff        )
+        + multiplier_config->ult_multiplier          * FinalAttackStat * ( 1.f + buff_multiplier + ult_buff          );
     // clang-format on
 }
 
