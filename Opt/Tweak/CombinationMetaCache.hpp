@@ -55,8 +55,6 @@ public:
     explicit CombinationMetaCache( const std::vector<EffectiveStats>& EffectiveEchoList );
 
     void SetAsCombination( const Backpack&            BackPack,
-                           const EffectiveStats&      CS,
-                           int                        EO,
                            const PlotCombinationMeta& CombinationDetails,
                            const CharacterConfig&     Config );
 

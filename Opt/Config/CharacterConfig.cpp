@@ -45,7 +45,8 @@ ToNode( const CharacterConfig& rhs ) noexcept
 
     Node[ "Weapon" ]     = rhs.WeaponStats;
     Node[ "Character" ]  = rhs.CharacterStats;
-    Node[ "Multiplier" ] = rhs.SkillMultiplierConfig;
+    Node[ "Multiplier" ] = rhs.SkillConfig;
+    Node[ "Deepen" ]     = rhs.DeepenConfig;
     Node[ "Element" ]    = std::string( magic_enum::enum_name( rhs.CharacterElement ) );
 
     Node[ "CharacterLevel" ]           = std::format( "{}", rhs.CharacterLevel );
@@ -64,14 +65,15 @@ ToNode( const CharacterConfig& rhs ) noexcept
 bool
 FromNode( const YAML::Node& Node, CharacterConfig& rhs ) noexcept
 {
-    rhs.WeaponStats           = Node[ "Weapon" ].as<EffectiveStats>( );
-    rhs.CharacterStats        = Node[ "Character" ].as<EffectiveStats>( );
-    rhs.SkillMultiplierConfig = Node[ "Multiplier" ].as<SkillMultiplierConfig>( );
-    rhs.CharacterElement      = magic_enum::enum_cast<ElementType>( Node[ "Element" ].as<std::string>( ) ).value_or( ElementType::eFireElement );
-    rhs.CharacterLevel        = Node[ "CharacterLevel" ].as<int>( );
-    rhs.EnemyLevel            = Node[ "EnemyLevel" ].as<int>( );
-    rhs.ElementResistance     = Node[ "EnemyElementResistance" ].as<FloatTy>( );
-    rhs.ElementDamageReduce   = Node[ "EnemyElementDamageReduce" ].as<FloatTy>( );
+    rhs.WeaponStats    = Node[ "Weapon" ].as<EffectiveStats>( );
+    rhs.CharacterStats = Node[ "Character" ].as<EffectiveStats>( );
+    rhs.SkillConfig    = Node[ "Multiplier" ].as<SkillMultiplierConfig>( );
+    if ( auto Value = Node[ "Deepen" ] ) rhs.DeepenConfig = Value.as<SkillMultiplierConfig>( );
+    rhs.CharacterElement    = magic_enum::enum_cast<ElementType>( Node[ "Element" ].as<std::string>( ) ).value_or( ElementType::eFireElement );
+    rhs.CharacterLevel      = Node[ "CharacterLevel" ].as<int>( );
+    rhs.EnemyLevel          = Node[ "EnemyLevel" ].as<int>( );
+    rhs.ElementResistance   = Node[ "EnemyElementResistance" ].as<FloatTy>( );
+    rhs.ElementDamageReduce = Node[ "EnemyElementDamageReduce" ].as<FloatTy>( );
 
     if ( Node[ "Profile" ] )
     {

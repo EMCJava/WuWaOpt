@@ -39,7 +39,8 @@ protected:
     std::string           m_ActiveCharacterName;
     YAML::Node            m_ActiveCharacterNode;
     CharacterConfig       m_ActiveCharacterConfig;
-    SkillMultiplierConfig m_ActiveSKillMultiplierDisplay;
+    SkillMultiplierConfig m_ActiveSkillDisplay;
+    SkillMultiplierConfig m_ActiveDeepenDisplay;
 
     // UIs
     StringArrayObserver m_ElementLabels;

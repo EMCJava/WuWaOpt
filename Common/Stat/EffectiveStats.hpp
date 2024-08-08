@@ -46,10 +46,10 @@ struct EffectiveStats {
     [[nodiscard]] FloatTy CritDamageStat( ) const noexcept;
 
     [[nodiscard]] FloatTy AttackStat( FloatTy base_attack ) const noexcept;
-    [[nodiscard]] FloatTy NormalDamage( FloatTy base_attack, const SkillMultiplierConfig* multiplier_config ) const noexcept;
-    [[nodiscard]] FloatTy CritDamage( FloatTy base_attack, const SkillMultiplierConfig* multiplier_config ) const noexcept;
-    [[nodiscard]] FloatTy ExpectedDamage( FloatTy base_attack, const SkillMultiplierConfig* multiplier_config ) const noexcept;
-    void                  ExpectedDamage( FloatTy base_attack, const SkillMultiplierConfig* multiplier_config,
+    [[nodiscard]] FloatTy NormalDamage( FloatTy base_attack, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config ) const noexcept;
+    [[nodiscard]] FloatTy CritDamage( FloatTy base_attack, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config ) const noexcept;
+    [[nodiscard]] FloatTy ExpectedDamage( FloatTy base_attack, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config ) const noexcept;
+    void                  ExpectedDamage( FloatTy base_attack, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config,
                                           FloatTy& ND, FloatTy& CD, FloatTy& ED ) const noexcept;
 
     std::string_view   GetSetName( ) const noexcept;

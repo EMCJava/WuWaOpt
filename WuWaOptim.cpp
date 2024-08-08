@@ -413,6 +413,8 @@ main( int argc, char** argv )
         ImGui::SetNextWindowSize( viewport->WorkSize );
         if ( ImGui::Begin( "Display", nullptr, flags ) )
         {
+            const auto& ActiveConfig = UserCharacterPage.GetActiveConfig( );
+
             {
                 ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 5.0f );
                 ImGui::BeginChild( "GAStats", ImVec2( ChartSplitWidth - Style.WindowPadding.x, -1 ), ImGuiChildFlags_Border );
@@ -461,7 +463,7 @@ main( int argc, char** argv )
                     ImPlot::SetupAxisZoomConstraints( ImAxis_X1, 0, WuWaGA::ResultLength - 1 );
 
                     bool       HasData              = false;
-                    const auto StaticStatMultiplier = UserCharacterPage.GetActiveConfig( ).GetResistances( );
+                    const auto StaticStatMultiplier = ActiveConfig.GetResistances( );
                     for ( int i = 0; i < GARuntimeReport::MaxCombinationCount; i++ )
                     {
                         std::lock_guard Lock( GAReport.DetailReports[ i ].ReportLock );
@@ -526,22 +528,14 @@ main( int argc, char** argv )
                             ImPlot::PopPlotClipRect( );
 
                             ImGui::BeginTooltip( );
-                            HoverStatsCache.SetAsCombination( UserBackpack,
-                                                              UserCharacterPage.GetActiveConfig( ).GetCombinedStats( ),
-                                                              (int) UserCharacterPage.GetActiveConfig( ).CharacterElement,
-                                                              SelectedResult,
-                                                              UserCharacterPage.GetActiveConfig( ) );
+                            HoverStatsCache.SetAsCombination( UserBackpack, SelectedResult, ActiveConfig );
                             DisplayCombination( HoverStatsCache );
                             ImGui::EndTooltip( );
 
                             // Select the echo combination
                             if ( sf::Mouse::isButtonPressed( sf::Mouse::Button::Left ) )
                             {
-                                SelectedStatsCache.SetAsCombination( UserBackpack,
-                                                                     UserCharacterPage.GetActiveConfig( ).GetCombinedStats( ),
-                                                                     (int) UserCharacterPage.GetActiveConfig( ).CharacterElement,
-                                                                     SelectedResult,
-                                                                     UserCharacterPage.GetActiveConfig( ) );
+                                SelectedStatsCache.SetAsCombination( UserBackpack, SelectedResult, ActiveConfig );
                             }
                         }
                     }
@@ -598,22 +592,14 @@ main( int argc, char** argv )
                                 ImPlot::PopPlotClipRect( );
 
                                 ImGui::BeginTooltip( );
-                                HoverStatsCache.SetAsCombination( UserBackpack,
-                                                                  UserCharacterPage.GetActiveConfig( ).GetCombinedStats( ),
-                                                                  (int) UserCharacterPage.GetActiveConfig( ).CharacterElement,
-                                                                  ResultDisplayBuffer[ ClosestCombination ][ ClosestRank ],
-                                                                  UserCharacterPage.GetActiveConfig( ) );
+                                HoverStatsCache.SetAsCombination( UserBackpack, ResultDisplayBuffer[ ClosestCombination ][ ClosestRank ], ActiveConfig );
                                 DisplayCombination( HoverStatsCache );
                                 ImGui::EndTooltip( );
 
                                 // Select the echo combination
                                 if ( sf::Mouse::isButtonPressed( sf::Mouse::Button::Left ) )
                                 {
-                                    SelectedStatsCache.SetAsCombination( UserBackpack,
-                                                                         UserCharacterPage.GetActiveConfig( ).GetCombinedStats( ),
-                                                                         (int) UserCharacterPage.GetActiveConfig( ).CharacterElement,
-                                                                         ResultDisplayBuffer[ ClosestCombination ][ ClosestRank ],
-                                                                         UserCharacterPage.GetActiveConfig( ) );
+                                    SelectedStatsCache.SetAsCombination( UserBackpack, ResultDisplayBuffer[ ClosestCombination ][ ClosestRank ], ActiveConfig );
                                 }
                             }
                         }
@@ -659,13 +645,7 @@ main( int argc, char** argv )
                         Opt.Stop( );
                     } else
                     {
-                        const auto BaseAttack = UserCharacterPage.GetActiveConfig( ).GetBaseAttack( );
-                        OptimizerParmSwitcher::SwitchRun( Opt,
-                                                          UserCharacterPage.GetActiveConfig( ).CharacterElement,
-                                                          BaseAttack,
-                                                          UserCharacterPage.GetActiveConfig( ).GetCombinedStats( ),
-                                                          &UserCharacterPage.GetActiveConfig( ).SkillMultiplierConfig,
-                                                          Constraints );
+                        OptimizerParmSwitcher::SwitchRun( Opt, ActiveConfig, Constraints );
                     }
                 }
                 ImGui::PopStyleColor( 3 );

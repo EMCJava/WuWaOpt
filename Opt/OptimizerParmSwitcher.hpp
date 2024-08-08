@@ -7,6 +7,8 @@
 #include <Common/Stat/StatType.hpp>
 #include <Common/ElementType.hpp>
 
+#include <Opt/Config/CharacterConfig.hpp>
+
 #include "SetStat.hpp"
 #include "WuWaGa.hpp"
 
@@ -24,8 +26,8 @@ SwitchCalculateCombinationalStat( int ElementOffset, auto&& Ranges, auto&& Effec
 }
 
 inline void
-SwitchRun( WuWaGA& GA, ElementType Element, auto&& Ranges, auto&& EffectiveStats, const SkillMultiplierConfig* OptimizeMultiplierConfig, const auto& Constraints )
+SwitchRun( WuWaGA& GA, const CharacterConfig& Config, const auto& Constraints )
 {
-    return ( GA.*RunPtrs[ (int) Element ] )( Ranges, EffectiveStats, OptimizeMultiplierConfig, Constraints );
+    return ( GA.*RunPtrs[ (int) Config.CharacterElement ] )( Config, Constraints );
 }
 };   // namespace OptimizerParmSwitcher

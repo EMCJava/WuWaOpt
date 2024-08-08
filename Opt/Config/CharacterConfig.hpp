@@ -12,7 +12,8 @@ struct CharacterConfig {
     EffectiveStats WeaponStats { };
     EffectiveStats CharacterStats { };
 
-    SkillMultiplierConfig SkillMultiplierConfig { };
+    SkillMultiplierConfig SkillConfig { };
+    SkillMultiplierConfig DeepenConfig { };
     ElementType           CharacterElement { };
 
     int     CharacterLevel { };

@@ -7,6 +7,7 @@
 #include <Common/Stat/FullStats.hpp>
 
 #include "Config/EchoConstraint.hpp"
+#include "Config/CharacterConfig.hpp"
 
 #include "OptUtil.hpp"
 
@@ -44,7 +45,7 @@ class WuWaGA
 private:
     template <ElementType ETy, CostSlotTemplate>
     inline void
-    Run( std::stop_token StopToken, int GAReportIndex, FloatTy BaseAttack, EffectiveStats CommonStats, const SkillMultiplierConfig* OptimizeMultiplierConfig, const EchoConstraint& Constraints );
+    Run( std::stop_token StopToken, int GAReportIndex, CharacterConfig Config, const EchoConstraint& Constraints );
 
 public:
     constexpr static std::array<const char*, 11> CombinationLabels { "444", "4431", "3333", "44111", "41111", "43311", "43111", "31111", "33111", "33311", "11111" };
@@ -56,7 +57,7 @@ public:
     [[nodiscard]] auto& GetReport( ) noexcept { return m_GAReport; }
 
     template <ElementType ETy>
-    inline void Run( FloatTy BaseAttack, const EffectiveStats& CommonStats, const SkillMultiplierConfig* OptimizeMultiplierConfig, const EchoConstraint& Constraints );
+    inline void Run( const CharacterConfig& Config, const EchoConstraint& Constraints );
 
     void SetEchoes( const auto& Echoes ) noexcept { m_Echos = &Echoes; }
 

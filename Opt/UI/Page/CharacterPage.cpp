@@ -101,17 +101,22 @@ CharacterPage::LoadCharacter( const std::string& CharacterName )
     if ( !m_ActiveCharacterNode )
     {
         m_ActiveCharacterNode = m_ActiveCharacterConfig = { };
-        m_ActiveSKillMultiplierDisplay                  = { };
+        m_ActiveSkillDisplay = m_ActiveDeepenDisplay = { };
         SaveCharacters( );
         return false;
     }
 
-    m_ActiveCharacterConfig        = m_ActiveCharacterNode.as<CharacterConfig>( );
-    m_ActiveSKillMultiplierDisplay = {
-        .auto_attack_multiplier  = m_ActiveCharacterConfig.SkillMultiplierConfig.auto_attack_multiplier * 100,
-        .heavy_attack_multiplier = m_ActiveCharacterConfig.SkillMultiplierConfig.heavy_attack_multiplier * 100,
-        .skill_multiplier        = m_ActiveCharacterConfig.SkillMultiplierConfig.skill_multiplier * 100,
-        .ult_multiplier          = m_ActiveCharacterConfig.SkillMultiplierConfig.ult_multiplier * 100 };
+    m_ActiveCharacterConfig = m_ActiveCharacterNode.as<CharacterConfig>( );
+    m_ActiveSkillDisplay    = {
+           .auto_attack_multiplier  = m_ActiveCharacterConfig.SkillConfig.auto_attack_multiplier * 100,
+           .heavy_attack_multiplier = m_ActiveCharacterConfig.SkillConfig.heavy_attack_multiplier * 100,
+           .skill_multiplier        = m_ActiveCharacterConfig.SkillConfig.skill_multiplier * 100,
+           .ult_multiplier          = m_ActiveCharacterConfig.SkillConfig.ult_multiplier * 100 };
+    m_ActiveDeepenDisplay = {
+        .auto_attack_multiplier  = m_ActiveCharacterConfig.DeepenConfig.auto_attack_multiplier * 100,
+        .heavy_attack_multiplier = m_ActiveCharacterConfig.DeepenConfig.heavy_attack_multiplier * 100,
+        .skill_multiplier        = m_ActiveCharacterConfig.DeepenConfig.skill_multiplier * 100,
+        .ult_multiplier          = m_ActiveCharacterConfig.DeepenConfig.ult_multiplier * 100 };
     return true;
 }
 
@@ -275,23 +280,41 @@ CharacterPage::DisplayCharacterInfo( float Width, float* HeightOut )
     ImGui::Separator( );
     ImGui::NewLine( );
 
-    ImGui::PushItemWidth( -200 );
-
-#define SAVE_MULTIPLIER_CONFIG( name, stat )                                                            \
-    if ( ImGui::DragFloat( name, &m_ActiveSKillMultiplierDisplay.stat ) )                               \
-    {                                                                                                   \
-        m_ActiveCharacterConfig.SkillMultiplierConfig.stat = m_ActiveSKillMultiplierDisplay.stat / 100; \
-        SaveCharacters( );                                                                              \
+#define SAVE_MULTIPLIER_CONFIG( name, type, stat )                                                                \
+    if ( ImGui::DragFloat( name, &m_Active##type##Display.stat##_multiplier ) )                                   \
+    {                                                                                                             \
+        m_ActiveCharacterConfig.type##Config.stat##_multiplier = m_Active##type##Display.stat##_multiplier / 100; \
+        SaveCharacters( );                                                                                        \
     }
-    SAVE_MULTIPLIER_CONFIG( LanguageProvider[ "AutoTotal%" ], auto_attack_multiplier )
-    SAVE_MULTIPLIER_CONFIG( LanguageProvider[ "HeavyTotal%" ], heavy_attack_multiplier )
-    SAVE_MULTIPLIER_CONFIG( LanguageProvider[ "SkillTotal%" ], skill_multiplier )
-    SAVE_MULTIPLIER_CONFIG( LanguageProvider[ "UltTotal%" ], ult_multiplier )
+
+    {
+        ImGui::BeginChild( "ConfigPanel##Deepen", ImVec2( Width / 2 - Style.WindowPadding.x * 4, 0 ), ImGuiChildFlags_AutoResizeY );
+        ImGui::SeparatorText( LanguageProvider[ "DMGDeep%" ] );
+        ImGui::PushID( "Deepen" );
+        SAVE_MULTIPLIER_CONFIG( LanguageProvider[ "AutoTotal%" ], Deepen, auto_attack )
+        SAVE_MULTIPLIER_CONFIG( LanguageProvider[ "HeavyTotal%" ], Deepen, heavy_attack )
+        SAVE_MULTIPLIER_CONFIG( LanguageProvider[ "SkillTotal%" ], Deepen, skill )
+        SAVE_MULTIPLIER_CONFIG( LanguageProvider[ "UltTotal%" ], Deepen, ult )
+        ImGui::PopID( );
+        ImGui::EndChild( );
+        ImGui::SameLine( );
+        ImGui::BeginChild( "ConfigPanel##Skill", ImVec2( Width / 2 - Style.WindowPadding.x * 4, 0 ), ImGuiChildFlags_AutoResizeY );
+        ImGui::SeparatorText( LanguageProvider[ "CycleTotal%" ] );
+        ImGui::PushID( "Skill" );
+        SAVE_MULTIPLIER_CONFIG( LanguageProvider[ "AutoTotal%" ], Skill, auto_attack )
+        SAVE_MULTIPLIER_CONFIG( LanguageProvider[ "HeavyTotal%" ], Skill, heavy_attack )
+        SAVE_MULTIPLIER_CONFIG( LanguageProvider[ "SkillTotal%" ], Skill, skill )
+        SAVE_MULTIPLIER_CONFIG( LanguageProvider[ "UltTotal%" ], Skill, ult )
+        ImGui::PopID( );
+        ImGui::EndChild( );
+    }
 #undef SAVE_MULTIPLIER_CONFIG
 
     ImGui::NewLine( );
     ImGui::Separator( );
     ImGui::NewLine( );
+
+    ImGui::PushItemWidth( -200 );
 
     SAVE_CONFIG( ImGui::Combo( LanguageProvider[ "ElementType" ],
                                (int*) &m_ActiveCharacterConfig.CharacterElement,

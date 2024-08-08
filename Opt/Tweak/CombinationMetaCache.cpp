@@ -19,7 +19,7 @@ CombinationMetaCache::Deactivate( )
 }
 
 void
-CombinationMetaCache::SetAsCombination( const Backpack& BackPack, const EffectiveStats& CS, int EO, const PlotCombinationMeta& CombinationDetails, const CharacterConfig& Config )
+CombinationMetaCache::SetAsCombination( const Backpack& BackPack, const PlotCombinationMeta& CombinationDetails, const CharacterConfig& Config )
 {
     SlotCount = std::distance( CombinationDetails.Indices.begin( ), std::ranges::find( CombinationDetails.Indices, -1 ) );
 
@@ -28,13 +28,13 @@ CombinationMetaCache::SetAsCombination( const Backpack& BackPack, const Effectiv
         NewEchoIndices[ i ] = CombinationDetails.Indices[ i ];
 
     // Check if the combination has changed
-    if ( m_Valid && m_ElementOffset == EO && m_CachedStateID == Config.InternalStageID + BackPack.GetHash( ) && std::ranges::equal( NewEchoIndices, m_CombinationEchoIndices ) ) return;
+    if ( m_Valid && m_ElementOffset == (int) Config.CharacterElement && m_CachedStateID == Config.InternalStageID + BackPack.GetHash( ) && std::ranges::equal( NewEchoIndices, m_CombinationEchoIndices ) ) return;
     m_CombinationEchoIndices = NewEchoIndices;
-    m_CommonStats            = CS;
+    m_CommonStats            = Config.GetCombinedStats();
     m_CachedStateID          = Config.InternalStageID + BackPack.GetHash( );
     m_CharacterCfg           = Config;
 
-    m_ElementOffset = EO;
+    m_ElementOffset = (int) Config.CharacterElement;
     m_Valid         = true;
 
     const auto IndexToEchoTransform =
@@ -97,7 +97,9 @@ CombinationMetaCache::CalculateDamages( )
     const FloatTy Resistances = m_CharacterCfg.GetResistances( );
     const FloatTy BaseAttack  = m_CharacterCfg.GetBaseAttack( );
 
-    m_CombinationStats.ExpectedDamage( BaseAttack, &m_CharacterCfg.SkillMultiplierConfig,
+    m_CombinationStats.ExpectedDamage( BaseAttack,
+                                       &m_CharacterCfg.SkillConfig,
+                                       &m_CharacterCfg.DeepenConfig,
                                        m_NormalDamage,
                                        m_CritDamage,
                                        m_ExpectedDamage );
@@ -109,7 +111,7 @@ CombinationMetaCache::CalculateDamages( )
                 m_ElementOffset,
                 m_EchoesWithoutAt[ i ],
                 m_CommonStats )
-                .ExpectedDamage( BaseAttack, &m_CharacterCfg.SkillMultiplierConfig );
+                .ExpectedDamage( BaseAttack, &m_CharacterCfg.SkillConfig, &m_CharacterCfg.DeepenConfig );
 
         m_EdDropPercentageWithoutAt[ i ] = m_ExpectedDamage - m_EDWithoutAt[ i ];
     }
@@ -143,7 +145,7 @@ CombinationMetaCache::CalculateDamages( )
         auto NewStat = m_CombinationStats;
         NewStat.flat_attack += 1;
 
-        const auto NewExpDmg = NewStat.ExpectedDamage( BaseAttack, &m_CharacterCfg.SkillMultiplierConfig );
+        const auto NewExpDmg = NewStat.ExpectedDamage( BaseAttack, &m_CharacterCfg.SkillConfig, &m_CharacterCfg.DeepenConfig );
         MaxDamageBuff        = std::max( m_IncreasePayOff.flat_attack = NewExpDmg - m_ExpectedDamage, MaxDamageBuff );
     }
 
@@ -152,7 +154,7 @@ CombinationMetaCache::CalculateDamages( )
         auto NewStat = m_CombinationStats;
         NewStat.*StatSlot += 0.01f;
 
-        const auto NewExpDmg = NewStat.ExpectedDamage( BaseAttack, &m_CharacterCfg.SkillMultiplierConfig );
+        const auto NewExpDmg = NewStat.ExpectedDamage( BaseAttack, &m_CharacterCfg.SkillConfig, &m_CharacterCfg.DeepenConfig );
         MaxDamageBuff        = std::max( m_IncreasePayOff.*StatSlot = NewExpDmg - m_ExpectedDamage, MaxDamageBuff );
     }
 
@@ -177,7 +179,7 @@ CombinationMetaCache::GetEDReplaceEchoAt( int EchoIndex, EffectiveStats Echo ) c
     const auto NewED =
         OptimizerParmSwitcher::SwitchCalculateCombinationalStat(
             m_ElementOffset, EchoesReplaced, m_CommonStats )
-            .ExpectedDamage( BaseAttack, &m_CharacterCfg.SkillMultiplierConfig )
+            .ExpectedDamage( BaseAttack, &m_CharacterCfg.SkillConfig, &m_CharacterCfg.DeepenConfig )
         * Resistances;
     EchoesReplaced.pop_back( );
 

@@ -36,7 +36,7 @@ add_executable(WuWaOptim WuWaOptim.cpp)
 
 add_library(WuWaGA INTERFACE Opt/WuWaGa.hpp Opt/WuWaGa.inl)
 
-target_link_libraries(WuWaGA INTERFACE EchoConstraint.lib)
+target_link_libraries(WuWaGA INTERFACE EchoConstraint.lib CharacterConfig.lib)
 
 add_library(WuWaGASwitcher Opt/OptimizerParmSwitcher.hpp Opt/OptimizerParmSwitcher.cpp)
 target_link_libraries(WuWaGASwitcher spdlog::spdlog_header_only)
