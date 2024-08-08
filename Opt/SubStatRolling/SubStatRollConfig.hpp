@@ -26,3 +26,6 @@ struct SubStatRollConfig {
 
     static const char* GetValueString( void* user_data, int idx );
 };
+
+extern const std::vector<SubStatRollConfig> FullSubStatRollConfigs;
+extern const std::vector<SubStatRollConfig> MaxSubStatRollConfigs;

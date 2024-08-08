@@ -50,8 +50,8 @@ class CombinationTweaker : public LanguageObserver
     std::optional<FloatTy> m_PinnedTargetCDF;
     std::optional<FloatTy> m_PinnedExpectedChange;
 
-    int                                       m_NonEffectiveSubStatCount;
-    std::vector<SubStatRollConfig>            m_SubStatRollConfigs;
+    int m_NonEffectiveSubStatCount = 5;
+
     std::array<std::array<long long, 14>, 14> m_PascalTriangle { };
 
     EchoPotential m_SelectedEchoPotential;
@@ -89,7 +89,6 @@ class CombinationTweaker : public LanguageObserver
         EffectiveStats CurrentSubStats,
         int            RollRemaining );
 
-    void InitializeSubStatRollConfigs( );
     void InitializePascalTriangle( );
 
 public:
