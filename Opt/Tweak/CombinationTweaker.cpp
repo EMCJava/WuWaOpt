@@ -43,7 +43,6 @@ inline std::array<StatValueConfig, 5> MaxSecondMainStat {
     StatValueConfig { &EffectiveStats::flat_attack, 150 },
 };
 
-
 void
 DisplayTextAt( auto&& Text, float Center )
 {
@@ -54,8 +53,273 @@ DisplayTextAt( auto&& Text, float Center )
     ImGui::Text( "%s", SV.data( ) );
 }
 
+std::array<std::array<long long, 14>, 14> CombinationTweaker::PascalTriangle = []( ) {
+    std::array<std::array<long long, 14>, 14> Result { };
+
+    // initialize the first row
+    Result[ 0 ][ 0 ] = 1;   // C(0, 0) = 1
+
+    for ( int i = 1; i < Result.size( ); i++ )
+    {
+        Result[ i ][ 0 ] = 1;   // C(i, 0) = 1
+        for ( int j = 1; j <= i; j++ )
+        {
+            Result[ i ][ j ] = Result[ i - 1 ][ j - 1 ] + Result[ i - 1 ][ j ];
+        }
+    }
+
+    return Result;
+}( );
+
+CombinationTweaker::CombinationTweaker( const CombinationMetaCache& m_TweakerTarget )
+    : m_TweakerTarget( m_TweakerTarget )
+{
+}
+
 void
-CombinationTweaker::TweakerMenu( const std::map<std::string, std::vector<std::string>>& EchoNamesBySet )
+CombinationTweaker::ApplyStats(
+    std::vector<std::pair<FloatTy, ValueRollRate::RateTy>>& Results,
+    const SubStatRollConfig**                               PickedRollPtr,
+    const EffectiveStats&                                   Stats,
+    ValueRollRate::RateTy                                   CurrentRate )
+{
+    if ( *PickedRollPtr == nullptr )
+    {
+        Results.emplace_back( m_TweakerTarget.GetEDReplaceEchoAt( m_TweakingEchoSlot, Stats ), CurrentRate );
+        return;
+    }
+
+    const auto& PickedRoll = **PickedRollPtr;
+
+    for ( int i = 0; i < PickedRoll.PossibleRolls; ++i )
+    {
+        ApplyStats(
+            Results,
+            PickedRollPtr + 1,
+            Stats + StatValueConfig { PickedRoll.ValuePtr, PickedRoll.Values[ i ].Value },
+            CurrentRate * PickedRoll.Values[ i ].Rate );
+    }
+}
+
+void
+CombinationTweaker::CalculateFullPotential( int                                   EchoSlot,
+                                            EchoSet                               Set,
+                                            int                                   EchoNameID,
+                                            const StatValueConfig&                PrimaryStat,
+                                            const StatValueConfig&                SecondaryStat,
+                                            int                                   NonEffectiveRollCount,
+                                            const std::vector<SubStatRollConfig>* RollConfigs )
+{
+    Stopwatch SP;
+    ClearPotentialCache( );
+
+    std::vector<std::pair<FloatTy, ValueRollRate::RateTy>> AllPossibleEcho;
+
+    m_TweakingEchoSlot = EchoSlot;
+
+    const auto TweakingCost = m_TweakerTarget.GetEffectiveEchoAtSlot( m_TweakingEchoSlot ).Cost;
+
+    EffectiveStats ConfiguredEcho { .Set = Set, .NameID = EchoNameID, .Cost = TweakingCost };
+
+    if ( PrimaryStat.ValuePtr != nullptr )
+        ConfiguredEcho.*( PrimaryStat.ValuePtr ) += PrimaryStat.Value;
+    if ( SecondaryStat.ValuePtr != nullptr )
+        ConfiguredEcho.*( SecondaryStat.ValuePtr ) += SecondaryStat.Value;
+
+    std::vector<const SubStatRollConfig*> PickedRoll( MaxRollCount + /*  For terminating recursive call */ 1, nullptr );
+
+    for ( int EffectiveRolls = MaxRollCount - NonEffectiveRollCount; EffectiveRolls <= MaxRollCount; ++EffectiveRolls )
+    {
+        const auto Duplicates = PascalTriangle[ NonEffectiveRollCount ][ MaxRollCount - EffectiveRolls ];
+
+        std::string bitmask( EffectiveRolls, 1 );
+        bitmask.resize( RollConfigs->size( ), 0 );
+
+        std::ranges::fill( PickedRoll, nullptr );
+        do
+        {
+            uint32_t SubStatPickID = 0;
+            for ( int j = 0, poll_index = 0; j < RollConfigs->size( ); ++j )
+            {
+                if ( bitmask[ j ] )
+                {
+                    SubStatPickID <<= 6;
+                    SubStatPickID |= j;
+                    PickedRoll[ poll_index++ ] = &RollConfigs->at( j );
+                }
+            }
+
+            ApplyStats(
+                AllPossibleEcho,
+                PickedRoll.data( ),
+                ConfiguredEcho,
+                1.0 * Duplicates );
+        } while ( std::ranges::prev_permutation( bitmask ).found );
+    }
+
+    m_FullPotentialCache = std::make_unique<EchoPotential>( AnalyzeEchoPotential( AllPossibleEcho ) );
+}
+
+void
+CombinationTweaker::CalculateEchoPotential( EchoPotential& Result, int EchoSlot, EffectiveStats CurrentSubStats, const StatValueConfig& PrimaryStat, const StatValueConfig& SecondaryStat, int RollRemaining )
+{
+    Stopwatch SP;
+    if ( !m_FullPotentialCache )
+    {
+        CalculateFullPotential( EchoSlot,
+                                CurrentSubStats.Set,
+                                CurrentSubStats.NameID,
+                                PrimaryStat,
+                                SecondaryStat );
+    }
+
+    m_TweakingEchoSlot = EchoSlot;
+    std::vector<std::pair<FloatTy, ValueRollRate::RateTy>> AllPossibleEcho;
+
+    const auto PossibleRolls =
+        FullSubStatRollConfigs
+        | std::views::filter( [ & ]( const SubStatRollConfig& Config ) {
+              return std::abs( CurrentSubStats.*( Config.ValuePtr ) ) < 0.001;
+          } )
+        | std::ranges::to<std::vector>( );
+
+    if ( PossibleRolls.size( ) < RollRemaining )
+    {
+        throw std::runtime_error( "Not enough rolls remaining to complete the combination." );
+    }
+
+    if ( PrimaryStat.ValuePtr != nullptr )
+        CurrentSubStats.*( PrimaryStat.ValuePtr ) += PrimaryStat.Value;
+    if ( SecondaryStat.ValuePtr != nullptr )
+        CurrentSubStats.*( SecondaryStat.ValuePtr ) += SecondaryStat.Value;
+
+    std::vector<const SubStatRollConfig*> PickedRoll( RollRemaining + /*  For terminating recursive call */ 1, nullptr );
+
+    const auto UsedNonEffectiveRollCount = ( MaxRollCount - RollRemaining ) - ( FullSubStatRollConfigs.size( ) - PossibleRolls.size( ) );
+    if ( UsedNonEffectiveRollCount > MaxNonEffectiveSubStatCount ) throw std::runtime_error( "Too many non-effective rolls" );
+    for ( int EffectiveRolls = 0; EffectiveRolls <= RollRemaining; ++EffectiveRolls )
+    {
+        const auto Duplicates = PascalTriangle[ MaxNonEffectiveSubStatCount - UsedNonEffectiveRollCount ][ RollRemaining - EffectiveRolls ];
+
+        std::string bitmask( EffectiveRolls, 1 );
+        bitmask.resize( PossibleRolls.size( ), 0 );
+
+        std::ranges::fill( PickedRoll, nullptr );
+        do
+        {
+            for ( int j = 0, poll_index = 0; j < PossibleRolls.size( ); ++j )
+            {
+                if ( bitmask[ j ] )
+                {
+                    PickedRoll[ poll_index++ ] = &PossibleRolls[ j ];
+                }
+            }
+
+            ApplyStats( AllPossibleEcho, PickedRoll.data( ), CurrentSubStats, 1.0 * Duplicates );
+
+        } while ( std::ranges::prev_permutation( bitmask ).found );
+    }
+
+    Result = AnalyzeEchoPotential( AllPossibleEcho );
+}
+
+EchoPotential
+CombinationTweaker::AnalyzeEchoPotential( std::vector<std::pair<FloatTy, ValueRollRate::RateTy>>& DamageDistribution )
+{
+    EchoPotential Result;
+    std::ranges::sort( DamageDistribution );
+
+    Result.BaselineExpectedDamage = m_TweakerTarget.GetExpectedDamage( );
+    Result.HighestExpectedDamage  = DamageDistribution.back( ).first;
+    Result.LowestExpectedDamage   = DamageDistribution.front( ).first;
+
+    Result.CDF.resize( EchoPotential::CDFResolution );
+    Result.CDFSmallOrEqED.resize( EchoPotential::CDFResolution );
+
+    const auto DamageIncreasePerTick = ( Result.HighestExpectedDamage - Result.LowestExpectedDamage ) / EchoPotential::CDFResolution;
+
+    ValueRollRate::RateTy CumulatedRate = 0;
+    Result.ExpectedChangeToED           = 0;
+    auto       It                       = DamageDistribution.data( );
+    const auto ItEnd                    = &DamageDistribution.back( ) + 1;
+    for ( int i = 0; i < EchoPotential::CDFResolution; ++i )
+    {
+        const auto TickDamage = Result.LowestExpectedDamage + i * DamageIncreasePerTick;
+        while ( It->first <= TickDamage && It != ItEnd )
+        {
+            Result.ExpectedChangeToED += It->first * It->second;
+            CumulatedRate += It->second;
+            It++;
+        }
+
+        Result.CDFSmallOrEqED[ i ] = TickDamage;
+        Result.CDF[ i ]            = CumulatedRate;
+    }
+
+    while ( It != ItEnd )
+    {
+        Result.ExpectedChangeToED += It->first * It->second;
+        CumulatedRate += It->second;
+        It++;
+    }
+    Result.CDFSmallOrEqED.push_back( DamageDistribution.back( ).first );
+    Result.CDF.push_back( CumulatedRate );
+
+    Result.CDFChangeToED = Result.CDFSmallOrEqED;
+    for ( auto& ED : Result.CDFChangeToED )
+        ED = 100 * ED / Result.BaselineExpectedDamage - 100;
+
+    Result.ExpectedChangeToED /= Result.CDF.back( ) * Result.BaselineExpectedDamage / 100;
+    Result.ExpectedChangeToED -= 100;
+
+    Result.CDFFloat.resize( Result.CDF.size( ) );
+    for ( int i = 0; i < Result.CDF.size( ); ++i )
+    {
+        Result.CDFFloat[ i ] = Result.CDF[ i ] = ( 1 - Result.CDF[ i ] / Result.CDF.back( ) ) * 100;
+    }
+
+    Result.CDFFloat.front( ) = Result.CDF.front( ) = 100;
+
+    return Result;
+}
+
+CombinationTweakerMenu::CombinationTweakerMenu( Loca& LanguageProvider, const CombinationMetaCache& Target )
+    : LanguageObserver( LanguageProvider )
+    , CombinationTweaker( Target )
+    , m_EchoNames( LanguageProvider )
+    , m_SetNames( LanguageProvider )
+    , m_SubStatLabel( LanguageProvider )
+    , m_MainStatLabel( LanguageProvider )
+{
+    CombinationTweakerMenu::OnLanguageChanged( &LanguageProvider );
+
+    m_SetNames.SetKeyStrings( { "eFreezingFrost",
+                                "eMoltenRift",
+                                "eVoidThunder",
+                                "eSierraGale",
+                                "eCelestialLight",
+                                "eSunSinkingEclipse",
+                                "eRejuvenatingGlow",
+                                "eMoonlitClouds",
+                                "eLingeringTunes" } );
+
+    m_SubStatPtr = {
+        nullptr,
+        &EffectiveStats::flat_attack,
+        &EffectiveStats::percentage_attack,
+        &EffectiveStats::crit_rate,
+        &EffectiveStats::crit_damage,
+        &EffectiveStats::auto_attack_buff,
+        &EffectiveStats::heavy_attack_buff,
+        &EffectiveStats::skill_buff,
+        &EffectiveStats::ult_buff,
+    };
+
+    m_SubStatLabel.SetKeyStrings( m_SubStatPtr | std::views::transform( EffectiveStats::GetStatName ) );
+}
+
+void
+CombinationTweakerMenu::TweakerMenu( const std::map<std::string, std::vector<std::string>>& EchoNamesBySet )
 {
     if ( !m_TweakerTarget.IsValid( ) ) return;
 
@@ -239,8 +503,14 @@ CombinationTweaker::TweakerMenu( const std::map<std::string, std::vector<std::st
                     }
                 }
 
+                const auto             TweakingCost   = m_TweakerTarget.GetEffectiveEchoAtSlot( m_EchoSlotIndex ).Cost;
+                const StatValueConfig& FirstMainStat  = MaxFirstMainStat[ TweakingCost ][ m_SelectedMainStatTypeIndex ];
+                const StatValueConfig& SecondMainStat = MaxSecondMainStat[ TweakingCost ];
+
                 CalculateEchoPotential( m_SelectedEchoPotential,
+                                        m_EchoSlotIndex,
                                         ConfiguredSubStats,
+                                        FirstMainStat, SecondMainStat,
                                         MaxRollCount - m_UsedSubStatCount );
             } else
             {
@@ -451,254 +721,4 @@ CombinationTweaker::TweakerMenu( const std::map<std::string, std::vector<std::st
             }
         }
     }
-}
-
-CombinationTweaker::CombinationTweaker( Loca& LanguageProvider, CombinationMetaCache m_TweakerTarget )
-    : LanguageObserver( LanguageProvider )
-    , m_EchoNames( LanguageProvider )
-    , m_SetNames( LanguageProvider )
-    , m_SubStatLabel( LanguageProvider )
-    , m_MainStatLabel( LanguageProvider )
-    , m_TweakerTarget( std::move( m_TweakerTarget ) )
-{
-    CombinationTweaker::OnLanguageChanged( &LanguageProvider );
-
-    m_SetNames.SetKeyStrings( { "eFreezingFrost",
-                                "eMoltenRift",
-                                "eVoidThunder",
-                                "eSierraGale",
-                                "eCelestialLight",
-                                "eSunSinkingEclipse",
-                                "eRejuvenatingGlow",
-                                "eMoonlitClouds",
-                                "eLingeringTunes" } );
-
-    m_SubStatPtr = {
-        nullptr,
-        &EffectiveStats::flat_attack,
-        &EffectiveStats::percentage_attack,
-        &EffectiveStats::crit_rate,
-        &EffectiveStats::crit_damage,
-        &EffectiveStats::auto_attack_buff,
-        &EffectiveStats::heavy_attack_buff,
-        &EffectiveStats::skill_buff,
-        &EffectiveStats::ult_buff,
-    };
-
-    m_SubStatLabel.SetKeyStrings( m_SubStatPtr | std::views::transform( EffectiveStats::GetStatName ) );
-
-    InitializePascalTriangle( );
-}
-
-void
-CombinationTweaker::ApplyStats(
-    std::vector<std::pair<FloatTy, ValueRollRate::RateTy>>& Results,
-    const SubStatRollConfig**                               PickedRollPtr,
-    const EffectiveStats&                                   Stats,
-    ValueRollRate::RateTy                                   CurrentRate )
-{
-    if ( *PickedRollPtr == nullptr )
-    {
-        Results.emplace_back( m_TweakerTarget.GetEDReplaceEchoAt( m_EchoSlotIndex, Stats ), CurrentRate );
-        return;
-    }
-
-    const auto& PickedRoll = **PickedRollPtr;
-
-    for ( int i = 0; i < PickedRoll.PossibleRolls; ++i )
-    {
-        ApplyStats(
-            Results,
-            PickedRollPtr + 1,
-            Stats + StatValueConfig { PickedRoll.ValuePtr, PickedRoll.Values[ i ].Value },
-            CurrentRate * PickedRoll.Values[ i ].Rate );
-    }
-}
-
-void
-CombinationTweaker::CalculateFullPotential( )
-{
-    Stopwatch SP;
-    ClearPotentialCache( );
-
-    std::vector<std::pair<FloatTy, ValueRollRate::RateTy>> AllPossibleEcho;
-    const auto                                             TweakingCost = m_TweakerTarget.GetEffectiveEchoAtSlot( m_EchoSlotIndex ).Cost;
-    EffectiveStats                                         ConfiguredEcho {
-                                                .Set    = (EchoSet) m_SelectedEchoSet,
-                                                .NameID = m_SelectedEchoNameID,
-                                                .Cost   = TweakingCost };
-
-    {
-        const StatValueConfig& FirstMainStat  = MaxFirstMainStat[ TweakingCost ][ m_SelectedMainStatTypeIndex ];
-        const StatValueConfig& SecondMainStat = MaxSecondMainStat[ TweakingCost ];
-        ConfiguredEcho.*( MaxFirstMainStat[ TweakingCost ][ m_SelectedMainStatTypeIndex ].ValuePtr ) += FirstMainStat.Value;
-        ConfiguredEcho.*( MaxSecondMainStat[ TweakingCost ].ValuePtr ) += SecondMainStat.Value;
-    }
-
-    std::vector<const SubStatRollConfig*> PickedRoll( MaxRollCount + /*  For terminating recursive call */ 1, nullptr );
-
-    for ( int EffectiveRolls = 0; EffectiveRolls <= MaxRollCount; ++EffectiveRolls )
-    {
-        const auto Duplicates = m_PascalTriangle[ m_NonEffectiveSubStatCount ][ MaxRollCount - EffectiveRolls ];
-
-        std::string bitmask( EffectiveRolls, 1 );
-        bitmask.resize( FullSubStatRollConfigs.size( ), 0 );
-
-        std::ranges::fill( PickedRoll, nullptr );
-        do
-        {
-            uint32_t SubStatPickID = 0;
-            for ( int j = 0, poll_index = 0; j < FullSubStatRollConfigs.size( ); ++j )
-            {
-                if ( bitmask[ j ] )
-                {
-                    SubStatPickID <<= 6;
-                    SubStatPickID |= j;
-                    PickedRoll[ poll_index++ ] = &FullSubStatRollConfigs[ j ];
-                }
-            }
-
-            ApplyStats(
-                AllPossibleEcho,
-                PickedRoll.data( ),
-                ConfiguredEcho,
-                1.0 * Duplicates );
-        } while ( std::ranges::prev_permutation( bitmask ).found );
-    }
-
-    m_FullPotentialCache = std::make_unique<EchoPotential>( AnalyzeEchoPotential( AllPossibleEcho ) );
-}
-
-void
-CombinationTweaker::CalculateEchoPotential( EchoPotential& Result, EffectiveStats CurrentSubStats, int RollRemaining )
-{
-    Stopwatch SP;
-    if ( !m_FullPotentialCache ) CalculateFullPotential( );
-
-    std::vector<std::pair<FloatTy, ValueRollRate::RateTy>> AllPossibleEcho;
-
-    const auto PossibleRolls =
-        FullSubStatRollConfigs
-        | std::views::filter( [ & ]( const SubStatRollConfig& Config ) {
-              return std::abs( CurrentSubStats.*( Config.ValuePtr ) ) < 0.001;
-          } )
-        | std::ranges::to<std::vector>( );
-
-    if ( PossibleRolls.size( ) < RollRemaining )
-    {
-        throw std::runtime_error( "Not enough rolls remaining to complete the combination." );
-    }
-
-    {
-        const auto             TweakingCost   = m_TweakerTarget.GetEffectiveEchoAtSlot( m_EchoSlotIndex ).Cost;
-        const StatValueConfig& FirstMainStat  = MaxFirstMainStat[ TweakingCost ][ m_SelectedMainStatTypeIndex ];
-        const StatValueConfig& SecondMainStat = MaxSecondMainStat[ TweakingCost ];
-        CurrentSubStats.*( MaxFirstMainStat[ TweakingCost ][ m_SelectedMainStatTypeIndex ].ValuePtr ) += FirstMainStat.Value;
-        CurrentSubStats.*( MaxSecondMainStat[ TweakingCost ].ValuePtr ) += SecondMainStat.Value;
-    }
-
-    std::vector<const SubStatRollConfig*> PickedRoll( RollRemaining + /*  For terminating recursive call */ 1, nullptr );
-
-    const auto UsedNonEffectiveRollCount = ( MaxRollCount - RollRemaining ) - ( FullSubStatRollConfigs.size( ) - PossibleRolls.size( ) );
-    if ( UsedNonEffectiveRollCount > m_NonEffectiveSubStatCount ) throw std::runtime_error( "Too many non-effective rolls" );
-    for ( int EffectiveRolls = 0; EffectiveRolls <= RollRemaining; ++EffectiveRolls )
-    {
-        const auto Duplicates = m_PascalTriangle[ m_NonEffectiveSubStatCount - UsedNonEffectiveRollCount ][ RollRemaining - EffectiveRolls ];
-
-        std::string bitmask( EffectiveRolls, 1 );
-        bitmask.resize( PossibleRolls.size( ), 0 );
-
-        std::ranges::fill( PickedRoll, nullptr );
-        do
-        {
-            for ( int j = 0, poll_index = 0; j < PossibleRolls.size( ); ++j )
-            {
-                if ( bitmask[ j ] )
-                {
-                    PickedRoll[ poll_index++ ] = &PossibleRolls[ j ];
-                }
-            }
-
-            ApplyStats( AllPossibleEcho, PickedRoll.data( ), CurrentSubStats, 1.0 * Duplicates );
-
-        } while ( std::ranges::prev_permutation( bitmask ).found );
-    }
-
-    Result = AnalyzeEchoPotential( AllPossibleEcho );
-}
-
-void
-CombinationTweaker::InitializePascalTriangle( )
-{
-    // initialize the first row
-    m_PascalTriangle[ 0 ][ 0 ] = 1;   // C(0, 0) = 1
-
-    for ( int i = 1; i < m_PascalTriangle.size( ); i++ )
-    {
-        m_PascalTriangle[ i ][ 0 ] = 1;   // C(i, 0) = 1
-        for ( int j = 1; j <= i; j++ )
-        {
-            m_PascalTriangle[ i ][ j ] = m_PascalTriangle[ i - 1 ][ j - 1 ] + m_PascalTriangle[ i - 1 ][ j ];
-        }
-    }
-}
-
-EchoPotential
-CombinationTweaker::AnalyzeEchoPotential( std::vector<std::pair<FloatTy, ValueRollRate::RateTy>>& DamageDistribution )
-{
-    EchoPotential Result;
-    std::ranges::sort( DamageDistribution );
-
-    Result.BaselineExpectedDamage = m_TweakerTarget.GetExpectedDamage( );
-    Result.HighestExpectedDamage  = DamageDistribution.back( ).first;
-    Result.LowestExpectedDamage   = DamageDistribution.front( ).first;
-
-    Result.CDF.resize( EchoPotential::CDFResolution );
-    Result.CDFSmallOrEqED.resize( EchoPotential::CDFResolution );
-
-    const auto DamageIncreasePerTick = ( Result.HighestExpectedDamage - Result.LowestExpectedDamage ) / EchoPotential::CDFResolution;
-
-    ValueRollRate::RateTy CumulatedRate = 0;
-    Result.ExpectedChangeToED           = 0;
-    auto       It                       = DamageDistribution.data( );
-    const auto ItEnd                    = &DamageDistribution.back( ) + 1;
-    for ( int i = 0; i < EchoPotential::CDFResolution; ++i )
-    {
-        const auto TickDamage = Result.LowestExpectedDamage + i * DamageIncreasePerTick;
-        while ( It->first <= TickDamage && It != ItEnd )
-        {
-            Result.ExpectedChangeToED += It->first * It->second;
-            CumulatedRate += It->second;
-            It++;
-        }
-
-        Result.CDFSmallOrEqED[ i ] = TickDamage;
-        Result.CDF[ i ]            = CumulatedRate;
-    }
-
-    while ( It != ItEnd )
-    {
-        Result.ExpectedChangeToED += It->first * It->second;
-        CumulatedRate += It->second;
-        It++;
-    }
-    Result.CDFSmallOrEqED.push_back( DamageDistribution.back( ).first );
-    Result.CDF.push_back( CumulatedRate );
-
-    Result.CDFChangeToED = Result.CDFSmallOrEqED;
-    for ( auto& ED : Result.CDFChangeToED )
-        ED = 100 * ED / Result.BaselineExpectedDamage - 100;
-
-    Result.ExpectedChangeToED /= Result.CDF.back( ) * Result.BaselineExpectedDamage / 100;
-    Result.ExpectedChangeToED -= 100;
-
-    Result.CDFFloat.resize( Result.CDF.size( ) );
-    for ( int i = 0; i < Result.CDF.size( ); ++i )
-    {
-        Result.CDFFloat[ i ] = Result.CDF[ i ] = ( 1 - Result.CDF[ i ] / Result.CDF.back( ) ) * 100;
-    }
-
-    Result.CDFFloat.front( ) = Result.CDF.front( ) = 100;
-
-    return Result;
 }

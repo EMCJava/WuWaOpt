@@ -163,8 +163,8 @@ main( int argc, char** argv )
           "LightDamage" }
     };
 
-    WuWaGA                        Opt;
-    std::list<CombinationTweaker> CombinationTweaks;
+    WuWaGA                            Opt;
+    std::list<CombinationTweakerMenu> CombinationTweaks;
 
     constexpr auto   ChartSplitWidth = 700;
     constexpr auto   StatSplitWidth  = 800;
