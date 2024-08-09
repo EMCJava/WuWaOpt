@@ -101,7 +101,7 @@ CombinationTweaker::ApplyStats(
     }
 }
 
-void
+std::unique_ptr<EchoPotential>
 CombinationTweaker::CalculateFullPotential( int                                   EchoSlot,
                                             EchoSet                               Set,
                                             int                                   EchoNameID,
@@ -157,7 +157,7 @@ CombinationTweaker::CalculateFullPotential( int                                 
         } while ( std::ranges::prev_permutation( bitmask ).found );
     }
 
-    m_FullPotentialCache = std::make_unique<EchoPotential>( AnalyzeEchoPotential( AllPossibleEcho ) );
+    return std::make_unique<EchoPotential>( AnalyzeEchoPotential( AllPossibleEcho ) );
 }
 
 void
@@ -166,11 +166,11 @@ CombinationTweaker::CalculateEchoPotential( EchoPotential& Result, int EchoSlot,
     Stopwatch SP;
     if ( !m_FullPotentialCache )
     {
-        CalculateFullPotential( EchoSlot,
-                                CurrentSubStats.Set,
-                                CurrentSubStats.NameID,
-                                PrimaryStat,
-                                SecondaryStat );
+        m_FullPotentialCache = CalculateFullPotential( EchoSlot,
+                                                       CurrentSubStats.Set,
+                                                       CurrentSubStats.NameID,
+                                                       PrimaryStat,
+                                                       SecondaryStat );
     }
 
     m_TweakingEchoSlot = EchoSlot;
@@ -283,6 +283,37 @@ CombinationTweaker::AnalyzeEchoPotential( std::vector<std::pair<FloatTy, ValueRo
     return Result;
 }
 
+std::pair<FloatTy, FloatTy>
+CombinationTweaker::CalculateSubStatMinMaxExpectedDamage( int EchoSlot )
+{
+    int     MaxMainStat = 1;
+    FloatTy MaxResult   = std::numeric_limits<FloatTy>::lowest( );
+
+    const auto& OldStats      = m_TweakerTarget.GetEffectiveEchoAtSlot( EchoSlot );
+    const auto& PrimaryStats  = MaxFirstMainStat[ OldStats.Cost ];
+    const auto& SecondaryStat = MaxSecondMainStat[ OldStats.Cost ];
+
+    for ( int i = /* Ignore non-effective main stat */ 1; i < PrimaryStats.size( ); ++i )
+    {
+        auto Potential =
+            CalculateFullPotential( EchoSlot, OldStats.Set, OldStats.NameID,
+                                    PrimaryStats[ i ], SecondaryStat,
+                                    0, &MaxSubStatRollConfigs );
+
+        if ( Potential->HighestExpectedDamage > MaxResult )
+        {
+            MaxResult   = Potential->HighestExpectedDamage;
+            MaxMainStat = i;
+        }
+    }
+
+    EffectiveStats LowestEcho { .Set = OldStats.Set, .NameID = OldStats.NameID, .Cost = OldStats.Cost };
+    LowestEcho.*( PrimaryStats[ MaxMainStat ].ValuePtr ) += PrimaryStats[ MaxMainStat ].Value;
+    LowestEcho.*( SecondaryStat.ValuePtr ) += SecondaryStat.Value;
+
+    return std::make_pair( m_TweakerTarget.GetEDReplaceEchoAt( EchoSlot, LowestEcho ), MaxResult );
+}
+
 CombinationTweakerMenu::CombinationTweakerMenu( Loca& LanguageProvider, const CombinationMetaCache& Target )
     : LanguageObserver( LanguageProvider )
     , CombinationTweaker( Target )
@@ -333,9 +364,8 @@ CombinationTweakerMenu::TweakerMenu( const std::map<std::string, std::vector<std
         for ( int i = 0; i < m_TweakerTarget.GetSlotCount( ); ++i )
         {
             ImGui::TableSetColumnIndex( i );
-            const auto EDDrop = m_TweakerTarget.GetEdDropPercentageWithoutAt( i );
-            if ( EDDrop != 0 )
-                ImGui::TableSetBgColor( ImGuiTableBgTarget_CellBg, ImGui::GetColorU32( ImVec4( 0.2f + EDDrop * 0.5f, 0.2f, 0.2f, 0.65f ) ) );
+            const auto EchoScore = m_TweakerTarget.GetEchoSigmoidScoreAt( i );
+            ImGui::TableSetBgColor( ImGuiTableBgTarget_CellBg, ImGui::GetColorU32( ImVec4( EchoScore < 0.5 ? 1 : 1 - ( EchoScore * 2 - 1 ) * 0.9f - 0.1f, EchoScore > 0.5 ? 1 : ( EchoScore * 2 ) * 0.9f + 0.1f, 0, 0.45f ) ) );
 
             const auto* EchoName = LanguageProvider[ m_TweakerTarget.GetEchoNameAtSlot( i ) ];
 

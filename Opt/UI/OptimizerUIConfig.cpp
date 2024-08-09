@@ -45,11 +45,15 @@ OptimizerUIConfig::SetupFont( )
     m_EnglishFont[ FontSizeType::Default ] = io.Fonts->AddFontDefault( &DefaultConfig );
     DefaultConfig.SizePixels               = 15;
     m_ChineseFont[ FontSizeType::Default ] = io.Fonts->AddFontFromFileTTF( "data/sim_chi.ttf", 15.0f, &DefaultConfig, io.Fonts->GetGlyphRangesChineseFull( ) );
+    DefaultConfig.SizePixels               = 24;
+    m_NumberFont[ FontSizeType::Default ]  = io.Fonts->AddFontFromFileTTF( "data/number.ttf", 24.0f, &DefaultConfig );
 
     DefaultConfig.SizePixels           = 45;
     m_EnglishFont[ FontSizeType::Big ] = io.Fonts->AddFontDefault( &DefaultConfig );
     DefaultConfig.SizePixels           = 52;
     m_ChineseFont[ FontSizeType::Big ] = io.Fonts->AddFontFromFileTTF( "data/sim_chi.ttf", 52.0f, &DefaultConfig, io.Fonts->GetGlyphRangesChineseFull( ) );
+    DefaultConfig.SizePixels           = 52;
+    m_NumberFont[ FontSizeType::Big ]  = io.Fonts->AddFontFromFileTTF( "data/number.ttf", 52.0f, &DefaultConfig );
 
     ImGui::SFML::UpdateFontTexture( );
 }
@@ -75,6 +79,12 @@ void
 OptimizerUIConfig::PushFont( OptimizerUIConfig::FontSizeType Type )
 {
     ImGui::PushFont( m_Instance->m_ActiveFont->at( Type ) );
+}
+
+void
+OptimizerUIConfig::PushNumberFont( OptimizerUIConfig::FontSizeType Type )
+{
+    ImGui::PushFont( m_Instance->m_NumberFont.at( Type ) );
 }
 
 std::optional<sf::Texture*>

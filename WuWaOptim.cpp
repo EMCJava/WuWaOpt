@@ -355,8 +355,8 @@ main( int argc, char** argv )
             {
                 for ( int i = 0; i < MainDisplayStats.GetSlotCount( ); ++i )
                 {
-                    if ( MainDisplayStats.GetEdDropPercentageWithoutAt( i ) != 0 )
-                        ImGui::PushStyleColor( ImGuiCol_ChildBg, ImGui::GetColorU32( ImVec4( 0.2f + MainDisplayStats.GetEdDropPercentageWithoutAt( i ) * 0.5f, 0.2f, 0.2f, 0.65f ) ) );
+                    const auto EchoScore = MainDisplayStats.GetEchoSigmoidScoreAt( i );
+                    ImGui::PushStyleColor( ImGuiCol_ChildBg, ImVec4( EchoScore < 0.5 ? 1 : 1 - ( EchoScore * 2 - 1 ) * 0.9f - 0.1f, EchoScore > 0.5 ? 1 : ( EchoScore * 2 ) * 0.9f + 0.1f, 0, 0.45f ) );
 
                     ImGui::BeginChild( std::hash<std::string> { }( "EchoCard" ) + i, ImVec2( 0, MaxStatHeight ), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeX );
 
@@ -379,10 +379,19 @@ main( int argc, char** argv )
                     const auto ImgXFromRight = ImGui::GetWindowWidth( ) - EchoImgSize.x - Style.WindowPadding.x * 2;
                     ImGui::SetCursorPos( ImVec2( std::max( ImgXFromLeft, ImgXFromRight ), Style.WindowPadding.y ) );
                     ImGui::Image( *UIConfig.GetTextureOrDefault( SelectedEcho.EchoName ), EchoImgSize );
+                    ImGui::SameLine( );
+
+                    const auto ScoreText = std::format( "{:.1f}", MainDisplayStats.GetEchoScoreAt( i ) * 100 );
+                    UIConfig.PushNumberFont( );
+                    const auto ScoreTextWidth = ImGui::CalcTextSize( ScoreText.c_str( ) ).x;
+                    ImGui::SetCursorPos( ImVec2( ImGui::GetCursorPosX( ) - ScoreTextWidth, Style.WindowPadding.y ) );
+                    ImGui::PushStyleColor( ImGuiCol_Text, IM_COL32( 180, 250, 255, 255 ) );
+                    ImGui::Text( "%s", ScoreText.c_str( ) );
+                    ImGui::PopStyleColor( );
+                    ImGui::PopFont( );
 
                     ImGui::EndChild( );
-                    if ( MainDisplayStats.GetEdDropPercentageWithoutAt( i ) != 0 )
-                        ImGui::PopStyleColor( );
+                    ImGui::PopStyleColor( );
                 }
             }
         };

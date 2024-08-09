@@ -29,8 +29,8 @@ class CombinationMetaCache
 
     // After taking off echo at index
     std::array<std::vector<EffectiveStats>, 5> m_EchoesWithoutAt { };
-    std::array<FloatTy, 5>                     m_EDWithoutAt { };
-    std::array<FloatTy, 5>                     m_EdDropPercentageWithoutAt { };
+    std::array<FloatTy, 5>                     m_EchoScoreAt { };
+    std::array<FloatTy, 5>                     m_EchoSigmoidScoreAt { };
 
     // Mapped stats
     EffectiveStats m_DisplayStats { };
@@ -50,6 +50,8 @@ class CombinationMetaCache
     bool m_Valid = false;
 
     void CalculateDamages( );
+
+    std::pair<FloatTy, FloatTy> CalculateMinMaxPotentialAtSlot( int EchoSlot ) const;
 
 public:
     explicit CombinationMetaCache( const std::vector<EffectiveStats>& EffectiveEchoList );
@@ -75,7 +77,8 @@ public:
     [[nodiscard]] auto& GetEffectiveEchoAtSlot( int SlotIndex ) const noexcept { return m_Echoes[ SlotIndex ]; };
     [[nodiscard]] auto& GetFullEchoAtSlot( int SlotIndex ) const noexcept { return m_FullEchoes[ SlotIndex ]; };
     [[nodiscard]] auto& GetEchoNameAtSlot( int SlotIndex ) const noexcept { return m_EchoNames[ SlotIndex ]; };
-    [[nodiscard]] auto  GetEdDropPercentageWithoutAt( int Index ) const noexcept { return m_EdDropPercentageWithoutAt[ Index ]; };
+    [[nodiscard]] auto  GetEchoScoreAt( int Index ) const noexcept { return m_EchoScoreAt[ Index ]; };
+    [[nodiscard]] auto  GetEchoSigmoidScoreAt( int Index ) const noexcept { return m_EchoSigmoidScoreAt[ Index ]; };
 
     [[nodiscard]] auto& GetIncreasePayOff( ) const noexcept { return m_IncreasePayOff; }
     [[nodiscard]] auto& GetIncreasePayOffWeight( ) const noexcept { return m_IncreasePayOffWeight; }

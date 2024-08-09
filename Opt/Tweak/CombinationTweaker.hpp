@@ -43,13 +43,14 @@ protected:
 
     std::unique_ptr<EchoPotential> m_FullPotentialCache;
 
-    void CalculateFullPotential( int                                   EchoSlot,
-                                 EchoSet                               Set,
-                                 int                                   EchoNameID,
-                                 const StatValueConfig&                PrimaryStat,
-                                 const StatValueConfig&                SecondaryStat,
-                                 int                                   NonEffectiveRollCount = MaxNonEffectiveSubStatCount,
-                                 const std::vector<SubStatRollConfig>* RollConfigs           = &FullSubStatRollConfigs );
+    std::unique_ptr<EchoPotential>
+    CalculateFullPotential( int                                   EchoSlot,
+                            EchoSet                               Set,
+                            int                                   EchoNameID,
+                            const StatValueConfig&                PrimaryStat,
+                            const StatValueConfig&                SecondaryStat,
+                            int                                   NonEffectiveRollCount = MaxNonEffectiveSubStatCount,
+                            const std::vector<SubStatRollConfig>* RollConfigs           = &FullSubStatRollConfigs );
 
     void ClearPotentialCache( ) { m_FullPotentialCache.reset( ); }
 
@@ -74,6 +75,9 @@ protected:
 
 public:
     CombinationTweaker( const CombinationMetaCache& Target );
+
+    //  This will pick the highest main-stat to calculate the lowest
+    std::pair<FloatTy, FloatTy> CalculateSubStatMinMaxExpectedDamage( int EchoSlot );
 };
 
 class CombinationTweakerMenu

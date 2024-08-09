@@ -3,6 +3,7 @@
 //
 
 #include "CombinationMetaCache.hpp"
+#include "CombinationTweaker.hpp"
 
 #include <Opt/OptimizerParmSwitcher.hpp>
 
@@ -30,7 +31,7 @@ CombinationMetaCache::SetAsCombination( const Backpack& BackPack, const PlotComb
     // Check if the combination has changed
     if ( m_Valid && m_ElementOffset == (int) Config.CharacterElement && m_CachedStateID == Config.InternalStageID + BackPack.GetHash( ) && std::ranges::equal( NewEchoIndices, m_CombinationEchoIndices ) ) return;
     m_CombinationEchoIndices = NewEchoIndices;
-    m_CommonStats            = Config.GetCombinedStats();
+    m_CommonStats            = Config.GetCombinedStats( );
     m_CachedStateID          = Config.InternalStageID + BackPack.GetHash( );
     m_CharacterCfg           = Config;
 
@@ -104,29 +105,6 @@ CombinationMetaCache::CalculateDamages( )
                                        m_CritDamage,
                                        m_ExpectedDamage );
 
-    for ( int i = 0; i < SlotCount; ++i )
-    {
-        m_EDWithoutAt[ i ] =
-            OptimizerParmSwitcher::SwitchCalculateCombinationalStat(
-                m_ElementOffset,
-                m_EchoesWithoutAt[ i ],
-                m_CommonStats )
-                .ExpectedDamage( BaseAttack, &m_CharacterCfg.SkillConfig, &m_CharacterCfg.DeepenConfig );
-
-        m_EdDropPercentageWithoutAt[ i ] = m_ExpectedDamage - m_EDWithoutAt[ i ];
-    }
-
-    const auto ExpectedDamageDrops = m_EdDropPercentageWithoutAt | std::views::take( SlotCount );
-    const auto MaxDropOff          = std::ranges::max( ExpectedDamageDrops );
-    const auto MinDropOff          = std::ranges::min( ExpectedDamageDrops );
-    const auto DropOffRange        = MaxDropOff - MinDropOff;
-
-    std::ranges::copy( ExpectedDamageDrops
-                           | std::views::transform( [ & ]( FloatTy DropOff ) {
-                                 return 1 - ( DropOff - MinDropOff ) / DropOffRange;
-                             } ),
-                       m_EdDropPercentageWithoutAt.begin( ) );
-
     static constexpr std::array<FloatTy EffectiveStats::*, 9> PercentageStats {
         &EffectiveStats::regen,
         &EffectiveStats::percentage_attack,
@@ -165,6 +143,15 @@ CombinationMetaCache::CalculateDamages( )
     m_NormalDamage *= Resistances;
     m_CritDamage *= Resistances;
     m_ExpectedDamage *= Resistances;
+
+    for ( int i = 0; i < SlotCount; ++i )
+    {
+        const auto MinMax  = CalculateMinMaxPotentialAtSlot( i );
+        m_EchoScoreAt[ i ] = std::max( 0.f, ( m_ExpectedDamage - MinMax.first ) / ( MinMax.second - MinMax.first ) );
+
+        static constexpr auto V   = 2.5;
+        m_EchoSigmoidScoreAt[ i ] = 1. / ( 1 + pow( 0.5 * m_EchoScoreAt[ i ] / ( 1 - m_EchoScoreAt[ i ] ), -V ) );
+    }
 }
 
 FloatTy
@@ -190,4 +177,10 @@ std::vector<int>
 CombinationMetaCache::GetCombinationIndices( ) const noexcept
 {
     return m_CombinationEchoIndices | std::views::take( SlotCount ) | std::ranges::to<std::vector>( );
+}
+
+std::pair<FloatTy, FloatTy>
+CombinationMetaCache::CalculateMinMaxPotentialAtSlot( int EchoSlot ) const
+{
+    return CombinationTweaker { *this }.CalculateSubStatMinMaxExpectedDamage( EchoSlot );
 }

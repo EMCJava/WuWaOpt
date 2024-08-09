@@ -39,7 +39,13 @@ public:
         return m_Instance->m_ActiveFont->at( static_cast<int>( Type ) );
     }
 
+    static ImFont* GetNumberFont( FontSizeType Type = FontSizeType::Default )
+    {
+        return m_Instance->m_NumberFont.at( static_cast<int>( Type ) );
+    }
+
     static void PushFont( FontSizeType Type = FontSizeType::Default );
+    static void PushNumberFont( FontSizeType Type = FontSizeType::Default );
 
     static std::optional<sf::Texture*> LoadTexture( const std::string& Names, const std::string& Path, const std::array<int, 4>& Rect = { } );
     static std::optional<sf::Texture*> GetTexture( const std::string& Names );
@@ -52,6 +58,7 @@ protected:
     std::array<ImFont*, FontSizeType::Size>* m_ActiveFont = nullptr;
     std::array<ImFont*, FontSizeType::Size>  m_EnglishFont;
     std::array<ImFont*, FontSizeType::Size>  m_ChineseFont;
+    std::array<ImFont*, FontSizeType::Size>  m_NumberFont;
 
     std::unordered_map<std::string, std::unique_ptr<sf::Texture>> m_TextureCache;
     sf::Texture*                                                  m_DefaultTexture;
