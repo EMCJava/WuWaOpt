@@ -107,9 +107,11 @@ EchoExtractor::MatchWithRecognizer( const cv::Mat&     Src,
             Result.push_back( Recognizer.KNNMatch( matROIFlattenedFloat ) );
         }
 
-        if ( !MatchRects.empty( )
-             && MatchRects.top( ).rect.y > CurrentMatch.rect.y + 15 )
-            Result.push_back( '\n' );
+        if ( !MatchRects.empty( ) )
+        {
+            if ( MatchRects.top( ).rect.y > CurrentMatch.rect.y + 80 ) break; // Likely from set description, finished substat
+            if ( MatchRects.top( ).rect.y > CurrentMatch.rect.y + 20 ) Result.push_back( '\n' );
+        }
     }
 
     return Result;
