@@ -155,7 +155,7 @@ main( )
             try
             {
                 const auto FS = Extractor.ReadCard( GameHandler->ScreenCap( ) );
-                spdlog::trace( "{}", YAML::Dump( YAML::Node( FS ) ) );
+                spdlog::trace( "\n{}", YAML::Dump( YAML::Node( FS ) ) );
                 ResultYAMLEchos.push_back( FS );
 
                 if ( StopAtUnEscalated && FS.Level == 0 )
