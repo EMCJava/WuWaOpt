@@ -6,9 +6,9 @@
 
 ## Echo Optimizer
 ```bash
-WuWaOptim.exe "path to echoes.json"
+WuWaOptim.exe "path to echoes.yaml"
 ```
-See [echo file example](data/example_echos.json)
+See [echo file example](data/example_echos.yaml)
 
 ## Echo Scanner
 
