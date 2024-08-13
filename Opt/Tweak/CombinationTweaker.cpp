@@ -553,9 +553,10 @@ CombinationTweakerMenu::TweakerMenu( const std::map<std::string, std::vector<std
     {
         ImGui::SeparatorText( LanguageProvider[ "Result" ] );
         const auto SelectedEDIndex =
-            std::distance(
-                m_SelectedEchoPotential.CDFChangeToED.begin( ),
-                std::ranges::lower_bound( m_SelectedEchoPotential.CDFChangeToED, (FloatTy) m_DragEDTargetY ) );
+            std::clamp( (size_t) std::distance(
+                            m_SelectedEchoPotential.CDFChangeToED.begin( ),
+                            std::ranges::lower_bound( m_SelectedEchoPotential.CDFChangeToED, (FloatTy) m_DragEDTargetY ) ),
+                        0ULL, m_SelectedEchoPotential.CDFChangeToED.size( ) - 1 );
 
         if ( m_FullPotentialCache )
         {
