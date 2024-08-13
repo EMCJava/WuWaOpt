@@ -235,11 +235,13 @@ main( int argc, char** argv )
     EchoConstraint Constraints( LanguageProvider );
 
     auto& Style = ImGui::GetStyle( );
+
     {
         ImGui::StyleColorsClassic( );
         Style.WindowBorderSize = 0.0f;
         Style.FramePadding.y   = 5.0f;
         Style.FrameBorderSize  = 1.0f;
+        Style.CellPadding      = ImVec2( 6.00f, 6.00f );
     }
 
     std::array<std::array<PlotCombinationMeta, WuWaGA::ResultLength>, GARuntimeReport::MaxCombinationCount> ResultDisplayBuffer { };
