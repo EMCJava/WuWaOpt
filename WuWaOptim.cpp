@@ -356,9 +356,21 @@ main( int argc, char** argv )
                 for ( int i = 0; i < MainDisplayStats.GetSlotCount( ); ++i )
                 {
                     const auto EchoScore = MainDisplayStats.GetEchoSigmoidScoreAt( i );
-                    ImGui::PushStyleColor( ImGuiCol_ChildBg, ImVec4( EchoScore < 0.5 ? 1 : 1 - ( EchoScore * 2 - 1 ) * 0.9f - 0.1f, EchoScore > 0.5 ? 1 : ( EchoScore * 2 ) * 0.9f + 0.1f, 0, 0.45f ) );
 
-                    ImGui::BeginChild( std::hash<std::string> { }( "EchoCard" ) + i, ImVec2( 0, MaxStatHeight ), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeX );
+                    const auto EchoScoreColor = IM_COL32( EchoScore < 0.5 ? 255 : 255 * ( 1 - ( EchoScore * 2 - 1 ) * 0.9f - 0.1f ), EchoScore > 0.5 ? 255 : 255 * ( ( EchoScore * 2 ) * 0.9f + 0.1f ), 0, 0 );
+                    ImGui::PushStyleColor( ImGuiCol_ChildBg, EchoScoreColor | 60 << IM_COL32_A_SHIFT );
+                    ImGui::PushStyleColor( ImGuiCol_Border, EchoScoreColor | 200 << IM_COL32_A_SHIFT );
+
+                    ImGui::BeginChild( std::hash<std::string> { }( "EchoCardFrame" ) + i, ImVec2( 0, MaxStatHeight + Style.WindowPadding.y * 2 ), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeX );
+
+                    ImGui::PushStyleColor( ImGuiCol_ChildBg, EchoScoreColor | 255 << IM_COL32_A_SHIFT );
+                    ImGui::BeginChild( std::hash<std::string> { }( "EchoCardBar" ) + i, ImVec2( Style.WindowPadding.x, MaxStatHeight ) );
+                    ImGui::EndChild( );
+                    ImGui::PopStyleColor( );
+                    ImGui::SameLine( );
+
+                    ImGui::PushStyleColor( ImGuiCol_ChildBg, 0 );
+                    ImGui::BeginChild( std::hash<std::string> { }( "EchoCardStats" ) + i, ImVec2( 0, MaxStatHeight ), ImGuiChildFlags_AutoResizeX );
 
                     const auto& SelectedEcho = MainDisplayStats.GetFullEchoAtSlot( i );
                     // ImGui::Text( "%s", std::format( "{:=^54}", Index ).c_str( ) );
@@ -384,7 +396,7 @@ main( int argc, char** argv )
                     const auto ScoreText = std::format( "{:.1f}", MainDisplayStats.GetEchoScoreAt( i ) * 100 );
                     UIConfig.PushNumberFont( );
                     const auto ScoreTextWidth = ImGui::CalcTextSize( ScoreText.c_str( ) ).x;
-                    ImGui::SetCursorPos( ImVec2( ImGui::GetCursorPosX( ) - ScoreTextWidth, Style.WindowPadding.y ) );
+                    ImGui::SetCursorPos( ImVec2( ImGui::GetCursorPosX( ) - ScoreTextWidth, 0 ) );
                     ImGui::PushStyleColor( ImGuiCol_Text, IM_COL32( 180, 250, 255, 255 ) );
                     ImGui::Text( "%s", ScoreText.c_str( ) );
                     ImGui::PopStyleColor( );
@@ -392,6 +404,9 @@ main( int argc, char** argv )
 
                     ImGui::EndChild( );
                     ImGui::PopStyleColor( );
+
+                    ImGui::EndChild( );
+                    ImGui::PopStyleColor( 2 );
                 }
             }
         };
