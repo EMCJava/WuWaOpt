@@ -117,6 +117,23 @@ CheckForUpdate( auto& LP, auto&& UpdateCallback )
     }
 }
 
+void
+DisplayBar( auto&& ID, auto&& Color, auto&& Width, int Cost = 1 )
+{
+    const auto Height = ( ImGui::GetWindowHeight( ) - ImGui::GetStyle( ).WindowPadding.y * 2.0f - ImGui::GetStyle( ).FramePadding.y * ( Cost - 1 ) ) / Cost;
+
+    ImGui::PushStyleColor( ImGuiCol_ChildBg, Color );
+    for ( int i = 0; i < Cost; ++i )
+    {
+        ImGui::BeginChild( ID + i, ImVec2( Width, Height ) );
+        ImGui::EndChild( );
+    }
+    ImGui::PopStyleColor( );
+
+    ImGui::SameLine( );
+    ImGui::SetCursorPosY( ImGui::GetCursorStartPos( ).y );
+}
+
 int
 main( int argc, char** argv )
 {
@@ -365,16 +382,12 @@ main( int argc, char** argv )
 
                     ImGui::BeginChild( std::hash<std::string> { }( "EchoCardFrame" ) + i, ImVec2( 0, MaxStatHeight + Style.WindowPadding.y * 2 ), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeX );
 
-                    ImGui::PushStyleColor( ImGuiCol_ChildBg, EchoScoreColor | 255 << IM_COL32_A_SHIFT );
-                    ImGui::BeginChild( std::hash<std::string> { }( "EchoCardBar" ) + i, ImVec2( Style.WindowPadding.x, MaxStatHeight ) );
-                    ImGui::EndChild( );
-                    ImGui::PopStyleColor( );
-                    ImGui::SameLine( );
+                    const auto& SelectedEcho = MainDisplayStats.GetFullEchoAtSlot( i );
+                    DisplayBar( std::hash<std::string> { }( "EchoCardBar" ), EchoScoreColor | 255 << IM_COL32_A_SHIFT, Style.WindowPadding.x, SelectedEcho.Cost );
 
                     ImGui::PushStyleColor( ImGuiCol_ChildBg, 0 );
                     ImGui::BeginChild( std::hash<std::string> { }( "EchoCardStats" ) + i, ImVec2( 0, MaxStatHeight ), ImGuiChildFlags_AutoResizeX );
 
-                    const auto& SelectedEcho = MainDisplayStats.GetFullEchoAtSlot( i );
                     // ImGui::Text( "%s", std::format( "{:=^54}", Index ).c_str( ) );
 
                     ImGui::Text( "%s", std::format( "{:8}:", LanguageProvider[ "EchoSet" ] ).c_str( ) );
