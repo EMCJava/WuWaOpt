@@ -69,6 +69,8 @@ struct FullStats {
     [[nodiscard]] std::string_view GetSetName( ) const noexcept;
     [[nodiscard]] std::string      BriefStat( const Loca& L ) const noexcept;
     [[nodiscard]] std::string      DetailStat( const Loca& L ) const noexcept;
+
+    [[nodiscard]] std::size_t Hash( ) const noexcept;
 };
 
 template <ElementType ETy>

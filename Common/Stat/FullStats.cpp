@@ -55,6 +55,84 @@ FullStats::DetailStat( const Loca& L ) const noexcept
     return ss.str( );
 }
 
+namespace std
+{
+namespace
+{
+
+    // Code from boost
+    // Reciprocal of the golden ratio helps spread entropy
+    //     and handles duplicates.
+    // See Mike Seymour in magic-numbers-in-boosthash-combine:
+    //     https://stackoverflow.com/questions/4948780
+
+    template <class T>
+    inline void hash_combine( std::size_t& seed, T const& v )
+    {
+        seed ^= hash<T>( )( v ) + 0x9e3779b9 + ( seed << 6 ) + ( seed >> 2 );
+    }
+
+    // Recursive template code derived from Matthieu M.
+    template <class Tuple, size_t Index = std::tuple_size<Tuple>::value - 1>
+    struct HashValueImpl {
+        static void apply( size_t& seed, Tuple const& tuple )
+        {
+            HashValueImpl<Tuple, Index - 1>::apply( seed, tuple );
+            hash_combine( seed, get<Index>( tuple ) );
+        }
+    };
+
+    template <class Tuple>
+    struct HashValueImpl<Tuple, 0> {
+        static void apply( size_t& seed, Tuple const& tuple )
+        {
+            hash_combine( seed, get<0>( tuple ) );
+        }
+    };
+}   // namespace
+
+template <typename... TT>
+struct hash<std::tuple<TT...>> {
+    size_t
+    operator( )( std::tuple<TT...> const& tt ) const
+    {
+        size_t seed = 0;
+        HashValueImpl<std::tuple<TT...>>::apply( seed, tt );
+        return seed;
+    }
+};
+}   // namespace std
+
+std::size_t
+FullStats::Hash( ) const noexcept
+{
+    const auto reflect = std::make_tuple( Cost,
+                                          Set,
+                                          EchoName,
+                                          int( 1000 * AutoAttackDamagePercentage ),
+                                          int( 1000 * HeavyAttackPercentage ),
+                                          int( 1000 * UltDamagePercentage ),
+                                          int( 1000 * SkillDamagePercentage ),
+                                          int( 1000 * HealBonusPercentage ),
+                                          int( 1000 * FireDamagePercentage ),
+                                          int( 1000 * AirDamagePercentage ),
+                                          int( 1000 * IceDamagePercentage ),
+                                          int( 1000 * ElectricDamagePercentage ),
+                                          int( 1000 * DarkDamagePercentage ),
+                                          int( 1000 * LightDamagePercentage ),
+                                          int( 1000 * AttackPercentage ),
+                                          int( 1000 * DefencePercentage ),
+                                          int( 1000 * HealthPercentage ),
+                                          int( 1000 * RegenPercentage ),
+                                          int( Attack ),
+                                          int( Defence ),
+                                          int( Health ),
+                                          int( 1000 * CritDamage ),
+                                          int( 1000 * CritRate ) );
+
+    return std::hash<std::remove_cvref_t<decltype( reflect )>>( )( reflect );
+}
+
 YAML::Node
 ToNode( const FullStats& rhs ) noexcept
 {
