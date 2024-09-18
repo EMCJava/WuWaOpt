@@ -198,6 +198,7 @@ FromNode( const YAML::Node& Node, FullStats& rhs ) noexcept
     if ( const auto Value = Node[ "CritDamage" ]; Value ) rhs.CritDamage = Value.as<FloatTy>( );
     if ( const auto Value = Node[ "CritRate" ]; Value ) rhs.CritRate = Value.as<FloatTy>( );
     if ( const auto Value = Node[ "EchoHash" ]; Value ) rhs.EchoHash = Value.as<std::size_t>( );
+    rhs.EchoHash = rhs.EchoHash == 0 ? rhs.Hash( ) : rhs.EchoHash;
 
     return true;
 }
