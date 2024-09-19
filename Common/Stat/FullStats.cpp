@@ -164,6 +164,7 @@ ToNode( const FullStats& rhs ) noexcept
     if ( std::abs( rhs.CritDamage ) > 0.001 ) Node[ "CritDamage" ] = std::format( "{}", rhs.CritDamage );
     if ( std::abs( rhs.CritRate ) > 0.001 ) Node[ "CritRate" ] = std::format( "{}", rhs.CritRate );
 
+    if ( !rhs.Occupation.empty( ) ) Node[ "Occupation" ] = rhs.Occupation;
     Node[ "EchoHash" ] = rhs.EchoHash == 0 ? rhs.Hash( ) : rhs.EchoHash;
 
     return Node;
@@ -197,6 +198,7 @@ FromNode( const YAML::Node& Node, FullStats& rhs ) noexcept
     if ( const auto Value = Node[ "Health" ]; Value ) rhs.Health = Value.as<FloatTy>( );
     if ( const auto Value = Node[ "CritDamage" ]; Value ) rhs.CritDamage = Value.as<FloatTy>( );
     if ( const auto Value = Node[ "CritRate" ]; Value ) rhs.CritRate = Value.as<FloatTy>( );
+    if ( const auto Value = Node[ "Occupation" ]; Value ) rhs.Occupation = Value.as<std::string>( );
     if ( const auto Value = Node[ "EchoHash" ]; Value ) rhs.EchoHash = Value.as<std::size_t>( );
     rhs.EchoHash = rhs.EchoHash == 0 ? rhs.Hash( ) : rhs.EchoHash;
 

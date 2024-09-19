@@ -23,8 +23,6 @@ struct CharacterConfig {
 
     std::string CharacterProfilePath { };
 
-    std::array<std::size_t, 5> EchoEquipped { 0 };
-
     // Incremental stage ID to identify different stats
     int InternalStageID = 0;
 

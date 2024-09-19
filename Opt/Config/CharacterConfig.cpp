@@ -6,8 +6,6 @@
 
 #include <magic_enum.hpp>
 
-#include <ranges>
-
 FloatTy
 CharacterConfig::GetResistances( ) const noexcept
 {
@@ -61,8 +59,6 @@ ToNode( const CharacterConfig& rhs ) noexcept
         Node[ "Profile" ] = rhs.CharacterProfilePath;
     }
 
-    Node[ "EchoEquipped" ] = rhs.EchoEquipped | std::views::filter( []( auto i ) { return i != 0; } ) | std::ranges::to<std::vector>( );
-
     return Node;
 }
 
@@ -82,16 +78,6 @@ FromNode( const YAML::Node& Node, CharacterConfig& rhs ) noexcept
     if ( Node[ "Profile" ] )
     {
         rhs.CharacterProfilePath = Node[ "Profile" ].as<std::string>( );
-    }
-
-    rhs.EchoEquipped.fill( 0 );
-    auto EchoEquippedSaves = Node[ "EchoEquipped" ];
-    if ( EchoEquippedSaves )
-    {
-        for ( std::size_t i = 0; i < EchoEquippedSaves.size( ); i++ )
-        {
-            rhs.EchoEquipped[ i ] = EchoEquippedSaves[ i ].as<size_t>( );
-        }
     }
 
     return true;
