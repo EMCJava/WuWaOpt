@@ -249,30 +249,30 @@ CharacterPage::DisplayCharacterInfo( float Width, float* HeightOut )
     ImGui::BeginChild( "ConfigPanel##Character", ImVec2( Width / 2 - Style.WindowPadding.x * 4, 0 ), ImGuiChildFlags_AutoResizeY );
     ImGui::SeparatorText( LanguageProvider[ "Character" ] );
     ImGui::PushID( "CharacterStat" );
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "FlatAttack" ], &m_ActiveCharacterConfig.CharacterStats.flat_attack, 1, 0, 0, "%.0f" ) )
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "Attack%" ], &m_ActiveCharacterConfig.CharacterStats.percentage_attack, 0.01, 0, 0, "%.2f" ) )
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "ElementBuff%" ], &m_ActiveCharacterConfig.CharacterStats.buff_multiplier, 0.01, 0, 0, "%.2f" ) )
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "AutoAttack%" ], &m_ActiveCharacterConfig.CharacterStats.auto_attack_buff, 0.01, 0, 0, "%.2f" ) )
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "HeavyAttack%" ], &m_ActiveCharacterConfig.CharacterStats.heavy_attack_buff, 0.01, 0, 0, "%.2f" ) )
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "SkillDamage%" ], &m_ActiveCharacterConfig.CharacterStats.skill_buff, 0.01, 0, 0, "%.2f" ) )
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "UltDamage%" ], &m_ActiveCharacterConfig.CharacterStats.ult_buff, 0.01, 0, 0, "%.2f" ) )
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "CritRate" ], &m_ActiveCharacterConfig.CharacterStats.crit_rate, 0.01, 0, 0, "%.2f" ) )
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "CritDamage" ], &m_ActiveCharacterConfig.CharacterStats.crit_damage, 0.01, 0, 0, "%.2f" ) )
+    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "FlatAttack" ], &m_ActiveCharacterConfig.GetStatsComposition( "Character" ).flat_attack, 1, 0, 0, "%.0f" ) )
+    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "Attack%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Character" ).percentage_attack, 0.01, 0, 0, "%.2f" ) )
+    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "ElementBuff%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Character" ).buff_multiplier, 0.01, 0, 0, "%.2f" ) )
+    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "AutoAttack%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Character" ).auto_attack_buff, 0.01, 0, 0, "%.2f" ) )
+    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "HeavyAttack%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Character" ).heavy_attack_buff, 0.01, 0, 0, "%.2f" ) )
+    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "SkillDamage%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Character" ).skill_buff, 0.01, 0, 0, "%.2f" ) )
+    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "UltDamage%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Character" ).ult_buff, 0.01, 0, 0, "%.2f" ) )
+    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "CritRate" ], &m_ActiveCharacterConfig.GetStatsComposition( "Character" ).crit_rate, 0.01, 0, 0, "%.2f" ) )
+    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "CritDamage" ], &m_ActiveCharacterConfig.GetStatsComposition( "Character" ).crit_damage, 0.01, 0, 0, "%.2f" ) )
     ImGui::PopID( );
     ImGui::EndChild( );
     ImGui::SameLine( );
     ImGui::BeginChild( "ConfigPanel##Weapon", ImVec2( Width / 2 - Style.WindowPadding.x * 4, 0 ), ImGuiChildFlags_AutoResizeY );
     ImGui::SeparatorText( LanguageProvider[ "Weapon" ] );
     ImGui::PushID( "WeaponStat" );
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "FlatAttack" ], &m_ActiveCharacterConfig.WeaponStats.flat_attack, 1, 0, 0, "%.0f" ) )
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "Attack%" ], &m_ActiveCharacterConfig.WeaponStats.percentage_attack, 0.01, 0, 0, "%.2f" ) )
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "ElementBuff%" ], &m_ActiveCharacterConfig.WeaponStats.buff_multiplier, 0.01, 0, 0, "%.2f" ) )
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "AutoAttack%" ], &m_ActiveCharacterConfig.WeaponStats.auto_attack_buff, 0.01, 0, 0, "%.2f" ) )
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "HeavyAttack%" ], &m_ActiveCharacterConfig.WeaponStats.heavy_attack_buff, 0.01, 0, 0, "%.2f" ) )
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "SkillDamage%" ], &m_ActiveCharacterConfig.WeaponStats.skill_buff, 0.01, 0, 0, "%.2f" ) )
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "UltDamage%" ], &m_ActiveCharacterConfig.WeaponStats.ult_buff, 0.01, 0, 0, "%.2f" ) )
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "CritRate" ], &m_ActiveCharacterConfig.WeaponStats.crit_rate, 0.01, 0, 0, "%.2f" ) )
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "CritDamage" ], &m_ActiveCharacterConfig.WeaponStats.crit_damage, 0.01, 0, 0, "%.2f" ) )
+    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "FlatAttack" ], &m_ActiveCharacterConfig.GetStatsComposition( "Weapon" ).flat_attack, 1, 0, 0, "%.0f" ) )
+    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "Attack%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Weapon" ).percentage_attack, 0.01, 0, 0, "%.2f" ) )
+    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "ElementBuff%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Weapon" ).buff_multiplier, 0.01, 0, 0, "%.2f" ) )
+    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "AutoAttack%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Weapon" ).auto_attack_buff, 0.01, 0, 0, "%.2f" ) )
+    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "HeavyAttack%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Weapon" ).heavy_attack_buff, 0.01, 0, 0, "%.2f" ) )
+    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "SkillDamage%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Weapon" ).skill_buff, 0.01, 0, 0, "%.2f" ) )
+    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "UltDamage%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Weapon" ).ult_buff, 0.01, 0, 0, "%.2f" ) )
+    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "CritRate" ], &m_ActiveCharacterConfig.GetStatsComposition( "Weapon" ).crit_rate, 0.01, 0, 0, "%.2f" ) )
+    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "CritDamage" ], &m_ActiveCharacterConfig.GetStatsComposition( "Weapon" ).crit_damage, 0.01, 0, 0, "%.2f" ) )
     ImGui::PopID( );
     ImGui::EndChild( );
 

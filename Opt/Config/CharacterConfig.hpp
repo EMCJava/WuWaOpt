@@ -8,9 +8,14 @@
 
 #include <yaml-cpp/yaml.h>
 
+struct StatsComposition {
+    std::string    CompositionName;
+    EffectiveStats CompositionStats { };
+};
+
 struct CharacterConfig {
-    EffectiveStats WeaponStats { };
-    EffectiveStats CharacterStats { };
+    EffectiveStats                CharacterOverallStats { };
+    std::vector<StatsComposition> StatsCompositions { };
 
     SkillMultiplierConfig SkillConfig { };
     SkillMultiplierConfig DeepenConfig { };
@@ -30,6 +35,8 @@ struct CharacterConfig {
     [[nodiscard]] FloatTy GetBaseAttack( ) const noexcept;
 
     EffectiveStats GetCombinedStats( ) const noexcept;
+    [[nodiscard]] EffectiveStats& GetStatsComposition( const std::string& Name );
+
 };
 
 YAML::Node ToNode( const CharacterConfig& rhs ) noexcept;
