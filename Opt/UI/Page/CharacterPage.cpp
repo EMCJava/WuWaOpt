@@ -252,7 +252,16 @@ CharacterPage::DisplayCharacterInfo( float Width, float* HeightOut )
     ImGui::Separator( );
 
     ImGui::BeginChild( "ConfigPanel##Character", ImVec2( Width / 2 - Style.WindowPadding.x * 4, 0 ), ImGuiChildFlags_AutoResizeY );
-    ImGui::SeparatorText( LanguageProvider[ "Character" ] );
+
+    const auto* CharacterSeparatorText       = LanguageProvider[ "Character" ];
+    const auto  CharacterSeparatorTextHeight = ImGui::CalcTextSize( CharacterSeparatorText ).y;
+
+    ImGui::SeparatorTextEx( 0, CharacterSeparatorText, CharacterSeparatorText + strlen( CharacterSeparatorText ), CharacterSeparatorTextHeight + Style.SeparatorTextPadding.x );
+    ImGui::SameLine( );
+    if ( ImGui::ImageButton( *OptimizerUIConfig::GetTextureOrDefault( "Decomposition" ), { CharacterSeparatorTextHeight, CharacterSeparatorTextHeight } ) )
+    {
+        spdlog::info( "Decomposition Page..." );
+    }
     ImGui::PushID( "CharacterStat" );
     SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "FlatAttack" ], &m_ActiveCharacterConfig.GetStatsComposition( "Character" ).flat_attack, 1, 0, 0, "%.0f" ) )
     SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "Attack%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Character" ).percentage_attack, 0.01, 0, 0, "%.2f" ) )
@@ -266,6 +275,7 @@ CharacterPage::DisplayCharacterInfo( float Width, float* HeightOut )
     ImGui::PopID( );
     ImGui::EndChild( );
     ImGui::SameLine( );
+
     ImGui::BeginChild( "ConfigPanel##Weapon", ImVec2( Width / 2 - Style.WindowPadding.x * 4, 0 ), ImGuiChildFlags_AutoResizeY );
     ImGui::SeparatorText( LanguageProvider[ "Weapon" ] );
     ImGui::PushID( "WeaponStat" );
