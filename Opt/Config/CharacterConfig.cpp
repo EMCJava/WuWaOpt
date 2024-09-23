@@ -43,6 +43,18 @@ CharacterConfig::GetStatsComposition( const std::string& Name )
     return DesiredStat->CompositionStats;
 }
 
+void
+CharacterConfig::UpdateOverallStats( ) noexcept
+{
+    CharacterOverallStats =
+        std::ranges::fold_left(
+            StatsCompositions,
+            EffectiveStats { },
+            []( const auto Acc, const StatsComposition& Composition ) {
+                return Acc + Composition.CompositionStats;
+            } );
+}
+
 EffectiveStats
 CharacterConfig::GetCombinedStatsWithoutFlatAttack( ) const noexcept
 {
@@ -150,6 +162,8 @@ FromNode( const YAML::Node& Node, CharacterConfig& rhs ) noexcept
         spdlog::warn( "Empty Stats composition node" );
         rhs.StatsCompositions.emplace_back( "Character" );
     }
+
+    rhs.UpdateOverallStats( );
 
     return true;
 }

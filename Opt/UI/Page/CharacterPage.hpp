@@ -18,6 +18,8 @@ class CharacterPage : public LanguageObserver
 {
     static constexpr char CharacterFileName[] = "characters.yaml";
 
+    void DisplayStatConfigPopup( float WidthPerPanel );
+
 public:
     CharacterPage( Loca& LocaObj );
 

@@ -18,6 +18,63 @@
 #include <fstream>
 #include <ranges>
 
+#define SAVE_CONFIG( x ) \
+    if ( x ) SaveCharacters( );
+
+void
+CharacterPage::DisplayStatConfigPopup( float WidthPerPanel )
+{
+    const auto& Style = ImGui::GetStyle( );
+
+    ImVec2 center = ImGui::GetMainViewport( )->GetCenter( );
+    ImGui::SetNextWindowPos( center, ImGuiCond_Always, ImVec2( 0.5f, 0.5f ) );
+    if ( ImGui::BeginPopupModal( LanguageProvider[ "StatsComposition" ], nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize ) )
+    {
+        ImGui::BeginChild( "ConfigPanel##Character", ImVec2( WidthPerPanel, 0 ), ImGuiChildFlags_AutoResizeY );
+        ImGui::SeparatorText( LanguageProvider[ "Character" ] );
+        ImGui::PushID( "CharacterStat" );
+        SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "FlatAttack" ], &m_ActiveCharacterConfig.GetStatsComposition( "Character" ).flat_attack, 1, 0, 0, "%.0f" ) )
+        SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "Attack%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Character" ).percentage_attack, 0.01, 0, 0, "%.2f" ) )
+        SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "ElementBuff%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Character" ).buff_multiplier, 0.01, 0, 0, "%.2f" ) )
+        SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "AutoAttack%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Character" ).auto_attack_buff, 0.01, 0, 0, "%.2f" ) )
+        SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "HeavyAttack%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Character" ).heavy_attack_buff, 0.01, 0, 0, "%.2f" ) )
+        SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "SkillDamage%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Character" ).skill_buff, 0.01, 0, 0, "%.2f" ) )
+        SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "UltDamage%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Character" ).ult_buff, 0.01, 0, 0, "%.2f" ) )
+        SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "CritRate" ], &m_ActiveCharacterConfig.GetStatsComposition( "Character" ).crit_rate, 0.01, 0, 0, "%.2f" ) )
+        SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "CritDamage" ], &m_ActiveCharacterConfig.GetStatsComposition( "Character" ).crit_damage, 0.01, 0, 0, "%.2f" ) )
+        ImGui::PopID( );
+        ImGui::EndChild( );
+        ImGui::SameLine( );
+
+        ImGui::BeginChild( "ConfigPanel##Weapon", ImVec2( WidthPerPanel, 0 ), ImGuiChildFlags_AutoResizeY );
+        ImGui::SeparatorText( LanguageProvider[ "Weapon" ] );
+        ImGui::PushID( "WeaponStat" );
+        SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "FlatAttack" ], &m_ActiveCharacterConfig.GetStatsComposition( "Weapon" ).flat_attack, 1, 0, 0, "%.0f" ) )
+        SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "Attack%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Weapon" ).percentage_attack, 0.01, 0, 0, "%.2f" ) )
+        SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "ElementBuff%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Weapon" ).buff_multiplier, 0.01, 0, 0, "%.2f" ) )
+        SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "AutoAttack%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Weapon" ).auto_attack_buff, 0.01, 0, 0, "%.2f" ) )
+        SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "HeavyAttack%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Weapon" ).heavy_attack_buff, 0.01, 0, 0, "%.2f" ) )
+        SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "SkillDamage%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Weapon" ).skill_buff, 0.01, 0, 0, "%.2f" ) )
+        SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "UltDamage%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Weapon" ).ult_buff, 0.01, 0, 0, "%.2f" ) )
+        SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "CritRate" ], &m_ActiveCharacterConfig.GetStatsComposition( "Weapon" ).crit_rate, 0.01, 0, 0, "%.2f" ) )
+        SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "CritDamage" ], &m_ActiveCharacterConfig.GetStatsComposition( "Weapon" ).crit_damage, 0.01, 0, 0, "%.2f" ) )
+        ImGui::PopID( );
+        ImGui::EndChild( );
+
+        ImGui::Spacing( );
+        ImGui::Separator( );
+        ImGui::Spacing( );
+
+        if ( ImGui::Button( LanguageProvider[ "Done" ], ImVec2( -1, 0 ) ) )
+        {
+            ImGui::CloseCurrentPopup( );
+        }
+        ImGui::SetItemDefaultFocus( );
+
+        ImGui::EndPopup( );
+    }
+}
+
 CharacterPage::CharacterPage( Loca& LocaObj )
     : LanguageObserver( LocaObj )
     , m_ElementLabels( LocaObj,
@@ -130,6 +187,9 @@ void
 CharacterPage::SaveCharacters( )
 {
     m_ActiveCharacterConfig.InternalStageID++;
+
+    // Assume all changes will lead to SaveCharacters being called
+    m_ActiveCharacterConfig.UpdateOverallStats( );
     m_ActiveCharacterNode = m_ActiveCharacterConfig;
 
     std::ofstream OutFile( CharacterFileName );
@@ -140,8 +200,6 @@ CharacterPage::SaveCharacters( )
 bool
 CharacterPage::DisplayCharacterInfo( float Width, float* HeightOut )
 {
-#define SAVE_CONFIG( x ) \
-    if ( x ) SaveCharacters( );
 
     bool        Changed = false;
     const auto& Style   = ImGui::GetStyle( );
@@ -253,43 +311,35 @@ CharacterPage::DisplayCharacterInfo( float Width, float* HeightOut )
 
     ImGui::BeginChild( "ConfigPanel##Character", ImVec2( Width / 2 - Style.WindowPadding.x * 4, 0 ), ImGuiChildFlags_AutoResizeY );
 
-    const auto* CharacterSeparatorText       = LanguageProvider[ "Character" ];
-    const auto  CharacterSeparatorTextHeight = ImGui::CalcTextSize( CharacterSeparatorText ).y;
+    const auto* OverallStatsText       = LanguageProvider[ "OverallStats" ];
+    const auto  OverallStatsTextHeight = ImGui::CalcTextSize( OverallStatsText ).y;
 
-    ImGui::SeparatorTextEx( 0, CharacterSeparatorText, CharacterSeparatorText + strlen( CharacterSeparatorText ), CharacterSeparatorTextHeight + Style.SeparatorTextPadding.x );
+    ImGui::SeparatorTextEx( 0, OverallStatsText, OverallStatsText + strlen( OverallStatsText ), OverallStatsTextHeight + Style.SeparatorTextPadding.x );
     ImGui::SameLine( );
-    if ( ImGui::ImageButton( *OptimizerUIConfig::GetTextureOrDefault( "Decomposition" ), { CharacterSeparatorTextHeight, CharacterSeparatorTextHeight } ) )
+    if ( ImGui::ImageButton( *OptimizerUIConfig::GetTextureOrDefault( "Decomposition" ), { OverallStatsTextHeight, OverallStatsTextHeight } ) )
     {
-        spdlog::info( "Decomposition Page..." );
+        ImGui::OpenPopup( LanguageProvider[ "StatsComposition" ] );
     }
-    ImGui::PushID( "CharacterStat" );
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "FlatAttack" ], &m_ActiveCharacterConfig.GetStatsComposition( "Character" ).flat_attack, 1, 0, 0, "%.0f" ) )
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "Attack%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Character" ).percentage_attack, 0.01, 0, 0, "%.2f" ) )
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "ElementBuff%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Character" ).buff_multiplier, 0.01, 0, 0, "%.2f" ) )
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "AutoAttack%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Character" ).auto_attack_buff, 0.01, 0, 0, "%.2f" ) )
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "HeavyAttack%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Character" ).heavy_attack_buff, 0.01, 0, 0, "%.2f" ) )
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "SkillDamage%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Character" ).skill_buff, 0.01, 0, 0, "%.2f" ) )
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "UltDamage%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Character" ).ult_buff, 0.01, 0, 0, "%.2f" ) )
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "CritRate" ], &m_ActiveCharacterConfig.GetStatsComposition( "Character" ).crit_rate, 0.01, 0, 0, "%.2f" ) )
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "CritDamage" ], &m_ActiveCharacterConfig.GetStatsComposition( "Character" ).crit_damage, 0.01, 0, 0, "%.2f" ) )
-    ImGui::PopID( );
-    ImGui::EndChild( );
-    ImGui::SameLine( );
+    DisplayStatConfigPopup( 400 );
 
-    ImGui::BeginChild( "ConfigPanel##Weapon", ImVec2( Width / 2 - Style.WindowPadding.x * 4, 0 ), ImGuiChildFlags_AutoResizeY );
-    ImGui::SeparatorText( LanguageProvider[ "Weapon" ] );
-    ImGui::PushID( "WeaponStat" );
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "FlatAttack" ], &m_ActiveCharacterConfig.GetStatsComposition( "Weapon" ).flat_attack, 1, 0, 0, "%.0f" ) )
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "Attack%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Weapon" ).percentage_attack, 0.01, 0, 0, "%.2f" ) )
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "ElementBuff%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Weapon" ).buff_multiplier, 0.01, 0, 0, "%.2f" ) )
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "AutoAttack%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Weapon" ).auto_attack_buff, 0.01, 0, 0, "%.2f" ) )
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "HeavyAttack%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Weapon" ).heavy_attack_buff, 0.01, 0, 0, "%.2f" ) )
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "SkillDamage%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Weapon" ).skill_buff, 0.01, 0, 0, "%.2f" ) )
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "UltDamage%" ], &m_ActiveCharacterConfig.GetStatsComposition( "Weapon" ).ult_buff, 0.01, 0, 0, "%.2f" ) )
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "CritRate" ], &m_ActiveCharacterConfig.GetStatsComposition( "Weapon" ).crit_rate, 0.01, 0, 0, "%.2f" ) )
-    SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "CritDamage" ], &m_ActiveCharacterConfig.GetStatsComposition( "Weapon" ).crit_damage, 0.01, 0, 0, "%.2f" ) )
+    ImGui::PushID( "OverallStats" );
+    ImGui::BeginDisabled( );
+    ImGui::DragFloat( LanguageProvider[ "FlatAttack" ], const_cast<float*>( &m_ActiveCharacterConfig.GetOverallStats( ).flat_attack ), 1, 0, 0, "%.0f" );
+    ImGui::DragFloat( LanguageProvider[ "Attack%" ], const_cast<float*>( &m_ActiveCharacterConfig.GetOverallStats( ).percentage_attack ), 0.01, 0, 0, "%.2f" );
+    ImGui::DragFloat( LanguageProvider[ "ElementBuff%" ], const_cast<float*>( &m_ActiveCharacterConfig.GetOverallStats( ).buff_multiplier ), 0.01, 0, 0, "%.2f" );
+    ImGui::DragFloat( LanguageProvider[ "AutoAttack%" ], const_cast<float*>( &m_ActiveCharacterConfig.GetOverallStats( ).auto_attack_buff ), 0.01, 0, 0, "%.2f" );
+    ImGui::DragFloat( LanguageProvider[ "HeavyAttack%" ], const_cast<float*>( &m_ActiveCharacterConfig.GetOverallStats( ).heavy_attack_buff ), 0.01, 0, 0, "%.2f" );
+    ImGui::DragFloat( LanguageProvider[ "SkillDamage%" ], const_cast<float*>( &m_ActiveCharacterConfig.GetOverallStats( ).skill_buff ), 0.01, 0, 0, "%.2f" );
+    ImGui::DragFloat( LanguageProvider[ "UltDamage%" ], const_cast<float*>( &m_ActiveCharacterConfig.GetOverallStats( ).ult_buff ), 0.01, 0, 0, "%.2f" );
+    ImGui::DragFloat( LanguageProvider[ "CritRate" ], const_cast<float*>( &m_ActiveCharacterConfig.GetOverallStats( ).crit_rate ), 0.01, 0, 0, "%.2f" );
+    ImGui::DragFloat( LanguageProvider[ "CritDamage" ], const_cast<float*>( &m_ActiveCharacterConfig.GetOverallStats( ).crit_damage ), 0.01, 0, 0, "%.2f" );
+    ImGui::EndDisabled( );
     ImGui::PopID( );
     ImGui::EndChild( );
+
+    /*********************************
+     *          Empty Place          *
+     *********************************/
 
     ImGui::NewLine( );
     ImGui::Separator( );
@@ -342,5 +392,4 @@ CharacterPage::DisplayCharacterInfo( float Width, float* HeightOut )
     ImGui::EndChild( );
 
     return Changed;
-#undef SAVE_CONFIG
 }

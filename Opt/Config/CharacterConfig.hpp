@@ -36,6 +36,8 @@ struct CharacterConfig {
 
     [[nodiscard]] EffectiveStats& GetStatsComposition( const std::string& Name );
 
+    void           UpdateOverallStats( ) noexcept;
+    auto&          GetOverallStats( ) const noexcept { return CharacterOverallStats; }
     EffectiveStats GetCombinedStatsWithoutFlatAttack( ) const noexcept;
 };
 

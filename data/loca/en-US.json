@@ -177,6 +177,8 @@
     "WrongWinSize": "Unexpected window size({}x{}), expected {}x{}",
     "StatNumMisMatch": "SubStat type and number count do not match, if this keeps appearing, please check if a newer version of Echo Scanner is available.",
     "StopScanQuestion": "Do you want to stop scanning when an un-escalated echo is reached?",
-    "ResolutionMismatch": "Someone is being a naughty boy not reading the readme. You need to set your \"Windows Display Scaling\" to 100% to run the scanner."
+    "ResolutionMismatch": "Someone is being a naughty boy not reading the readme. You need to set your \"Windows Display Scaling\" to 100% to run the scanner.",
+    "StatsComposition": "Stats Composition",
+    "OverallStats": "Overall Stats"
   }
 }
