@@ -100,7 +100,12 @@ CharacterPage::LoadCharacter( const std::string& CharacterName )
     m_ActiveCharacterNode.reset( m_CharactersNode[ m_ActiveCharacterName ] );
     if ( !m_ActiveCharacterNode )
     {
-        m_ActiveCharacterNode = m_ActiveCharacterConfig = { };
+        m_ActiveCharacterConfig = { };
+
+        // Load default config
+        FromNode( YAML::Node { }, m_ActiveCharacterConfig );
+
+        m_ActiveCharacterNode = m_ActiveCharacterConfig;
         m_ActiveSkillDisplay = m_ActiveDeepenDisplay = { };
         SaveCharacters( );
         return false;

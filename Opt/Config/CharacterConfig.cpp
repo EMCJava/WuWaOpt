@@ -103,18 +103,14 @@ ToNode( const CharacterConfig& rhs ) noexcept
 bool
 FromNode( const YAML::Node& Node, CharacterConfig& rhs ) noexcept
 {
-    rhs.SkillConfig = Node[ "Multiplier" ].as<SkillMultiplierConfig>( );
+    if ( const auto Value = Node[ "Multiplier" ] ) rhs.SkillConfig = Value.as<SkillMultiplierConfig>( );
     if ( const auto Value = Node[ "Deepen" ] ) rhs.DeepenConfig = Value.as<SkillMultiplierConfig>( );
-    rhs.CharacterElement    = magic_enum::enum_cast<ElementType>( Node[ "Element" ].as<std::string>( ) ).value_or( ElementType::eFireElement );
-    rhs.CharacterLevel      = Node[ "CharacterLevel" ].as<int>( );
-    rhs.EnemyLevel          = Node[ "EnemyLevel" ].as<int>( );
-    rhs.ElementResistance   = Node[ "EnemyElementResistance" ].as<FloatTy>( );
-    rhs.ElementDamageReduce = Node[ "EnemyElementDamageReduce" ].as<FloatTy>( );
-
-    if ( Node[ "Profile" ] )
-    {
-        rhs.CharacterProfilePath = Node[ "Profile" ].as<std::string>( );
-    }
+    if ( const auto Value = Node[ "Element" ] ) rhs.CharacterElement = magic_enum::enum_cast<ElementType>( Value.as<std::string>( ) ).value_or( ElementType::eFireElement );
+    if ( const auto Value = Node[ "CharacterLevel" ] ) rhs.CharacterLevel = Value.as<int>( );
+    if ( const auto Value = Node[ "EnemyLevel" ] ) rhs.EnemyLevel = Value.as<int>( );
+    if ( const auto Value = Node[ "EnemyElementResistance" ] ) rhs.ElementResistance = Value.as<FloatTy>( );
+    if ( const auto Value = Node[ "EnemyElementDamageReduce" ] ) rhs.ElementDamageReduce = Value.as<FloatTy>( );
+    if ( const auto Value = Node[ "Profile" ] ) rhs.CharacterProfilePath = Value.as<std::string>( );
 
     // Old version config
     const auto CharacterNode = Node[ "Character" ];
@@ -147,6 +143,12 @@ FromNode( const YAML::Node& Node, CharacterConfig& rhs ) noexcept
                                             .CompositionStats = CompositionNode.second.as<EffectiveStats>( ) };
               } )
             | std::ranges::to<std::vector>( );
+    }
+
+    if ( rhs.StatsCompositions.empty( ) )
+    {
+        spdlog::warn( "Empty Stats composition node" );
+        rhs.StatsCompositions.emplace_back( "Character" );
     }
 
     return true;
