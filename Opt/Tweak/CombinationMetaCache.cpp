@@ -31,7 +31,7 @@ CombinationMetaCache::SetAsCombination( const Backpack& BackPack, const PlotComb
     // Check if the combination has changed
     if ( m_Valid && m_ElementOffset == (int) Config.CharacterElement && m_CachedStateID == Config.InternalStageID + BackPack.GetHash( ) && std::ranges::equal( NewEchoIndices, m_CombinationEchoIndices ) ) return;
     m_CombinationEchoIndices = NewEchoIndices;
-    m_CommonStats            = Config.GetCombinedStats( );
+    m_CommonStats            = Config.GetCombinedStatsWithoutFlatAttack( );
     m_CachedStateID          = Config.InternalStageID + BackPack.GetHash( );
     m_CharacterCfg           = Config;
 

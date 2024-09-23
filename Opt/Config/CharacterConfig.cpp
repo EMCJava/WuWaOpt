@@ -44,7 +44,7 @@ CharacterConfig::GetStatsComposition( const std::string& Name )
 }
 
 EffectiveStats
-CharacterConfig::GetCombinedStats( ) const noexcept
+CharacterConfig::GetCombinedStatsWithoutFlatAttack( ) const noexcept
 {
     auto CommonStats =
         std::ranges::fold_left(

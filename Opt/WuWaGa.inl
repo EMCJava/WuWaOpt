@@ -283,7 +283,7 @@ WuWaGA::Run( std::stop_token StopToken, int GAReportIndex, CharacterConfig Confi
     Stopwatch SW;
 
     const FloatTy BaseAttack  = Config.GetBaseAttack( );
-    const auto    CommonStats = Config.GetCombinedStats( );
+    const auto    CommonStats = Config.GetCombinedStatsWithoutFlatAttack( );
     while ( !StopToken.stop_requested( ) )
     {
         /*

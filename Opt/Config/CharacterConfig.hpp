@@ -34,9 +34,9 @@ struct CharacterConfig {
     [[nodiscard]] FloatTy GetResistances( ) const noexcept;
     [[nodiscard]] FloatTy GetBaseAttack( ) const noexcept;
 
-    EffectiveStats GetCombinedStats( ) const noexcept;
     [[nodiscard]] EffectiveStats& GetStatsComposition( const std::string& Name );
 
+    EffectiveStats GetCombinedStatsWithoutFlatAttack( ) const noexcept;
 };
 
 YAML::Node ToNode( const CharacterConfig& rhs ) noexcept;
