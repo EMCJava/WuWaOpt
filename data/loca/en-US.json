@@ -179,6 +179,7 @@
     "StopScanQuestion": "Do you want to stop scanning when an un-escalated echo is reached?",
     "ResolutionMismatch": "Someone is being a naughty boy not reading the readme. You need to set your \"Windows Display Scaling\" to 100% to run the scanner.",
     "StatsComposition": "Stats Composition",
+    "CompositionName": "Composition Name",
     "OverallStats": "Overall Stats"
   }
 }

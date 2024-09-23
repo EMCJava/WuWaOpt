@@ -18,6 +18,50 @@
 #include <fstream>
 #include <ranges>
 
+namespace ImGui
+{
+
+struct InputTextCallback_UserData {
+    std::string*           Str;
+    ImGuiInputTextCallback ChainCallback;
+    void*                  ChainCallbackUserData;
+};
+
+static int
+InputTextCallback( ImGuiInputTextCallbackData* data )
+{
+    InputTextCallback_UserData* user_data = (InputTextCallback_UserData*) data->UserData;
+    if ( data->EventFlag == ImGuiInputTextFlags_CallbackResize )
+    {
+        // Resize string callback
+        // If for some reason we refuse the new length (BufTextLen) and/or capacity (BufSize) we need to set them back to what we want.
+        std::string* str = user_data->Str;
+        IM_ASSERT( data->Buf == str->c_str( ) );
+        str->resize( data->BufTextLen );
+        data->Buf = (char*) str->c_str( );
+    } else if ( user_data->ChainCallback )
+    {
+        // Forward to user callback, if any
+        data->UserData = user_data->ChainCallbackUserData;
+        return user_data->ChainCallback( data );
+    }
+    return 0;
+}
+
+bool
+InputText( const char* label, std::string* str, ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr )
+{
+    IM_ASSERT( ( flags & ImGuiInputTextFlags_CallbackResize ) == 0 );
+    flags |= ImGuiInputTextFlags_CallbackResize;
+
+    InputTextCallback_UserData cb_user_data;
+    cb_user_data.Str                   = str;
+    cb_user_data.ChainCallback         = callback;
+    cb_user_data.ChainCallbackUserData = user_data;
+    return InputText( label, (char*) str->c_str( ), str->capacity( ) + 1, flags, InputTextCallback, &cb_user_data );
+}
+}   // namespace ImGui
+
 #define SAVE_CONFIG( x ) \
     if ( x ) SaveCharacters( );
 
@@ -36,9 +80,11 @@ CharacterPage::DisplayStatConfigPopup( float WidthPerPanel )
         for ( auto& [ CompositionName, CompositionStats ] : m_ActiveCharacterConfig.GetStatsCompositions( ) )
         {
             ImGui::SameLine( );
-            ImGui::BeginChild( CompositionName.c_str( ), ImVec2( WidthPerPanel, 0 ), ImGuiChildFlags_AutoResizeY );
-            ImGui::SeparatorText( CompositionName.c_str( ) );
+            ImGui::BeginChild( reinterpret_cast<uint64_t>( &CompositionName ), ImVec2( WidthPerPanel, 0 ), ImGuiChildFlags_AutoResizeY );
             ImGui::PushID( &CompositionName );
+
+            ImGui::SeparatorText( CompositionName.c_str( ) );
+            SAVE_CONFIG( ImGui::InputText( LanguageProvider[ "CompositionName" ], &CompositionName ) );
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "FlatAttack" ], &CompositionStats.flat_attack, 1, 0, 0, "%.0f" ) )
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "Attack%" ], &CompositionStats.percentage_attack, 0.01, 0, 0, "%.2f" ) )
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "ElementBuff%" ], &CompositionStats.buff_multiplier, 0.01, 0, 0, "%.2f" ) )

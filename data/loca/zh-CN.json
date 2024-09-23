@@ -179,6 +179,7 @@
     "StopScanQuestion": "是否需要在遇到没升级的声骸时停止扫描？",
     "ResolutionMismatch": "有一个笨笨的小可爱没有阅读自述文件。你需要将“Windows屏幕显示缩放比例”设置为100％才能运行扫描仪。",
     "StatsComposition": "词条构成",
+    "CompositionName": "构成名字",
     "OverallStats": "总词条"
   }
 }

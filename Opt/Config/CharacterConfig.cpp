@@ -160,7 +160,7 @@ FromNode( const YAML::Node& Node, CharacterConfig& rhs ) noexcept
     if ( rhs.StatsCompositions.empty( ) )
     {
         spdlog::warn( "Empty Stats composition node" );
-        rhs.StatsCompositions.emplace_back( "Character" );
+        rhs.StatsCompositions.emplace_back( "#0" );
     }
 
     rhs.UpdateOverallStats( );
