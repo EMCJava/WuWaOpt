@@ -140,8 +140,6 @@ FromNode( const YAML::Node& Node, CharacterConfig& rhs ) noexcept
 
     if ( CompositionsNode )
     {
-        spdlog::trace( "{}", YAML::Dump( CompositionsNode ) );
-
         rhs.StatsCompositions =
             CompositionsNode
             | std::views::transform( []( const YAML::const_iterator ::value_type& CompositionNode ) {
