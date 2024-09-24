@@ -29,7 +29,7 @@ public:
     void SaveCharacters( );
 
     [[nodiscard]] std::vector<std::string> GetCharacterList( ) const;
-    [[nodiscard]] auto&                    GetActiveConfig( ) { return m_ActiveCharacterConfig; }
+    [[nodiscard]] auto&                    GetActiveConfig( ) { return *m_ActiveCharacterConfig; }
 
     // Return true if active character changed
     bool DisplayCharacterInfo( float Width, float* HeightOut = nullptr );
@@ -41,8 +41,7 @@ protected:
     std::unordered_map<std::string, CharacterConfig> CharacterConfigCaches;
 
     std::string           m_ActiveCharacterName;
-    CharacterConfig       m_ActiveCharacterConfig;
-    YAML::Node            m_ActiveCharacterNode;
+    CharacterConfig*      m_ActiveCharacterConfig;
     SkillMultiplierConfig m_ActiveSkillDisplay;
     SkillMultiplierConfig m_ActiveDeepenDisplay;
 

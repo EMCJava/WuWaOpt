@@ -77,7 +77,7 @@ CharacterPage::DisplayStatConfigPopup( float WidthPerPanel )
         ImGui::BeginChild( "StatsCompositionList", ImVec2( 0, 0 ), ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY, ImGuiWindowFlags_HorizontalScrollbar );
 
         float PenalHeight = 250;
-        for ( auto& [ CompositionName, CompositionStats ] : m_ActiveCharacterConfig.GetStatsCompositions( ) )
+        for ( auto& [ CompositionName, CompositionStats ] : m_ActiveCharacterConfig->GetStatsCompositions( ) )
         {
             ImGui::SameLine( );
             ImGui::BeginChild( reinterpret_cast<uint64_t>( &CompositionName ), ImVec2( WidthPerPanel, 0 ), ImGuiChildFlags_AutoResizeY );
@@ -108,7 +108,7 @@ CharacterPage::DisplayStatConfigPopup( float WidthPerPanel )
         IsAppendCompositionHovered = ImGui::IsItemHovered( );
         if ( ImGui::IsItemClicked( ) )
         {
-            m_ActiveCharacterConfig.StatsCompositions.emplace_back( std::to_string( m_ActiveCharacterConfig.StatsCompositions.size( ) ) );
+            m_ActiveCharacterConfig->StatsCompositions.emplace_back( std::to_string( m_ActiveCharacterConfig->StatsCompositions.size( ) ) );
             SaveCharacters( );
         }
 
@@ -195,10 +195,11 @@ CharacterPage::CharacterPage( Loca& LocaObj )
     if ( m_CharacterNames.empty( ) )
     {
         spdlog::error( "No character image found, character list empty" );
-    } else
-    {
-        LoadCharacter( m_CharacterNames.front( ) );
+        system( "pause" );
+        exit( 1 );
     }
+
+    LoadCharacter( m_CharacterNames.front( ) );
 }
 
 std::vector<std::string>
@@ -215,31 +216,31 @@ bool
 CharacterPage::LoadCharacter( const std::string& CharacterName )
 {
     m_ActiveCharacterName = CharacterName;
-    m_ActiveCharacterNode.reset( m_CharactersNode[ m_ActiveCharacterName ] );
-    if ( !m_ActiveCharacterNode )
+    auto CacheIt          = CharacterConfigCaches.find( CharacterName );
+    if ( CacheIt == CharacterConfigCaches.end( ) )
     {
-        m_ActiveCharacterConfig = { };
+        CacheIt = CharacterConfigCaches.emplace_hint( CacheIt, CharacterName, CharacterConfig { } );
+        m_ActiveCharacterConfig = &CacheIt->second;
 
         // Load default config
-        FromNode( YAML::Node { }, m_ActiveCharacterConfig );
+        FromNode( YAML::Node { }, CacheIt->second );
 
-        m_ActiveCharacterNode = m_ActiveCharacterConfig;
         m_ActiveSkillDisplay = m_ActiveDeepenDisplay = { };
         SaveCharacters( );
         return false;
     }
 
-    m_ActiveCharacterConfig = m_ActiveCharacterNode.as<CharacterConfig>( );
+    m_ActiveCharacterConfig = &CacheIt->second;
     m_ActiveSkillDisplay    = {
-           .auto_attack_multiplier  = m_ActiveCharacterConfig.SkillConfig.auto_attack_multiplier * 100,
-           .heavy_attack_multiplier = m_ActiveCharacterConfig.SkillConfig.heavy_attack_multiplier * 100,
-           .skill_multiplier        = m_ActiveCharacterConfig.SkillConfig.skill_multiplier * 100,
-           .ult_multiplier          = m_ActiveCharacterConfig.SkillConfig.ult_multiplier * 100 };
+           .auto_attack_multiplier  = m_ActiveCharacterConfig->SkillConfig.auto_attack_multiplier * 100,
+           .heavy_attack_multiplier = m_ActiveCharacterConfig->SkillConfig.heavy_attack_multiplier * 100,
+           .skill_multiplier        = m_ActiveCharacterConfig->SkillConfig.skill_multiplier * 100,
+           .ult_multiplier          = m_ActiveCharacterConfig->SkillConfig.ult_multiplier * 100 };
     m_ActiveDeepenDisplay = {
-        .auto_attack_multiplier  = m_ActiveCharacterConfig.DeepenConfig.auto_attack_multiplier * 100,
-        .heavy_attack_multiplier = m_ActiveCharacterConfig.DeepenConfig.heavy_attack_multiplier * 100,
-        .skill_multiplier        = m_ActiveCharacterConfig.DeepenConfig.skill_multiplier * 100,
-        .ult_multiplier          = m_ActiveCharacterConfig.DeepenConfig.ult_multiplier * 100 };
+        .auto_attack_multiplier  = m_ActiveCharacterConfig->DeepenConfig.auto_attack_multiplier * 100,
+        .heavy_attack_multiplier = m_ActiveCharacterConfig->DeepenConfig.heavy_attack_multiplier * 100,
+        .skill_multiplier        = m_ActiveCharacterConfig->DeepenConfig.skill_multiplier * 100,
+        .ult_multiplier          = m_ActiveCharacterConfig->DeepenConfig.ult_multiplier * 100 };
     return true;
 }
 
@@ -247,14 +248,16 @@ CharacterPage::LoadCharacter( const std::string& CharacterName )
 void
 CharacterPage::SaveCharacters( )
 {
-    m_ActiveCharacterConfig.InternalStageID++;
+    m_ActiveCharacterConfig->InternalStageID++;
 
     // Assume all changes will lead to SaveCharacters being called
-    m_ActiveCharacterConfig.UpdateOverallStats( );
-    m_ActiveCharacterNode = m_ActiveCharacterConfig;
+    m_ActiveCharacterConfig->UpdateOverallStats( );
 
     std::ofstream OutFile( CharacterFileName );
+
+    m_CharactersNode[ m_ActiveCharacterName ] = *m_ActiveCharacterConfig;
     OutFile << m_CharactersNode;
+
     OutFile.close( );
 }
 
@@ -289,10 +292,10 @@ CharacterPage::DisplayCharacterInfo( float Width, float* HeightOut )
         ImGui::BeginChild( "StaticPanel##Config", ImVec2( ( Width - ConfigHeight - ImageSpace ) - Style.WindowPadding.x * 8, 0 ), ImGuiChildFlags_AutoResizeY );
         ImGui::SeparatorText( LanguageProvider[ "StaticConfig" ] );
         ImGui::PushItemWidth( -ImGui::CalcTextSize( LanguageProvider[ "ElResistance" ] ).x - Style.FramePadding.x );
-        SAVE_CONFIG( ImGui::SliderInt( LanguageProvider[ "CharLevel" ], &m_ActiveCharacterConfig.CharacterLevel, 1, 90 ) )
-        SAVE_CONFIG( ImGui::SliderInt( LanguageProvider[ "EnemyLevel" ], &m_ActiveCharacterConfig.EnemyLevel, 1, 90 ) )
-        SAVE_CONFIG( ImGui::SliderFloat( LanguageProvider[ "ElResistance" ], &m_ActiveCharacterConfig.ElementResistance, 0, 1, "%.2f" ) )
-        SAVE_CONFIG( ImGui::SliderFloat( LanguageProvider[ "DamReduction" ], &m_ActiveCharacterConfig.ElementDamageReduce, 0, 1, "%.2f" ) )
+        SAVE_CONFIG( ImGui::SliderInt( LanguageProvider[ "CharLevel" ], &m_ActiveCharacterConfig->CharacterLevel, 1, 90 ) )
+        SAVE_CONFIG( ImGui::SliderInt( LanguageProvider[ "EnemyLevel" ], &m_ActiveCharacterConfig->EnemyLevel, 1, 90 ) )
+        SAVE_CONFIG( ImGui::SliderFloat( LanguageProvider[ "ElResistance" ], &m_ActiveCharacterConfig->ElementResistance, 0, 1, "%.2f" ) )
+        SAVE_CONFIG( ImGui::SliderFloat( LanguageProvider[ "DamReduction" ], &m_ActiveCharacterConfig->ElementDamageReduce, 0, 1, "%.2f" ) )
         ImGui::PopItemWidth( );
         ConfigHeight = ImGui::GetWindowHeight( );
         ImGui::EndChild( );
@@ -385,15 +388,15 @@ CharacterPage::DisplayCharacterInfo( float Width, float* HeightOut )
 
     ImGui::PushID( "OverallStats" );
     ImGui::BeginDisabled( );
-    ImGui::DragFloat( LanguageProvider[ "FlatAttack" ], const_cast<float*>( &m_ActiveCharacterConfig.GetOverallStats( ).flat_attack ), 1, 0, 0, "%.0f" );
-    ImGui::DragFloat( LanguageProvider[ "Attack%" ], const_cast<float*>( &m_ActiveCharacterConfig.GetOverallStats( ).percentage_attack ), 0.01, 0, 0, "%.2f" );
-    ImGui::DragFloat( LanguageProvider[ "ElementBuff%" ], const_cast<float*>( &m_ActiveCharacterConfig.GetOverallStats( ).buff_multiplier ), 0.01, 0, 0, "%.2f" );
-    ImGui::DragFloat( LanguageProvider[ "AutoAttack%" ], const_cast<float*>( &m_ActiveCharacterConfig.GetOverallStats( ).auto_attack_buff ), 0.01, 0, 0, "%.2f" );
-    ImGui::DragFloat( LanguageProvider[ "HeavyAttack%" ], const_cast<float*>( &m_ActiveCharacterConfig.GetOverallStats( ).heavy_attack_buff ), 0.01, 0, 0, "%.2f" );
-    ImGui::DragFloat( LanguageProvider[ "SkillDamage%" ], const_cast<float*>( &m_ActiveCharacterConfig.GetOverallStats( ).skill_buff ), 0.01, 0, 0, "%.2f" );
-    ImGui::DragFloat( LanguageProvider[ "UltDamage%" ], const_cast<float*>( &m_ActiveCharacterConfig.GetOverallStats( ).ult_buff ), 0.01, 0, 0, "%.2f" );
-    ImGui::DragFloat( LanguageProvider[ "CritRate" ], const_cast<float*>( &m_ActiveCharacterConfig.GetOverallStats( ).crit_rate ), 0.01, 0, 0, "%.2f" );
-    ImGui::DragFloat( LanguageProvider[ "CritDamage" ], const_cast<float*>( &m_ActiveCharacterConfig.GetOverallStats( ).crit_damage ), 0.01, 0, 0, "%.2f" );
+    ImGui::DragFloat( LanguageProvider[ "FlatAttack" ], const_cast<float*>( &m_ActiveCharacterConfig->GetOverallStats( ).flat_attack ), 1, 0, 0, "%.0f" );
+    ImGui::DragFloat( LanguageProvider[ "Attack%" ], const_cast<float*>( &m_ActiveCharacterConfig->GetOverallStats( ).percentage_attack ), 0.01, 0, 0, "%.2f" );
+    ImGui::DragFloat( LanguageProvider[ "ElementBuff%" ], const_cast<float*>( &m_ActiveCharacterConfig->GetOverallStats( ).buff_multiplier ), 0.01, 0, 0, "%.2f" );
+    ImGui::DragFloat( LanguageProvider[ "AutoAttack%" ], const_cast<float*>( &m_ActiveCharacterConfig->GetOverallStats( ).auto_attack_buff ), 0.01, 0, 0, "%.2f" );
+    ImGui::DragFloat( LanguageProvider[ "HeavyAttack%" ], const_cast<float*>( &m_ActiveCharacterConfig->GetOverallStats( ).heavy_attack_buff ), 0.01, 0, 0, "%.2f" );
+    ImGui::DragFloat( LanguageProvider[ "SkillDamage%" ], const_cast<float*>( &m_ActiveCharacterConfig->GetOverallStats( ).skill_buff ), 0.01, 0, 0, "%.2f" );
+    ImGui::DragFloat( LanguageProvider[ "UltDamage%" ], const_cast<float*>( &m_ActiveCharacterConfig->GetOverallStats( ).ult_buff ), 0.01, 0, 0, "%.2f" );
+    ImGui::DragFloat( LanguageProvider[ "CritRate" ], const_cast<float*>( &m_ActiveCharacterConfig->GetOverallStats( ).crit_rate ), 0.01, 0, 0, "%.2f" );
+    ImGui::DragFloat( LanguageProvider[ "CritDamage" ], const_cast<float*>( &m_ActiveCharacterConfig->GetOverallStats( ).crit_damage ), 0.01, 0, 0, "%.2f" );
     ImGui::EndDisabled( );
     ImGui::PopID( );
     ImGui::EndChild( );
@@ -406,11 +409,11 @@ CharacterPage::DisplayCharacterInfo( float Width, float* HeightOut )
     ImGui::Separator( );
     ImGui::NewLine( );
 
-#define SAVE_MULTIPLIER_CONFIG( name, type, stat )                                                                \
-    if ( ImGui::DragFloat( name, &m_Active##type##Display.stat##_multiplier ) )                                   \
-    {                                                                                                             \
-        m_ActiveCharacterConfig.type##Config.stat##_multiplier = m_Active##type##Display.stat##_multiplier / 100; \
-        SaveCharacters( );                                                                                        \
+#define SAVE_MULTIPLIER_CONFIG( name, type, stat )                                                                 \
+    if ( ImGui::DragFloat( name, &m_Active##type##Display.stat##_multiplier ) )                                    \
+    {                                                                                                              \
+        m_ActiveCharacterConfig->type##Config.stat##_multiplier = m_Active##type##Display.stat##_multiplier / 100; \
+        SaveCharacters( );                                                                                         \
     }
 
     {
@@ -443,7 +446,7 @@ CharacterPage::DisplayCharacterInfo( float Width, float* HeightOut )
     ImGui::PushItemWidth( -200 );
 
     SAVE_CONFIG( ImGui::Combo( LanguageProvider[ "ElementType" ],
-                               (int*) &m_ActiveCharacterConfig.CharacterElement,
+                               (int*) &m_ActiveCharacterConfig->CharacterElement,
                                m_ElementLabels.GetRawStrings( ),
                                m_ElementLabels.GetStringCount( ) ) )
 
