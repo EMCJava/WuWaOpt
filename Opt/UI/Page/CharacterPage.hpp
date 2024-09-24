@@ -38,9 +38,11 @@ protected:
     std::vector<std::string> m_CharacterNames;
     YAML::Node               m_CharactersNode { };
 
+    std::unordered_map<std::string, CharacterConfig> CharacterConfigCaches;
+
     std::string           m_ActiveCharacterName;
-    YAML::Node            m_ActiveCharacterNode;
     CharacterConfig       m_ActiveCharacterConfig;
+    YAML::Node            m_ActiveCharacterNode;
     SkillMultiplierConfig m_ActiveSkillDisplay;
     SkillMultiplierConfig m_ActiveDeepenDisplay;
 

@@ -143,7 +143,12 @@ CharacterPage::CharacterPage( Loca& LocaObj )
 {
     if ( std::filesystem::exists( CharacterFileName ) )
     {
-        m_CharactersNode = YAML::LoadFile( CharacterFileName );
+        m_CharactersNode      = YAML::LoadFile( CharacterFileName );
+        CharacterConfigCaches = m_CharactersNode
+            | std::views::transform( []( const YAML::const_iterator ::value_type& Node ) {
+                                    return std::make_pair( Node.first.as<std::string>( ), std::get<1>( Node ).as<CharacterConfig>( ) );
+                                } )
+            | std::ranges::to<std::unordered_map>( );
     }
 
     for ( const auto& entry : std::filesystem::directory_iterator( "data/character_img" ) )
