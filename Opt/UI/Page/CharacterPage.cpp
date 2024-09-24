@@ -212,25 +212,24 @@ CharacterPage::GetCharacterList( ) const
         | std::ranges::to<std::vector>( );
 }
 
-bool
-CharacterPage::LoadCharacter( const std::string& CharacterName )
+CharacterConfig&
+CharacterPage::GetCharacter( const std::string& CharacterName )
 {
-    m_ActiveCharacterName = CharacterName;
-    auto CacheIt          = CharacterConfigCaches.find( CharacterName );
+    auto CacheIt = CharacterConfigCaches.find( CharacterName );
     if ( CacheIt == CharacterConfigCaches.end( ) )
     {
-        CacheIt                 = CharacterConfigCaches.emplace_hint( CacheIt, CharacterName, CharacterConfig { } );
-        m_ActiveCharacterConfig = &CacheIt->second;
-
-        // Load default config
-        FromNode( YAML::Node { }, CacheIt->second );
-
-        m_ActiveSkillDisplay = m_ActiveDeepenDisplay = { };
-        SaveActiveCharacter( );
-        return false;
+        CacheIt = CharacterConfigCaches.emplace_hint( CacheIt, CharacterName, CharacterConfig { } );
+        FromNode( YAML::Node { }, CacheIt->second );   // Load default config
+        SaveCharacter( CharacterName );
     }
 
-    m_ActiveCharacterConfig = &CacheIt->second;
+    return CacheIt->second;
+}
+
+void
+CharacterPage::LoadCharacter( const std::string& CharacterName )
+{
+    m_ActiveCharacterConfig = &GetCharacter( m_ActiveCharacterName = CharacterName );
     m_ActiveSkillDisplay    = {
            .auto_attack_multiplier  = m_ActiveCharacterConfig->SkillConfig.auto_attack_multiplier * 100,
            .heavy_attack_multiplier = m_ActiveCharacterConfig->SkillConfig.heavy_attack_multiplier * 100,
@@ -241,7 +240,6 @@ CharacterPage::LoadCharacter( const std::string& CharacterName )
         .heavy_attack_multiplier = m_ActiveCharacterConfig->DeepenConfig.heavy_attack_multiplier * 100,
         .skill_multiplier        = m_ActiveCharacterConfig->DeepenConfig.skill_multiplier * 100,
         .ult_multiplier          = m_ActiveCharacterConfig->DeepenConfig.ult_multiplier * 100 };
-    return true;
 }
 
 void
