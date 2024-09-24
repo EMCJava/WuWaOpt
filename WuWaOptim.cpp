@@ -246,7 +246,7 @@ main( int argc, char** argv )
 
     CharacterPage UserCharacterPage( LanguageProvider );
 
-    Backpack UserBackpack( EchoFilePath, EchoNameBySet, LanguageProvider );
+    Backpack UserBackpack( EchoFilePath, EchoNameBySet, UserCharacterPage, LanguageProvider );
     UserBackpack.BanEquippedEchoesExcept( UserCharacterPage.GetActiveCharacterNames( ) );
     Opt.SetEchoes( UserBackpack.GetSelectedContent( ) );
 

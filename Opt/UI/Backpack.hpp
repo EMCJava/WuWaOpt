@@ -13,21 +13,26 @@
 #include <vector>
 #include <ranges>
 
+
+class CharacterPage;
 class Backpack : public LanguageObserver
 {
 private:
     void UpdateSelectedContent( );
 
 public:
-    Backpack( const std::string& EchoesPath, const std::map<std::string, std::vector<std::string>>& EchoNamesBySet, Loca& LocaObj );
+    Backpack( const std::string& EchoesPath, const std::map<std::string, std::vector<std::string>>& EchoNamesBySet, CharacterPage& CharacterPageConfig, Loca& LocaObj );
 
     void WriteToFile( ) const;
 
     void RefreshEchoBan( );
     void BanEquippedEchoesExcept( std::string& CharacterName );
 
-    void CharacterEquipEchoes( const std::string& CharacterName, std::vector<int> EchoIndices );
+    void CharacterEquipEchoes( const std::string& CharacterName, const std::vector<int>& EchoIndices );
     void CharacterUnEquipEchoes( const std::string& CharacterName );
+
+    void EchoUnEquip( FullStats& Echo, bool DoWrite = true ) const;
+    void EchoEquip( const std::string& CharacterName, FullStats& Echo, bool DoWrite = true ) const;
 
     void Set( auto&& Stats )
     {
@@ -54,6 +59,7 @@ public:
 protected:
     std::string m_EchoesPath;
 
+    CharacterPage&         m_CharacterConfigRef;
     std::vector<FullStats> m_Content;
     std::vector<bool>      m_ContentAvailable;
 

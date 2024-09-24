@@ -5,6 +5,7 @@
 #include "Backpack.hpp"
 
 #include <Opt/UI/OptimizerUIConfig.hpp>
+#include <Opt/UI/Page/CharacterPage.hpp>
 
 #include <imgui.h>
 #include <imgui-SFML.h>
@@ -28,8 +29,9 @@ inline std::array<sf::Color, (int) EchoSet::eEchoSetCount + 1> EchoSetSFColor {
     sf::Color( 202, 44, 37, 255 ),
     sf::Color( 243, 60, 241, 255 ) };
 
-Backpack::Backpack( const std::string& EchoesPath, const std::map<std::string, std::vector<std::string>>& EchoNamesBySet, Loca& LocaObj )
+Backpack::Backpack( const std::string& EchoesPath, const std::map<std::string, std::vector<std::string>>& EchoNamesBySet, CharacterPage& CharacterPageConfig, Loca& LocaObj )
     : LanguageObserver( LocaObj )
+    , m_CharacterConfigRef( CharacterPageConfig )
     , m_EchoesPath( EchoesPath )
 {
     m_SetFilter.fill( true );
@@ -70,6 +72,21 @@ Backpack::Backpack( const std::string& EchoesPath, const std::map<std::string, s
         return false;
     } );
 
+    // Set occupation names
+    std::multimap<std::size_t, std::string> EchoAssignments;
+    for ( const auto& [ Name, CharConfig ] : m_CharacterConfigRef.GetCharacters( ) )
+        for ( auto& EquippedEchoHash : CharConfig.EquippedEchoHashes )
+            EchoAssignments.insert( { EquippedEchoHash, Name } );
+
+    for ( auto& Echo : FullStatsList )
+    {
+        if ( const auto AssignmentIt = EchoAssignments.find( Echo.EchoHash ); AssignmentIt != EchoAssignments.end( ) )
+        {
+            Echo.RuntimeOccupation = AssignmentIt->second;
+            EchoAssignments.erase( AssignmentIt );
+        }
+    }
+
     Set( FullStatsList );
 }
 
@@ -105,7 +122,7 @@ Backpack::DisplayBackpack( )
             int X = 0, Y = 0;
             for ( int i = 0; i < m_Content.size( ); ++i )
             {
-                auto& Echos = m_Content[ i ];
+                auto& CurrentEcho = m_Content[ i ];
                 ImGui::PushID( std::hash<std::string>( )( "BackPackEchoRect" ) + i );
 
                 if ( X != 0 ) ImGui::SameLine( 0, EchoCardSpacing );
@@ -136,11 +153,11 @@ Backpack::DisplayBackpack( )
                     }
 
                     ImGui::SetCursorPos( ChildStartPos );
-                    ImGui::Image( *OptimizerUIConfig::GetTextureOrDefault( Echos.EchoName ), sf::Vector2f { EchoImageSize, EchoImageSize } );
+                    ImGui::Image( *OptimizerUIConfig::GetTextureOrDefault( CurrentEcho.EchoName ), sf::Vector2f { EchoImageSize, EchoImageSize } );
                     ImGui::Separator( );
-                    ImGui::Image( *OptimizerUIConfig::GetTextureOrDefault( std::string( Echos.GetSetName( ) ) ), sf::Vector2f { SetImageSize, SetImageSize }, EchoSetSFColor[ (int) Echos.Set ] );
+                    ImGui::Image( *OptimizerUIConfig::GetTextureOrDefault( std::string( CurrentEcho.GetSetName( ) ) ), sf::Vector2f { SetImageSize, SetImageSize }, EchoSetSFColor[ (int) CurrentEcho.Set ] );
 
-                    if ( !Echos.Occupation.empty( ) )
+                    if ( !CurrentEcho.RuntimeOccupation.empty( ) )
                     {
                         ImGui::PushStyleColor( ImGuiCol_ChildBg, IM_COL32( 255, 247, 134, 255 ) );
                         ImGui::PushStyleColor( ImGuiCol_Border, IM_COL32( 255, 247, 134, 255 ) );
@@ -152,18 +169,17 @@ Backpack::DisplayBackpack( )
                             {
                                 if ( ImGui::IsMouseDoubleClicked( ImGuiMouseButton_Left ) )
                                 {
-                                    Echos.Occupation.clear( );
-                                    WriteToFile( );
+                                    EchoUnEquip( CurrentEcho );
                                 }
                             }
                             ImGui::SetCursorPos( CharacterStartPosition );
-                            ImGui::Image( *OptimizerUIConfig::GetTextureOrDefault( std::string( "SmallCharImg_" ) + Echos.Occupation ), sf::Vector2f { CharImageSize, CharImageSize } );
+                            ImGui::Image( *OptimizerUIConfig::GetTextureOrDefault( std::string( "SmallCharImg_" ) + CurrentEcho.RuntimeOccupation ), sf::Vector2f { CharImageSize, CharImageSize } );
                             ImGui::EndChild( );
                         }
                         ImGui::PopStyleColor( 2 );
                     }
 
-                    const auto LevelString = std::format( "+ {}", Echos.Level );
+                    const auto LevelString = std::format( "+ {}", CurrentEcho.Level );
                     const auto LevelSize   = ImGui::CalcTextSize( LevelString.c_str( ) );
                     ImGui::SetCursorPos( { EchoImageSize - LevelSize.x - 5, EchoImageSize + ( SetImageSize - LevelSize.y ) / 2 } );
                     ImGui::Text( LevelString.c_str( ) );
@@ -292,17 +308,55 @@ Backpack::CharacterUnEquipEchoes( const std::string& CharacterName )
 {
     for ( auto& Echo : m_Content )
     {
-        if ( Echo.Occupation == CharacterName )
+        if ( Echo.RuntimeOccupation == CharacterName )
         {
-            Echo.Occupation = "";
+            EchoUnEquip( Echo, false );
         }
     }
 
+    m_CharacterConfigRef.SaveCharacter( CharacterName );
     WriteToFile( );
 }
 
 void
-Backpack::CharacterEquipEchoes( const std::string& CharacterName, std::vector<int> EchoIndices )
+Backpack::EchoUnEquip( FullStats& Echo, bool DoWrite ) const
+{
+    auto&      EquippingCharacter = m_CharacterConfigRef.GetCharacter( Echo.RuntimeOccupation );
+    const auto TargetEchoIt       = std::ranges::find( EquippingCharacter.EquippedEchoHashes, Echo.EchoHash );
+    if ( TargetEchoIt != EquippingCharacter.EquippedEchoHashes.end( ) )
+    {
+        EquippingCharacter.EquippedEchoHashes.erase( TargetEchoIt );
+        if ( DoWrite ) m_CharacterConfigRef.SaveCharacter( Echo.RuntimeOccupation );
+
+        Echo.RuntimeOccupation.clear( );
+    } else
+    {
+        spdlog::info( "Echos was not equipped by character {}", Echo.RuntimeOccupation );
+    }
+}
+
+void
+Backpack::EchoEquip( const std::string& CharacterName, FullStats& Echo, bool DoWrite ) const
+{
+    if ( !Echo.RuntimeOccupation.empty( ) )
+    {
+        spdlog::warn( "Echo was own by {}, replace by {}", Echo.RuntimeOccupation, CharacterName );
+    }
+
+    auto& TargetCharacter = m_CharacterConfigRef.GetCharacter( CharacterName );
+    if ( TargetCharacter.EquippedEchoHashes.size( ) < 5 )
+    {
+        TargetCharacter.EquippedEchoHashes.push_back( Echo.EchoHash );
+        Echo.RuntimeOccupation = CharacterName;
+        if ( DoWrite ) m_CharacterConfigRef.SaveCharacter( CharacterName );
+    } else
+    {
+        spdlog::warn( "Character has equipped all five slot, ignore #{}", Echo.EchoHash );
+    }
+}
+
+void
+Backpack::CharacterEquipEchoes( const std::string& CharacterName, const std::vector<int>& EchoIndices )
 {
     auto SelectionResult =
         m_Content
@@ -320,14 +374,10 @@ Backpack::CharacterEquipEchoes( const std::string& CharacterName, std::vector<in
             EchoesIndex++;
         }
 
-        if ( !SelectionResultIt->Occupation.empty( ) )
-        {
-            spdlog::warn( "Echo was own by {}, replace by {}", SelectionResultIt->Occupation, CharacterName );
-        }
-
-        SelectionResultIt->Occupation = CharacterName;
+        EchoEquip( CharacterName, *SelectionResultIt, false );
     }
 
+    m_CharacterConfigRef.SaveCharacter( CharacterName );
     WriteToFile( );
 }
 
@@ -362,7 +412,7 @@ Backpack::BanEquippedEchoesExcept( std::string& CharacterName )
 {
     for ( int i = 0; i < m_Content.size( ); ++i )
     {
-        m_ContentAvailable[ i ] = m_ContentAvailable[ i ] && ( m_Content[ i ].Occupation.empty( ) || m_Content[ i ].Occupation == CharacterName );
+        m_ContentAvailable[ i ] = m_ContentAvailable[ i ] && ( m_Content[ i ].RuntimeOccupation.empty( ) || m_Content[ i ].RuntimeOccupation == CharacterName );
     }
 
     UpdateSelectedContent( );
