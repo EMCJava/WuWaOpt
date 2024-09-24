@@ -109,6 +109,15 @@ ToNode( const CharacterConfig& rhs ) noexcept
         }
     }
 
+    if ( !rhs.EquippedEchoHashes.empty( ) )
+    {
+        auto EchoHashesNode = Node[ "EquippedEchoHashes" ];
+        for ( auto EchoHash : rhs.EquippedEchoHashes )
+        {
+            EchoHashesNode.push_back( EchoHash );
+        }
+    }
+
     return Node;
 }
 
@@ -161,6 +170,16 @@ FromNode( const YAML::Node& Node, CharacterConfig& rhs ) noexcept
     {
         spdlog::warn( "Empty Stats composition node" );
         rhs.StatsCompositions.emplace_back( "#0" );
+    }
+
+    if ( auto EchoHashesNode = Node[ "EquippedEchoHashes" ] )
+    {
+        rhs.EquippedEchoHashes =
+            EchoHashesNode
+            | std::views::transform( []( const YAML::const_iterator ::value_type& CompositionNode ) {
+                  return CompositionNode.as<size_t>( );
+              } )
+            | std::ranges::to<std::vector>( );
     }
 
     rhs.UpdateOverallStats( );

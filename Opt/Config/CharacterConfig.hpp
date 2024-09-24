@@ -28,6 +28,8 @@ struct CharacterConfig {
 
     std::string CharacterProfilePath { };
 
+    std::vector<std::size_t> EquippedEchoHashes { };
+
     // Incremental stage ID to identify different stats
     int InternalStageID = 0;
 
