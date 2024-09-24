@@ -63,7 +63,7 @@ InputText( const char* label, std::string* str, ImGuiInputTextFlags flags = 0, I
 }   // namespace ImGui
 
 #define SAVE_CONFIG( x ) \
-    if ( x ) SaveCharacters( );
+    if ( x ) SaveActiveCharacter( );
 
 void
 CharacterPage::DisplayStatConfigPopup( float WidthPerPanel )
@@ -109,7 +109,7 @@ CharacterPage::DisplayStatConfigPopup( float WidthPerPanel )
         if ( ImGui::IsItemClicked( ) )
         {
             m_ActiveCharacterConfig->StatsCompositions.emplace_back( std::to_string( m_ActiveCharacterConfig->StatsCompositions.size( ) ) );
-            SaveCharacters( );
+            SaveActiveCharacter( );
         }
 
         ImGui::PopStyleColor( );
@@ -219,14 +219,14 @@ CharacterPage::LoadCharacter( const std::string& CharacterName )
     auto CacheIt          = CharacterConfigCaches.find( CharacterName );
     if ( CacheIt == CharacterConfigCaches.end( ) )
     {
-        CacheIt = CharacterConfigCaches.emplace_hint( CacheIt, CharacterName, CharacterConfig { } );
+        CacheIt                 = CharacterConfigCaches.emplace_hint( CacheIt, CharacterName, CharacterConfig { } );
         m_ActiveCharacterConfig = &CacheIt->second;
 
         // Load default config
         FromNode( YAML::Node { }, CacheIt->second );
 
         m_ActiveSkillDisplay = m_ActiveDeepenDisplay = { };
-        SaveCharacters( );
+        SaveActiveCharacter( );
         return false;
     }
 
@@ -244,13 +244,35 @@ CharacterPage::LoadCharacter( const std::string& CharacterName )
     return true;
 }
 
+void
+CharacterPage::SaveCharacter( const std::string& CharacterName )
+{
+    auto CacheIt = CharacterConfigCaches.find( CharacterName );
+    if ( CacheIt == CharacterConfigCaches.end( ) )
+    {
+        CacheIt = CharacterConfigCaches.emplace_hint( CacheIt, CharacterName, CharacterConfig { } );
+        FromNode( YAML::Node { }, CacheIt->second );   // Load default config
+    }
+
+    CacheIt->second.InternalStageID++;
+
+    // Assume all changes will lead to SaveActiveCharacter being called
+    CacheIt->second.UpdateOverallStats( );
+
+    std::ofstream OutFile( CharacterFileName );
+
+    m_CharactersNode[ m_ActiveCharacterName ] = CacheIt->second;
+    OutFile << m_CharactersNode;
+
+    OutFile.close( );
+}
 
 void
-CharacterPage::SaveCharacters( )
+CharacterPage::SaveActiveCharacter( )
 {
     m_ActiveCharacterConfig->InternalStageID++;
 
-    // Assume all changes will lead to SaveCharacters being called
+    // Assume all changes will lead to SaveActiveCharacter being called
     m_ActiveCharacterConfig->UpdateOverallStats( );
 
     std::ofstream OutFile( CharacterFileName );
@@ -413,7 +435,7 @@ CharacterPage::DisplayCharacterInfo( float Width, float* HeightOut )
     if ( ImGui::DragFloat( name, &m_Active##type##Display.stat##_multiplier ) )                                    \
     {                                                                                                              \
         m_ActiveCharacterConfig->type##Config.stat##_multiplier = m_Active##type##Display.stat##_multiplier / 100; \
-        SaveCharacters( );                                                                                         \
+        SaveActiveCharacter( );                                                                                    \
     }
 
     {

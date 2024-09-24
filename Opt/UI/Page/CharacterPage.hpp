@@ -26,7 +26,8 @@ public:
     auto& GetActiveCharacterNames( ) { return m_ActiveCharacterName; }
 
     bool LoadCharacter( const std::string& CharacterName );
-    void SaveCharacters( );
+    void SaveCharacter( const std::string& CharacterName );
+    void SaveActiveCharacter( );
 
     [[nodiscard]] std::vector<std::string> GetCharacterList( ) const;
     [[nodiscard]] auto&                    GetActiveConfig( ) { return *m_ActiveCharacterConfig; }
