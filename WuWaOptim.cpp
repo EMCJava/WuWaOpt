@@ -220,6 +220,7 @@ main( int argc, char** argv )
 
     OptimizerUIConfig UIConfig( LanguageProvider );
     UIConfig.LoadTexture( "Decomposition", "data/decomposition.png" );
+    UIConfig.LoadTexture( "EchoFrame", "data/echo_frame.png" );
     UIConfig.LoadTexture( "Translate", "data/translate_icon.png" );
     UIConfig.LoadTexture( "Backpack", "data/backpack.png" );
     UIConfig.LoadTexture( "Settings", "data/settings.png" );
