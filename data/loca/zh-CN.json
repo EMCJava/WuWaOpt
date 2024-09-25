@@ -1,6 +1,7 @@
 {
   "strings": {
     "Name": "中文（中国）",
+    "Echo": "声骸",
     "WinTitle": "声骸优化器",
     "FireDamage": "热熔",
     "AirDamage": "气动",
