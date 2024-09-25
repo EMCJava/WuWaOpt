@@ -74,14 +74,23 @@ Backpack::Backpack( const std::string& EchoesPath, const std::map<std::string, s
 
     // Set occupation names
     std::multimap<std::size_t, std::string> EchoAssignments;
-    for ( const auto& [ Name, CharConfig ] : m_CharacterConfigRef.GetCharacters( ) )
+    for ( auto& [ Name, CharConfig ] : m_CharacterConfigRef.GetCharacters( ) )
+    {
+        CharConfig.RuntimeEquippedEchoName.resize( CharConfig.EquippedEchoHashes.size( ) );
         for ( auto& EquippedEchoHash : CharConfig.EquippedEchoHashes )
             EchoAssignments.insert( { EquippedEchoHash, Name } );
+    }
 
     for ( auto& Echo : FullStatsList )
     {
         if ( const auto AssignmentIt = EchoAssignments.find( Echo.EchoHash ); AssignmentIt != EchoAssignments.end( ) )
         {
+            auto& EquippedBy = m_CharacterConfigRef.GetCharacter( AssignmentIt->second );
+
+            const auto EchoSlotIndex = std::distance( EquippedBy.EquippedEchoHashes.begin( ), std::ranges::find( EquippedBy.EquippedEchoHashes, Echo.EchoHash ) );
+
+            EquippedBy.RuntimeEquippedEchoName[ EchoSlotIndex ] = Echo.EchoName;
+
             Echo.RuntimeOccupation = AssignmentIt->second;
             EchoAssignments.erase( AssignmentIt );
         }
@@ -325,6 +334,8 @@ Backpack::EchoUnEquip( FullStats& Echo, bool DoWrite ) const
     const auto TargetEchoIt       = std::ranges::find( EquippingCharacter.EquippedEchoHashes, Echo.EchoHash );
     if ( TargetEchoIt != EquippingCharacter.EquippedEchoHashes.end( ) )
     {
+        const auto EchoSlotIndex = std::distance( EquippingCharacter.EquippedEchoHashes.begin( ), TargetEchoIt );
+        EquippingCharacter.RuntimeEquippedEchoName.erase( EquippingCharacter.RuntimeEquippedEchoName.begin( ) + EchoSlotIndex );
         EquippingCharacter.EquippedEchoHashes.erase( TargetEchoIt );
         if ( DoWrite ) m_CharacterConfigRef.SaveCharacter( Echo.RuntimeOccupation );
 
@@ -346,6 +357,7 @@ Backpack::EchoEquip( const std::string& CharacterName, FullStats& Echo, bool DoW
     auto& TargetCharacter = m_CharacterConfigRef.GetCharacter( CharacterName );
     if ( TargetCharacter.EquippedEchoHashes.size( ) < 5 )
     {
+        TargetCharacter.RuntimeEquippedEchoName.push_back( Echo.EchoName );
         TargetCharacter.EquippedEchoHashes.push_back( Echo.EchoHash );
         Echo.RuntimeOccupation = CharacterName;
         if ( DoWrite ) m_CharacterConfigRef.SaveCharacter( CharacterName );
