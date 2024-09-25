@@ -502,7 +502,7 @@ CharacterPage::DisplayCharacterInfo( float Width, float* HeightOut )
 
     {
         ImGui::BeginChild( "ConfigPanel##EchoesWrap", ImVec2( PanelWidth, std::clamp( PanelHeight, 1.f, FLT_MAX ) ) );
-        ImGui::SeparatorText( LanguageProvider[ "Echo" ] );
+        ImGui::SeparatorText( LanguageProvider[ "EchoEquipped" ] );
         const auto EchoWrapPanelStart = ImGui::GetWindowPos( );
 
         PanelHeight -= ImGui::GetCursorScreenPos( ).y - EchoWrapPanelStart.y;
