@@ -60,6 +60,80 @@ InputText( const char* label, std::string* str, ImGuiInputTextFlags flags = 0, I
     cb_user_data.ChainCallbackUserData = user_data;
     return InputText( label, (char*) str->c_str( ), str->capacity( ) + 1, flags, InputTextCallback, &cb_user_data );
 }
+
+ImTextureID
+convertGLTextureHandleToImTextureID( auto glTextureHandle )
+{
+    return reinterpret_cast<ImTextureID>( glTextureHandle );
+}
+
+void
+RotatedImage( const sf::Texture& texture, const sf::Vector2f& size, const sf::Vector2f& center,
+              const sf::Color& tintColor = sf::Color::White )
+{
+    ImTextureID textureID = convertGLTextureHandleToImTextureID( texture.getNativeHandle( ) );
+
+    ImGuiWindow* window = GetCurrentWindow( );
+
+    const auto Rect = ImVec2 { size.x, size.y } * 1.414213562f;
+
+    const ImRect bb( center - Rect / 2, center + Rect / 2 );
+    ItemSize( bb );
+    SetCursorScreenPos( bb.Min );
+
+    if ( !ItemAdd( bb, 0 ) )
+        return;
+
+    const ImVec2 pos[ 4 ] =
+        {
+            center + ImRotate( ImVec2( -size.x * 0.5f, -size.y * 0.5f ), 0.707106781f, 0.707106781f ),
+            center + ImRotate( ImVec2( +size.x * 0.5f, -size.y * 0.5f ), 0.707106781f, 0.707106781f ),
+            center + ImRotate( ImVec2( +size.x * 0.5f, +size.y * 0.5f ), 0.707106781f, 0.707106781f ),
+            center + ImRotate( ImVec2( -size.x * 0.5f, +size.y * 0.5f ), 0.707106781f, 0.707106781f ) };
+    constexpr ImVec2 uvs[ 4 ] =
+        {
+            ImVec2( 0.0f, 0.0f ),
+            ImVec2( 1.0f, 0.0f ),
+            ImVec2( 1.0f, 1.0f ),
+            ImVec2( 0.0f, 1.0f ) };
+
+    window->DrawList->AddImageQuad( textureID, pos[ 0 ], pos[ 1 ], pos[ 2 ], pos[ 3 ], uvs[ 0 ], uvs[ 1 ], uvs[ 2 ], uvs[ 3 ], IM_COL32( tintColor.r, tintColor.g, tintColor.b, tintColor.a ) );
+}
+
+void
+ImageRotatedFrame( const sf::Texture& texture, const sf::Vector2f& size, const sf::Vector2f& center,
+                   const sf::Color& tintColor = sf::Color::White )
+{
+    ImTextureID textureID = convertGLTextureHandleToImTextureID( texture.getNativeHandle( ) );
+
+    ImGuiWindow* window = GetCurrentWindow( );
+
+    const auto Rect = ImVec2 { size.x, size.y } * 1.414213562f;
+
+    const ImRect bb( center - Rect / 2, center + Rect / 2 );
+    ItemSize( bb );
+    SetCursorScreenPos( bb.Min );
+
+    if ( !ItemAdd( bb, 0 ) )
+        return;
+
+    const ImVec2 pos[ 4 ] =
+        {
+            center + ImRotate( ImVec2( -size.x * 0.5f, -size.y * 0.5f ), 0.707106781f, 0.707106781f ),
+            center + ImRotate( ImVec2( +size.x * 0.5f, -size.y * 0.5f ), 0.707106781f, 0.707106781f ),
+            center + ImRotate( ImVec2( +size.x * 0.5f, +size.y * 0.5f ), 0.707106781f, 0.707106781f ),
+            center + ImRotate( ImVec2( -size.x * 0.5f, +size.y * 0.5f ), 0.707106781f, 0.707106781f ) };
+    constexpr ImVec2 uvs[ 4 ] =
+        {
+            ImVec2( 0.5f, 0.0f ),
+            ImVec2( 1.0f, 0.5f ),
+            ImVec2( 0.5f, 1.0f ),
+            ImVec2( 0.0f, 0.5f ) };
+
+    window->DrawList->AddImageQuad( textureID, pos[ 0 ], pos[ 1 ], pos[ 2 ], pos[ 3 ], uvs[ 0 ], uvs[ 1 ], uvs[ 2 ], uvs[ 3 ], IM_COL32( tintColor.r, tintColor.g, tintColor.b, tintColor.a ) );
+}
+
+
 }   // namespace ImGui
 
 #define SAVE_CONFIG( x ) \
@@ -393,7 +467,8 @@ CharacterPage::DisplayCharacterInfo( float Width, float* HeightOut )
 
     ImGui::Separator( );
 
-    ImGui::BeginChild( "ConfigPanel##Character", ImVec2( Width / 2 - Style.WindowPadding.x * 4, 0 ), ImGuiChildFlags_AutoResizeY );
+    const auto PanelWidth = Width / 2 - Style.WindowPadding.x * 4;
+    ImGui::BeginChild( "ConfigPanel##Character", ImVec2( PanelWidth, 0 ), ImGuiChildFlags_AutoResizeY );
 
     const auto* OverallStatsText       = LanguageProvider[ "OverallStats" ];
     const auto  OverallStatsTextHeight = ImGui::CalcTextSize( OverallStatsText ).y;
@@ -419,11 +494,64 @@ CharacterPage::DisplayCharacterInfo( float Width, float* HeightOut )
     ImGui::DragFloat( LanguageProvider[ "CritDamage" ], const_cast<float*>( &m_ActiveCharacterConfig->GetOverallStats( ).crit_damage ), 0.01, 0, 0, "%.2f" );
     ImGui::EndDisabled( );
     ImGui::PopID( );
+
+    float PanelHeight = ImGui::GetCursorPosY( );
     ImGui::EndChild( );
 
-    /*********************************
-     *          Empty Place          *
-     *********************************/
+    ImGui::SameLine( );
+
+    {
+        ImGui::BeginChild( "ConfigPanel##EchoesWrap", ImVec2( PanelWidth, std::clamp( PanelHeight, 1.f, FLT_MAX ) ) );
+        ImGui::SeparatorText( LanguageProvider[ "Echo" ] );
+        const auto EchoWrapPanelStart = ImGui::GetWindowPos( );
+
+        PanelHeight -= ImGui::GetCursorScreenPos( ).y - EchoWrapPanelStart.y;
+        ImGui::BeginChild( "ConfigPanel##Echoes", ImVec2( PanelWidth, PanelHeight ), ImGuiChildFlags_Border, ImGuiWindowFlags_NoDecoration );
+        ImGui::PushID( "ConfigPanelEchoes" );
+
+        const float AvailableWidth = PanelWidth;
+        const auto  EchoPanelStart = ImGui::GetWindowPos( );
+        const auto  EchoXSpan      = AvailableWidth / 5;
+        const auto  EchoImageSize  = sf::Vector2f { EchoXSpan, EchoXSpan } / 1.2;
+        const auto  EchoFrameSize  = EchoImageSize * 1.4;
+
+        const std::array<sf::Vector2f, 5> EchoCenters {
+            EchoPanelStart + sf::Vector2f {    AvailableWidth / 2,     PanelHeight / 2},
+            EchoPanelStart + sf::Vector2f {    AvailableWidth / 4,     PanelHeight / 4},
+            EchoPanelStart + sf::Vector2f {3 * AvailableWidth / 4,     PanelHeight / 4},
+            EchoPanelStart + sf::Vector2f {    AvailableWidth / 4, 3 * PanelHeight / 4},
+            EchoPanelStart + sf::Vector2f {3 * AvailableWidth / 4, 3 * PanelHeight / 4}
+        };
+
+        bool ErasedThisFrame = false;
+        for ( int i = 0; i < 5; i++ )
+        {
+            if ( m_ActiveCharacterConfig->EquippedEchoHashes.size( ) > i )
+            {
+                ImGui::ImageRotatedFrame(
+                    *OptimizerUIConfig::GetTextureOrDefault( m_ActiveCharacterConfig->RuntimeEquippedEchoName[ i ] ),
+                    EchoImageSize,
+                    EchoCenters[ i ] );
+                uint8_t FrameAlpha = 70;
+                if ( ImGui::IsItemHovered( ) ) FrameAlpha = 150;
+                ImGui::RotatedImage( *OptimizerUIConfig::GetTextureOrDefault( "EchoFrame" ), EchoFrameSize, EchoCenters[ i ], sf::Color { 255, 255, 255, FrameAlpha } );
+                if ( !ErasedThisFrame && ImGui::IsItemClicked( ) && ImGui::GetMouseClickedCount( ImGuiMouseButton_Left ) == 2 )
+                {
+                    m_ActiveCharacterConfig->EquippedEchoHashes.erase( m_ActiveCharacterConfig->EquippedEchoHashes.begin( ) + i );
+                    m_ActiveCharacterConfig->RuntimeEquippedEchoName.erase( m_ActiveCharacterConfig->RuntimeEquippedEchoName.begin( ) + i );
+                    SaveActiveCharacter( );
+                    ErasedThisFrame = true;
+                }
+            } else
+            {
+                ImGui::RotatedImage( *OptimizerUIConfig::GetTextureOrDefault( "EchoFrame" ), EchoImageSize, EchoCenters[ i ] );
+            }
+        }
+
+        ImGui::PopID( );
+        ImGui::EndChild( );
+        ImGui::EndChild( );
+    }
 
     ImGui::NewLine( );
     ImGui::Separator( );
