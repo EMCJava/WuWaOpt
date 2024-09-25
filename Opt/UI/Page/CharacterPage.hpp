@@ -25,7 +25,7 @@ public:
 
     auto& GetActiveCharacterNames( ) { return m_ActiveCharacterName; }
 
-    auto&            GetCharacters( ) const noexcept { return CharacterConfigCaches; };
+    auto&            GetCharacters( ) noexcept { return CharacterConfigCaches; };
     CharacterConfig& GetCharacter( const std::string& CharacterName );
     void             LoadCharacter( const std::string& CharacterName );
     void             SaveCharacter( const std::string& CharacterName );
