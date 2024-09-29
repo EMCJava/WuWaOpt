@@ -195,7 +195,7 @@ main( )
         std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );
         MouseController.LeftClick( );
 
-        MouseLocation = { 435, 690 };
+        MouseLocation = { 435, 610 };
         MouseLocation += GameHandler->GetLeftTop( );
         MouseController.MoveMouse( ClickLocation, MouseLocation, 300 + 80 * ( dis( gen ) - 0.5 ) );
         std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );
