@@ -9,6 +9,7 @@
 #include <yaml-cpp/yaml.h>
 
 struct StatsComposition {
+    bool           Enabled = true;
     std::string    CompositionName;
     EffectiveStats CompositionStats { };
 };

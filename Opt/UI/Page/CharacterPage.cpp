@@ -151,13 +151,22 @@ CharacterPage::DisplayStatConfigPopup( float WidthPerPanel )
         ImGui::BeginChild( "StatsCompositionList", ImVec2( 0, 0 ), ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY, ImGuiWindowFlags_HorizontalScrollbar );
 
         float PenalHeight = 250;
-        for ( auto& [ CompositionName, CompositionStats ] : m_ActiveCharacterConfig->GetStatsCompositions( ) )
+        for ( auto& [ Enabled, CompositionName, CompositionStats ] : m_ActiveCharacterConfig->GetStatsCompositions( ) )
         {
             ImGui::SameLine( );
             ImGui::BeginChild( reinterpret_cast<uint64_t>( &CompositionName ), ImVec2( WidthPerPanel, 0 ), ImGuiChildFlags_AutoResizeY );
             ImGui::PushID( &CompositionName );
 
-            ImGui::SeparatorText( CompositionName.c_str( ) );
+            const auto CompositionNameTextHeight = ImGui::CalcTextSize( CompositionName.c_str( ) ).y;
+            ImGui::SeparatorTextEx( 0, CompositionName.c_str( ), &*CompositionName.end( ), CompositionNameTextHeight + ImGui::GetStyle( ).SeparatorTextPadding.x );
+            ImGui::SameLine( );
+            if ( ImGui::ImageButton( *OptimizerUIConfig::GetTextureOrDefault( Enabled ? "ToggleOn" : "ToggleOff" ), { CompositionNameTextHeight, CompositionNameTextHeight } ) )
+            {
+                Enabled = !Enabled;
+                SaveActiveCharacter( );
+            }
+
+            if ( !Enabled ) ImGui::BeginDisabled( );
             SAVE_CONFIG( ImGui::InputText( LanguageProvider[ "CompositionName" ], &CompositionName ) );
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "FlatAttack" ], &CompositionStats.flat_attack, 1, 0, 0, "%.0f" ) )
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "Attack%" ], &CompositionStats.percentage_attack, 0.01, 0, 0, "%.2f" ) )
@@ -168,6 +177,8 @@ CharacterPage::DisplayStatConfigPopup( float WidthPerPanel )
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "UltDamage%" ], &CompositionStats.ult_buff, 0.01, 0, 0, "%.2f" ) )
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "CritRate" ], &CompositionStats.crit_rate, 0.01, 0, 0, "%.2f" ) )
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "CritDamage" ], &CompositionStats.crit_damage, 0.01, 0, 0, "%.2f" ) )
+            if ( !Enabled ) ImGui::EndDisabled( );
+
             ImGui::PopID( );
             PenalHeight = std::max( PenalHeight, ImGui::GetCursorPos( ).y );
             ImGui::Spacing( );
@@ -182,7 +193,7 @@ CharacterPage::DisplayStatConfigPopup( float WidthPerPanel )
         IsAppendCompositionHovered = ImGui::IsItemHovered( );
         if ( ImGui::IsItemClicked( ) )
         {
-            m_ActiveCharacterConfig->StatsCompositions.emplace_back( std::to_string( m_ActiveCharacterConfig->StatsCompositions.size( ) ) );
+            m_ActiveCharacterConfig->StatsCompositions.emplace_back( true, std::to_string( m_ActiveCharacterConfig->StatsCompositions.size( ) ) );
             SaveActiveCharacter( );
         }
 

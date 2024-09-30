@@ -21,7 +21,7 @@ FloatTy
 CharacterConfig::GetBaseAttack( ) const noexcept
 {
     return std::ranges::fold_left( StatsCompositions, 0.f, []( const FloatTy Acc, const StatsComposition& Composition ) {
-        return Acc + Composition.CompositionStats.flat_attack;
+        return Composition.Enabled ? Acc + Composition.CompositionStats.flat_attack : Acc;
     } );
 }
 
@@ -36,7 +36,7 @@ CharacterConfig::GetStatsComposition( const std::string& Name )
 
     if ( DesiredStat == StatsCompositions.end( ) )
     {
-        StatsCompositions.emplace_back( std::string( Name ) );
+        StatsCompositions.emplace_back( true, std::string( Name ) );
         DesiredStat = std::prev( StatsCompositions.end( ) );
     }
 
@@ -51,7 +51,7 @@ CharacterConfig::UpdateOverallStats( ) noexcept
             StatsCompositions,
             EffectiveStats { },
             []( const auto Acc, const StatsComposition& Composition ) {
-                return Acc + Composition.CompositionStats;
+                return Composition.Enabled ? Acc + Composition.CompositionStats : Acc;
             } );
 }
 
@@ -63,7 +63,7 @@ CharacterConfig::GetCombinedStatsWithoutFlatAttack( ) const noexcept
             StatsCompositions,
             EffectiveStats { },
             []( const auto Acc, const StatsComposition& Composition ) {
-                return Acc + Composition.CompositionStats;
+                return Composition.Enabled ? Acc + Composition.CompositionStats : Acc;
             } );
     CommonStats.flat_attack = 0;
 
@@ -103,9 +103,13 @@ ToNode( const CharacterConfig& rhs ) noexcept
     if ( !rhs.StatsCompositions.empty( ) )
     {
         auto CompositionNode = Node[ "StatsCompositions" ];
-        for ( const auto& [ CompositionName, CompositionStats ] : rhs.StatsCompositions )
+        for ( const auto& [ Enabled, CompositionName, CompositionStats ] : rhs.StatsCompositions )
         {
             CompositionNode[ CompositionName ] = CompositionStats;
+            if ( !Enabled )
+            {
+                CompositionNode[ CompositionName ][ "Disables" ] = true;
+            }
         }
     }
 
@@ -160,7 +164,9 @@ FromNode( const YAML::Node& Node, CharacterConfig& rhs ) noexcept
         rhs.StatsCompositions =
             CompositionsNode
             | std::views::transform( []( const YAML::const_iterator ::value_type& CompositionNode ) {
-                  return StatsComposition { .CompositionName  = CompositionNode.first.as<std::string>( ),
+                  const bool Disabled = CompositionNode.second[ "Disables" ].IsDefined( ) && CompositionNode.second[ "Disables" ].as<bool>( );
+                  return StatsComposition { .Enabled          = !Disabled,
+                                            .CompositionName  = CompositionNode.first.as<std::string>( ),
                                             .CompositionStats = CompositionNode.second.as<EffectiveStats>( ) };
               } )
             | std::ranges::to<std::vector>( );
