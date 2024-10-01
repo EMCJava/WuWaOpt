@@ -19,6 +19,26 @@ struct SkillMultiplierConfig {
     {
         return auto_attack_multiplier == Other.auto_attack_multiplier && heavy_attack_multiplier == Other.heavy_attack_multiplier && skill_multiplier == Other.skill_multiplier && ult_multiplier == Other.ult_multiplier;
     }
+
+    SkillMultiplierConfig operator+( const SkillMultiplierConfig& Other ) const noexcept
+    {
+        return {
+            .auto_attack_multiplier  = auto_attack_multiplier + Other.auto_attack_multiplier,
+            .heavy_attack_multiplier = heavy_attack_multiplier + Other.heavy_attack_multiplier,
+            .skill_multiplier        = skill_multiplier + Other.skill_multiplier,
+            .ult_multiplier          = ult_multiplier + Other.ult_multiplier,
+        };
+    }
+
+    SkillMultiplierConfig& operator/=( auto Scaler ) noexcept
+    {
+        auto_attack_multiplier /= Scaler;
+        heavy_attack_multiplier /= Scaler;
+        skill_multiplier /= Scaler;
+        ult_multiplier /= Scaler;
+
+        return *this;
+    }
 };
 
 namespace YAML
@@ -38,10 +58,10 @@ struct convert<SkillMultiplierConfig> {
     }
     static bool decode( const Node& Node, SkillMultiplierConfig& rhs )
     {
-        rhs.auto_attack_multiplier  = Node[ "AutoAttack" ].as<FloatTy>( );
-        rhs.heavy_attack_multiplier = Node[ "HeavyAttack" ].as<FloatTy>( );
-        rhs.skill_multiplier        = Node[ "Skill" ].as<FloatTy>( );
-        rhs.ult_multiplier          = Node[ "Ultimate" ].as<FloatTy>( );
+        if ( const auto Value = Node[ "AutoAttack" ]; Value ) rhs.auto_attack_multiplier = Value.as<FloatTy>( );
+        if ( const auto Value = Node[ "HeavyAttack" ]; Value ) rhs.heavy_attack_multiplier = Value.as<FloatTy>( );
+        if ( const auto Value = Node[ "Skill" ]; Value ) rhs.skill_multiplier = Value.as<FloatTy>( );
+        if ( const auto Value = Node[ "Ultimate" ]; Value ) rhs.ult_multiplier = Value.as<FloatTy>( );
 
         return true;
     }

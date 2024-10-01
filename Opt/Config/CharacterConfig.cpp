@@ -53,18 +53,22 @@ CharacterConfig::UpdateOverallStats( ) noexcept
             []( const auto Acc, const StatsComposition& Composition ) {
                 return Composition.Enabled ? Acc + Composition.CompositionStats : Acc;
             } );
+
+    CharacterOverallDeepenStats =
+        std::ranges::fold_left(
+            StatsCompositions,
+            SkillMultiplierConfig { },
+            []( const auto Acc, const StatsComposition& Composition ) {
+                return Composition.Enabled ? Acc + Composition.CompositionDeepenStats : Acc;
+            } );
+
+    CharacterOverallDeepenStats /= 100;
 }
 
 EffectiveStats
 CharacterConfig::GetCombinedStatsWithoutFlatAttack( ) const noexcept
 {
-    auto CommonStats =
-        std::ranges::fold_left(
-            StatsCompositions,
-            EffectiveStats { },
-            []( const auto Acc, const StatsComposition& Composition ) {
-                return Composition.Enabled ? Acc + Composition.CompositionStats : Acc;
-            } );
+    auto CommonStats        = CharacterOverallStats;
     CommonStats.flat_attack = 0;
 
     CommonStats.crit_damage /= 100;
@@ -87,7 +91,6 @@ ToNode( const CharacterConfig& rhs ) noexcept
     YAML::Node Node;
 
     Node[ "Multiplier" ] = rhs.SkillConfig;
-    Node[ "Deepen" ]     = rhs.DeepenConfig;
     Node[ "Element" ]    = std::string( magic_enum::enum_name( rhs.CharacterElement ) );
 
     Node[ "CharacterLevel" ]           = std::format( "{}", rhs.CharacterLevel );
@@ -103,12 +106,14 @@ ToNode( const CharacterConfig& rhs ) noexcept
     if ( !rhs.StatsCompositions.empty( ) )
     {
         auto CompositionNode = Node[ "StatsCompositions" ];
-        for ( const auto& [ Enabled, CompositionName, CompositionStats ] : rhs.StatsCompositions )
+        for ( const auto& [ Enabled, CompositionName, CompositionStats, CompositionDeepenStats ] : rhs.StatsCompositions )
         {
-            CompositionNode[ CompositionName ] = CompositionStats;
+            auto CompositionSlot        = CompositionNode[ CompositionName ];
+            CompositionSlot             = CompositionStats;
+            CompositionSlot[ "Deepen" ] = CompositionDeepenStats;
             if ( !Enabled )
             {
-                CompositionNode[ CompositionName ][ "Disables" ] = true;
+                CompositionSlot[ "Disables" ] = true;
             }
         }
     }
@@ -129,7 +134,6 @@ bool
 FromNode( const YAML::Node& Node, CharacterConfig& rhs ) noexcept
 {
     if ( const auto Value = Node[ "Multiplier" ] ) rhs.SkillConfig = Value.as<SkillMultiplierConfig>( );
-    if ( const auto Value = Node[ "Deepen" ] ) rhs.DeepenConfig = Value.as<SkillMultiplierConfig>( );
     if ( const auto Value = Node[ "Element" ] ) rhs.CharacterElement = magic_enum::enum_cast<ElementType>( Value.as<std::string>( ) ).value_or( ElementType::eFireElement );
     if ( const auto Value = Node[ "CharacterLevel" ] ) rhs.CharacterLevel = Value.as<int>( );
     if ( const auto Value = Node[ "EnemyLevel" ] ) rhs.EnemyLevel = Value.as<int>( );
@@ -164,10 +168,16 @@ FromNode( const YAML::Node& Node, CharacterConfig& rhs ) noexcept
         rhs.StatsCompositions =
             CompositionsNode
             | std::views::transform( []( const YAML::const_iterator ::value_type& CompositionNode ) {
-                  const bool Disabled = CompositionNode.second[ "Disables" ].IsDefined( ) && CompositionNode.second[ "Disables" ].as<bool>( );
+                  const bool Disabled                  = CompositionNode.second[ "Disables" ].IsDefined( ) && CompositionNode.second[ "Disables" ].as<bool>( );
+                  const auto SkillMultiplierConfigNode = CompositionNode.second[ "Deepen" ];
+                  auto       a                         = Dump( YAML::Node( CompositionNode.second ) );
                   return StatsComposition { .Enabled          = !Disabled,
                                             .CompositionName  = CompositionNode.first.as<std::string>( ),
-                                            .CompositionStats = CompositionNode.second.as<EffectiveStats>( ) };
+                                            .CompositionStats = CompositionNode.second.as<EffectiveStats>( ),
+                                            .CompositionDeepenStats =
+                                                SkillMultiplierConfigNode.IsDefined( )
+                                                ? CompositionNode.second[ "Deepen" ].as<SkillMultiplierConfig>( )
+                                                : SkillMultiplierConfig {} };
               } )
             | std::ranges::to<std::vector>( );
     }

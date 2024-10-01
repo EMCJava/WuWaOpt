@@ -151,14 +151,14 @@ CharacterPage::DisplayStatConfigPopup( float WidthPerPanel )
         ImGui::BeginChild( "StatsCompositionList", ImVec2( 0, 0 ), ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY, ImGuiWindowFlags_HorizontalScrollbar );
 
         float PenalHeight = 250;
-        for ( auto& [ Enabled, CompositionName, CompositionStats ] : m_ActiveCharacterConfig->GetStatsCompositions( ) )
+        for ( auto& [ Enabled, CompositionName, CompositionStats, CompositionDeepenStats ] : m_ActiveCharacterConfig->GetStatsCompositions( ) )
         {
             ImGui::SameLine( );
             ImGui::BeginChild( reinterpret_cast<uint64_t>( &CompositionName ), ImVec2( WidthPerPanel, 0 ), ImGuiChildFlags_AutoResizeY );
             ImGui::PushID( &CompositionName );
 
             const auto CompositionNameTextHeight = ImGui::CalcTextSize( CompositionName.c_str( ) ).y;
-            ImGui::SeparatorTextEx( 0, CompositionName.c_str( ), &*CompositionName.end( ), CompositionNameTextHeight + ImGui::GetStyle( ).SeparatorTextPadding.x );
+            ImGui::SeparatorTextEx( 0, CompositionName.c_str( ), CompositionName.data( ) + CompositionName.size( ), CompositionNameTextHeight + ImGui::GetStyle( ).SeparatorTextPadding.x );
             ImGui::SameLine( );
             if ( ImGui::ImageButton( *OptimizerUIConfig::GetTextureOrDefault( Enabled ? "ToggleOn" : "ToggleOff" ), { CompositionNameTextHeight, CompositionNameTextHeight } ) )
             {
@@ -177,6 +177,11 @@ CharacterPage::DisplayStatConfigPopup( float WidthPerPanel )
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "UltDamage%" ], &CompositionStats.ult_buff, 0.01, 0, 0, "%.2f" ) )
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "CritRate" ], &CompositionStats.crit_rate, 0.01, 0, 0, "%.2f" ) )
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "CritDamage" ], &CompositionStats.crit_damage, 0.01, 0, 0, "%.2f" ) )
+            ImGui::Separator( );
+            SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "AutoDeep%" ], &CompositionDeepenStats.auto_attack_multiplier, 0.01, 0, 0, "%.2f" ) );
+            SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "HeavyDeep%" ], &CompositionDeepenStats.heavy_attack_multiplier, 0.01, 0, 0, "%.2f" ) );
+            SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "SkillDeep%" ], &CompositionDeepenStats.skill_multiplier, 0.01, 0, 0, "%.2f" ) );
+            SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "UltDeep%" ], &CompositionDeepenStats.ult_multiplier, 0.01, 0, 0, "%.2f" ) );
             if ( !Enabled ) ImGui::EndDisabled( );
 
             ImGui::PopID( );
@@ -193,7 +198,7 @@ CharacterPage::DisplayStatConfigPopup( float WidthPerPanel )
         IsAppendCompositionHovered = ImGui::IsItemHovered( );
         if ( ImGui::IsItemClicked( ) )
         {
-            m_ActiveCharacterConfig->StatsCompositions.emplace_back( true, std::to_string( m_ActiveCharacterConfig->StatsCompositions.size( ) ) );
+            m_ActiveCharacterConfig->StatsCompositions.emplace_back( true, "#" + std::to_string( m_ActiveCharacterConfig->StatsCompositions.size( ) ) );
             SaveActiveCharacter( );
         }
 
@@ -315,16 +320,18 @@ void
 CharacterPage::LoadCharacter( const std::string& CharacterName )
 {
     m_ActiveCharacterConfig = &GetCharacter( m_ActiveCharacterName = CharacterName );
-    m_ActiveSkillDisplay    = {
-           .auto_attack_multiplier  = m_ActiveCharacterConfig->SkillConfig.auto_attack_multiplier * 100,
-           .heavy_attack_multiplier = m_ActiveCharacterConfig->SkillConfig.heavy_attack_multiplier * 100,
-           .skill_multiplier        = m_ActiveCharacterConfig->SkillConfig.skill_multiplier * 100,
-           .ult_multiplier          = m_ActiveCharacterConfig->SkillConfig.ult_multiplier * 100 };
+    m_ActiveCharacterConfig->UpdateOverallStats( );
+
+    m_ActiveSkillDisplay = {
+        .auto_attack_multiplier  = m_ActiveCharacterConfig->SkillConfig.auto_attack_multiplier * 100,
+        .heavy_attack_multiplier = m_ActiveCharacterConfig->SkillConfig.heavy_attack_multiplier * 100,
+        .skill_multiplier        = m_ActiveCharacterConfig->SkillConfig.skill_multiplier * 100,
+        .ult_multiplier          = m_ActiveCharacterConfig->SkillConfig.ult_multiplier * 100 };
     m_ActiveDeepenDisplay = {
-        .auto_attack_multiplier  = m_ActiveCharacterConfig->DeepenConfig.auto_attack_multiplier * 100,
-        .heavy_attack_multiplier = m_ActiveCharacterConfig->DeepenConfig.heavy_attack_multiplier * 100,
-        .skill_multiplier        = m_ActiveCharacterConfig->DeepenConfig.skill_multiplier * 100,
-        .ult_multiplier          = m_ActiveCharacterConfig->DeepenConfig.ult_multiplier * 100 };
+        .auto_attack_multiplier  = m_ActiveCharacterConfig->CharacterOverallDeepenStats.auto_attack_multiplier * 100,
+        .heavy_attack_multiplier = m_ActiveCharacterConfig->CharacterOverallDeepenStats.heavy_attack_multiplier * 100,
+        .skill_multiplier        = m_ActiveCharacterConfig->CharacterOverallDeepenStats.skill_multiplier * 100,
+        .ult_multiplier          = m_ActiveCharacterConfig->CharacterOverallDeepenStats.ult_multiplier * 100 };
 }
 
 void
@@ -357,6 +364,11 @@ CharacterPage::SaveActiveCharacter( )
 
     // Assume all changes will lead to SaveActiveCharacter being called
     m_ActiveCharacterConfig->UpdateOverallStats( );
+    m_ActiveDeepenDisplay = {
+        .auto_attack_multiplier  = m_ActiveCharacterConfig->CharacterOverallDeepenStats.auto_attack_multiplier * 100,
+        .heavy_attack_multiplier = m_ActiveCharacterConfig->CharacterOverallDeepenStats.heavy_attack_multiplier * 100,
+        .skill_multiplier        = m_ActiveCharacterConfig->CharacterOverallDeepenStats.skill_multiplier * 100,
+        .ult_multiplier          = m_ActiveCharacterConfig->CharacterOverallDeepenStats.ult_multiplier * 100 };
 
     std::ofstream OutFile( CharacterFileName );
 
@@ -579,13 +591,17 @@ CharacterPage::DisplayCharacterInfo( float Width, float* HeightOut )
         ImGui::BeginChild( "ConfigPanel##Deepen", ImVec2( Width / 2 - Style.WindowPadding.x * 4, 0 ), ImGuiChildFlags_AutoResizeY );
         ImGui::SeparatorText( LanguageProvider[ "DMGDeep%" ] );
         ImGui::PushID( "Deepen" );
-        SAVE_MULTIPLIER_CONFIG( LanguageProvider[ "AutoTotal%" ], Deepen, auto_attack )
-        SAVE_MULTIPLIER_CONFIG( LanguageProvider[ "HeavyTotal%" ], Deepen, heavy_attack )
-        SAVE_MULTIPLIER_CONFIG( LanguageProvider[ "SkillTotal%" ], Deepen, skill )
-        SAVE_MULTIPLIER_CONFIG( LanguageProvider[ "UltTotal%" ], Deepen, ult )
+        ImGui::BeginDisabled( );
+        ImGui::DragFloat( LanguageProvider[ "AutoTotal%" ], &m_ActiveDeepenDisplay.auto_attack_multiplier );
+        ImGui::DragFloat( LanguageProvider[ "HeavyTotal%" ], &m_ActiveDeepenDisplay.heavy_attack_multiplier );
+        ImGui::DragFloat( LanguageProvider[ "SkillTotal%" ], &m_ActiveDeepenDisplay.skill_multiplier );
+        ImGui::DragFloat( LanguageProvider[ "UltTotal%" ], &m_ActiveDeepenDisplay.ult_multiplier );
+        ImGui::EndDisabled( );
         ImGui::PopID( );
         ImGui::EndChild( );
+
         ImGui::SameLine( );
+
         ImGui::BeginChild( "ConfigPanel##Skill", ImVec2( Width / 2 - Style.WindowPadding.x * 4, 0 ), ImGuiChildFlags_AutoResizeY );
         ImGui::SeparatorText( LanguageProvider[ "CycleTotal%" ] );
         ImGui::PushID( "Skill" );

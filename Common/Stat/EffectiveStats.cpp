@@ -156,7 +156,7 @@ EffectiveStats::ExpectedDamage( FloatTy base_attack, const SkillMultiplierConfig
 }
 
 const char*
-EffectiveStats::GetStatName( const FloatTy EffectiveStats::*stat_type )
+EffectiveStats::GetStatName( const FloatTy EffectiveStats::* stat_type )
 {
 #define PtrSwitch( x, y )                  \
     if ( stat_type == &EffectiveStats::x ) \

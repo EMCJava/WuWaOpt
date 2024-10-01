@@ -9,17 +9,18 @@
 #include <yaml-cpp/yaml.h>
 
 struct StatsComposition {
-    bool           Enabled = true;
-    std::string    CompositionName;
-    EffectiveStats CompositionStats { };
+    bool                  Enabled = true;
+    std::string           CompositionName { };
+    EffectiveStats        CompositionStats { };
+    SkillMultiplierConfig CompositionDeepenStats { };
 };
 
 struct CharacterConfig {
     EffectiveStats                CharacterOverallStats { };
+    SkillMultiplierConfig         CharacterOverallDeepenStats { };
     std::vector<StatsComposition> StatsCompositions { };
 
     SkillMultiplierConfig SkillConfig { };
-    SkillMultiplierConfig DeepenConfig { };
     ElementType           CharacterElement { };
 
     int     CharacterLevel { };

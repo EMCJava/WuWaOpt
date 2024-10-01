@@ -100,7 +100,7 @@ CombinationMetaCache::CalculateDamages( )
 
     m_CombinationStats.ExpectedDamage( BaseAttack,
                                        &m_CharacterCfg.SkillConfig,
-                                       &m_CharacterCfg.DeepenConfig,
+                                       &m_CharacterCfg.CharacterOverallDeepenStats,
                                        m_NormalDamage,
                                        m_CritDamage,
                                        m_ExpectedDamage );
@@ -123,7 +123,7 @@ CombinationMetaCache::CalculateDamages( )
         auto NewStat = m_CombinationStats;
         NewStat.flat_attack += 1;
 
-        const auto NewExpDmg = NewStat.ExpectedDamage( BaseAttack, &m_CharacterCfg.SkillConfig, &m_CharacterCfg.DeepenConfig );
+        const auto NewExpDmg = NewStat.ExpectedDamage( BaseAttack, &m_CharacterCfg.SkillConfig, &m_CharacterCfg.CharacterOverallDeepenStats );
         MaxDamageBuff        = std::max( m_IncreasePayOff.flat_attack = NewExpDmg - m_ExpectedDamage, MaxDamageBuff );
     }
 
@@ -132,7 +132,7 @@ CombinationMetaCache::CalculateDamages( )
         auto NewStat = m_CombinationStats;
         NewStat.*StatSlot += 0.01f;
 
-        const auto NewExpDmg = NewStat.ExpectedDamage( BaseAttack, &m_CharacterCfg.SkillConfig, &m_CharacterCfg.DeepenConfig );
+        const auto NewExpDmg = NewStat.ExpectedDamage( BaseAttack, &m_CharacterCfg.SkillConfig, &m_CharacterCfg.CharacterOverallDeepenStats );
         MaxDamageBuff        = std::max( m_IncreasePayOff.*StatSlot = NewExpDmg - m_ExpectedDamage, MaxDamageBuff );
     }
 
@@ -166,7 +166,7 @@ CombinationMetaCache::GetEDReplaceEchoAt( int EchoIndex, EffectiveStats Echo ) c
     const auto NewED =
         OptimizerParmSwitcher::SwitchCalculateCombinationalStat(
             m_ElementOffset, EchoesReplaced, m_CommonStats )
-            .ExpectedDamage( BaseAttack, &m_CharacterCfg.SkillConfig, &m_CharacterCfg.DeepenConfig )
+            .ExpectedDamage( BaseAttack, &m_CharacterCfg.SkillConfig, &m_CharacterCfg.CharacterOverallDeepenStats )
         * Resistances;
     EchoesReplaced.pop_back( );
 
