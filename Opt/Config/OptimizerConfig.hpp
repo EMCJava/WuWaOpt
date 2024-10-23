@@ -17,6 +17,9 @@ struct OptimizerConfig {
     bool AskedCheckForNewVersion = false;
     bool ShouldCheckForNewVersion = false;
 
+    int OptimizerVersionCode = 0;
+
     void ReadConfig( );
     void SaveConfig( );
+    void VersionUpgrade();
 };

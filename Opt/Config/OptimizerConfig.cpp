@@ -36,6 +36,8 @@ OptimizerConfig::ReadConfig( )
 
         OptimizerConfigFile.read( (char*) this, ActualReadSize );
     }
+
+    VersionUpgrade( );
 }
 
 void
@@ -49,4 +51,21 @@ OptimizerConfig::SaveConfig( )
     {
         OptimizerConfigFile.write( (char*) this, sizeof( OptimizerConfig ) );
     }
+}
+
+void
+OptimizerConfig::VersionUpgrade( )
+{
+    while ( true )
+    {
+        if ( OptimizerVersionCode == 0 )
+        {
+            OptimizerVersionCode = 1;
+            continue;
+        }
+
+        break;
+    }
+
+    SaveConfig( );
 }
