@@ -10,6 +10,7 @@
 #include <opencv2/ml/ml.hpp>
 
 #include <filesystem>
+#include <ranges>
 #include <queue>
 
 #include <spdlog/spdlog.h>
