@@ -18,6 +18,8 @@ private:
 
     void InYellowRangePreProcessor( const cv::Mat& Src );
 
+    void CullAndWriteProcessedGrayImage(const std::string& File);
+
     std::vector<char> MatchWithRecognizer( const cv::Mat&     Src,
                                            auto&              Recognizer,
                                            const std::string& MatchName                            = "",
