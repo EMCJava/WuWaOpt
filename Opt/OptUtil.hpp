@@ -95,3 +95,50 @@ struct CombinationRecord {
         return ss.str( );
     }
 };
+
+template <typename Ty, size_t SlotCount>
+struct CircularBuffer {
+public:
+    struct CircularBufferIterator {
+        using iterator_category = std::forward_iterator_tag;
+        using difference_type   = std::ptrdiff_t;
+        using value_type        = Ty;
+        using pointer           = Ty*;
+        using reference         = Ty&;
+
+        CircularBufferIterator( pointer base_ptr = nullptr, size_t index = 0 )
+            : m_base_ptr( base_ptr )
+            , m_index( index )
+        { }
+
+        reference operator*( ) const { return m_base_ptr[ m_index ]; }
+        pointer   operator->( ) { return m_base_ptr + m_index; }
+
+        CircularBufferIterator& operator++( )
+        {
+            m_index++;
+            if ( m_index >= SlotCount ) [[unlikely]]
+                m_index -= SlotCount;
+            return *this;
+        }
+        CircularBufferIterator operator++( int )
+        {
+            CircularBufferIterator tmp = *this;
+            ++( *this );
+            return tmp;
+        }
+
+        friend bool operator==( const CircularBufferIterator& a, const CircularBufferIterator& b ) { return a.m_base_ptr == b.m_base_ptr && a.m_index == b.m_index; }
+        friend bool operator!=( const CircularBufferIterator& a, const CircularBufferIterator& b ) { return a.m_base_ptr != b.m_base_ptr || a.m_index != b.m_index; }
+
+    private:
+        const pointer m_base_ptr;
+        size_t        m_index;
+    };
+
+    auto begin( ) { return CircularBufferIterator( m_Data ); }
+    auto end( ) { return CircularBufferIterator( m_Data, SlotCount - 1 ); }
+
+private:
+    Ty m_Data[ SlotCount ];
+};
