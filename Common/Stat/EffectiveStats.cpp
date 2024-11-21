@@ -137,15 +137,22 @@ EffectiveStats::CritDamageStat( ) const noexcept
 }
 
 FloatTy
-EffectiveStats::AttackStat( FloatTy base_attack ) const noexcept
+EffectiveStats::FoundationStat( StatsFoundation character_foundation, FloatTy foundation_base ) const noexcept
 {
-    return base_attack * ( 1 + percentage_attack ) + flat_attack;
+    switch ( character_foundation )
+    {
+    case StatsFoundation::eFoundationAttack: return foundation_base * ( 1 + percentage_attack ) + flat_attack;
+    case StatsFoundation::eFoundationHealth: return foundation_base * ( 1 + percentage_health ) + flat_health;
+    case StatsFoundation::eFoundationDefence: return foundation_base * ( 1 + percentage_defence ) + flat_defence;
+    }
+
+    __assume( false );
 }
 
 FloatTy
-EffectiveStats::NormalDamage( FloatTy base_attack, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config ) const noexcept
+EffectiveStats::NormalDamage( StatsFoundation character_foundation, FloatTy foundation_base, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config ) const noexcept
 {
-    const auto FinalAttackStat = AttackStat( base_attack );
+    const auto FinalAttackStat = FoundationStat( character_foundation, foundation_base );
 
     // clang-format off
     return multiplier_config->auto_attack_multiplier  * (1 + deepen_config->auto_attack_multiplier ) * FinalAttackStat * ( 1.f + buff_multiplier + auto_attack_buff  )
@@ -156,21 +163,21 @@ EffectiveStats::NormalDamage( FloatTy base_attack, const SkillMultiplierConfig* 
 }
 
 FloatTy
-EffectiveStats::CritDamage( FloatTy base_attack, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config ) const noexcept
+EffectiveStats::CritDamage( StatsFoundation character_foundation, FloatTy foundation_base, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config ) const noexcept
 {
-    return NormalDamage( base_attack, multiplier_config, deepen_config ) * CritDamageStat( );
+    return NormalDamage( character_foundation, foundation_base, multiplier_config, deepen_config ) * CritDamageStat( );
 }
 
 FloatTy
-EffectiveStats::ExpectedDamage( FloatTy base_attack, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config ) const noexcept
+EffectiveStats::ExpectedDamage( StatsFoundation character_foundation, FloatTy foundation_base, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config ) const noexcept
 {
-    return NormalDamage( base_attack, multiplier_config, deepen_config ) * ( 1 + std::min( CritRateStat( ), (FloatTy) 1 ) * ( 0.5f + crit_damage ) );
+    return NormalDamage( character_foundation, foundation_base, multiplier_config, deepen_config ) * ( 1 + std::min( CritRateStat( ), (FloatTy) 1 ) * ( 0.5f + crit_damage ) );
 }
 
 void
-EffectiveStats::ExpectedDamage( FloatTy base_attack, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config, FloatTy& ND, FloatTy& CD, FloatTy& ED ) const noexcept
+EffectiveStats::ExpectedDamage( StatsFoundation character_foundation, FloatTy foundation_base, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config, FloatTy& ND, FloatTy& CD, FloatTy& ED ) const noexcept
 {
-    ND = NormalDamage( base_attack, multiplier_config, deepen_config );
+    ND = NormalDamage( character_foundation, foundation_base, multiplier_config, deepen_config );
     CD = ND * CritDamageStat( );
     ED = ND * ( 1 + std::min( CritRateStat( ), (FloatTy) 1 ) * ( 0.5f + crit_damage ) );
 }

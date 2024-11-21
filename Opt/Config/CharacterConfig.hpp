@@ -22,6 +22,7 @@ struct CharacterConfig {
 
     SkillMultiplierConfig SkillConfig { };
     ElementType           CharacterElement { };
+    StatsFoundation       CharacterStatsFoundation { };
 
     int     CharacterLevel { };
     int     EnemyLevel { };
@@ -37,7 +38,9 @@ struct CharacterConfig {
     int InternalStageID = 0;
 
     [[nodiscard]] FloatTy GetResistances( ) const noexcept;
-    [[nodiscard]] FloatTy GetBaseAttack( ) const noexcept;
+    [[nodiscard]] FloatTy GetBaseFoundation( ) const noexcept;
+
+    [[nodiscard]] FloatTy GetBaseFoundation( StatsFoundation TargetFoundation ) const noexcept;
 
     [[nodiscard]] EffectiveStats& GetStatsComposition( const std::string& Name );
 

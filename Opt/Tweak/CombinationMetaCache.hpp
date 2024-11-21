@@ -40,12 +40,15 @@ class CombinationMetaCache
     EffectiveStats m_IncreasePayOffWeight { };
 
     FloatTy m_FinalAttack    = 0;
+    FloatTy m_FinalHealth    = 0;
+    FloatTy m_FinalDefence    = 0;
     FloatTy m_NormalDamage   = 0;
     FloatTy m_CritDamage     = 0;
     FloatTy m_ExpectedDamage = 0;
 
-    int m_ElementOffset = 0;
-    int SlotCount       = 0;
+    int m_ElementOffset    = 0;
+    int m_FoundationOffset = 0;
+    int SlotCount          = 0;
 
     bool m_Valid = false;
 
