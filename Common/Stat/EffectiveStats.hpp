@@ -13,6 +13,13 @@
 
 #include <yaml-cpp/yaml.h>
 
+// Some character might use defence/health as the base for calculation
+enum class StatsFoundation {
+    FOUNDATION_ATTACK,
+    FOUNDATION_DEFENCE,
+    FOUNDATION_HEALTH,
+};
+
 struct StatValueConfig;
 struct EffectiveStats {
 
@@ -20,8 +27,15 @@ struct EffectiveStats {
     int     NameID            = 0;
     int     Cost              = 0;
 
+    // attack/health/defence can be "union" like buff_multiplier, but now we have caching, this should not be that big of a deal
     FloatTy flat_attack       = 0;
     FloatTy percentage_attack = 0;
+
+    FloatTy flat_health       = 0;
+    FloatTy percentage_health = 0;
+
+    FloatTy flat_defence       = 0;
+    FloatTy percentage_defence = 0;
 
     FloatTy regen             = 0;
 
@@ -49,6 +63,8 @@ struct EffectiveStats {
     [[nodiscard]] FloatTy RegenStat( ) const noexcept;
     [[nodiscard]] FloatTy CritRateStat( ) const noexcept;
     [[nodiscard]] FloatTy CritDamageStat( ) const noexcept;
+
+    // [[nodiscard]] FloatTy FoundationStat( FloatTy /* From character / weapon? */ foundation_base ) const noexcept;
 
     [[nodiscard]] FloatTy AttackStat( FloatTy base_attack ) const noexcept;
     [[nodiscard]] FloatTy NormalDamage( FloatTy base_attack, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config ) const noexcept;

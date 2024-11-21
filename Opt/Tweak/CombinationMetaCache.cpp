@@ -77,9 +77,15 @@ CombinationMetaCache::SetAsCombination( const Backpack& BackPack, const PlotComb
             | std::ranges::to<std::vector>( );
     }
 
-    m_DisplayStats.flat_attack       = m_CombinationStats.flat_attack;
+    m_DisplayStats.flat_attack  = m_CombinationStats.flat_attack;
+    m_DisplayStats.flat_health  = m_CombinationStats.flat_health;
+    m_DisplayStats.flat_defence = m_CombinationStats.flat_defence;
+
+    m_DisplayStats.percentage_attack  = m_CombinationStats.percentage_attack * 100;
+    m_DisplayStats.percentage_health  = m_CombinationStats.percentage_health * 100;
+    m_DisplayStats.percentage_defence = m_CombinationStats.percentage_defence * 100;
+
     m_DisplayStats.regen             = m_CombinationStats.RegenStat( ) * 100;
-    m_DisplayStats.percentage_attack = m_CombinationStats.percentage_attack * 100;
     m_DisplayStats.buff_multiplier   = m_CombinationStats.buff_multiplier * 100;
     m_DisplayStats.auto_attack_buff  = m_CombinationStats.auto_attack_buff * 100;
     m_DisplayStats.heavy_attack_buff = m_CombinationStats.heavy_attack_buff * 100;
@@ -87,7 +93,8 @@ CombinationMetaCache::SetAsCombination( const Backpack& BackPack, const PlotComb
     m_DisplayStats.ult_buff          = m_CombinationStats.ult_buff * 100;
     m_DisplayStats.crit_rate         = m_CombinationStats.CritRateStat( ) * 100;
     m_DisplayStats.crit_damage       = m_CombinationStats.CritDamageStat( ) * 100;
-    m_FinalAttack                    = m_CombinationStats.AttackStat( m_CharacterCfg.GetBaseAttack( ) );
+
+    m_FinalAttack = m_CombinationStats.AttackStat( m_CharacterCfg.GetBaseAttack( ) );
 
     CalculateDamages( );
 }
