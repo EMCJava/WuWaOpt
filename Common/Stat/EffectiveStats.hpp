@@ -19,10 +19,15 @@ struct EffectiveStats {
     EchoSet Set               = EchoSet::eEchoSetNone;
     int     NameID            = 0;
     int     Cost              = 0;
+
     FloatTy flat_attack       = 0;
-    FloatTy regen             = 0;
     FloatTy percentage_attack = 0;
+
+    FloatTy regen             = 0;
+
+    // Only one elemental buffer used
     FloatTy buff_multiplier   = 0;
+
     FloatTy crit_rate         = 0;
     FloatTy crit_damage       = 0;
 
