@@ -50,4 +50,5 @@ protected:
 
     // UIs
     StringArrayObserver m_ElementLabels;
+    StringArrayObserver m_FoundationLabels;
 };
