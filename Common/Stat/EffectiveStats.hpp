@@ -13,18 +13,37 @@
 
 #include <yaml-cpp/yaml.h>
 
+// Some character might use defence/health as the base for calculation
+enum class StatsFoundation {
+    eFoundationAttack,
+    eFoundationHealth,
+    eFoundationDefence,
+};
+
 struct StatValueConfig;
 struct EffectiveStats {
 
-    EchoSet Set               = EchoSet::eEchoSetNone;
-    int     NameID            = 0;
-    int     Cost              = 0;
+    EchoSet Set    = EchoSet::eEchoSetNone;
+    int     NameID = 0;
+    int     Cost   = 0;
+
+    // attack/health/defence can be "union" like buff_multiplier, but now we have caching, this should not be that big of a deal
     FloatTy flat_attack       = 0;
-    FloatTy regen             = 0;
     FloatTy percentage_attack = 0;
-    FloatTy buff_multiplier   = 0;
-    FloatTy crit_rate         = 0;
-    FloatTy crit_damage       = 0;
+
+    FloatTy flat_health       = 0;
+    FloatTy percentage_health = 0;
+
+    FloatTy flat_defence       = 0;
+    FloatTy percentage_defence = 0;
+
+    FloatTy regen = 0;
+
+    // Only one elemental buffer used
+    FloatTy buff_multiplier = 0;
+
+    FloatTy crit_rate   = 0;
+    FloatTy crit_damage = 0;
 
     FloatTy auto_attack_buff  = 0;
     FloatTy heavy_attack_buff = 0;
@@ -45,20 +64,21 @@ struct EffectiveStats {
     [[nodiscard]] FloatTy CritRateStat( ) const noexcept;
     [[nodiscard]] FloatTy CritDamageStat( ) const noexcept;
 
-    [[nodiscard]] FloatTy AttackStat( FloatTy base_attack ) const noexcept;
-    [[nodiscard]] FloatTy NormalDamage( FloatTy base_attack, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config ) const noexcept;
-    [[nodiscard]] FloatTy CritDamage( FloatTy base_attack, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config ) const noexcept;
-    [[nodiscard]] FloatTy ExpectedDamage( FloatTy base_attack, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config ) const noexcept;
-    void                  ExpectedDamage( FloatTy base_attack, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config,
+    [[nodiscard]] FloatTy FoundationStat( StatsFoundation character_foundation, FloatTy /* From character / weapon? */ foundation_base ) const noexcept;
+
+    [[nodiscard]] FloatTy NormalDamage( StatsFoundation character_foundation, FloatTy /* From character / weapon? */ foundation_base, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config ) const noexcept;
+    [[nodiscard]] FloatTy CritDamage( StatsFoundation character_foundation, FloatTy /* From character / weapon? */ foundation_base, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config ) const noexcept;
+    [[nodiscard]] FloatTy ExpectedDamage( StatsFoundation character_foundation, FloatTy /* From character / weapon? */ foundation_base, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config ) const noexcept;
+    void                  ExpectedDamage( StatsFoundation character_foundation, FloatTy /* From character / weapon? */ foundation_base, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config,
                                           FloatTy& ND, FloatTy& CD, FloatTy& ED ) const noexcept;
 
     std::string_view   GetSetName( ) const noexcept;
-    static const char* GetStatName( const FloatTy EffectiveStats::*stat_type );
+    static const char* GetStatName( const FloatTy EffectiveStats::* stat_type );
 };
 
 struct StatValueConfig {
-    FloatTy EffectiveStats::*ValuePtr = { };
-    FloatTy                  Value    = { };
+    FloatTy EffectiveStats::* ValuePtr = { };
+    FloatTy                   Value    = { };
 };
 
 YAML::Node ToNode( const EffectiveStats& rhs ) noexcept;

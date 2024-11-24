@@ -29,6 +29,16 @@ EchoExtractor::InYellowRangePreProcessor( const cv::Mat& Src )
     cvtColor( m_GrayImg, m_MatchVisualizerImg, cv::COLOR_GRAY2BGR );
 }
 
+void
+EchoExtractor::CullAndWriteProcessedGrayImage( const std::string& File )
+{
+    std::vector<cv::Point> nonZeroPoints;
+    cv::findNonZero( m_GrayImg, nonZeroPoints );
+
+    cv::Rect boundingBox = cv::boundingRect( nonZeroPoints );
+    cv::imwrite( File, m_GrayImg( boundingBox ) );
+}
+
 std::vector<char>
 EchoExtractor::MatchWithRecognizer( const cv::Mat&     Src,
                                     auto&              Recognizer,

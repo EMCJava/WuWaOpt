@@ -21,9 +21,17 @@ EffectiveStats::operator+=( const EffectiveStats& Other ) noexcept
     NameID = -1;
 
     Cost += Other.Cost;
+
     flat_attack += Other.flat_attack;
-    regen += Other.regen;
     percentage_attack += Other.percentage_attack;
+
+    flat_health += Other.flat_health;
+    percentage_health += Other.percentage_health;
+
+    flat_defence += Other.flat_defence;
+    percentage_defence += Other.percentage_defence;
+
+    regen += Other.regen;
     buff_multiplier += Other.buff_multiplier;
     crit_rate += Other.crit_rate;
     crit_damage += Other.crit_damage;
@@ -40,38 +48,46 @@ EffectiveStats
 EffectiveStats::operator+( const EffectiveStats& Other ) const noexcept
 {
     return EffectiveStats {
-        EchoSet::eEchoSetNone,
-        -1,
-        Cost + Other.Cost,
-        flat_attack + Other.flat_attack,
-        regen + Other.regen,
-        percentage_attack + Other.percentage_attack,
-        buff_multiplier + Other.buff_multiplier,
-        crit_rate + Other.crit_rate,
-        crit_damage + Other.crit_damage,
-        auto_attack_buff + Other.auto_attack_buff,
-        heavy_attack_buff + Other.heavy_attack_buff,
-        skill_buff + Other.skill_buff,
-        ult_buff + Other.ult_buff };
+        .Set                = EchoSet::eEchoSetNone,
+        .NameID             = -1,
+        .Cost               = Cost + Other.Cost,
+        .flat_attack        = flat_attack + Other.flat_attack,
+        .percentage_attack  = percentage_attack + Other.percentage_attack,
+        .flat_health        = flat_health + Other.flat_health,
+        .percentage_health  = percentage_health + Other.percentage_health,
+        .flat_defence       = flat_defence + Other.flat_defence,
+        .percentage_defence = percentage_defence + Other.percentage_defence,
+        .regen              = regen + Other.regen,
+        .buff_multiplier    = buff_multiplier + Other.buff_multiplier,
+        .crit_rate          = crit_rate + Other.crit_rate,
+        .crit_damage        = crit_damage + Other.crit_damage,
+        .auto_attack_buff   = auto_attack_buff + Other.auto_attack_buff,
+        .heavy_attack_buff  = heavy_attack_buff + Other.heavy_attack_buff,
+        .skill_buff         = skill_buff + Other.skill_buff,
+        .ult_buff           = ult_buff + Other.ult_buff };
 }
 
 EffectiveStats
 EffectiveStats::operator-( const EffectiveStats& Other ) const noexcept
 {
     return EffectiveStats {
-        EchoSet::eEchoSetNone,
-        -1,
-        Cost - Other.Cost,
-        flat_attack - Other.flat_attack,
-        regen - Other.regen,
-        percentage_attack - Other.percentage_attack,
-        buff_multiplier - Other.buff_multiplier,
-        crit_rate - Other.crit_rate,
-        crit_damage - Other.crit_damage,
-        auto_attack_buff - Other.auto_attack_buff,
-        heavy_attack_buff - Other.heavy_attack_buff,
-        skill_buff - Other.skill_buff,
-        ult_buff - Other.ult_buff };
+        .Set                = EchoSet::eEchoSetNone,
+        .NameID             = -1,
+        .Cost               = Cost - Other.Cost,
+        .flat_attack        = flat_attack - Other.flat_attack,
+        .percentage_attack  = percentage_attack - Other.percentage_attack,
+        .flat_health        = flat_health - Other.flat_health,
+        .percentage_health  = percentage_health - Other.percentage_health,
+        .flat_defence       = flat_defence - Other.flat_defence,
+        .percentage_defence = percentage_defence - Other.percentage_defence,
+        .regen              = regen - Other.regen,
+        .buff_multiplier    = buff_multiplier - Other.buff_multiplier,
+        .crit_rate          = crit_rate - Other.crit_rate,
+        .crit_damage        = crit_damage - Other.crit_damage,
+        .auto_attack_buff   = auto_attack_buff - Other.auto_attack_buff,
+        .heavy_attack_buff  = heavy_attack_buff - Other.heavy_attack_buff,
+        .skill_buff         = skill_buff - Other.skill_buff,
+        .ult_buff           = ult_buff - Other.ult_buff };
 }
 
 bool
@@ -83,8 +99,12 @@ EffectiveStats::operator==( const EffectiveStats& Other ) const noexcept
     if ( NameID != Other.NameID ) return false;
     if ( Cost != Other.Cost ) return false;
     if ( !CLOSE( flat_attack, Other.flat_attack ) ) return false;
-    if ( !CLOSE( regen, Other.regen ) ) return false;
     if ( !CLOSE( percentage_attack, Other.percentage_attack ) ) return false;
+    if ( !CLOSE( flat_health, Other.flat_health ) ) return false;
+    if ( !CLOSE( percentage_health, Other.percentage_health ) ) return false;
+    if ( !CLOSE( flat_defence, Other.flat_defence ) ) return false;
+    if ( !CLOSE( percentage_defence, Other.percentage_defence ) ) return false;
+    if ( !CLOSE( regen, Other.regen ) ) return false;
     if ( !CLOSE( buff_multiplier, Other.buff_multiplier ) ) return false;
     if ( !CLOSE( crit_rate, Other.crit_rate ) ) return false;
     if ( !CLOSE( crit_damage, Other.crit_damage ) ) return false;
@@ -117,15 +137,22 @@ EffectiveStats::CritDamageStat( ) const noexcept
 }
 
 FloatTy
-EffectiveStats::AttackStat( FloatTy base_attack ) const noexcept
+EffectiveStats::FoundationStat( StatsFoundation character_foundation, FloatTy foundation_base ) const noexcept
 {
-    return base_attack * ( 1 + percentage_attack ) + flat_attack;
+    switch ( character_foundation )
+    {
+    case StatsFoundation::eFoundationAttack: return foundation_base * ( 1 + percentage_attack ) + flat_attack;
+    case StatsFoundation::eFoundationHealth: return foundation_base * ( 1 + percentage_health ) + flat_health;
+    case StatsFoundation::eFoundationDefence: return foundation_base * ( 1 + percentage_defence ) + flat_defence;
+    }
+
+    __assume( false );
 }
 
 FloatTy
-EffectiveStats::NormalDamage( FloatTy base_attack, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config ) const noexcept
+EffectiveStats::NormalDamage( StatsFoundation character_foundation, FloatTy foundation_base, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config ) const noexcept
 {
-    const auto FinalAttackStat = AttackStat( base_attack );
+    const auto FinalAttackStat = FoundationStat( character_foundation, foundation_base );
 
     // clang-format off
     return multiplier_config->auto_attack_multiplier  * (1 + deepen_config->auto_attack_multiplier ) * FinalAttackStat * ( 1.f + buff_multiplier + auto_attack_buff  )
@@ -136,21 +163,21 @@ EffectiveStats::NormalDamage( FloatTy base_attack, const SkillMultiplierConfig* 
 }
 
 FloatTy
-EffectiveStats::CritDamage( FloatTy base_attack, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config ) const noexcept
+EffectiveStats::CritDamage( StatsFoundation character_foundation, FloatTy foundation_base, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config ) const noexcept
 {
-    return NormalDamage( base_attack, multiplier_config, deepen_config ) * CritDamageStat( );
+    return NormalDamage( character_foundation, foundation_base, multiplier_config, deepen_config ) * CritDamageStat( );
 }
 
 FloatTy
-EffectiveStats::ExpectedDamage( FloatTy base_attack, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config ) const noexcept
+EffectiveStats::ExpectedDamage( StatsFoundation character_foundation, FloatTy foundation_base, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config ) const noexcept
 {
-    return NormalDamage( base_attack, multiplier_config, deepen_config ) * ( 1 + std::min( CritRateStat( ), (FloatTy) 1 ) * ( 0.5f + crit_damage ) );
+    return NormalDamage( character_foundation, foundation_base, multiplier_config, deepen_config ) * ( 1 + std::min( CritRateStat( ), (FloatTy) 1 ) * ( 0.5f + crit_damage ) );
 }
 
 void
-EffectiveStats::ExpectedDamage( FloatTy base_attack, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config, FloatTy& ND, FloatTy& CD, FloatTy& ED ) const noexcept
+EffectiveStats::ExpectedDamage( StatsFoundation character_foundation, FloatTy foundation_base, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config, FloatTy& ND, FloatTy& CD, FloatTy& ED ) const noexcept
 {
-    ND = NormalDamage( base_attack, multiplier_config, deepen_config );
+    ND = NormalDamage( character_foundation, foundation_base, multiplier_config, deepen_config );
     CD = ND * CritDamageStat( );
     ED = ND * ( 1 + std::min( CritRateStat( ), (FloatTy) 1 ) * ( 0.5f + crit_damage ) );
 }
@@ -164,15 +191,19 @@ EffectiveStats::GetStatName( const FloatTy EffectiveStats::* stat_type )
     else
 
     PtrSwitch( flat_attack, "FlatAttack" )
-        PtrSwitch( regen, "Regen%" )
-            PtrSwitch( percentage_attack, "Attack%" )
-                PtrSwitch( buff_multiplier, "ElementBuff%" )
-                    PtrSwitch( crit_rate, "CritRate" )
-                        PtrSwitch( crit_damage, "CritDamage" )
-                            PtrSwitch( auto_attack_buff, "AutoAttack%" )
-                                PtrSwitch( heavy_attack_buff, "HeavyAttack%" )
-                                    PtrSwitch( skill_buff, "SkillDamage%" )
-                                        PtrSwitch( ult_buff, "UltDamage%" ) return "NonEffective";
+        PtrSwitch( percentage_attack, "Attack%" )
+            PtrSwitch( flat_health, "FlatHealth" )
+                PtrSwitch( percentage_health, "Health%" )
+                    PtrSwitch( flat_defence, "FlatDefence" )
+                        PtrSwitch( percentage_defence, "Defence%" )
+                            PtrSwitch( regen, "Regen%" )
+                                PtrSwitch( buff_multiplier, "ElementBuff%" )
+                                    PtrSwitch( crit_rate, "CritRate" )
+                                        PtrSwitch( crit_damage, "CritDamage" )
+                                            PtrSwitch( auto_attack_buff, "AutoAttack%" )
+                                                PtrSwitch( heavy_attack_buff, "HeavyAttack%" )
+                                                    PtrSwitch( skill_buff, "SkillDamage%" )
+                                                        PtrSwitch( ult_buff, "UltDamage%" ) return "NonEffective";
 
 #undef PtrSwitch
 }
@@ -191,9 +222,14 @@ ToNode( const EffectiveStats& rhs ) noexcept
     if ( rhs.Set != EchoSet::eEchoSetNone ) Node[ "Set" ] = std::string( rhs.GetSetName( ) );
     if ( rhs.Cost != 0 ) Node[ "Cost" ] = rhs.Cost;
 
-    Node[ "flat_attack" ]       = std::format( "{}", rhs.flat_attack );
+    if ( std::abs( rhs.flat_attack ) > 0.001 ) Node[ "flat_attack" ] = std::format( "{}", rhs.flat_attack );
+    if ( std::abs( rhs.percentage_attack ) > 0.001 ) Node[ "percentage_attack" ] = std::format( "{}", rhs.percentage_attack );
+    if ( std::abs( rhs.flat_health ) > 0.001 ) Node[ "flat_health" ] = std::format( "{}", rhs.flat_health );
+    if ( std::abs( rhs.percentage_health ) > 0.001 ) Node[ "percentage_health" ] = std::format( "{}", rhs.percentage_health );
+    if ( std::abs( rhs.flat_defence ) > 0.001 ) Node[ "flat_defence" ] = std::format( "{}", rhs.flat_defence );
+    if ( std::abs( rhs.percentage_defence ) > 0.001 ) Node[ "percentage_defence" ] = std::format( "{}", rhs.percentage_defence );
+
     Node[ "regen" ]             = std::format( "{}", rhs.regen );
-    Node[ "percentage_attack" ] = std::format( "{}", rhs.percentage_attack );
     Node[ "buff_multiplier" ]   = std::format( "{}", rhs.buff_multiplier );
     Node[ "crit_rate" ]         = std::format( "{}", rhs.crit_rate );
     Node[ "crit_damage" ]       = std::format( "{}", rhs.crit_damage );
@@ -218,9 +254,14 @@ FromNode( const YAML::Node& Node, EffectiveStats& rhs ) noexcept
     else
         rhs.Cost = 0;   // Reset to default if "Cost" field is missing
 
-    rhs.flat_attack       = Node[ "flat_attack" ].as<FloatTy>( );
+    if ( const auto Value = Node[ "flat_attack" ]; Value ) rhs.flat_attack = Value.as<FloatTy>( );
+    if ( const auto Value = Node[ "percentage_attack" ]; Value ) rhs.percentage_attack = Value.as<FloatTy>( );
+    if ( const auto Value = Node[ "flat_health" ]; Value ) rhs.flat_health = Value.as<FloatTy>( );
+    if ( const auto Value = Node[ "percentage_health" ]; Value ) rhs.percentage_health = Value.as<FloatTy>( );
+    if ( const auto Value = Node[ "flat_defence" ]; Value ) rhs.flat_defence = Value.as<FloatTy>( );
+    if ( const auto Value = Node[ "percentage_defence" ]; Value ) rhs.percentage_defence = Value.as<FloatTy>( );
+
     rhs.regen             = Node[ "regen" ].as<FloatTy>( );
-    rhs.percentage_attack = Node[ "percentage_attack" ].as<FloatTy>( );
     rhs.buff_multiplier   = Node[ "buff_multiplier" ].as<FloatTy>( );
     rhs.crit_rate         = Node[ "crit_rate" ].as<FloatTy>( );
     rhs.crit_damage       = Node[ "crit_damage" ].as<FloatTy>( );

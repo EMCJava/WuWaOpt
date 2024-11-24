@@ -230,6 +230,10 @@ CharacterPage::CharacterPage( Loca& LocaObj )
                          "ElectricDamage",
                          "DarkDamage",
                          "LightDamage" } )
+    , m_FoundationLabels( LocaObj,
+                          { "FoundationAttack",
+                            "FoundationHealth",
+                            "FoundationDefence" } )
 {
     if ( std::filesystem::exists( CharacterFileName ) )
     {
@@ -620,12 +624,24 @@ CharacterPage::DisplayCharacterInfo( float Width, float* HeightOut )
 
     ImGui::PushItemWidth( -200 );
 
+    ImGui::BeginChild( "ConfigPanel##ElementType", ImVec2( Width / 2 - Style.WindowPadding.x * 4, 0 ), ImGuiChildFlags_AutoResizeY );
     SAVE_CONFIG( ImGui::Combo( LanguageProvider[ "ElementType" ],
                                (int*) &m_ActiveCharacterConfig->CharacterElement,
                                m_ElementLabels.GetRawStrings( ),
                                m_ElementLabels.GetStringCount( ) ) )
+    ImGui::EndChild( );
 
-    ImGui::PopItemWidth( );
+    ImGui::SameLine( );
+
+    ImGui::BeginChild( "ConfigPanel##FoundationType", ImVec2( Width / 2 - Style.WindowPadding.x * 4, 0 ), ImGuiChildFlags_AutoResizeY );
+
+    SAVE_CONFIG( ImGui::Combo( LanguageProvider[ "FoundationType" ],
+                               (int*) &m_ActiveCharacterConfig->CharacterStatsFoundation,
+                               m_FoundationLabels.GetRawStrings( ),
+                               m_FoundationLabels.GetStringCount( ) ) )
+    ImGui::EndChild( );
+
+    // ImGui::PopItemWidth( );
 
     if ( HeightOut ) *HeightOut = ImGui::GetWindowHeight( );
     ImGui::EndChild( );

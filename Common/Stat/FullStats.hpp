@@ -104,19 +104,23 @@ EffectiveStats
 ToEffectiveStats( const FullStats& MatchResult )
 {
     return EffectiveStats {
-        .Set               = MatchResult.Set,
-        .NameID            = MatchResult.NameID,
-        .Cost              = MatchResult.Cost,
-        .flat_attack       = MatchResult.Attack,
-        .regen             = MatchResult.RegenPercentage,
-        .percentage_attack = MatchResult.AttackPercentage,
-        .buff_multiplier   = MatchResult.*GetElementBonusPtr<ETy>( ),
-        .crit_rate         = MatchResult.CritRate,
-        .crit_damage       = MatchResult.CritDamage,
-        .auto_attack_buff  = MatchResult.AutoAttackDamagePercentage,
-        .heavy_attack_buff = MatchResult.HeavyAttackPercentage,
-        .skill_buff        = MatchResult.SkillDamagePercentage,
-        .ult_buff          = MatchResult.UltDamagePercentage };
+        .Set                = MatchResult.Set,
+        .NameID             = MatchResult.NameID,
+        .Cost               = MatchResult.Cost,
+        .flat_attack        = MatchResult.Attack,
+        .percentage_attack  = MatchResult.AttackPercentage,
+        .flat_health        = MatchResult.Health,
+        .percentage_health  = MatchResult.HealthPercentage,
+        .flat_defence       = MatchResult.Defence,
+        .percentage_defence = MatchResult.DefencePercentage,
+        .regen              = MatchResult.RegenPercentage,
+        .buff_multiplier    = MatchResult.*GetElementBonusPtr<ETy>( ),
+        .crit_rate          = MatchResult.CritRate,
+        .crit_damage        = MatchResult.CritDamage,
+        .auto_attack_buff   = MatchResult.AutoAttackDamagePercentage,
+        .heavy_attack_buff  = MatchResult.HeavyAttackPercentage,
+        .skill_buff         = MatchResult.SkillDamagePercentage,
+        .ult_buff           = MatchResult.UltDamagePercentage };
 }
 
 YAML::Node ToNode( const FullStats& rhs ) noexcept;

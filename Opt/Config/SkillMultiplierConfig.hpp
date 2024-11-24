@@ -8,6 +8,8 @@
 
 #include <yaml-cpp/yaml.h>
 
+#include <format>
+
 struct SkillMultiplierConfig {
 
     FloatTy auto_attack_multiplier  = 0;

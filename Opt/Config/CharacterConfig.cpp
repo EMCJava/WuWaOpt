@@ -18,11 +18,25 @@ CharacterConfig::GetResistances( ) const noexcept
 }
 
 FloatTy
-CharacterConfig::GetBaseAttack( ) const noexcept
+CharacterConfig::GetBaseFoundation( ) const noexcept
 {
-    return std::ranges::fold_left( StatsCompositions, 0.f, []( const FloatTy Acc, const StatsComposition& Composition ) {
+    return GetBaseFoundation( CharacterStatsFoundation );
+}
+FloatTy
+CharacterConfig::GetBaseFoundation( StatsFoundation TargetFoundation ) const noexcept
+{
+    switch ( CharacterStatsFoundation )
+    {
+    case StatsFoundation::eFoundationAttack: return std::ranges::fold_left( StatsCompositions, 0.f, []( const FloatTy Acc, const StatsComposition& Composition ) {
         return Composition.Enabled ? Acc + Composition.CompositionStats.flat_attack : Acc;
     } );
+    case StatsFoundation::eFoundationHealth: return std::ranges::fold_left( StatsCompositions, 0.f, []( const FloatTy Acc, const StatsComposition& Composition ) {
+        return Composition.Enabled ? Acc + Composition.CompositionStats.flat_health : Acc;
+    } );
+    case StatsFoundation::eFoundationDefence: return std::ranges::fold_left( StatsCompositions, 0.f, []( const FloatTy Acc, const StatsComposition& Composition ) {
+        return Composition.Enabled ? Acc + Composition.CompositionStats.flat_defence : Acc;
+    } );
+    }
 }
 
 EffectiveStats&
@@ -92,6 +106,7 @@ ToNode( const CharacterConfig& rhs ) noexcept
 
     Node[ "Multiplier" ] = rhs.SkillConfig;
     Node[ "Element" ]    = std::string( magic_enum::enum_name( rhs.CharacterElement ) );
+    Node[ "Foundation" ] = std::string( magic_enum::enum_name( rhs.CharacterStatsFoundation ) );
 
     Node[ "CharacterLevel" ]           = std::format( "{}", rhs.CharacterLevel );
     Node[ "EnemyLevel" ]               = std::format( "{}", rhs.EnemyLevel );
@@ -135,6 +150,7 @@ FromNode( const YAML::Node& Node, CharacterConfig& rhs ) noexcept
 {
     if ( const auto Value = Node[ "Multiplier" ] ) rhs.SkillConfig = Value.as<SkillMultiplierConfig>( );
     if ( const auto Value = Node[ "Element" ] ) rhs.CharacterElement = magic_enum::enum_cast<ElementType>( Value.as<std::string>( ) ).value_or( ElementType::eFireElement );
+    if ( const auto Value = Node[ "Foundation" ] ) rhs.CharacterStatsFoundation = magic_enum::enum_cast<StatsFoundation>( Value.as<std::string>( ) ).value_or( StatsFoundation::eFoundationAttack );
     if ( const auto Value = Node[ "CharacterLevel" ] ) rhs.CharacterLevel = Value.as<int>( );
     if ( const auto Value = Node[ "EnemyLevel" ] ) rhs.EnemyLevel = Value.as<int>( );
     if ( const auto Value = Node[ "EnemyElementResistance" ] ) rhs.ElementResistance = Value.as<FloatTy>( );

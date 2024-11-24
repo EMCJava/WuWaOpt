@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.28)
 
 set(VCPKG_TARGET_TRIPLET x64-windows-static)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-project(WuWaOpt VERSION 1.3.1 LANGUAGES CXX)
+project(WuWaOpt VERSION 1.3.2 LANGUAGES CXX)
 
 if (NOT MSVC)
     message(FATAL_ERROR "MSVC should be used as compiler")
@@ -25,6 +25,7 @@ add_compile_definitions(UNICODE _UNICODE IMGUI_DEFINE_MATH_OPERATORS)
 add_compile_definitions(WUWAOPT_VERSION="v${PROJECT_VERSION}")
 
 include_directories(.)
+include_directories(${OpenCV_INCLUDE_DIRS})
 
 add_subdirectory(Loca)
 add_subdirectory(Common)
@@ -42,7 +43,7 @@ add_library(WuWaGASwitcher Opt/OptimizerParmSwitcher.hpp Opt/OptimizerParmSwitch
 target_link_libraries(WuWaGASwitcher spdlog::spdlog_header_only)
 target_link_libraries(WuWaGA INTERFACE nlohmann_json::nlohmann_json WuWaGASwitcher)
 
-target_link_libraries(WuWaScan PRIVATE Loca.lib opencv_highgui opencv_ml opencv_dnn opencv_core opencv_flann nlohmann_json::nlohmann_json Scan.lib)
+target_link_libraries(WuWaScan PRIVATE Loca.lib ${OpenCV_LIBS} nlohmann_json::nlohmann_json Scan.lib)
 target_link_libraries(WuWaOptim PRIVATE CharacterConfig.lib Pages.lib Backpack.lib EchoConstraint.lib OptimizerUIConfig.lib StringArrayObserver.lib OptimizerConfig.lib SubStatRollConfig.lib CombinationTweaker.lib CombinationMetaCache.lib WuWaGA httplib::httplib Loca.lib nlohmann_json::nlohmann_json implot::implot sfml-system sfml-network sfml-graphics sfml-window ImGui-SFML::ImGui-SFML spdlog::spdlog_header_only)
 
 set_target_properties(WuWaScan
