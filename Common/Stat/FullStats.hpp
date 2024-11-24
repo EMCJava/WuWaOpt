@@ -120,7 +120,8 @@ ToEffectiveStats( const FullStats& MatchResult )
         .auto_attack_buff   = MatchResult.AutoAttackDamagePercentage,
         .heavy_attack_buff  = MatchResult.HeavyAttackPercentage,
         .skill_buff         = MatchResult.SkillDamagePercentage,
-        .ult_buff           = MatchResult.UltDamagePercentage };
+        .ult_buff           = MatchResult.UltDamagePercentage,
+        .heal_buff          = MatchResult.HealBonusPercentage };
 }
 
 YAML::Node ToNode( const FullStats& rhs ) noexcept;

@@ -328,7 +328,7 @@ WuWaGA::Run( std::stop_token StopToken, int GAReportIndex, CharacterConfig Confi
                 const auto FinalStat = CalculateCombinationalStat<ETy>( EffectiveStatsPlaceHolder, CommonStats );
 
                 Fitness = Constraints( FinalStat )
-                    ? FinalStat.ExpectedDamage( Config.CharacterStatsFoundation, BaseFoundation, &Config.SkillConfig, &Config.CharacterOverallDeepenStats )
+                    ? FinalStat.OptimizingValue( Config.CharacterStatsFoundation, BaseFoundation, &Config.SkillConfig, &Config.CharacterOverallDeepenStats )
                     : 0;
 
                 StatsCache.insert( StatsCacheIt, { CombinationID, Fitness } );

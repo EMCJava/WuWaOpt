@@ -175,6 +175,7 @@ CharacterPage::DisplayStatConfigPopup( float WidthPerPanel )
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "HeavyAttack%" ], &CompositionStats.heavy_attack_buff, 0.01, 0, 0, "%.2f" ) )
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "SkillDamage%" ], &CompositionStats.skill_buff, 0.01, 0, 0, "%.2f" ) )
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "UltDamage%" ], &CompositionStats.ult_buff, 0.01, 0, 0, "%.2f" ) )
+            SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "Heal%" ], &CompositionStats.heal_buff, 0.01, 0, 0, "%.2f" ) )
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "CritRate" ], &CompositionStats.crit_rate, 0.01, 0, 0, "%.2f" ) )
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "CritDamage" ], &CompositionStats.crit_damage, 0.01, 0, 0, "%.2f" ) )
             ImGui::Separator( );
@@ -330,12 +331,14 @@ CharacterPage::LoadCharacter( const std::string& CharacterName )
         .auto_attack_multiplier  = m_ActiveCharacterConfig->SkillConfig.auto_attack_multiplier * 100,
         .heavy_attack_multiplier = m_ActiveCharacterConfig->SkillConfig.heavy_attack_multiplier * 100,
         .skill_multiplier        = m_ActiveCharacterConfig->SkillConfig.skill_multiplier * 100,
-        .ult_multiplier          = m_ActiveCharacterConfig->SkillConfig.ult_multiplier * 100 };
+        .ult_multiplier          = m_ActiveCharacterConfig->SkillConfig.ult_multiplier * 100,
+        .heal_multiplier         = m_ActiveCharacterConfig->SkillConfig.heal_multiplier * 100 };
     m_ActiveDeepenDisplay = {
         .auto_attack_multiplier  = m_ActiveCharacterConfig->CharacterOverallDeepenStats.auto_attack_multiplier * 100,
         .heavy_attack_multiplier = m_ActiveCharacterConfig->CharacterOverallDeepenStats.heavy_attack_multiplier * 100,
         .skill_multiplier        = m_ActiveCharacterConfig->CharacterOverallDeepenStats.skill_multiplier * 100,
-        .ult_multiplier          = m_ActiveCharacterConfig->CharacterOverallDeepenStats.ult_multiplier * 100 };
+        .ult_multiplier          = m_ActiveCharacterConfig->CharacterOverallDeepenStats.ult_multiplier * 100,
+        .heal_multiplier         = m_ActiveCharacterConfig->CharacterOverallDeepenStats.heal_multiplier * 100 };
 }
 
 void
@@ -372,7 +375,8 @@ CharacterPage::SaveActiveCharacter( )
         .auto_attack_multiplier  = m_ActiveCharacterConfig->CharacterOverallDeepenStats.auto_attack_multiplier * 100,
         .heavy_attack_multiplier = m_ActiveCharacterConfig->CharacterOverallDeepenStats.heavy_attack_multiplier * 100,
         .skill_multiplier        = m_ActiveCharacterConfig->CharacterOverallDeepenStats.skill_multiplier * 100,
-        .ult_multiplier          = m_ActiveCharacterConfig->CharacterOverallDeepenStats.ult_multiplier * 100 };
+        .ult_multiplier          = m_ActiveCharacterConfig->CharacterOverallDeepenStats.ult_multiplier * 100,
+        .heal_multiplier         = m_ActiveCharacterConfig->CharacterOverallDeepenStats.heal_multiplier * 100 };
 
     std::ofstream OutFile( CharacterFileName );
 
@@ -517,6 +521,7 @@ CharacterPage::DisplayCharacterInfo( float Width, float* HeightOut )
     ImGui::DragFloat( LanguageProvider[ "HeavyAttack%" ], const_cast<float*>( &m_ActiveCharacterConfig->GetOverallStats( ).heavy_attack_buff ), 0.01, 0, 0, "%.2f" );
     ImGui::DragFloat( LanguageProvider[ "SkillDamage%" ], const_cast<float*>( &m_ActiveCharacterConfig->GetOverallStats( ).skill_buff ), 0.01, 0, 0, "%.2f" );
     ImGui::DragFloat( LanguageProvider[ "UltDamage%" ], const_cast<float*>( &m_ActiveCharacterConfig->GetOverallStats( ).ult_buff ), 0.01, 0, 0, "%.2f" );
+    ImGui::DragFloat( LanguageProvider[ "Heal%" ], const_cast<float*>( &m_ActiveCharacterConfig->GetOverallStats( ).heal_buff ), 0.01, 0, 0, "%.2f" );
     ImGui::DragFloat( LanguageProvider[ "CritRate" ], const_cast<float*>( &m_ActiveCharacterConfig->GetOverallStats( ).crit_rate ), 0.01, 0, 0, "%.2f" );
     ImGui::DragFloat( LanguageProvider[ "CritDamage" ], const_cast<float*>( &m_ActiveCharacterConfig->GetOverallStats( ).crit_damage ), 0.01, 0, 0, "%.2f" );
     ImGui::EndDisabled( );
@@ -613,6 +618,7 @@ CharacterPage::DisplayCharacterInfo( float Width, float* HeightOut )
         SAVE_MULTIPLIER_CONFIG( LanguageProvider[ "HeavyTotal%" ], Skill, heavy_attack )
         SAVE_MULTIPLIER_CONFIG( LanguageProvider[ "SkillTotal%" ], Skill, skill )
         SAVE_MULTIPLIER_CONFIG( LanguageProvider[ "UltTotal%" ], Skill, ult )
+        SAVE_MULTIPLIER_CONFIG( LanguageProvider[ "HealTotal%" ], Skill, heal )
         ImGui::PopID( );
         ImGui::EndChild( );
     }

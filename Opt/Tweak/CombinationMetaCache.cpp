@@ -92,6 +92,7 @@ CombinationMetaCache::SetAsCombination( const Backpack& BackPack, const PlotComb
     m_DisplayStats.heavy_attack_buff = m_CombinationStats.heavy_attack_buff * 100;
     m_DisplayStats.skill_buff        = m_CombinationStats.skill_buff * 100;
     m_DisplayStats.ult_buff          = m_CombinationStats.ult_buff * 100;
+    m_DisplayStats.heal_buff         = m_CombinationStats.heal_buff * 100;
     m_DisplayStats.crit_rate         = m_CombinationStats.CritRateStat( ) * 100;
     m_DisplayStats.crit_damage       = m_CombinationStats.CritDamageStat( ) * 100;
 
@@ -108,15 +109,16 @@ CombinationMetaCache::CalculateDamages( )
     const FloatTy Resistances    = m_CharacterCfg.GetResistances( );
     const FloatTy BaseFoundation = m_CharacterCfg.GetBaseFoundation( );
 
-    m_CombinationStats.ExpectedDamage( m_CharacterCfg.CharacterStatsFoundation,
-                                       BaseFoundation,
-                                       &m_CharacterCfg.SkillConfig,
-                                       &m_CharacterCfg.CharacterOverallDeepenStats,
-                                       m_NormalDamage,
-                                       m_CritDamage,
-                                       m_ExpectedDamage );
+    m_CombinationStats.ExtractOptimizingStats( m_CharacterCfg.CharacterStatsFoundation,
+                                               BaseFoundation,
+                                               &m_CharacterCfg.SkillConfig,
+                                               &m_CharacterCfg.CharacterOverallDeepenStats,
+                                               m_HealingAmount,
+                                               m_NormalDamage,
+                                               m_CritDamage,
+                                               m_ExpectedDamage );
 
-    static constexpr std::array<FloatTy EffectiveStats::*, 11> PercentageStats {
+    static constexpr std::array<FloatTy EffectiveStats::*, 12> PercentageStats {
         &EffectiveStats::regen,
         &EffectiveStats::percentage_attack,
         &EffectiveStats::percentage_health,
@@ -128,6 +130,7 @@ CombinationMetaCache::CalculateDamages( )
         &EffectiveStats::heavy_attack_buff,
         &EffectiveStats::skill_buff,
         &EffectiveStats::ult_buff,
+        &EffectiveStats::heal_buff,
     };
 
     FloatTy MaxDamageBuff = 0;
@@ -136,24 +139,24 @@ CombinationMetaCache::CalculateDamages( )
         auto NewStat = m_CombinationStats;
         NewStat.flat_attack += 1;
 
-        const auto NewExpDmg = NewStat.ExpectedDamage( m_CharacterCfg.CharacterStatsFoundation, BaseFoundation, &m_CharacterCfg.SkillConfig, &m_CharacterCfg.CharacterOverallDeepenStats );
-        MaxDamageBuff        = std::max( m_IncreasePayOff.flat_attack = NewExpDmg - m_ExpectedDamage, MaxDamageBuff );
+        const auto NewExpValue = NewStat.OptimizingValue( m_CharacterCfg.CharacterStatsFoundation, BaseFoundation, &m_CharacterCfg.SkillConfig, &m_CharacterCfg.CharacterOverallDeepenStats );
+        MaxDamageBuff          = std::max( m_IncreasePayOff.flat_attack = NewExpValue - m_ExpectedDamage, MaxDamageBuff );
     }
 
     {
         auto NewStat = m_CombinationStats;
         NewStat.flat_health += 1;
 
-        const auto NewExpDmg = NewStat.ExpectedDamage( m_CharacterCfg.CharacterStatsFoundation, BaseFoundation, &m_CharacterCfg.SkillConfig, &m_CharacterCfg.CharacterOverallDeepenStats );
-        MaxDamageBuff        = std::max( m_IncreasePayOff.flat_health = NewExpDmg - m_ExpectedDamage, MaxDamageBuff );
+        const auto NewExpValue = NewStat.OptimizingValue( m_CharacterCfg.CharacterStatsFoundation, BaseFoundation, &m_CharacterCfg.SkillConfig, &m_CharacterCfg.CharacterOverallDeepenStats );
+        MaxDamageBuff          = std::max( m_IncreasePayOff.flat_health = NewExpValue - m_ExpectedDamage, MaxDamageBuff );
     }
 
     {
         auto NewStat = m_CombinationStats;
         NewStat.flat_defence += 1;
 
-        const auto NewExpDmg = NewStat.ExpectedDamage( m_CharacterCfg.CharacterStatsFoundation, BaseFoundation, &m_CharacterCfg.SkillConfig, &m_CharacterCfg.CharacterOverallDeepenStats );
-        MaxDamageBuff        = std::max( m_IncreasePayOff.flat_defence = NewExpDmg - m_ExpectedDamage, MaxDamageBuff );
+        const auto NewExpValue = NewStat.OptimizingValue( m_CharacterCfg.CharacterStatsFoundation, BaseFoundation, &m_CharacterCfg.SkillConfig, &m_CharacterCfg.CharacterOverallDeepenStats );
+        MaxDamageBuff          = std::max( m_IncreasePayOff.flat_defence = NewExpValue - m_ExpectedDamage, MaxDamageBuff );
     }
 
     for ( auto StatSlot : PercentageStats )
@@ -161,14 +164,15 @@ CombinationMetaCache::CalculateDamages( )
         auto NewStat = m_CombinationStats;
         NewStat.*StatSlot += 0.01f;
 
-        const auto NewExpDmg = NewStat.ExpectedDamage( m_CharacterCfg.CharacterStatsFoundation, BaseFoundation, &m_CharacterCfg.SkillConfig, &m_CharacterCfg.CharacterOverallDeepenStats );
-        MaxDamageBuff        = std::max( m_IncreasePayOff.*StatSlot = NewExpDmg - m_ExpectedDamage, MaxDamageBuff );
+        const auto NewExpValue = NewStat.OptimizingValue( m_CharacterCfg.CharacterStatsFoundation, BaseFoundation, &m_CharacterCfg.SkillConfig, &m_CharacterCfg.CharacterOverallDeepenStats );
+        MaxDamageBuff          = std::max( m_IncreasePayOff.*StatSlot = NewExpValue - m_ExpectedDamage, MaxDamageBuff );
     }
 
     m_IncreasePayOffWeight.flat_attack = m_IncreasePayOff.flat_attack / MaxDamageBuff;
     for ( auto StatSlot : PercentageStats )
         m_IncreasePayOffWeight.*StatSlot = m_IncreasePayOff.*StatSlot / MaxDamageBuff;
 
+    /// m_HealingAmount;
     m_NormalDamage *= Resistances;
     m_CritDamage *= Resistances;
     m_ExpectedDamage *= Resistances;
@@ -195,7 +199,7 @@ CombinationMetaCache::GetEDReplaceEchoAt( int EchoIndex, EffectiveStats Echo ) c
     const auto NewED =
         OptimizerParmSwitcher::SwitchCalculateCombinationalStat(
             m_ElementOffset, EchoesReplaced, m_CommonStats )
-            .ExpectedDamage( m_CharacterCfg.CharacterStatsFoundation, BaseFoundation, &m_CharacterCfg.SkillConfig, &m_CharacterCfg.CharacterOverallDeepenStats )
+            .OptimizingValue( m_CharacterCfg.CharacterStatsFoundation, BaseFoundation, &m_CharacterCfg.SkillConfig, &m_CharacterCfg.CharacterOverallDeepenStats )
         * Resistances;
     EchoesReplaced.pop_back( );
 

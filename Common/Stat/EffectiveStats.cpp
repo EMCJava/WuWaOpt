@@ -40,6 +40,7 @@ EffectiveStats::operator+=( const EffectiveStats& Other ) noexcept
     heavy_attack_buff += Other.heavy_attack_buff;
     skill_buff += Other.skill_buff;
     ult_buff += Other.ult_buff;
+    heal_buff += Other.heal_buff;
 
     return *this;
 }
@@ -64,7 +65,8 @@ EffectiveStats::operator+( const EffectiveStats& Other ) const noexcept
         .auto_attack_buff   = auto_attack_buff + Other.auto_attack_buff,
         .heavy_attack_buff  = heavy_attack_buff + Other.heavy_attack_buff,
         .skill_buff         = skill_buff + Other.skill_buff,
-        .ult_buff           = ult_buff + Other.ult_buff };
+        .ult_buff           = ult_buff + Other.ult_buff,
+        .heal_buff          = heal_buff + Other.heal_buff };
 }
 
 EffectiveStats
@@ -87,7 +89,8 @@ EffectiveStats::operator-( const EffectiveStats& Other ) const noexcept
         .auto_attack_buff   = auto_attack_buff - Other.auto_attack_buff,
         .heavy_attack_buff  = heavy_attack_buff - Other.heavy_attack_buff,
         .skill_buff         = skill_buff - Other.skill_buff,
-        .ult_buff           = ult_buff - Other.ult_buff };
+        .ult_buff           = ult_buff - Other.ult_buff,
+        .heal_buff          = heal_buff - Other.heal_buff };
 }
 
 bool
@@ -112,6 +115,7 @@ EffectiveStats::operator==( const EffectiveStats& Other ) const noexcept
     if ( !CLOSE( heavy_attack_buff, Other.heavy_attack_buff ) ) return false;
     if ( !CLOSE( skill_buff, Other.skill_buff ) ) return false;
     if ( !CLOSE( ult_buff, Other.ult_buff ) ) return false;
+    if ( !CLOSE( heal_buff, Other.heal_buff ) ) return false;
 
 #undef CLOSE
 
@@ -148,17 +152,22 @@ EffectiveStats::FoundationStat( StatsFoundation character_foundation, FloatTy fo
 
     __assume( false );
 }
+FloatTy
+EffectiveStats::HealingAmount( StatsFoundation character_foundation, FloatTy foundation_base, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config ) const noexcept
+{
+    return multiplier_config->heal_multiplier * FoundationStat( character_foundation, foundation_base ) * ( 1.f + heal_buff );
+}
 
 FloatTy
 EffectiveStats::NormalDamage( StatsFoundation character_foundation, FloatTy foundation_base, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config ) const noexcept
 {
-    const auto FinalAttackStat = FoundationStat( character_foundation, foundation_base );
+    const auto FinalFoundationStat = FoundationStat( character_foundation, foundation_base );
 
     // clang-format off
-    return multiplier_config->auto_attack_multiplier  * (1 + deepen_config->auto_attack_multiplier ) * FinalAttackStat * ( 1.f + buff_multiplier + auto_attack_buff  )
-         + multiplier_config->heavy_attack_multiplier * (1 + deepen_config->heavy_attack_multiplier) * FinalAttackStat * ( 1.f + buff_multiplier + heavy_attack_buff )
-         + multiplier_config->skill_multiplier        * (1 + deepen_config->skill_multiplier       ) * FinalAttackStat * ( 1.f + buff_multiplier + skill_buff        )
-         + multiplier_config->ult_multiplier          * (1 + deepen_config->ult_multiplier         ) * FinalAttackStat * ( 1.f + buff_multiplier + ult_buff          );
+    return multiplier_config->auto_attack_multiplier  * (1 + deepen_config->auto_attack_multiplier ) * FinalFoundationStat * ( 1.f + buff_multiplier + auto_attack_buff  )
+         + multiplier_config->heavy_attack_multiplier * (1 + deepen_config->heavy_attack_multiplier) * FinalFoundationStat * ( 1.f + buff_multiplier + heavy_attack_buff )
+         + multiplier_config->skill_multiplier        * (1 + deepen_config->skill_multiplier       ) * FinalFoundationStat * ( 1.f + buff_multiplier + skill_buff        )
+         + multiplier_config->ult_multiplier          * (1 + deepen_config->ult_multiplier         ) * FinalFoundationStat * ( 1.f + buff_multiplier + ult_buff          );
     // clang-format on
 }
 
@@ -173,10 +182,16 @@ EffectiveStats::ExpectedDamage( StatsFoundation character_foundation, FloatTy fo
 {
     return NormalDamage( character_foundation, foundation_base, multiplier_config, deepen_config ) * ( 1 + std::min( CritRateStat( ), (FloatTy) 1 ) * ( 0.5f + crit_damage ) );
 }
+FloatTy
+EffectiveStats::OptimizingValue( StatsFoundation character_foundation, FloatTy foundation_base, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config ) const noexcept
+{
+    return ExpectedDamage( character_foundation, foundation_base, multiplier_config, deepen_config ) + HealingAmount( character_foundation, foundation_base, multiplier_config, deepen_config );
+}
 
 void
-EffectiveStats::ExpectedDamage( StatsFoundation character_foundation, FloatTy foundation_base, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config, FloatTy& ND, FloatTy& CD, FloatTy& ED ) const noexcept
+EffectiveStats::ExtractOptimizingStats( StatsFoundation character_foundation, FloatTy foundation_base, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config, FloatTy& HA, FloatTy& ND, FloatTy& CD, FloatTy& ED ) const noexcept
 {
+    HA = HealingAmount( character_foundation, foundation_base, multiplier_config, deepen_config );
     ND = NormalDamage( character_foundation, foundation_base, multiplier_config, deepen_config );
     CD = ND * CritDamageStat( );
     ED = ND * ( 1 + std::min( CritRateStat( ), (FloatTy) 1 ) * ( 0.5f + crit_damage ) );
@@ -203,7 +218,8 @@ EffectiveStats::GetStatName( const FloatTy EffectiveStats::* stat_type )
                                             PtrSwitch( auto_attack_buff, "AutoAttack%" )
                                                 PtrSwitch( heavy_attack_buff, "HeavyAttack%" )
                                                     PtrSwitch( skill_buff, "SkillDamage%" )
-                                                        PtrSwitch( ult_buff, "UltDamage%" ) return "NonEffective";
+                                                        PtrSwitch( ult_buff, "UltDamage%" )
+                                                            PtrSwitch( heal_buff, "Heal%" ) return "NonEffective";
 
 #undef PtrSwitch
 }
@@ -237,6 +253,7 @@ ToNode( const EffectiveStats& rhs ) noexcept
     Node[ "heavy_attack_buff" ] = std::format( "{}", rhs.heavy_attack_buff );
     Node[ "skill_buff" ]        = std::format( "{}", rhs.skill_buff );
     Node[ "ult_buff" ]          = std::format( "{}", rhs.ult_buff );
+    Node[ "heal_buff" ]         = std::format( "{}", rhs.heal_buff );
 
     return Node;
 }
@@ -260,15 +277,15 @@ FromNode( const YAML::Node& Node, EffectiveStats& rhs ) noexcept
     if ( const auto Value = Node[ "percentage_health" ]; Value ) rhs.percentage_health = Value.as<FloatTy>( );
     if ( const auto Value = Node[ "flat_defence" ]; Value ) rhs.flat_defence = Value.as<FloatTy>( );
     if ( const auto Value = Node[ "percentage_defence" ]; Value ) rhs.percentage_defence = Value.as<FloatTy>( );
-
-    rhs.regen             = Node[ "regen" ].as<FloatTy>( );
-    rhs.buff_multiplier   = Node[ "buff_multiplier" ].as<FloatTy>( );
-    rhs.crit_rate         = Node[ "crit_rate" ].as<FloatTy>( );
-    rhs.crit_damage       = Node[ "crit_damage" ].as<FloatTy>( );
-    rhs.auto_attack_buff  = Node[ "auto_attack_buff" ].as<FloatTy>( );
-    rhs.heavy_attack_buff = Node[ "heavy_attack_buff" ].as<FloatTy>( );
-    rhs.skill_buff        = Node[ "skill_buff" ].as<FloatTy>( );
-    rhs.ult_buff          = Node[ "ult_buff" ].as<FloatTy>( );
+    if ( const auto Value = Node[ "regen" ]; Value ) rhs.regen = Value.as<FloatTy>( );
+    if ( const auto Value = Node[ "buff_multiplier" ]; Value ) rhs.buff_multiplier = Value.as<FloatTy>( );
+    if ( const auto Value = Node[ "crit_rate" ]; Value ) rhs.crit_rate = Value.as<FloatTy>( );
+    if ( const auto Value = Node[ "crit_damage" ]; Value ) rhs.crit_damage = Value.as<FloatTy>( );
+    if ( const auto Value = Node[ "auto_attack_buff" ]; Value ) rhs.auto_attack_buff = Value.as<FloatTy>( );
+    if ( const auto Value = Node[ "heavy_attack_buff" ]; Value ) rhs.heavy_attack_buff = Value.as<FloatTy>( );
+    if ( const auto Value = Node[ "skill_buff" ]; Value ) rhs.skill_buff = Value.as<FloatTy>( );
+    if ( const auto Value = Node[ "ult_buff" ]; Value ) rhs.ult_buff = Value.as<FloatTy>( );
+    if ( const auto Value = Node[ "heal_buff" ]; Value ) rhs.heal_buff = Value.as<FloatTy>( );
 
     return true;
 }

@@ -16,10 +16,11 @@ struct SkillMultiplierConfig {
     FloatTy heavy_attack_multiplier = 0;
     FloatTy skill_multiplier        = 0;
     FloatTy ult_multiplier          = 0;
+    FloatTy heal_multiplier         = 0;
 
     bool operator==( const SkillMultiplierConfig& Other ) const noexcept
     {
-        return auto_attack_multiplier == Other.auto_attack_multiplier && heavy_attack_multiplier == Other.heavy_attack_multiplier && skill_multiplier == Other.skill_multiplier && ult_multiplier == Other.ult_multiplier;
+        return auto_attack_multiplier == Other.auto_attack_multiplier && heavy_attack_multiplier == Other.heavy_attack_multiplier && skill_multiplier == Other.skill_multiplier && ult_multiplier == Other.ult_multiplier && heal_multiplier == Other.heal_multiplier;
     }
 
     SkillMultiplierConfig operator+( const SkillMultiplierConfig& Other ) const noexcept
@@ -29,6 +30,7 @@ struct SkillMultiplierConfig {
             .heavy_attack_multiplier = heavy_attack_multiplier + Other.heavy_attack_multiplier,
             .skill_multiplier        = skill_multiplier + Other.skill_multiplier,
             .ult_multiplier          = ult_multiplier + Other.ult_multiplier,
+            .heal_multiplier         = heal_multiplier + Other.heal_multiplier,
         };
     }
 
@@ -38,6 +40,7 @@ struct SkillMultiplierConfig {
         heavy_attack_multiplier /= Scaler;
         skill_multiplier /= Scaler;
         ult_multiplier /= Scaler;
+        heal_multiplier /= Scaler;
 
         return *this;
     }
@@ -55,6 +58,7 @@ struct convert<SkillMultiplierConfig> {
         Node[ "HeavyAttack" ] = std::format( "{}", rhs.heavy_attack_multiplier );
         Node[ "Skill" ]       = std::format( "{}", rhs.skill_multiplier );
         Node[ "Ultimate" ]    = std::format( "{}", rhs.ult_multiplier );
+        Node[ "Healing" ]     = std::format( "{}", rhs.heal_multiplier );
 
         return Node;
     }
@@ -64,6 +68,7 @@ struct convert<SkillMultiplierConfig> {
         if ( const auto Value = Node[ "HeavyAttack" ]; Value ) rhs.heavy_attack_multiplier = Value.as<FloatTy>( );
         if ( const auto Value = Node[ "Skill" ]; Value ) rhs.skill_multiplier = Value.as<FloatTy>( );
         if ( const auto Value = Node[ "Ultimate" ]; Value ) rhs.ult_multiplier = Value.as<FloatTy>( );
+        if ( const auto Value = Node[ "Healing" ]; Value ) rhs.heal_multiplier = Value.as<FloatTy>( );
 
         return true;
     }

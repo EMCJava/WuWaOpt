@@ -41,7 +41,8 @@ class CombinationMetaCache
 
     FloatTy m_FinalAttack    = 0;
     FloatTy m_FinalHealth    = 0;
-    FloatTy m_FinalDefence    = 0;
+    FloatTy m_FinalDefence   = 0;
+    FloatTy m_HealingAmount  = 0;
     FloatTy m_NormalDamage   = 0;
     FloatTy m_CritDamage     = 0;
     FloatTy m_ExpectedDamage = 0;
@@ -71,6 +72,7 @@ public:
     [[nodiscard]] auto GetSlotCount( ) const noexcept { return SlotCount; }
 
     [[nodiscard]] auto GetFinalAttack( ) const noexcept { return m_FinalAttack; }
+    [[nodiscard]] auto GetHealingAmount( ) const noexcept { return m_HealingAmount; }
     [[nodiscard]] auto GetNormalDamage( ) const noexcept { return m_NormalDamage; }
     [[nodiscard]] auto GetCritDamage( ) const noexcept { return m_CritDamage; }
     [[nodiscard]] auto GetExpectedDamage( ) const noexcept { return m_ExpectedDamage; }

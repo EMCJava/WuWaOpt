@@ -38,7 +38,7 @@ template <>
 inline void
 ApplyTwoSetEffect<EchoSet::eRejuvenatingGlow>( EffectiveStats& Stats )
 {
-    /* Healing Bonus increased by 10%. */
+    Stats.heal_buff += 0.1f;
 }
 
 // Assume all conditions are met, max buff applies

@@ -94,6 +94,7 @@ CharacterConfig::GetCombinedStatsWithoutFlatAttack( ) const noexcept
     CommonStats.heavy_attack_buff /= 100;
     CommonStats.skill_buff /= 100;
     CommonStats.ult_buff /= 100;
+    CommonStats.heal_buff /= 100;
 
     return CommonStats;
 }
