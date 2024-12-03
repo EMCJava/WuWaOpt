@@ -179,8 +179,14 @@ CombinationMetaCache::CalculateDamages( )
 
     for ( int i = 0; i < SlotCount; ++i )
     {
-        const auto MinMax  = CalculateMinMaxPotentialAtSlot( i );
-        m_EchoScoreAt[ i ] = std::clamp( ( m_ExpectedDamage - MinMax.first ) / ( MinMax.second - MinMax.first ), 0.f, 1.f );
+        const auto MinMax = CalculateMinMaxPotentialAtSlot( i );
+        if ( MinMax.second - MinMax.first > 0.0001f )
+        {
+            m_EchoScoreAt[ i ] = std::clamp( ( m_ExpectedDamage - MinMax.first ) / ( MinMax.second - MinMax.first ), 0.f, 1.f );
+        } else
+        {
+            m_EchoScoreAt[ i ] = 1.f;
+        }
 
         static constexpr auto V   = 2.5;
         m_EchoSigmoidScoreAt[ i ] = 1. / ( 1 + pow( 0.5 * m_EchoScoreAt[ i ] / ( 1 - m_EchoScoreAt[ i ] ), -V ) );
