@@ -46,6 +46,7 @@ class CombinationMetaCache
     FloatTy m_NormalDamage   = 0;
     FloatTy m_CritDamage     = 0;
     FloatTy m_ExpectedDamage = 0;
+    FloatTy m_OptimizingValue = 0;
 
     int m_ElementOffset    = 0;
     int m_FoundationOffset = 0;
@@ -64,18 +65,22 @@ public:
                            const PlotCombinationMeta& CombinationDetails,
                            const CharacterConfig&     Config );
 
-    FloatTy GetEDReplaceEchoAt( int EchoIndex, EffectiveStats Echo ) const;
+    FloatTy GetOVReplaceEchoAt( int EchoIndex, EffectiveStats Echo ) const;
 
     void               Deactivate( );
     [[nodiscard]] bool IsValid( ) const noexcept { return m_Valid; }
 
     [[nodiscard]] auto GetSlotCount( ) const noexcept { return SlotCount; }
 
+    [[nodiscard]] auto GetFinalHealth( ) const noexcept { return m_FinalHealth; }
     [[nodiscard]] auto GetFinalAttack( ) const noexcept { return m_FinalAttack; }
+    [[nodiscard]] auto GetFinalDefence( ) const noexcept { return m_FinalDefence; }
+
     [[nodiscard]] auto GetHealingAmount( ) const noexcept { return m_HealingAmount; }
     [[nodiscard]] auto GetNormalDamage( ) const noexcept { return m_NormalDamage; }
     [[nodiscard]] auto GetCritDamage( ) const noexcept { return m_CritDamage; }
     [[nodiscard]] auto GetExpectedDamage( ) const noexcept { return m_ExpectedDamage; }
+    [[nodiscard]] auto GetOptimizingValue( ) const noexcept { return m_OptimizingValue; }
 
     [[nodiscard]] std::vector<int> GetCombinationIndices( ) const noexcept;
 

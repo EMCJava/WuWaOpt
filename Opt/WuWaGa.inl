@@ -283,7 +283,8 @@ WuWaGA::Run( std::stop_token StopToken, int GAReportIndex, CharacterConfig Confi
     Stopwatch SW;
 
     const FloatTy BaseFoundation = Config.GetBaseFoundation( );
-    const auto    CommonStats    = Config.GetCombinedStatsWithoutFlatAttack( );
+    const FloatTy Resistances    = Config.GetResistances( );
+    const auto    CommonStats    = Config.GetCombinedStatsWithoutFoundation( );
     while ( !StopToken.stop_requested( ) )
     {
         /*
@@ -328,7 +329,7 @@ WuWaGA::Run( std::stop_token StopToken, int GAReportIndex, CharacterConfig Confi
                 const auto FinalStat = CalculateCombinationalStat<ETy>( EffectiveStatsPlaceHolder, CommonStats );
 
                 Fitness = Constraints( FinalStat )
-                    ? FinalStat.OptimizingValue( Config.CharacterStatsFoundation, BaseFoundation, &Config.SkillConfig, &Config.CharacterOverallDeepenStats )
+                    ? FinalStat.OptimizingValue( Config.CharacterStatsFoundation, BaseFoundation, Resistances, &Config.SkillConfig, &Config.CharacterOverallDeepenStats )
                     : 0;
 
                 StatsCache.insert( StatsCacheIt, { CombinationID, Fitness } );

@@ -65,15 +65,19 @@ struct EffectiveStats {
     [[nodiscard]] FloatTy CritRateStat( ) const noexcept;
     [[nodiscard]] FloatTy CritDamageStat( ) const noexcept;
 
+    /*
+     * StatsFoundation: Attack / Defence / Health stats from character + weapon base stat
+     * OptimizingDamagePercentage: Defence / Resistance from enemy
+     */
     [[nodiscard]] FloatTy FoundationStat( StatsFoundation character_foundation, FloatTy /* From character / weapon? */ foundation_base ) const noexcept;
 
     [[nodiscard]] FloatTy HealingAmount( StatsFoundation character_foundation, FloatTy /* From character / weapon? */ foundation_base, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config ) const noexcept;
     [[nodiscard]] FloatTy NormalDamage( StatsFoundation character_foundation, FloatTy /* From character / weapon? */ foundation_base, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config ) const noexcept;
     [[nodiscard]] FloatTy CritDamage( StatsFoundation character_foundation, FloatTy /* From character / weapon? */ foundation_base, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config ) const noexcept;
     [[nodiscard]] FloatTy ExpectedDamage( StatsFoundation character_foundation, FloatTy /* From character / weapon? */ foundation_base, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config ) const noexcept;
-    [[nodiscard]] FloatTy OptimizingValue( StatsFoundation character_foundation, FloatTy /* From character / weapon? */ foundation_base, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config ) const noexcept;
-    void                  ExtractOptimizingStats( StatsFoundation character_foundation, FloatTy /* From character / weapon? */ foundation_base, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config,
-                                                  FloatTy& HA, FloatTy& ND, FloatTy& CD, FloatTy& ED ) const noexcept;
+    [[nodiscard]] FloatTy OptimizingValue( StatsFoundation character_foundation, FloatTy /* From character / weapon? */ foundation_base, FloatTy OptimizingDamagePercentage, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config ) const noexcept;
+    void                  ExtractOptimizingStats( StatsFoundation character_foundation, FloatTy /* From character / weapon? */ foundation_base, FloatTy OptimizingDamagePercentage, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config,
+                                                  FloatTy& HA, FloatTy& ND, FloatTy& CD, FloatTy& ED, FloatTy& OV ) const noexcept;
 
     std::string_view   GetSetName( ) const noexcept;
     static const char* GetStatName( const FloatTy EffectiveStats::* stat_type );

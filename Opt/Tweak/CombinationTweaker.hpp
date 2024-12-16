@@ -18,16 +18,16 @@
 
 struct EchoPotential {
 
-    FloatTy BaselineExpectedDamage = { };
-    FloatTy HighestExpectedDamage  = { };
-    FloatTy LowestExpectedDamage   = { };
+    FloatTy BaselineOptimizingValue = { };
+    FloatTy HighestOptimizingValue  = { };
+    FloatTy LowestOptimizingValue   = { };
 
     static constexpr size_t            CDFResolution      = 500;
-    std::vector<FloatTy>               CDFChangeToED      = { };
-    std::vector<FloatTy>               CDFSmallOrEqED     = { };
+    std::vector<FloatTy>               CDFChangeToOV      = { };
+    std::vector<FloatTy>               CDFSmallOrEqOV     = { };
     std::vector<FloatTy>               CDFFloat           = { };
     std::vector<ValueRollRate::RateTy> CDF                = { };
-    ValueRollRate::RateTy              ExpectedChangeToED = { };
+    ValueRollRate::RateTy              ExpectedChangeToOV = { };
 };
 
 class CombinationTweaker
@@ -55,7 +55,7 @@ protected:
     void ClearPotentialCache( ) { m_FullPotentialCache.reset( ); }
 
     EchoPotential
-    AnalyzeEchoPotential( std::vector<std::pair<FloatTy, ValueRollRate::RateTy>>& DamageDistribution );
+    AnalyzeEchoPotential( std::vector<std::pair<FloatTy, ValueRollRate::RateTy>>& OptimizingValueDistribution );
 
     void
     ApplyStats(

@@ -48,7 +48,9 @@ struct CharacterConfig {
 
     void           UpdateOverallStats( ) noexcept;
     auto&          GetOverallStats( ) const noexcept { return CharacterOverallStats; }
-    EffectiveStats GetCombinedStatsWithoutFlatAttack( ) const noexcept;
+
+    // Stats without Attack / Health / Defence, by CharacterStatsFoundation
+    EffectiveStats GetCombinedStatsWithoutFoundation( ) const noexcept;
 };
 
 YAML::Node ToNode( const CharacterConfig& rhs ) noexcept;

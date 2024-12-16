@@ -143,27 +143,27 @@ CalculateCombinationalStat( const std::vector<EffectiveStats>& EffectiveStatRang
 
     SWITCH_TYPE( Fire )
     {
-        return CountAndApplySets<EchoSet::eMoltenRift, EchoSet::eMoonlitClouds, EchoSet::eLingeringTunes>( EffectiveStatRanges, CommonStats );
+        return CountAndApplySets<EchoSet::eMoltenRift, EchoSet::eMoonlitClouds, EchoSet::eLingeringTunes, EchoSet::eRejuvenatingGlow>( EffectiveStatRanges, CommonStats );
     }
     else SWITCH_TYPE( Air )
     {
-        return CountAndApplySets<EchoSet::eSierraGale, EchoSet::eMoonlitClouds, EchoSet::eLingeringTunes>( EffectiveStatRanges, CommonStats );
+        return CountAndApplySets<EchoSet::eSierraGale, EchoSet::eMoonlitClouds, EchoSet::eLingeringTunes, EchoSet::eRejuvenatingGlow>( EffectiveStatRanges, CommonStats );
     }
     else SWITCH_TYPE( Ice )
     {
-        return CountAndApplySets<EchoSet::eFreezingFrost, EchoSet::eMoonlitClouds, EchoSet::eLingeringTunes>( EffectiveStatRanges, CommonStats );
+        return CountAndApplySets<EchoSet::eFreezingFrost, EchoSet::eMoonlitClouds, EchoSet::eLingeringTunes, EchoSet::eRejuvenatingGlow>( EffectiveStatRanges, CommonStats );
     }
     else SWITCH_TYPE( Electric )
     {
-        return CountAndApplySets<EchoSet::eVoidThunder, EchoSet::eMoonlitClouds, EchoSet::eLingeringTunes>( EffectiveStatRanges, CommonStats );
+        return CountAndApplySets<EchoSet::eVoidThunder, EchoSet::eMoonlitClouds, EchoSet::eLingeringTunes, EchoSet::eRejuvenatingGlow>( EffectiveStatRanges, CommonStats );
     }
     else SWITCH_TYPE( Dark )
     {
-        return CountAndApplySets<EchoSet::eSunSinkingEclipse, EchoSet::eMoonlitClouds, EchoSet::eLingeringTunes>( EffectiveStatRanges, CommonStats );
+        return CountAndApplySets<EchoSet::eSunSinkingEclipse, EchoSet::eMoonlitClouds, EchoSet::eLingeringTunes, EchoSet::eRejuvenatingGlow>( EffectiveStatRanges, CommonStats );
     }
     else SWITCH_TYPE( Light )
     {
-        return CountAndApplySets<EchoSet::eCelestialLight, EchoSet::eMoonlitClouds, EchoSet::eLingeringTunes>( EffectiveStatRanges, CommonStats );
+        return CountAndApplySets<EchoSet::eCelestialLight, EchoSet::eMoonlitClouds, EchoSet::eLingeringTunes, EchoSet::eRejuvenatingGlow>( EffectiveStatRanges, CommonStats );
     }
 
 #undef SWITCH_TYPE

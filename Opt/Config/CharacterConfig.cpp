@@ -25,7 +25,7 @@ CharacterConfig::GetBaseFoundation( ) const noexcept
 FloatTy
 CharacterConfig::GetBaseFoundation( StatsFoundation TargetFoundation ) const noexcept
 {
-    switch ( CharacterStatsFoundation )
+    switch ( TargetFoundation )
     {
     case StatsFoundation::eFoundationAttack: return std::ranges::fold_left( StatsCompositions, 0.f, []( const FloatTy Acc, const StatsComposition& Composition ) {
         return Composition.Enabled ? Acc + Composition.CompositionStats.flat_attack : Acc;
@@ -80,14 +80,19 @@ CharacterConfig::UpdateOverallStats( ) noexcept
 }
 
 EffectiveStats
-CharacterConfig::GetCombinedStatsWithoutFlatAttack( ) const noexcept
+CharacterConfig::GetCombinedStatsWithoutFoundation( ) const noexcept
 {
-    auto CommonStats        = CharacterOverallStats;
-    CommonStats.flat_attack = 0;
+    auto CommonStats = CharacterOverallStats;
+
+    CommonStats.flat_attack  = 0;
+    CommonStats.flat_health  = 0;
+    CommonStats.flat_defence = 0;
 
     CommonStats.crit_damage /= 100;
     CommonStats.crit_rate /= 100;
     CommonStats.percentage_attack /= 100;
+    CommonStats.percentage_health /= 100;
+    CommonStats.percentage_defence /= 100;
     CommonStats.buff_multiplier /= 100;
     CommonStats.regen /= 100;
     CommonStats.auto_attack_buff /= 100;

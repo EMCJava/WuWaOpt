@@ -183,18 +183,19 @@ EffectiveStats::ExpectedDamage( StatsFoundation character_foundation, FloatTy fo
     return NormalDamage( character_foundation, foundation_base, multiplier_config, deepen_config ) * ( 1 + std::min( CritRateStat( ), (FloatTy) 1 ) * ( 0.5f + crit_damage ) );
 }
 FloatTy
-EffectiveStats::OptimizingValue( StatsFoundation character_foundation, FloatTy foundation_base, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config ) const noexcept
+EffectiveStats::OptimizingValue( StatsFoundation character_foundation, FloatTy foundation_base, FloatTy OptimizingDamagePercentage, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config ) const noexcept
 {
-    return ExpectedDamage( character_foundation, foundation_base, multiplier_config, deepen_config ) + HealingAmount( character_foundation, foundation_base, multiplier_config, deepen_config );
+    return ExpectedDamage( character_foundation, foundation_base, multiplier_config, deepen_config ) * OptimizingDamagePercentage + HealingAmount( character_foundation, foundation_base, multiplier_config, deepen_config );
 }
 
 void
-EffectiveStats::ExtractOptimizingStats( StatsFoundation character_foundation, FloatTy foundation_base, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config, FloatTy& HA, FloatTy& ND, FloatTy& CD, FloatTy& ED ) const noexcept
+EffectiveStats::ExtractOptimizingStats( StatsFoundation character_foundation, FloatTy foundation_base, FloatTy OptimizingDamagePercentage, const SkillMultiplierConfig* multiplier_config, const SkillMultiplierConfig* deepen_config, FloatTy& HA, FloatTy& ND, FloatTy& CD, FloatTy& ED, FloatTy& OV ) const noexcept
 {
     HA = HealingAmount( character_foundation, foundation_base, multiplier_config, deepen_config );
-    ND = NormalDamage( character_foundation, foundation_base, multiplier_config, deepen_config );
+    ND = NormalDamage( character_foundation, foundation_base, multiplier_config, deepen_config ) * OptimizingDamagePercentage;
     CD = ND * CritDamageStat( );
     ED = ND * ( 1 + std::min( CritRateStat( ), (FloatTy) 1 ) * ( 0.5f + crit_damage ) );
+    OV = HA + ED;
 }
 
 const char*

@@ -17,27 +17,34 @@
 
 inline const char* CostNames[] = { "0", "1", "2", "3", "4" };
 
-inline std::array<std::vector<StatValueConfig>, 5> MaxFirstMainStat {
+inline std::array<std::vector<StatValueConfig>, 5 /* Indexed by cost */> MaxFirstMainStat {
     std::vector<StatValueConfig> { },
     std::vector<StatValueConfig> {
                                   StatValueConfig { nullptr, 0 },
-                                  StatValueConfig { &EffectiveStats::percentage_attack, 0.18 } },
+                                  StatValueConfig { &EffectiveStats::percentage_attack, 0.18 },
+                                  StatValueConfig { &EffectiveStats::percentage_health, 0.228 },
+                                  StatValueConfig { &EffectiveStats::percentage_defence, 0.18 } },
     std::vector<StatValueConfig> { },
     std::vector<StatValueConfig> {
                                   StatValueConfig { nullptr, 0 },
                                   StatValueConfig { &EffectiveStats::percentage_attack, 0.3 },
+                                  StatValueConfig { &EffectiveStats::percentage_health, 0.3 },
+                                  StatValueConfig { &EffectiveStats::percentage_defence, 0.38 },
                                   StatValueConfig { &EffectiveStats::buff_multiplier, 0.3 } },
     std::vector<StatValueConfig> {
                                   StatValueConfig { nullptr, 0 },
+                                  StatValueConfig { &EffectiveStats::heal_buff, 0.264 },
                                   StatValueConfig { &EffectiveStats::percentage_attack, 0.33 },
+                                  StatValueConfig { &EffectiveStats::percentage_health, 0.33 },
+                                  StatValueConfig { &EffectiveStats::percentage_defence, 0.418 },
                                   StatValueConfig { &EffectiveStats::crit_rate, 0.22 },
                                   StatValueConfig { &EffectiveStats::crit_damage, 0.44 },
                                   }
 };
 
-inline std::array<StatValueConfig, 5> MaxSecondMainStat {
+inline std::array<StatValueConfig, 5 /* Indexed by cost */> MaxSecondMainStat {
     StatValueConfig { },
-    StatValueConfig { },
+    StatValueConfig { &EffectiveStats::flat_health, 2280 },
     StatValueConfig { },
     StatValueConfig { &EffectiveStats::flat_attack, 100 },
     StatValueConfig { &EffectiveStats::flat_attack, 150 },
@@ -85,7 +92,7 @@ CombinationTweaker::ApplyStats(
 {
     if ( *PickedRollPtr == nullptr )
     {
-        Results.emplace_back( m_TweakerTarget.GetEDReplaceEchoAt( m_TweakingEchoSlot, Stats ), CurrentRate );
+        Results.emplace_back( m_TweakerTarget.GetOVReplaceEchoAt( m_TweakingEchoSlot, Stats ), CurrentRate );
         return;
     }
 
@@ -138,15 +145,20 @@ CombinationTweaker::CalculateFullPotential( int                                 
         std::ranges::fill( PickedRoll, nullptr );
         do
         {
-            uint32_t SubStatPickID = 0;
+            bool has1 = false, has10 = false;
             for ( int j = 0, poll_index = 0; j < RollConfigs->size( ); ++j )
             {
                 if ( bitmask[ j ] )
                 {
-                    SubStatPickID <<= 6;
-                    SubStatPickID |= j;
+                    if (j == 1) has1 = true;
+                    else if (j == 10) has10 = true;
                     PickedRoll[ poll_index++ ] = &RollConfigs->at( j );
                 }
+            }
+
+            if (has1 && has10)
+            {
+                auto a = 0;
             }
 
             ApplyStats(
@@ -224,53 +236,53 @@ CombinationTweaker::CalculateEchoPotential( EchoPotential& Result, int EchoSlot,
 }
 
 EchoPotential
-CombinationTweaker::AnalyzeEchoPotential( std::vector<std::pair<FloatTy, ValueRollRate::RateTy>>& DamageDistribution )
+CombinationTweaker::AnalyzeEchoPotential( std::vector<std::pair<FloatTy, ValueRollRate::RateTy>>& OptimizingValueDistribution )
 {
     EchoPotential Result;
-    std::ranges::sort( DamageDistribution );
+    std::ranges::sort( OptimizingValueDistribution );
 
-    Result.BaselineExpectedDamage = m_TweakerTarget.GetExpectedDamage( );
-    Result.HighestExpectedDamage  = DamageDistribution.back( ).first;
-    Result.LowestExpectedDamage   = DamageDistribution.front( ).first;
+    Result.BaselineOptimizingValue = m_TweakerTarget.GetOptimizingValue( );
+    Result.HighestOptimizingValue  = OptimizingValueDistribution.back( ).first;
+    Result.LowestOptimizingValue   = OptimizingValueDistribution.front( ).first;
 
     Result.CDF.resize( EchoPotential::CDFResolution );
-    Result.CDFSmallOrEqED.resize( EchoPotential::CDFResolution );
+    Result.CDFSmallOrEqOV.resize( EchoPotential::CDFResolution );
 
-    const auto DamageIncreasePerTick = ( Result.HighestExpectedDamage - Result.LowestExpectedDamage ) / EchoPotential::CDFResolution;
+    const auto OptimizingValueIncreasePerTick = ( Result.HighestOptimizingValue - Result.LowestOptimizingValue ) / EchoPotential::CDFResolution;
 
     ValueRollRate::RateTy CumulatedRate = 0;
-    Result.ExpectedChangeToED           = 0;
-    auto       It                       = DamageDistribution.data( );
-    const auto ItEnd                    = &DamageDistribution.back( ) + 1;
+    Result.ExpectedChangeToOV           = 0;
+    auto       It                       = OptimizingValueDistribution.data( );
+    const auto ItEnd                    = &OptimizingValueDistribution.back( ) + 1;
     for ( int i = 0; i < EchoPotential::CDFResolution; ++i )
     {
-        const auto TickDamage = Result.LowestExpectedDamage + i * DamageIncreasePerTick;
-        while ( It->first <= TickDamage && It != ItEnd )
+        const auto TickValue = Result.LowestOptimizingValue + i * OptimizingValueIncreasePerTick;
+        while ( It->first <= TickValue && It != ItEnd )
         {
-            Result.ExpectedChangeToED += It->first * It->second;
+            Result.ExpectedChangeToOV += It->first * It->second;
             CumulatedRate += It->second;
             It++;
         }
 
-        Result.CDFSmallOrEqED[ i ] = TickDamage;
+        Result.CDFSmallOrEqOV[ i ] = TickValue;
         Result.CDF[ i ]            = CumulatedRate;
     }
 
     while ( It != ItEnd )
     {
-        Result.ExpectedChangeToED += It->first * It->second;
+        Result.ExpectedChangeToOV += It->first * It->second;
         CumulatedRate += It->second;
         It++;
     }
-    Result.CDFSmallOrEqED.push_back( DamageDistribution.back( ).first );
+    Result.CDFSmallOrEqOV.push_back( OptimizingValueDistribution.back( ).first );
     Result.CDF.push_back( CumulatedRate );
 
-    Result.CDFChangeToED = Result.CDFSmallOrEqED;
-    for ( auto& ED : Result.CDFChangeToED )
-        ED = 100 * ED / Result.BaselineExpectedDamage - 100;
+    Result.CDFChangeToOV = Result.CDFSmallOrEqOV;
+    for ( auto& ED : Result.CDFChangeToOV )
+        ED = 100 * ED / Result.BaselineOptimizingValue - 100;
 
-    Result.ExpectedChangeToED /= Result.CDF.back( ) * Result.BaselineExpectedDamage / 100;
-    Result.ExpectedChangeToED -= 100;
+    Result.ExpectedChangeToOV /= Result.CDF.back( ) * Result.BaselineOptimizingValue / 100;
+    Result.ExpectedChangeToOV -= 100;
 
     Result.CDFFloat.resize( Result.CDF.size( ) );
     for ( int i = 0; i < Result.CDF.size( ); ++i )
@@ -300,9 +312,9 @@ CombinationTweaker::CalculateSubStatMinMaxExpectedDamage( int EchoSlot )
                                     PrimaryStats[ i ], SecondaryStat,
                                     0, &MaxSubStatRollConfigs );
 
-        if ( Potential->HighestExpectedDamage > MaxResult )
+        if ( Potential->HighestOptimizingValue > MaxResult )
         {
-            MaxResult   = Potential->HighestExpectedDamage;
+            MaxResult   = Potential->HighestOptimizingValue;
             MaxMainStat = i;
         }
     }
@@ -311,7 +323,7 @@ CombinationTweaker::CalculateSubStatMinMaxExpectedDamage( int EchoSlot )
     LowestEcho.*( PrimaryStats[ MaxMainStat ].ValuePtr ) += PrimaryStats[ MaxMainStat ].Value;
     LowestEcho.*( SecondaryStat.ValuePtr ) += SecondaryStat.Value;
 
-    return std::make_pair( m_TweakerTarget.GetEDReplaceEchoAt( EchoSlot, LowestEcho ), MaxResult );
+    return std::make_pair( m_TweakerTarget.GetOVReplaceEchoAt( EchoSlot, LowestEcho ), MaxResult );
 }
 
 CombinationTweakerMenu::CombinationTweakerMenu( Loca& LanguageProvider, const CombinationMetaCache& Target )
@@ -554,9 +566,9 @@ CombinationTweakerMenu::TweakerMenu( const std::map<std::string, std::vector<std
         ImGui::SeparatorText( LanguageProvider[ "Result" ] );
         const auto SelectedEDIndex =
             std::clamp( (size_t) std::distance(
-                            m_SelectedEchoPotential.CDFChangeToED.begin( ),
-                            std::ranges::lower_bound( m_SelectedEchoPotential.CDFChangeToED, (FloatTy) m_DragEDTargetY ) ),
-                        0ULL, m_SelectedEchoPotential.CDFChangeToED.size( ) - 1 );
+                            m_SelectedEchoPotential.CDFChangeToOV.begin( ),
+                            std::ranges::lower_bound( m_SelectedEchoPotential.CDFChangeToOV, (FloatTy) m_DragEDTargetY ) ),
+                        0ULL, m_SelectedEchoPotential.CDFChangeToOV.size( ) - 1 );
 
         if ( m_FullPotentialCache )
         {
@@ -572,8 +584,8 @@ CombinationTweakerMenu::TweakerMenu( const std::map<std::string, std::vector<std
             const auto RenewableEXP  = static_cast<decltype( UsedEXP )>( UsedEXP * 0.75 );
             const auto NewEchoEXPReq = CumulativeEXP.back( ) - RenewableEXP;
 
-            const auto ImprovementPerEXPNew   = m_FullPotentialCache->ExpectedChangeToED / NewEchoEXPReq;
-            const auto ImprovementPerEXPStick = m_SelectedEchoPotential.ExpectedChangeToED / ( CumulativeEXP.back( ) - UsedEXP );
+            const auto ImprovementPerEXPNew   = m_FullPotentialCache->ExpectedChangeToOV / NewEchoEXPReq;
+            const auto ImprovementPerEXPStick = m_SelectedEchoPotential.ExpectedChangeToOV / ( CumulativeEXP.back( ) - UsedEXP );
             if ( ImprovementPerEXPStick >= ImprovementPerEXPNew )
             {
                 ImGui::PushStyleColor( ImGuiCol_Text, IM_COL32( 0, 255, 0, 255 ) );
@@ -673,7 +685,7 @@ CombinationTweakerMenu::TweakerMenu( const std::map<std::string, std::vector<std
 
             DisplayTextAt( LanguageProvider[ "EEDDelta%" ], 0.5 );
             ImGui::NewLine( );
-            DisplayNumberCompare( m_PinnedExpectedChange, m_SelectedEchoPotential.ExpectedChangeToED );
+            DisplayNumberCompare( m_PinnedExpectedChange, m_SelectedEchoPotential.ExpectedChangeToOV );
             ImGui::NewLine( );
 
             ImGui::PopStyleColor( 3 );
@@ -692,15 +704,15 @@ CombinationTweakerMenu::TweakerMenu( const std::map<std::string, std::vector<std
                 ImGui::TableNextRow( );
 
                 ImGui::TableNextColumn( );
-                ImGui::Text( m_SelectedEchoPotential.CDFChangeToED.back( ) > 0 ? "%.2f     (+%.2f%%)" : "%.2f     (%.2f%%)",
-                             m_SelectedEchoPotential.HighestExpectedDamage,
-                             m_SelectedEchoPotential.CDFChangeToED.back( ) );
+                ImGui::Text( m_SelectedEchoPotential.CDFChangeToOV.back( ) > 0 ? "%.2f     (+%.2f%%)" : "%.2f     (%.2f%%)",
+                             m_SelectedEchoPotential.HighestOptimizingValue,
+                             m_SelectedEchoPotential.CDFChangeToOV.back( ) );
                 ImGui::TableNextColumn( );
-                ImGui::Text( "%.2f", m_SelectedEchoPotential.BaselineExpectedDamage );
+                ImGui::Text( "%.2f", m_SelectedEchoPotential.BaselineOptimizingValue );
                 ImGui::TableNextColumn( );
-                ImGui::Text( m_SelectedEchoPotential.CDFChangeToED.front( ) > 0 ? "%.2f     (+%.2f%%)" : "%.2f     (%.2f%%)",
-                             m_SelectedEchoPotential.LowestExpectedDamage,
-                             m_SelectedEchoPotential.CDFChangeToED.front( ) );
+                ImGui::Text( m_SelectedEchoPotential.CDFChangeToOV.front( ) > 0 ? "%.2f     (+%.2f%%)" : "%.2f     (%.2f%%)",
+                             m_SelectedEchoPotential.LowestOptimizingValue,
+                             m_SelectedEchoPotential.CDFChangeToOV.front( ) );
 
                 ImGui::EndTable( );
             }
@@ -710,18 +722,18 @@ CombinationTweakerMenu::TweakerMenu( const std::map<std::string, std::vector<std
                 ImPlot::SetupLegend( ImPlotLocation_North | ImPlotLocation_West, ImPlotLegendFlags_Outside - 1 );
                 ImPlot::SetupAxes( LanguageProvider[ "Probability%" ], LanguageProvider[ "EDDelta%" ], ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_Invert, ImPlotAxisFlags_AutoFit );
                 ImPlot::SetupAxis( ImAxis_Y2, LanguageProvider[ "ExpectedDamage" ], ImPlotAxisFlags_AuxDefault | ImPlotAxisFlags_AutoFit );
-                ImPlot::SetupAxisLimitsConstraints( ImAxis_Y2, m_SelectedEchoPotential.CDFSmallOrEqED.front( ), m_SelectedEchoPotential.CDFSmallOrEqED.back( ) );
+                ImPlot::SetupAxisLimitsConstraints( ImAxis_Y2, m_SelectedEchoPotential.CDFSmallOrEqOV.front( ), m_SelectedEchoPotential.CDFSmallOrEqOV.back( ) );
 
                 ImPlot::SetAxes( ImAxis_X1, ImAxis_Y2 );
                 ImPlot::PlotLine( "ED_CDF",
                                   m_SelectedEchoPotential.CDFFloat.data( ),
-                                  m_SelectedEchoPotential.CDFSmallOrEqED.data( ),
+                                  m_SelectedEchoPotential.CDFSmallOrEqOV.data( ),
                                   m_SelectedEchoPotential.CDF.size( ), ImPlotItemFlags_NoLegend );
 
                 ImPlot::SetAxes( ImAxis_X1, ImAxis_Y1 );
                 ImPlot::PlotLine( "Delta%CDF",
                                   m_SelectedEchoPotential.CDFFloat.data( ),
-                                  m_SelectedEchoPotential.CDFChangeToED.data( ),
+                                  m_SelectedEchoPotential.CDFChangeToOV.data( ),
                                   m_SelectedEchoPotential.CDF.size( ), ImPlotItemFlags_NoLegend );
 
                 if ( m_SelectedEchoPotential.CDF.size( ) > SelectedEDIndex )
@@ -729,20 +741,20 @@ CombinationTweakerMenu::TweakerMenu( const std::map<std::string, std::vector<std
                     ImPlot::SetNextFillStyle( ImVec4 { 0, 1, 0, 1 }, 0.2 );
                     ImPlot::PlotShaded( "Delta%CDFS",
                                         m_SelectedEchoPotential.CDFFloat.data( ) + SelectedEDIndex,
-                                        m_SelectedEchoPotential.CDFChangeToED.data( ) + SelectedEDIndex,
+                                        m_SelectedEchoPotential.CDFChangeToOV.data( ) + SelectedEDIndex,
                                         m_SelectedEchoPotential.CDF.size( ) - SelectedEDIndex, m_DragEDTargetY, ImPlotItemFlags_NoLegend );
                 }
 
                 ImPlot::TagX( m_SelectedEchoPotential.CDF[ SelectedEDIndex ], ImVec4( 0, 1, 0, 1 ), "%.2f%%", m_SelectedEchoPotential.CDF[ SelectedEDIndex ] );
 
-                ImPlot::DragLineY( 1, &m_SelectedEchoPotential.ExpectedChangeToED, ImVec4( 1, 1, 0, 1 ), 1, ImPlotDragToolFlags_NoInputs | ImPlotDragToolFlags_NoFit );
-                ImPlot::TagY( m_SelectedEchoPotential.ExpectedChangeToED, ImVec4( 1, 1, 0, 1 ), true );
+                ImPlot::DragLineY( 1, &m_SelectedEchoPotential.ExpectedChangeToOV, ImVec4( 1, 1, 0, 1 ), 1, ImPlotDragToolFlags_NoInputs | ImPlotDragToolFlags_NoFit );
+                ImPlot::TagY( m_SelectedEchoPotential.ExpectedChangeToOV, ImVec4( 1, 1, 0, 1 ), true );
 
                 ImPlot::DragLineY( 0, &m_DragEDTargetY, ImVec4( 1, 0, 0, 1 ), 1, ImPlotDragToolFlags_Delayed );
                 ImPlot::TagY( m_DragEDTargetY, ImVec4( 1, 0, 0, 1 ), true );
                 m_DragEDTargetY = std::clamp( m_DragEDTargetY,
-                                              (double) m_SelectedEchoPotential.CDFChangeToED.front( ),
-                                              (double) m_SelectedEchoPotential.CDFChangeToED.back( ) );
+                                              (double) m_SelectedEchoPotential.CDFChangeToOV.front( ),
+                                              (double) m_SelectedEchoPotential.CDFChangeToOV.back( ) );
 
                 ImPlot::SetNextLineStyle( ImVec4( 1, 1, 0, 1 ) );
                 ImPlot::PlotDummy( LanguageProvider[ "EEDDelta%" ] );

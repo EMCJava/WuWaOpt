@@ -346,9 +346,13 @@ main( int argc, char** argv )
                 auto& DisplayStats      = MainDisplayStats.GetDisplayStats( );
                 auto& PayoffStats       = MainDisplayStats.GetIncreasePayOff( );
                 auto& PayoffWeightStats = MainDisplayStats.GetIncreasePayOffWeight( );
+                DisplayRowHelper( LanguageProvider[ "FlatHealth" ], SelectedStats, DisplayStats, PayoffStats, PayoffWeightStats, &EffectiveStats::flat_health );
                 DisplayRowHelper( LanguageProvider[ "FlatAttack" ], SelectedStats, DisplayStats, PayoffStats, PayoffWeightStats, &EffectiveStats::flat_attack );
-                DisplayRowHelper( LanguageProvider[ "Regen%" ], SelectedStats, DisplayStats, PayoffStats, PayoffWeightStats, &EffectiveStats::regen );
+                DisplayRowHelper( LanguageProvider[ "FlatDefence" ], SelectedStats, DisplayStats, PayoffStats, PayoffWeightStats, &EffectiveStats::flat_defence );
+                DisplayRowHelper( LanguageProvider[ "Health%" ], SelectedStats, DisplayStats, PayoffStats, PayoffWeightStats, &EffectiveStats::percentage_health );
                 DisplayRowHelper( LanguageProvider[ "Attack%" ], SelectedStats, DisplayStats, PayoffStats, PayoffWeightStats, &EffectiveStats::percentage_attack );
+                DisplayRowHelper( LanguageProvider[ "Defence%" ], SelectedStats, DisplayStats, PayoffStats, PayoffWeightStats, &EffectiveStats::percentage_defence );
+                DisplayRowHelper( LanguageProvider[ "Regen%" ], SelectedStats, DisplayStats, PayoffStats, PayoffWeightStats, &EffectiveStats::regen );
 
                 DisplayRowHelper( LanguageProvider[ "ElementBuff%" ], SelectedStats, DisplayStats, PayoffStats, PayoffWeightStats, &EffectiveStats::buff_multiplier );
                 DisplayRowHelper( LanguageProvider[ "AutoAttack%" ], SelectedStats, DisplayStats, PayoffStats, PayoffWeightStats, &EffectiveStats::auto_attack_buff );
@@ -359,7 +363,9 @@ main( int argc, char** argv )
 
                 DisplayRowHelper( LanguageProvider[ "CritRate" ], SelectedStats, DisplayStats, PayoffStats, PayoffWeightStats, &EffectiveStats::crit_rate );
                 DisplayRowHelper( LanguageProvider[ "CritDamage" ], SelectedStats, DisplayStats, PayoffStats, PayoffWeightStats, &EffectiveStats::crit_damage );
+                DisplayRow( LanguageProvider[ "FinalHealth" ], SelectedStatsCache.GetFinalHealth( ), MainDisplayStats.GetFinalHealth( ) );
                 DisplayRow( LanguageProvider[ "FinalAttack" ], SelectedStatsCache.GetFinalAttack( ), MainDisplayStats.GetFinalAttack( ) );
+                DisplayRow( LanguageProvider[ "FinalDefence" ], SelectedStatsCache.GetFinalDefence( ), MainDisplayStats.GetFinalDefence( ) );
 
                 DisplayRow( LanguageProvider[ "AlignedHealingAmount" ], SelectedStatsCache.GetHealingAmount( ), MainDisplayStats.GetHealingAmount( ) );
                 DisplayRow( LanguageProvider[ "AlignedNonCritDamage" ], SelectedStatsCache.GetNormalDamage( ), MainDisplayStats.GetNormalDamage( ) );

@@ -114,6 +114,8 @@ const std::vector<SubStatRollConfig> MaxSubStatRollConfigs = []( ) {
 
     TemplateConfig.ValuePtr = &EffectiveStats::percentage_attack;
     Result.push_back( TemplateConfig );
+    TemplateConfig.ValuePtr = &EffectiveStats::percentage_health;
+    Result.push_back( TemplateConfig );
     TemplateConfig.ValuePtr = &EffectiveStats::ult_buff;
     Result.push_back( TemplateConfig );
     TemplateConfig.ValuePtr = &EffectiveStats::heavy_attack_buff;
@@ -121,6 +123,13 @@ const std::vector<SubStatRollConfig> MaxSubStatRollConfigs = []( ) {
     TemplateConfig.ValuePtr = &EffectiveStats::skill_buff;
     Result.push_back( TemplateConfig );
     TemplateConfig.ValuePtr = &EffectiveStats::auto_attack_buff;
+    Result.push_back( TemplateConfig );
+
+    TemplateConfig.ValuePtr = &EffectiveStats::percentage_defence;
+    TemplateConfig.Values   = {
+        ValueRollRate { 0.147, 1 }
+    };
+    TemplateConfig.SetValueStrings( );
     Result.push_back( TemplateConfig );
 
     TemplateConfig.ValuePtr = &EffectiveStats::crit_rate;
@@ -140,6 +149,20 @@ const std::vector<SubStatRollConfig> MaxSubStatRollConfigs = []( ) {
     TemplateConfig.ValuePtr = &EffectiveStats::flat_attack;
     TemplateConfig.Values   = {
         ValueRollRate { 60, 1 }
+    };
+    TemplateConfig.SetValueStrings( false );
+    Result.push_back( TemplateConfig );
+
+    TemplateConfig.ValuePtr = &EffectiveStats::flat_health;
+    TemplateConfig.Values   = {
+        ValueRollRate { 580, 1 }
+    };
+    TemplateConfig.SetValueStrings( false );
+    Result.push_back( TemplateConfig );
+
+    TemplateConfig.ValuePtr = &EffectiveStats::flat_defence;
+    TemplateConfig.Values   = {
+        ValueRollRate { 70, 1 }
     };
     TemplateConfig.SetValueStrings( false );
     Result.push_back( TemplateConfig );

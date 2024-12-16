@@ -31,7 +31,7 @@ CombinationMetaCache::SetAsCombination( const Backpack& BackPack, const PlotComb
     // Check if the combination has changed
     if ( m_Valid && m_ElementOffset == (int) Config.CharacterElement && m_FoundationOffset == (int) Config.CharacterStatsFoundation && m_CachedStateID == Config.InternalStageID + BackPack.GetHash( ) && std::ranges::equal( NewEchoIndices, m_CombinationEchoIndices ) ) return;
     m_CombinationEchoIndices = NewEchoIndices;
-    m_CommonStats            = Config.GetCombinedStatsWithoutFlatAttack( );
+    m_CommonStats            = Config.GetCombinedStatsWithoutFoundation( );
     m_CachedStateID          = Config.InternalStageID + BackPack.GetHash( );
     m_CharacterCfg           = Config;
 
@@ -111,12 +111,14 @@ CombinationMetaCache::CalculateDamages( )
 
     m_CombinationStats.ExtractOptimizingStats( m_CharacterCfg.CharacterStatsFoundation,
                                                BaseFoundation,
+                                               Resistances,
                                                &m_CharacterCfg.SkillConfig,
                                                &m_CharacterCfg.CharacterOverallDeepenStats,
                                                m_HealingAmount,
                                                m_NormalDamage,
                                                m_CritDamage,
-                                               m_ExpectedDamage );
+                                               m_ExpectedDamage,
+                                               m_OptimizingValue );
 
     static constexpr std::array<FloatTy EffectiveStats::*, 12> PercentageStats {
         &EffectiveStats::regen,
@@ -139,24 +141,24 @@ CombinationMetaCache::CalculateDamages( )
         auto NewStat = m_CombinationStats;
         NewStat.flat_attack += 1;
 
-        const auto NewExpValue = NewStat.OptimizingValue( m_CharacterCfg.CharacterStatsFoundation, BaseFoundation, &m_CharacterCfg.SkillConfig, &m_CharacterCfg.CharacterOverallDeepenStats );
-        MaxDamageBuff          = std::max( m_IncreasePayOff.flat_attack = NewExpValue - m_ExpectedDamage, MaxDamageBuff );
+        const auto NewExpValue = NewStat.OptimizingValue( m_CharacterCfg.CharacterStatsFoundation, BaseFoundation, Resistances, &m_CharacterCfg.SkillConfig, &m_CharacterCfg.CharacterOverallDeepenStats );
+        MaxDamageBuff          = std::max( m_IncreasePayOff.flat_attack = NewExpValue - m_OptimizingValue, MaxDamageBuff );
     }
 
     {
         auto NewStat = m_CombinationStats;
         NewStat.flat_health += 1;
 
-        const auto NewExpValue = NewStat.OptimizingValue( m_CharacterCfg.CharacterStatsFoundation, BaseFoundation, &m_CharacterCfg.SkillConfig, &m_CharacterCfg.CharacterOverallDeepenStats );
-        MaxDamageBuff          = std::max( m_IncreasePayOff.flat_health = NewExpValue - m_ExpectedDamage, MaxDamageBuff );
+        const auto NewExpValue = NewStat.OptimizingValue( m_CharacterCfg.CharacterStatsFoundation, BaseFoundation, Resistances, &m_CharacterCfg.SkillConfig, &m_CharacterCfg.CharacterOverallDeepenStats );
+        MaxDamageBuff          = std::max( m_IncreasePayOff.flat_health = NewExpValue - m_OptimizingValue, MaxDamageBuff );
     }
 
     {
         auto NewStat = m_CombinationStats;
         NewStat.flat_defence += 1;
 
-        const auto NewExpValue = NewStat.OptimizingValue( m_CharacterCfg.CharacterStatsFoundation, BaseFoundation, &m_CharacterCfg.SkillConfig, &m_CharacterCfg.CharacterOverallDeepenStats );
-        MaxDamageBuff          = std::max( m_IncreasePayOff.flat_defence = NewExpValue - m_ExpectedDamage, MaxDamageBuff );
+        const auto NewExpValue = NewStat.OptimizingValue( m_CharacterCfg.CharacterStatsFoundation, BaseFoundation, Resistances, &m_CharacterCfg.SkillConfig, &m_CharacterCfg.CharacterOverallDeepenStats );
+        MaxDamageBuff          = std::max( m_IncreasePayOff.flat_defence = NewExpValue - m_OptimizingValue, MaxDamageBuff );
     }
 
     for ( auto StatSlot : PercentageStats )
@@ -164,25 +166,20 @@ CombinationMetaCache::CalculateDamages( )
         auto NewStat = m_CombinationStats;
         NewStat.*StatSlot += 0.01f;
 
-        const auto NewExpValue = NewStat.OptimizingValue( m_CharacterCfg.CharacterStatsFoundation, BaseFoundation, &m_CharacterCfg.SkillConfig, &m_CharacterCfg.CharacterOverallDeepenStats );
-        MaxDamageBuff          = std::max( m_IncreasePayOff.*StatSlot = NewExpValue - m_ExpectedDamage, MaxDamageBuff );
+        const auto NewExpValue = NewStat.OptimizingValue( m_CharacterCfg.CharacterStatsFoundation, BaseFoundation, Resistances, &m_CharacterCfg.SkillConfig, &m_CharacterCfg.CharacterOverallDeepenStats );
+        MaxDamageBuff          = std::max( m_IncreasePayOff.*StatSlot = NewExpValue - m_OptimizingValue, MaxDamageBuff );
     }
 
     m_IncreasePayOffWeight.flat_attack = m_IncreasePayOff.flat_attack / MaxDamageBuff;
     for ( auto StatSlot : PercentageStats )
         m_IncreasePayOffWeight.*StatSlot = m_IncreasePayOff.*StatSlot / MaxDamageBuff;
 
-    /// m_HealingAmount;
-    m_NormalDamage *= Resistances;
-    m_CritDamage *= Resistances;
-    m_ExpectedDamage *= Resistances;
-
     for ( int i = 0; i < SlotCount; ++i )
     {
         const auto MinMax = CalculateMinMaxPotentialAtSlot( i );
         if ( MinMax.second - MinMax.first > 0.0001f )
         {
-            m_EchoScoreAt[ i ] = std::clamp( ( m_ExpectedDamage - MinMax.first ) / ( MinMax.second - MinMax.first ), 0.f, 1.f );
+            m_EchoScoreAt[ i ] = std::clamp( ( m_OptimizingValue - MinMax.first ) / ( MinMax.second - MinMax.first ), 0.f, 1.f );
         } else
         {
             m_EchoScoreAt[ i ] = 1.f;
@@ -194,7 +191,7 @@ CombinationMetaCache::CalculateDamages( )
 }
 
 FloatTy
-CombinationMetaCache::GetEDReplaceEchoAt( int EchoIndex, EffectiveStats Echo ) const
+CombinationMetaCache::GetOVReplaceEchoAt( int EchoIndex, EffectiveStats Echo ) const
 {
     const FloatTy Resistances    = m_CharacterCfg.GetResistances( );
     const FloatTy BaseFoundation = m_CharacterCfg.GetBaseFoundation( );
@@ -202,14 +199,26 @@ CombinationMetaCache::GetEDReplaceEchoAt( int EchoIndex, EffectiveStats Echo ) c
     // I don't like this
     auto& EchoesReplaced = const_cast<std::vector<EffectiveStats>&>( m_EchoesWithoutAt[ EchoIndex ] );
     EchoesReplaced.push_back( Echo );
-    const auto NewED =
+    const auto NewOV =
         OptimizerParmSwitcher::SwitchCalculateCombinationalStat(
             m_ElementOffset, EchoesReplaced, m_CommonStats )
-            .OptimizingValue( m_CharacterCfg.CharacterStatsFoundation, BaseFoundation, &m_CharacterCfg.SkillConfig, &m_CharacterCfg.CharacterOverallDeepenStats )
-        * Resistances;
+            .OptimizingValue( m_CharacterCfg.CharacterStatsFoundation, BaseFoundation, Resistances, &m_CharacterCfg.SkillConfig, &m_CharacterCfg.CharacterOverallDeepenStats );
     EchoesReplaced.pop_back( );
 
-    return NewED;
+    EchoesReplaced.push_back( m_Echoes[ EchoIndex ] );
+    const auto ttt =
+        OptimizerParmSwitcher::SwitchCalculateCombinationalStat(
+            m_ElementOffset, EchoesReplaced, m_CommonStats )
+            .OptimizingValue( m_CharacterCfg.CharacterStatsFoundation, BaseFoundation, Resistances, &m_CharacterCfg.SkillConfig, &m_CharacterCfg.CharacterOverallDeepenStats );
+    EchoesReplaced.pop_back( );
+
+
+    if ( NewOV >= 144.34419 )
+    {
+        auto a = 0;
+    }
+
+    return NewOV;
 }
 
 std::vector<int>

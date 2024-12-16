@@ -168,8 +168,12 @@ CharacterPage::DisplayStatConfigPopup( float WidthPerPanel )
 
             if ( !Enabled ) ImGui::BeginDisabled( );
             SAVE_CONFIG( ImGui::InputText( LanguageProvider[ "CompositionName" ], &CompositionName ) );
+            SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "FlatHealth" ], &CompositionStats.flat_health, 1, 0, 0, "%.0f" ) )
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "FlatAttack" ], &CompositionStats.flat_attack, 1, 0, 0, "%.0f" ) )
+            SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "FlatDefence" ], &CompositionStats.flat_defence, 1, 0, 0, "%.0f" ) )
+            SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "Health%" ], &CompositionStats.percentage_health, 0.01, 0, 0, "%.2f" ) )
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "Attack%" ], &CompositionStats.percentage_attack, 0.01, 0, 0, "%.2f" ) )
+            SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "Defence%" ], &CompositionStats.percentage_defence, 0.01, 0, 0, "%.2f" ) )
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "ElementBuff%" ], &CompositionStats.buff_multiplier, 0.01, 0, 0, "%.2f" ) )
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "AutoAttack%" ], &CompositionStats.auto_attack_buff, 0.01, 0, 0, "%.2f" ) )
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "HeavyAttack%" ], &CompositionStats.heavy_attack_buff, 0.01, 0, 0, "%.2f" ) )
@@ -514,8 +518,12 @@ CharacterPage::DisplayCharacterInfo( float Width, float* HeightOut )
 
     ImGui::PushID( "OverallStats" );
     ImGui::BeginDisabled( );
+    ImGui::DragFloat( LanguageProvider[ "FlatHealth" ], const_cast<float*>( &m_ActiveCharacterConfig->GetOverallStats( ).flat_health ), 1, 0, 0, "%.0f" );
     ImGui::DragFloat( LanguageProvider[ "FlatAttack" ], const_cast<float*>( &m_ActiveCharacterConfig->GetOverallStats( ).flat_attack ), 1, 0, 0, "%.0f" );
+    ImGui::DragFloat( LanguageProvider[ "FlatDefence" ], const_cast<float*>( &m_ActiveCharacterConfig->GetOverallStats( ).flat_defence ), 1, 0, 0, "%.0f" );
+    ImGui::DragFloat( LanguageProvider[ "Health%" ], const_cast<float*>( &m_ActiveCharacterConfig->GetOverallStats( ).percentage_health ), 0.01, 0, 0, "%.2f" );
     ImGui::DragFloat( LanguageProvider[ "Attack%" ], const_cast<float*>( &m_ActiveCharacterConfig->GetOverallStats( ).percentage_attack ), 0.01, 0, 0, "%.2f" );
+    ImGui::DragFloat( LanguageProvider[ "Defence%" ], const_cast<float*>( &m_ActiveCharacterConfig->GetOverallStats( ).percentage_defence ), 0.01, 0, 0, "%.2f" );
     ImGui::DragFloat( LanguageProvider[ "ElementBuff%" ], const_cast<float*>( &m_ActiveCharacterConfig->GetOverallStats( ).buff_multiplier ), 0.01, 0, 0, "%.2f" );
     ImGui::DragFloat( LanguageProvider[ "AutoAttack%" ], const_cast<float*>( &m_ActiveCharacterConfig->GetOverallStats( ).auto_attack_buff ), 0.01, 0, 0, "%.2f" );
     ImGui::DragFloat( LanguageProvider[ "HeavyAttack%" ], const_cast<float*>( &m_ActiveCharacterConfig->GetOverallStats( ).heavy_attack_buff ), 0.01, 0, 0, "%.2f" );
