@@ -6,7 +6,9 @@
 
 ## Echo Optimizer
 
-### From command line with custom echo storage
+### To launch
+
+#### From command line with custom echo storage
 
 ```bash
 WuWaOptim.exe "path to echoes.yaml"
@@ -14,9 +16,13 @@ WuWaOptim.exe "path to echoes.yaml"
 
 See [echo file example](data/example_echos.yaml)
 
-### From File Explorer
+#### From File Explorer
 
 As long as the scanner and the optimizer are located **in the same folder and you had ran the scanner**, you can start the optimizer by double-clicking on it in File Explorer
+
+### To Use
+
+See [Optimizer Usage](data/usage/opt_usage.md)
 
 ## Echo Scanner
 
