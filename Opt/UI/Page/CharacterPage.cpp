@@ -168,18 +168,22 @@ CharacterPage::DisplayStatConfigPopup( float WidthPerPanel )
 
             if ( !Enabled ) ImGui::BeginDisabled( );
             SAVE_CONFIG( ImGui::InputText( LanguageProvider[ "CompositionName" ], &CompositionName ) );
+            ImGui::Separator( );
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "FlatHealth" ], &CompositionStats.flat_health, 1, 0, 0, "%.0f" ) )
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "FlatAttack" ], &CompositionStats.flat_attack, 1, 0, 0, "%.0f" ) )
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "FlatDefence" ], &CompositionStats.flat_defence, 1, 0, 0, "%.0f" ) )
+            ImGui::Separator( );
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "Health%" ], &CompositionStats.percentage_health, 0.01, 0, 0, "%.2f" ) )
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "Attack%" ], &CompositionStats.percentage_attack, 0.01, 0, 0, "%.2f" ) )
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "Defence%" ], &CompositionStats.percentage_defence, 0.01, 0, 0, "%.2f" ) )
+            ImGui::Separator( );
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "ElementBuff%" ], &CompositionStats.buff_multiplier, 0.01, 0, 0, "%.2f" ) )
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "AutoAttack%" ], &CompositionStats.auto_attack_buff, 0.01, 0, 0, "%.2f" ) )
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "HeavyAttack%" ], &CompositionStats.heavy_attack_buff, 0.01, 0, 0, "%.2f" ) )
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "SkillDamage%" ], &CompositionStats.skill_buff, 0.01, 0, 0, "%.2f" ) )
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "UltDamage%" ], &CompositionStats.ult_buff, 0.01, 0, 0, "%.2f" ) )
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "Heal%" ], &CompositionStats.heal_buff, 0.01, 0, 0, "%.2f" ) )
+            ImGui::Separator( );
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "CritRate" ], &CompositionStats.crit_rate, 0.01, 0, 0, "%.2f" ) )
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "CritDamage" ], &CompositionStats.crit_damage, 0.01, 0, 0, "%.2f" ) )
             ImGui::Separator( );
@@ -195,11 +199,18 @@ CharacterPage::DisplayStatConfigPopup( float WidthPerPanel )
             ImGui::EndChild( );
         }
 
+        const auto& Style = ImGui::GetStyle( );
+
+        ImGui::SameLine( );
+
+        ImGui::BeginChild( "ResizeComposition", ImVec2 { 15, 0 } );
+
         static bool IsAppendCompositionHovered = false;
         ImGui::PushStyleColor( ImGuiCol_ChildBg, IsAppendCompositionHovered ? IM_COL32( 0, 204, 102, 230 ) : IM_COL32( 0, 255, 153, 230 ) );
-        ImGui::SameLine( );
-        ImGui::BeginChild( "AppendComposition", ImVec2( 15, PenalHeight ), ImGuiChildFlags_Border, ImGuiWindowFlags_NoDecoration );
+        ImGui::BeginChild( "AppendComposition", ImVec2( 15, PenalHeight / 2 - Style.ItemSpacing.y ), ImGuiChildFlags_Border, ImGuiWindowFlags_NoDecoration );
         ImGui::EndChild( );
+        ImGui::PopStyleColor( );
+
         IsAppendCompositionHovered = ImGui::IsItemHovered( );
         if ( ImGui::IsItemClicked( ) )
         {
@@ -207,7 +218,20 @@ CharacterPage::DisplayStatConfigPopup( float WidthPerPanel )
             SaveActiveCharacter( );
         }
 
+        static bool IsPopCompositionHovered = false;
+        ImGui::PushStyleColor( ImGuiCol_ChildBg, IsPopCompositionHovered ? IM_COL32( 204, 0, 102, 230 ) : IM_COL32( 255, 0, 153, 230 ) );
+        ImGui::BeginChild( "PopComposition", ImVec2( 15, PenalHeight / 2 - Style.ItemSpacing.y ), ImGuiChildFlags_Border, ImGuiWindowFlags_NoDecoration );
+        ImGui::EndChild( );
         ImGui::PopStyleColor( );
+
+        IsPopCompositionHovered = ImGui::IsItemHovered( );
+        if ( m_ActiveCharacterConfig->StatsCompositions.size( ) > 1 && ImGui::IsItemClicked( ) )
+        {
+            m_ActiveCharacterConfig->StatsCompositions.pop_back( );
+            SaveActiveCharacter( );
+        }
+
+        ImGui::EndChild( );
 
 
         ImGui::EndChild( );
