@@ -149,6 +149,8 @@
     "Number": "Number",
     "AskForNumEcho": "Enter number of AVAILABLE echoes to scan...",
     "EchoLessThanReq": "Number of AVAILABLE echoes to scan must be greater or equal to 18...",
+    "AskForScanDelay": "Enter scan delay in milliseconds (~300 to be safe, ~40 if you have NASA computer)...",
+    "WrongScanDelay": "Scan delay should not be negative...",
     "ScannerBeh": "Scanner Behaviour",
     "OptBeh": "Optimizer Behavior",
     "OptCheckUpdateQuestion": "Do you want the optimizer to check for updates when it starts?",

@@ -20,6 +20,7 @@
 
 #include <Common/Stat/FullStats.hpp>
 
+#include <Scan/Thread/AdaptiveJobPool.hpp>
 #include <Scan/Win/MouseControl.hpp>
 #include <Scan/Win/GameHandle.hpp>
 #include <Scan/Recognizer/EchoExtractor.hpp>
@@ -71,6 +72,7 @@ int
 main( )
 {
     spdlog::set_level( spdlog::level::trace );
+    spdlog::set_pattern( "[%Y-%m-%d %H:%M:%S.%e] [thread %t] [%l] %v" );
     srand( time( nullptr ) );
 
     Loca LanguageProvider;
@@ -90,6 +92,17 @@ main( )
     if ( EchoLeftToScan < 18 )
     {
         spdlog::error( LanguageProvider[ "EchoLessThanReq" ] );
+        system( "pause" );
+        return 1;
+    }
+
+    int ScanDelay;
+    spdlog::info( LanguageProvider[ "AskForScanDelay" ] );
+    std::cin >> ScanDelay;
+
+    if ( ScanDelay < 0 )
+    {
+        spdlog::error( LanguageProvider[ "WrongScanDelay" ] );
         system( "pause" );
         return 1;
     }
@@ -125,8 +138,6 @@ main( )
 
     MouseControl::MousePoint MouseLocation( 2 );
 
-    YAML::Node ResultYAMLEchos = { };
-
     std::vector<cv::Point> ListOfCardIndex;
     for ( int j = 0; j < 3; ++j )
         for ( int i = 0; i < 6; ++i )
@@ -139,52 +150,12 @@ main( )
         NextLocation *= (float) dis( gen );
         NextLocation += GameHandler->GetLeftTop( ) + ScanLeftTop + ( CardSpacing * MouseControl::MousePoint { (FloatTy) X, (FloatTy) Y } );
 
-        MouseController.MoveMouse( MouseLocation, NextLocation, 300 + 80 * ( dis( gen ) - 0.5 ) );
-        std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
+        MouseController.MoveMouse( MouseLocation, NextLocation, ScanDelay + 20 * dis( gen ) );
+        // std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
 
         MouseLocation = NextLocation;
     };
 
-    EchoExtractor Extractor;
-    const auto    ReadCard = [ & ]( ) {
-        spdlog::info( "Reading card..." );
-        Stopwatch SW;
-        int       Retry;
-        for ( Retry = 0; Retry < 3; ++Retry )
-        {
-            try
-            {
-                const auto FS = Extractor.ReadCard( GameHandler->ScreenCap( ) );
-                spdlog::trace( "\n{}", YAML::Dump( YAML::Node( FS ) ) );
-                ResultYAMLEchos.push_back( FS );
-
-                if ( StopAtUnEscalated && FS.Level == 0 )
-                {
-                    return false;
-                }
-
-                return true;
-            }
-            catch ( const std::exception& e )
-            {
-                spdlog::error( "Error reading card: [{}] {}", e.what( ), LanguageProvider[ e.what( ) ] );
-                std::this_thread::sleep_for( std::chrono::milliseconds( 400 ) );
-            }
-        }
-
-        time_t t = std::time( nullptr );
-        tm     buf { };
-        localtime_s( &buf, &t );
-
-        std::stringstream FileName;
-        FileName << std::put_time( &buf, "%d_%m_%Y_%H_%M_%S" ) << "_defective.png";
-
-        cv::imwrite( FileName.str( ), GameHandler->ScreenCap( ) );
-        std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );
-
-        spdlog::error( "Unable to reading card after {} attempts", Retry );
-        return true;
-    };
 
     // Make sure it is sorted by echo level
     {
@@ -202,18 +173,57 @@ main( )
         MouseController.LeftClick( 3 );
     }
 
-    //    while ( true )
-    //    {
-    //        {
-    //            Stopwatch  SW;
-    //            const auto FS = Extractor.ReadCard( GameHandler->ScreenCap( ) );
-    //        }
-    //        cv::waitKey( 1 );
-    //    }
+    YAML::Node ResultYAMLEchos = { };
+    std::mutex ResultYAMLEchoLock;
 
-    bool                  Terminate = false;
+    struct ScannerJobContext {
+        cv::Mat ScreenCap;
+    };
+
+    volatile bool   Terminate = false;
+    AdaptiveJobPool ScannerJob( std::max( 1U, std::thread::hardware_concurrency( ) ) );
+    ScannerJob.SetJobMaker( [ & ] {
+        return [ &, Extractor = EchoExtractor { } ]( void* Context ) mutable {
+            Stopwatch SW;
+
+            const auto* TypedContext = static_cast<ScannerJobContext*>( Context );
+            try
+            {
+                const auto FS = Extractor.ReadCard( TypedContext->ScreenCap );
+
+                if ( StopAtUnEscalated && FS.Level == 0 )
+                {
+                    Terminate = true;
+                } else
+                {
+                    spdlog::trace( "\n{}", Dump( YAML::Node( FS ) ) );
+
+                    std::lock_guard RL( ResultYAMLEchoLock );
+                    ResultYAMLEchos.push_back( FS );
+                }
+            }
+            catch ( const std::exception& e )
+            {
+                spdlog::error( "Error reading card: [{}] {}", e.what( ), LanguageProvider[ e.what( ) ] );
+
+                std::stringstream FileName;
+                FileName << std::chrono::high_resolution_clock::now( ).time_since_epoch( ).count( ) << "_defective.png";
+
+                imwrite( FileName.str( ), GameHandler->ScreenCap( ) );
+            }
+
+            delete TypedContext;
+        };
+    } );
+
+    const auto StartCardReading = [ & ]( ) {
+        auto* Context      = new ScannerJobContext;
+        Context->ScreenCap = GameHandler->ScreenCap( );
+        ScannerJob.NewJob( Context );
+    };
+
     std::binary_semaphore CardReading { 1 };
-    const auto            ReadCardInLocations = [ & ]( auto&& Location ) {
+    const auto            ReadCardAtLocations = [ & ]( auto&& Location ) {
         MouseToCard( Location[ 0 ].x, Location[ 0 ].y );
         MouseController.LeftClick( 3 );
 
@@ -221,8 +231,8 @@ main( )
         {
             std::thread { [ & ] {
                 CardReading.acquire( );
-                std::this_thread::sleep_for( std::chrono::milliseconds( 200 ) );
-                Terminate = Terminate || !ReadCard( );
+                std::this_thread::sleep_for( std::chrono::milliseconds( ScanDelay ) );
+                StartCardReading( );
                 CardReading.release( );
             } }.detach( );
 
@@ -238,21 +248,21 @@ main( )
             CardReading.release( );
         }
 
-        std::this_thread::sleep_for( std::chrono::milliseconds( 300 ) );
-        ReadCard( );   // Read the final card
+        std::this_thread::sleep_for( std::chrono::milliseconds( ScanDelay ) );
+        StartCardReading( );   // Read the final card
     };
 
     for ( int Page = 0;; ++Page )
     {
         spdlog::info( "Scanning at page {}...", Page );
 
-        ReadCardInLocations( ListOfCardIndex );
+        ReadCardAtLocations( ListOfCardIndex );
         if ( Terminate ) break;
 
         for ( int i = 0; i < ( Page % 2 == 0 ? 24 : 23 ); ++i )
         {
             MouseController.ScrollMouse( -120 );
-            std::this_thread::sleep_for( std::chrono::milliseconds( 50 + int( 10 * dis( gen ) ) ) );
+            std::this_thread::sleep_for( std::chrono::milliseconds( 40 + int( 10 * dis( gen ) ) ) );
         }
 
         EchoLeftToScan -= 3 * 6;
@@ -262,7 +272,7 @@ main( )
         if ( Page != 0 && Page % 16 == 0 )
         {
             MouseController.ScrollMouse( 120 );
-            std::this_thread::sleep_for( std::chrono::milliseconds( 50 + int( 10 * dis( gen ) ) ) );
+            std::this_thread::sleep_for( std::chrono::milliseconds( 40 + int( 10 * dis( gen ) ) ) );
         }
     }
 
@@ -275,8 +285,11 @@ main( )
         for ( int j = StartingRow; j < 4; ++j )
             for ( int i = 0; i < 6 && EchoLeftToScan > 0; ++i, --EchoLeftToScan )
                 ListOfCardIndex.emplace_back( i, j );
-        ReadCardInLocations( ListOfCardIndex );
+        ReadCardAtLocations( ListOfCardIndex );
     }
+
+    spdlog::info( "Worker created: {}", ScannerJob.GetWorkerCount( ) );
+    ScannerJob.Clear( );
 
     std::ofstream OutputJson( "echoes.yaml" );
     OutputJson << ResultYAMLEchos << std::endl;

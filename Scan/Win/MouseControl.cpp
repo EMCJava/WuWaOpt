@@ -22,6 +22,7 @@ MouseControl::LoadMouseTrails( const std::filesystem::path& Path )
 {
     using namespace std::ranges;
     using std::views::chunk;
+    using std::views::filter;
     using std::views::transform;
 
     if ( !std::filesystem::exists( Path ) )
@@ -45,6 +46,12 @@ MouseControl::LoadMouseTrails( const std::filesystem::path& Path )
                          return MousePoint { *r.begin( ), *++iter };
                      } )
                   | to<std::vector>( );
+          } )
+        | to<std::vector>( )
+        | filter( []( auto&& Trail ) {
+              return all_of( Trail, []( auto&& MP ) {
+                  return MP[ 0 ] < 1.2 && MP[ 1 ] < 1.2;
+              } );
           } )
         | to<std::vector>( );
 
