@@ -12,29 +12,11 @@
 void
 OptimizerConfig::ReadConfig( )
 {
-    static_assert( std::is_trivially_copy_assignable_v<OptimizerConfig> );
-    std::ifstream OptimizerConfigFile( "oc.data", std::ios::binary );
-    if ( OptimizerConfigFile )
+    std::ifstream ConfigFile { "OptimizerConfig.yaml" };
+
+    if ( ConfigFile )
     {
-        OptimizerConfigFile.ignore( std::numeric_limits<std::streamsize>::max( ) );
-        const auto FileLength = OptimizerConfigFile.gcount( );
-        OptimizerConfigFile.clear( );   //  Since ignore will have set eof.
-        OptimizerConfigFile.seekg( 0, std::ios_base::beg );
-
-        auto ActualReadSize = sizeof( OptimizerConfig );
-        if ( FileLength < ActualReadSize )
-        {
-            ActualReadSize = FileLength;
-            spdlog::warn( "Data file version mismatch, reading all available data." );
-        } else if ( FileLength > ActualReadSize )
-        {
-            OptimizerConfigFile.close( );
-            std::filesystem::remove( "oc.data" );
-            spdlog::warn( "Data file version mismatch, discarding all data." );
-            return;
-        }
-
-        OptimizerConfigFile.read( (char*) this, ActualReadSize );
+        *this = YAML::Load( ConfigFile ).as<OptimizerConfig>( );
     }
 
     VersionUpgrade( );
@@ -45,11 +27,15 @@ OptimizerConfig::SaveConfig( )
 {
     InternalStateID++;
 
-    static_assert( std::is_trivially_copy_assignable_v<OptimizerConfig> );
-    std::ofstream OptimizerConfigFile( "oc.data", std::ios::binary );
-    if ( OptimizerConfigFile )
+    std::ofstream ConfigFile( "OptimizerConfig.yaml" );
+    if ( ConfigFile.is_open( ) )
     {
-        OptimizerConfigFile.write( (char*) this, sizeof( OptimizerConfig ) );
+        YAML::Node ResultYAMLEchos { *this };
+        ConfigFile << ResultYAMLEchos;
+        ConfigFile.close( );
+    } else
+    {
+        spdlog::error( "Unable to open OptimizerConfig.yaml for writing" );
     }
 }
 
@@ -68,4 +54,31 @@ OptimizerConfig::VersionUpgrade( )
     }
 
     SaveConfig( );
+}
+
+YAML::Node
+ToNode( const OptimizerConfig& rhs ) noexcept
+{
+    YAML::Node Node;
+
+    Node[ "LastUsedLanguage" ]         = rhs.LastUsedLanguage;
+    Node[ "InternalStateID" ]          = rhs.InternalStateID;
+    Node[ "AskedCheckForNewVersion" ]  = rhs.AskedCheckForNewVersion;
+    Node[ "ShouldCheckForNewVersion" ] = rhs.ShouldCheckForNewVersion;
+    Node[ "OptimizerVersionCode" ]     = rhs.OptimizerVersionCode;
+
+    return Node;
+}
+
+bool
+FromNode( const YAML::Node& Node, OptimizerConfig& rhs ) noexcept
+{
+
+    if ( const auto Value = Node[ "LastUsedLanguage" ]; Value ) rhs.LastUsedLanguage = Value.as<Language>( );
+    if ( const auto Value = Node[ "InternalStateID" ]; Value ) rhs.InternalStateID = Value.as<int>( );
+    if ( const auto Value = Node[ "AskedCheckForNewVersion" ]; Value ) rhs.AskedCheckForNewVersion = Value.as<bool>( );
+    if ( const auto Value = Node[ "ShouldCheckForNewVersion" ]; Value ) rhs.ShouldCheckForNewVersion = Value.as<bool>( );
+    if ( const auto Value = Node[ "OptimizerVersionCode" ]; Value ) rhs.OptimizerVersionCode = Value.as<int>( );
+
+    return true;
 }

@@ -8,12 +8,49 @@
 #include <string>
 #include <list>
 
+#include <yaml-cpp/yaml.h>
+
 enum class Language {
     English,
     SimplifiedChinese,
     Undefined,
     LanguageSize = Undefined
 };
+
+namespace YAML
+{
+template <>
+struct convert<Language> {
+    static Node encode( const Language& rhs )
+    {
+        Node node;
+        switch ( rhs )
+        {
+        case Language::English:
+            node = "English";
+            break;
+        case Language::SimplifiedChinese:
+            node = "SimplifiedChinese";
+            break;
+        default:
+            node = "Undefined";
+        }
+        return node;
+    }
+
+    static bool decode( const Node& node, Language& rhs )
+    {
+        if ( node.as<std::string>( ) == "English" )
+            rhs = Language::English;
+        else if ( node.as<std::string>( ) == "SimplifiedChinese" )
+            rhs = Language::SimplifiedChinese;
+        else
+            rhs = Language::Undefined;
+
+        return true;
+    }
+};
+}   // namespace YAML
 
 class LanguageObserver;
 class Loca
