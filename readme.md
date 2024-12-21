@@ -24,7 +24,7 @@ As long as the scanner and the optimizer are located **in the same folder and yo
 
 See [Optimizer Input](data/usage/opt_input.md)
 
-See [Optimizer Calculation](data/usage/opt_input.md)
+See [Optimizer Calculation](data/usage/opt_calculate.md)
 
 See [Optimizer Echo Backpack/Storage](data/usage/opt_backpack.md)
 
