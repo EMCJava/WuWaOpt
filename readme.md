@@ -26,6 +26,8 @@ See [Optimizer Input](data/usage/opt_input.md)
 
 See [Optimizer Calculation](data/usage/opt_input.md)
 
+See [Optimizer Echo Backpack/Storage](data/usage/opt_backpack.md)
+
 ## Echo Scanner
 
 1. Go to the echo page in you backpack (press b), scroll to the top
