@@ -1,36 +1,71 @@
-Changli:
-  Weapon:
-    flat_attack: 587
-    regen: 0
-    percentage_attack: 12
-    buff_multiplier: 0
-    crit_rate: 24.3
-    crit_damage: 0
-    auto_attack_buff: 0
-    heavy_attack_buff: 0
-    skill_buff: 0
-    ult_buff: 0
-  Character:
-    flat_attack: 412
-    regen: 0
-    percentage_attack: 12
-    buff_multiplier: 20
-    crit_rate: 8
-    crit_damage: 0
-    auto_attack_buff: 0
-    heavy_attack_buff: 0
-    skill_buff: 0
-    ult_buff: 0
+Camellya:
   Multiplier:
-    AutoAttack: 2.7886999
-    HeavyAttack: 1.63
-    Skill: 31.9289
-    Ultimate: 12.1275
-  Element: eFireElement
-  CharacterLevel: 80
+    AutoAttack: 0.01
+    HeavyAttack: 0
+    Skill: 0
+    Ultimate: 0.002
+    Healing: 0
+  Element: eDarkElement
+  Foundation: eFoundationAttack
+  CharacterLevel: 90
   EnemyLevel: 82
   EnemyElementResistance: 0.1
   EnemyElementDamageReduce: 0
+  StatsCompositions:
+    Character:
+      flat_attack: 1037
+      percentage_attack: 12
+      flat_health: 10325
+      flat_defence: 1161
+      regen: 0
+      buff_multiplier: 15
+      crit_rate: 0
+      crit_damage: 16
+      auto_attack_buff: 15
+      heavy_attack_buff: 0
+      skill_buff: 0
+      ult_buff: 0
+      heal_buff: 0
+      Deepen:
+        AutoAttack: 0
+        HeavyAttack: 0
+        Skill: 0
+        Ultimate: 0
+        Healing: 0
+    Weapon:
+      percentage_attack: 12
+      regen: 0
+      buff_multiplier: 0
+      crit_rate: 24.3
+      crit_damage: 0
+      auto_attack_buff: 70
+      heavy_attack_buff: 0
+      skill_buff: 0
+      ult_buff: 0
+      heal_buff: 0
+      Deepen:
+        AutoAttack: 0
+        HeavyAttack: 0
+        Skill: 0
+        Ultimate: 0
+        Healing: 0
+    SK:
+      percentage_attack: 79
+      regen: 0
+      buff_multiplier: 0
+      crit_rate: 12.5
+      crit_damage: 25
+      auto_attack_buff: 0
+      heavy_attack_buff: 0
+      skill_buff: 0
+      ult_buff: 0
+      heal_buff: 0
+      Deepen:
+        AutoAttack: 15
+        HeavyAttack: 15
+        Skill: 15
+        Ultimate: 15
+        Healing: 0
   # Profile: Path to your custom profile image to replace default image
 Changli_6p5:
   Weapon:
