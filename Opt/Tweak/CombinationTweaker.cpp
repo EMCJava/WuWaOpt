@@ -348,8 +348,12 @@ CombinationTweakerMenu::CombinationTweakerMenu( Loca& LanguageProvider, const Co
 
     m_SubStatPtr = {
         nullptr,
+        &EffectiveStats::flat_health,
         &EffectiveStats::flat_attack,
+        &EffectiveStats::flat_defence,
+        &EffectiveStats::percentage_health,
         &EffectiveStats::percentage_attack,
+        &EffectiveStats::percentage_defence,
         &EffectiveStats::crit_rate,
         &EffectiveStats::crit_damage,
         &EffectiveStats::auto_attack_buff,
@@ -693,13 +697,13 @@ CombinationTweakerMenu::TweakerMenu( const std::map<std::string, std::vector<std
             ImGui::EndChild( );
         }
 
-        if ( ImGui::CollapsingHeader( LanguageProvider[ "PotentialEDDis" ] ) )
+        if ( ImGui::CollapsingHeader( LanguageProvider[ "PotentialOVDis" ] ) )
         {
             if ( ImGui::BeginTable( "PotentialStats", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_SizingStretchSame ) )
             {
-                ImGui::TableSetupColumn( LanguageProvider[ "BestED" ] );
+                ImGui::TableSetupColumn( LanguageProvider[ "BestOV" ] );
                 ImGui::TableSetupColumn( LanguageProvider[ "Baseline" ] );
-                ImGui::TableSetupColumn( LanguageProvider[ "WorstED" ] );
+                ImGui::TableSetupColumn( LanguageProvider[ "WorstOV" ] );
                 ImGui::TableHeadersRow( );
                 ImGui::TableNextRow( );
 

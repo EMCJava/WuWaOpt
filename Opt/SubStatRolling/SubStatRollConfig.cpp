@@ -56,6 +56,8 @@ const std::vector<SubStatRollConfig> FullSubStatRollConfigs = []( ) {
 
     TemplateConfig.ValuePtr = &EffectiveStats::percentage_attack;
     Result.push_back( TemplateConfig );
+    TemplateConfig.ValuePtr = &EffectiveStats::percentage_health;
+    Result.push_back( TemplateConfig );
     TemplateConfig.ValuePtr = &EffectiveStats::ult_buff;
     Result.push_back( TemplateConfig );
     TemplateConfig.ValuePtr = &EffectiveStats::heavy_attack_buff;
@@ -63,6 +65,26 @@ const std::vector<SubStatRollConfig> FullSubStatRollConfigs = []( ) {
     TemplateConfig.ValuePtr = &EffectiveStats::skill_buff;
     Result.push_back( TemplateConfig );
     TemplateConfig.ValuePtr = &EffectiveStats::auto_attack_buff;
+    Result.push_back( TemplateConfig );
+
+    TemplateConfig.ValuePtr = &EffectiveStats::percentage_defence;
+    std::ranges::for_each( std::views::zip(
+                               std::vector<FloatTy> { 0.081, 0.09, 0.1, 0.109, 0.118, 0.128, 0.138, 0.147 },
+                               TemplateConfig.Values ),
+                           []( std::pair<FloatTy, ValueRollRate&> Pair ) {
+                               Pair.second.Value = Pair.first;
+                           } );
+    TemplateConfig.SetValueStrings( );
+    Result.push_back( TemplateConfig );
+
+    TemplateConfig.ValuePtr = &EffectiveStats::flat_health;
+    std::ranges::for_each( std::views::zip(
+                               std::vector<FloatTy> { 320, 360, 390, 430, 470, 510, 540, 580 },
+                               TemplateConfig.Values ),
+                           []( std::pair<FloatTy, ValueRollRate&> Pair ) {
+                               Pair.second.Value = Pair.first;
+                           } );
+    TemplateConfig.SetValueStrings( false );
     Result.push_back( TemplateConfig );
 
     TemplateConfig.ValuePtr = &EffectiveStats::crit_rate;
@@ -94,6 +116,17 @@ const std::vector<SubStatRollConfig> FullSubStatRollConfigs = []( ) {
             ValueRollRate {40, 0.4621},
             ValueRollRate {50, 0.3857},
             ValueRollRate {60, 0.0279}
+    };
+    TemplateConfig.SetValueStrings( false );
+    Result.push_back( TemplateConfig );
+
+    TemplateConfig.ValuePtr = &EffectiveStats::flat_defence;
+    TemplateConfig.Values =
+        {
+            ValueRollRate {40, 0.1243},
+            ValueRollRate {50, 0.4621},
+            ValueRollRate {60, 0.3857},
+            ValueRollRate {70, 0.0279}
     };
     TemplateConfig.SetValueStrings( false );
     Result.push_back( TemplateConfig );

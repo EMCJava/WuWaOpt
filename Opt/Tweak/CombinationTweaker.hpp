@@ -34,7 +34,7 @@ class CombinationTweaker
 {
 protected:
     static constexpr int                             MaxRollCount                = 5;
-    static constexpr int                             MaxNonEffectiveSubStatCount = 5;
+    static constexpr int                             MaxNonEffectiveSubStatCount = 1;
     static std::array<std::array<long long, 14>, 14> PascalTriangle;
 
     const CombinationMetaCache m_TweakerTarget;
@@ -92,7 +92,7 @@ protected:
     StringArrayObserver m_SetNames;
     StringArrayObserver m_SubStatLabel;
 
-    std::array<FloatTy EffectiveStats::*, 9> m_SubStatPtr;
+    std::array<FloatTy EffectiveStats::*, 13> m_SubStatPtr;
 
     /*
      *

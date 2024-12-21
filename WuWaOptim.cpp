@@ -367,10 +367,16 @@ main( int argc, char** argv )
                 DisplayRow( LanguageProvider[ "FinalAttack" ], SelectedStatsCache.GetFinalAttack( ), MainDisplayStats.GetFinalAttack( ) );
                 DisplayRow( LanguageProvider[ "FinalDefence" ], SelectedStatsCache.GetFinalDefence( ), MainDisplayStats.GetFinalDefence( ) );
 
-                DisplayRow( LanguageProvider[ "AlignedHealingAmount" ], SelectedStatsCache.GetHealingAmount( ), MainDisplayStats.GetHealingAmount( ) );
+
                 DisplayRow( LanguageProvider[ "AlignedNonCritDamage" ], SelectedStatsCache.GetNormalDamage( ), MainDisplayStats.GetNormalDamage( ) );
+                ImGui::TableSetBgColor( ImGuiTableBgTarget_RowBg1, ImGui::GetColorU32( ImVec4( 0.1f, 0.1f, 0.1f, 0.65f ) ) );
                 DisplayRow( LanguageProvider[ "AlignedCritDamage" ], SelectedStatsCache.GetCritDamage( ), MainDisplayStats.GetCritDamage( ) );
+                ImGui::TableSetBgColor( ImGuiTableBgTarget_RowBg1, ImGui::GetColorU32( ImVec4( 0.1f, 0.1f, 0.1f, 0.65f ) ) );
                 DisplayRow( LanguageProvider[ "AlignedExpectedDamage" ], SelectedStatsCache.GetExpectedDamage( ), MainDisplayStats.GetExpectedDamage( ) );
+                ImGui::TableSetBgColor( ImGuiTableBgTarget_RowBg1, ImGui::GetColorU32( ImVec4( 0.2f, 0.2f, 0.2f, 0.65f ) ) );
+                DisplayRow( LanguageProvider[ "AlignedHealingAmount" ], SelectedStatsCache.GetHealingAmount( ), MainDisplayStats.GetHealingAmount( ) );
+                ImGui::TableSetBgColor( ImGuiTableBgTarget_RowBg1, ImGui::GetColorU32( ImVec4( 0.2f, 0.2f, 0.2f, 0.65f ) ) );
+
 
                 ImGui::EndTable( );
             }
