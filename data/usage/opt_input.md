@@ -99,3 +99,11 @@ For most character it is default Attack, but for some character
 - Shorekeeper's Heal is based off of HP (Health) <br> ![img.png](sk_heal.png)
 - Taoqi's Ult is based off of DEF (Defence) <br> ![img.png](tq_ult.png)
 - ⚠️ Yes you can't calculate properly if a character use more than one Foundation
+
+## Character Selection
+
+Almost all configuration are bound and saved to a specific character, you can switch the active character on top right character icon
+
+### Advance Character Selection (Custom Character)
+
+See [Custom Character](../characters_example.yaml)

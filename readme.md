@@ -22,7 +22,9 @@ As long as the scanner and the optimizer are located **in the same folder and yo
 
 ### To Use
 
-See [Optimizer Usage](data/usage/opt_usage.md)
+See [Optimizer Input](data/usage/opt_input.md)
+
+See [Optimizer Calculation](data/usage/opt_input.md)
 
 ## Echo Scanner
 
