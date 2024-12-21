@@ -33,7 +33,8 @@ See [Optimizer Echo Backpack/Storage](data/usage/opt_backpack.md)
 1. Go to the echo page in you backpack (press b), scroll to the top
 2. Run `WuWaScan.exe` as administrator as Wuthering Waves also runs as administrator
 3. Enter the number of echoes to scan
-4. Wait (You can terminate the scanning process with space bar)
+4. Enter the scan delay
+5. Wait (You can terminate the scanning process with space bar)
 
 > ⚠️Your Windows Display Scaling must be set to 100%\
 > ⚠️Only support 1920x1080 in Simplified Chinese until Kuro fix this, or I have motivation to implementing echo scanning in character page\
