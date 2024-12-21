@@ -281,7 +281,7 @@ main( int argc, char** argv )
             const auto DisplayRow = [ ShowDifferent ]( const char* Label, FloatTy OldValue, FloatTy Value, FloatTy Payoff = 0, FloatTy PayoffPerc = 0 ) {
                 ImGui::TableNextRow( );
 
-                if ( Payoff != 0 )
+                if ( Payoff >= 0.001 )
                     ImGui::TableSetBgColor( ImGuiTableBgTarget_RowBg1, ImGui::GetColorU32( ImVec4( 0.2f + PayoffPerc * 0.5f, 0.2f, 0.2f, 0.65f ) ) );
 
                 if ( ShowDifferent )
@@ -311,7 +311,7 @@ main( int argc, char** argv )
                         ImGui::SameLine( );
                         ImGui::Text( ")" );
                     }
-                    if ( Payoff != 0 )
+                    if ( Payoff >= 0.001 )
                     {
                         ImGui::TableSetColumnIndex( 2 );
                         ImGui::Text( "+%.3f", Payoff );
@@ -322,7 +322,7 @@ main( int argc, char** argv )
                     ImGui::Text( "%s", Label );
                     ImGui::TableSetColumnIndex( 1 );
                     ImGui::Text( "%.3f", Value );
-                    if ( Payoff != 0 )
+                    if ( Payoff >= 0.001 )
                     {
                         ImGui::TableSetColumnIndex( 2 );
                         ImGui::Text( "+%.3f", Payoff );
