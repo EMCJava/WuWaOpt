@@ -11,7 +11,7 @@
 #include <imgui-SFML.h>
 #include <imgui_internal.h>
 
-#include <magic_enum.hpp>
+#include <magic_enum/magic_enum.hpp>
 
 #include <spdlog/spdlog.h>
 
@@ -233,7 +233,7 @@ Backpack::DisplayBackpack( )
             ImGui::SetCursorPos( FilterImagePos );
             if ( ImGui::BeginChild( "ESSChi", ImVec2 { SLIconSize.x, SLIconSize.y } + Style.FramePadding * 2 ) )
             {
-                if ( ImGui::ImageButton( *OptimizerUIConfig::GetTextureOrDefault( "Filter" ), SLIconSize ) )
+                if ( ImGui::ImageButton( "FilterImageButton", *OptimizerUIConfig::GetTextureOrDefault( "Filter" ), SLIconSize ) )
                 {
                     ImGui::OpenPopup( "EchoSetSelect" );
                 }

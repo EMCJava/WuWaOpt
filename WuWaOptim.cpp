@@ -711,7 +711,7 @@ main( int argc, char** argv )
 
                 {
                     if ( !SelectedStatsCache.IsValid( ) ) ImGui::BeginDisabled( );
-                    if ( ImGui::ImageButton( *UIConfig.GetTextureOrDefault( "Equip" ), sf::Vector2f { TextSize.y, TextSize.y } ) )
+                    if ( ImGui::ImageButton( "EquipImageButton", *UIConfig.GetTextureOrDefault( "Equip" ), sf::Vector2f { TextSize.y, TextSize.y } ) )
                     {
                         UserBackpack.CharacterUnEquipEchoes( UserCharacterPage.GetActiveCharacterNames( ) );
                         UserBackpack.CharacterEquipEchoes( UserCharacterPage.GetActiveCharacterNames( ), SelectedStatsCache.GetCombinationIndices( ) );
@@ -722,7 +722,7 @@ main( int argc, char** argv )
                 ImGui::SameLine( );
 
                 {
-                    if ( ImGui::ImageButton( *UIConfig.GetTextureOrDefault( "Settings" ), sf::Vector2f { TextSize.y, TextSize.y } ) )
+                    if ( ImGui::ImageButton( "SettingsImageButton", *UIConfig.GetTextureOrDefault( "Settings" ), sf::Vector2f { TextSize.y, TextSize.y } ) )
                     {
                         ImGui::OpenPopup( LanguageProvider[ "Constraint" ] );
                     }
@@ -810,7 +810,7 @@ main( int argc, char** argv )
         ImGui::SetNextWindowPos( ImVec2 { viewport->WorkSize.x - SLIconSize.x - Style.FramePadding.x * 2, viewport->WorkPos.y }, ImGuiCond_Always );
         if ( ImGui::Begin( "Language", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove ) )
         {
-            if ( ImGui::ImageButton( *UIConfig.GetTextureOrDefault( "Translate" ), SLIconSize ) )
+            if ( ImGui::ImageButton( "TranslateImageButton", *UIConfig.GetTextureOrDefault( "Translate" ), SLIconSize ) )
             {
                 ImGui::OpenPopup( "LanguageSelect" );
             }
@@ -846,7 +846,7 @@ main( int argc, char** argv )
         if ( ImGui::Begin( "BackpackIcon", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove ) )
         {
             if ( OptRunning ) ImGui::BeginDisabled( );
-            if ( ImGui::ImageButton( *UIConfig.GetTextureOrDefault( "Backpack" ), SLIconSize ) )
+            if ( ImGui::ImageButton( "BackpackImageButton", *UIConfig.GetTextureOrDefault( "Backpack" ), SLIconSize ) )
             {
                 ImGui::OpenPopup( LanguageProvider[ "Backpack" ] );
             }

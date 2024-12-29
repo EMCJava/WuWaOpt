@@ -4,7 +4,7 @@
 
 #include "EffectiveStats.hpp"
 
-#include <magic_enum.hpp>
+#include <magic_enum/magic_enum.hpp>
 
 EffectiveStats
 EffectiveStats::operator+( const StatValueConfig& StatValue ) const noexcept

@@ -8,7 +8,7 @@
 
 #include <Opt/OptUtil.hpp>
 
-#include <magic_enum.hpp>
+#include <magic_enum/magic_enum.hpp>
 
 #include <imgui.h>
 #include <imgui-SFML.h>
@@ -145,20 +145,12 @@ CombinationTweaker::CalculateFullPotential( int                                 
         std::ranges::fill( PickedRoll, nullptr );
         do
         {
-            bool has1 = false, has10 = false;
             for ( int j = 0, poll_index = 0; j < RollConfigs->size( ); ++j )
             {
                 if ( bitmask[ j ] )
                 {
-                    if (j == 1) has1 = true;
-                    else if (j == 10) has10 = true;
                     PickedRoll[ poll_index++ ] = &RollConfigs->at( j );
                 }
-            }
-
-            if (has1 && has10)
-            {
-                auto a = 0;
             }
 
             ApplyStats(
@@ -631,7 +623,7 @@ CombinationTweakerMenu::TweakerMenu( const std::map<std::string, std::vector<std
                         if ( LockIcon )
                         {
                             ImGui::SetCursorPos( ImVec2 { NumberFrameWidth - IconSize - Style.WindowPadding.x, 0 } );
-                            if ( ImGui::ImageButton( *LockIcon, sf::Vector2f( IconSize, IconSize ) ) )
+                            if ( ImGui::ImageButton( "LockImageButton", *LockIcon, sf::Vector2f( IconSize, IconSize ) ) )
                                 ShouldResetValue = true;
                         }
 
@@ -666,7 +658,7 @@ CombinationTweakerMenu::TweakerMenu( const std::map<std::string, std::vector<std
                         if ( UnlockIcon )
                         {
                             ImGui::SetCursorPos( ImVec2 { NumberFrameWidth - IconSize - Style.WindowPadding.x, 0 } );
-                            if ( ImGui::ImageButton( *UnlockIcon, sf::Vector2f( IconSize, IconSize ) ) )
+                            if ( ImGui::ImageButton( "UnlockImageButton", *UnlockIcon, sf::Vector2f( IconSize, IconSize ) ) )
                                 OptionalLock = Value;
                         }
 

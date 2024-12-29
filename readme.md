@@ -51,7 +51,7 @@ See [Optimizer Echo Backpack/Storage](data/usage/opt_backpack.md)
 - git
 - cmake
 - vcpkg
-  - Commit id: 8ae59b5b1329a51875abc71d528da93d9c3e8972
+  - Commit id: 80d54ff62d528339c626a6fbc3489a7f25956ade
 - Microsoft Visual C++
     - tested on 17.10.4
 

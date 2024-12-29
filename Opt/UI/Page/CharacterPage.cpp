@@ -64,7 +64,7 @@ InputText( const char* label, std::string* str, ImGuiInputTextFlags flags = 0, I
 ImTextureID
 convertGLTextureHandleToImTextureID( auto glTextureHandle )
 {
-    return reinterpret_cast<ImTextureID>( glTextureHandle );
+    return static_cast<ImTextureID>( glTextureHandle );
 }
 
 void
@@ -160,7 +160,7 @@ CharacterPage::DisplayStatConfigPopup( float WidthPerPanel )
             const auto CompositionNameTextHeight = ImGui::CalcTextSize( CompositionName.c_str( ) ).y;
             ImGui::SeparatorTextEx( 0, CompositionName.c_str( ), CompositionName.data( ) + CompositionName.size( ), CompositionNameTextHeight + ImGui::GetStyle( ).SeparatorTextPadding.x );
             ImGui::SameLine( );
-            if ( ImGui::ImageButton( *OptimizerUIConfig::GetTextureOrDefault( Enabled ? "ToggleOn" : "ToggleOff" ), { CompositionNameTextHeight, CompositionNameTextHeight } ) )
+            if ( ImGui::ImageButton( "StatToggleImageButton", *OptimizerUIConfig::GetTextureOrDefault( Enabled ? "ToggleOn" : "ToggleOff" ), { CompositionNameTextHeight, CompositionNameTextHeight } ) )
             {
                 Enabled = !Enabled;
                 SaveActiveCharacter( );
@@ -534,7 +534,7 @@ CharacterPage::DisplayCharacterInfo( float Width, float* HeightOut )
 
     ImGui::SeparatorTextEx( 0, OverallStatsText, OverallStatsText + strlen( OverallStatsText ), OverallStatsTextHeight + Style.SeparatorTextPadding.x );
     ImGui::SameLine( );
-    if ( ImGui::ImageButton( *OptimizerUIConfig::GetTextureOrDefault( "Decomposition" ), { OverallStatsTextHeight, OverallStatsTextHeight } ) )
+    if ( ImGui::ImageButton( "DecompositionImageButton", *OptimizerUIConfig::GetTextureOrDefault( "Decomposition" ), { OverallStatsTextHeight, OverallStatsTextHeight } ) )
     {
         ImGui::OpenPopup( LanguageProvider[ "StatsComposition" ] );
     }
