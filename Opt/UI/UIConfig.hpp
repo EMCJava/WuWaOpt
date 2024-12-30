@@ -15,7 +15,7 @@ namespace sf
 class Texture;
 }
 struct ImFont;
-class OptimizerUIConfig : public LanguageObserver
+class UIConfig : public LanguageObserver
 {
 public:
     enum FontSizeType {
@@ -24,8 +24,8 @@ public:
         Size
     };
 
-    OptimizerUIConfig( Loca& LocaObj );
-    ~OptimizerUIConfig( );
+    UIConfig( Loca& LocaObj );
+    ~UIConfig( );
 
     void SetupFont( );
 
@@ -63,5 +63,5 @@ protected:
     std::unordered_map<std::string, std::unique_ptr<sf::Texture>> m_TextureCache;
     sf::Texture*                                                  m_DefaultTexture;
 
-    static OptimizerUIConfig* m_Instance;
+    static UIConfig* m_Instance;
 };

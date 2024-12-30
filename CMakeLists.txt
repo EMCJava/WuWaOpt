@@ -45,6 +45,7 @@ target_link_libraries(WuWaGA INTERFACE nlohmann_json::nlohmann_json WuWaGASwitch
 
 target_link_libraries(WuWaScan PRIVATE Loca.lib ${OpenCV_LIBS} nlohmann_json::nlohmann_json Scan.lib)
 target_link_libraries(WuWaOptim PRIVATE CharacterConfig.lib Pages.lib Backpack.lib EchoConstraint.lib OptimizerUIConfig.lib StringArrayObserver.lib OptimizerConfig.lib SubStatRollConfig.lib CombinationTweaker.lib CombinationMetaCache.lib WuWaGA httplib::httplib Loca.lib nlohmann_json::nlohmann_json implot::implot sfml-system sfml-network sfml-graphics sfml-window ImGui-SFML::ImGui-SFML spdlog::spdlog_header_only)
+target_link_libraries(WuWaOptim PRIVATE CharacterConfig.lib Pages.lib Backpack.lib EchoConstraint.lib UIConfig.lib StringArrayObserver.lib OptimizerConfig.lib SubStatRollConfig.lib CombinationTweaker.lib CombinationMetaCache.lib WuWaGA httplib::httplib Loca.lib nlohmann_json::nlohmann_json implot::implot sfml-system sfml-network sfml-graphics sfml-window ImGui-SFML::ImGui-SFML spdlog::spdlog_header_only)
 
 set_target_properties(WuWaScan
         PROPERTIES

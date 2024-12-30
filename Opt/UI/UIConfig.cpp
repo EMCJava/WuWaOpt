@@ -2,7 +2,7 @@
 // Created by EMCJava on 7/31/2024.
 //
 
-#include "OptimizerUIConfig.hpp"
+#include "UIConfig.hpp"
 
 #include <imgui.h>
 
@@ -11,29 +11,29 @@
 
 #include <spdlog/spdlog.h>
 
-OptimizerUIConfig* OptimizerUIConfig::m_Instance = nullptr;
-OptimizerUIConfig::OptimizerUIConfig( Loca& LocaObj )
+UIConfig* UIConfig::m_Instance = nullptr;
+UIConfig::UIConfig( Loca& LocaObj )
     : LanguageObserver( LocaObj )
 {
     if ( m_Instance != nullptr )
     {
-        throw std::runtime_error( "OptimizerUIConfig instance already exists!" );
+        throw std::runtime_error( "UIConfig instance already exists!" );
     }
 
     m_Instance = this;
     SetupFont( );
-    OptimizerUIConfig::OnLanguageChanged( &LanguageProvider );
+    UIConfig::OnLanguageChanged( &LanguageProvider );
 
     LoadTexture( "TextureMissing", "data/texture_missing.png" );
     m_DefaultTexture = m_TextureCache[ "TextureMissing" ].get( );
 }
 
-OptimizerUIConfig::~OptimizerUIConfig( )
+UIConfig::~UIConfig( )
 {
 }
 
 void
-OptimizerUIConfig::SetupFont( )
+UIConfig::SetupFont( )
 {
     ImGuiIO& io = ImGui::GetIO( );
     io.Fonts->Clear( );
@@ -59,7 +59,7 @@ OptimizerUIConfig::SetupFont( )
 }
 
 void
-OptimizerUIConfig::OnLanguageChanged( Loca* NewLanguage )
+UIConfig::OnLanguageChanged( Loca* NewLanguage )
 {
     switch ( NewLanguage->GetLanguage( ) )
     {
@@ -70,25 +70,25 @@ OptimizerUIConfig::OnLanguageChanged( Loca* NewLanguage )
         m_ActiveFont = &m_ChineseFont;
         break;
     default:
-        spdlog::error( "Unknown language in OptimizerUIConfig::OnLanguageChanged()" );
+        spdlog::error( "Unknown language in UIConfig::OnLanguageChanged()" );
         m_ActiveFont = &m_EnglishFont;
     }
 }
 
 void
-OptimizerUIConfig::PushFont( OptimizerUIConfig::FontSizeType Type )
+UIConfig::PushFont( UIConfig::FontSizeType Type )
 {
     ImGui::PushFont( m_Instance->m_ActiveFont->at( Type ) );
 }
 
 void
-OptimizerUIConfig::PushNumberFont( OptimizerUIConfig::FontSizeType Type )
+UIConfig::PushNumberFont( UIConfig::FontSizeType Type )
 {
     ImGui::PushFont( m_Instance->m_NumberFont.at( Type ) );
 }
 
 std::optional<sf::Texture*>
-OptimizerUIConfig::LoadTexture( const std::string& Names, const std::string& Path, const std::array<int, 4>& Rect )
+UIConfig::LoadTexture( const std::string& Names, const std::string& Path, const std::array<int, 4>& Rect )
 {
     auto& Texture = m_Instance->m_TextureCache[ Names ];
     if ( !( Texture = std::make_unique<sf::Texture>( ) )->loadFromFile( Path, reinterpret_cast<const sf::IntRect&>( Rect ) ) )
@@ -104,7 +104,7 @@ OptimizerUIConfig::LoadTexture( const std::string& Names, const std::string& Pat
 }
 
 std::optional<sf::Texture*>
-OptimizerUIConfig::GetTexture( const std::string& Names )
+UIConfig::GetTexture( const std::string& Names )
 {
     const auto TextureIt = m_Instance->m_TextureCache.find( Names );
     if ( TextureIt != m_Instance->m_TextureCache.end( ) )
@@ -116,13 +116,13 @@ OptimizerUIConfig::GetTexture( const std::string& Names )
 }
 
 sf::Texture*
-OptimizerUIConfig::GetTextureDefault( )
+UIConfig::GetTextureDefault( )
 {
     return m_Instance->m_DefaultTexture;
 }
 
 sf::Texture*
-OptimizerUIConfig::GetTextureOrDefault( const std::string& Names )
+UIConfig::GetTextureOrDefault( const std::string& Names )
 {
     return GetTexture( Names ).value_or( GetTextureDefault( ) );
 }

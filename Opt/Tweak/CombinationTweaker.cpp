@@ -4,7 +4,7 @@
 
 #include "CombinationTweaker.hpp"
 
-#include <Opt/UI/OptimizerUIConfig.hpp>
+#include <Opt/UI/UIConfig.hpp>
 
 #include <Opt/OptUtil.hpp>
 
@@ -572,7 +572,7 @@ CombinationTweakerMenu::TweakerMenu( const std::map<std::string, std::vector<std
             ImGui::BeginChild( "Yes/No", ImVec2( SimpleViewWidth, 0 ), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY );
             ImGui::Spacing( );
 
-            OptimizerUIConfig::PushFont( OptimizerUIConfig::Big );
+            UIConfig::PushFont( UIConfig::Big );
             static constexpr std::array<int, 6> CumulativeEXP { 0, 4400, 16500, 39600, 79100, 142600 };
 
             const auto UsedEXP = CumulativeEXP[ m_UsedSubStatCount ];
@@ -609,7 +609,7 @@ CombinationTweakerMenu::TweakerMenu( const std::map<std::string, std::vector<std
                     const float NumberFrameWidth = SimpleViewWidth * 0.4;
                     const float IconSize         = 30;
 
-                    OptimizerUIConfig::PushFont( OptimizerUIConfig::Big );
+                    UIConfig::PushFont( UIConfig::Big );
 
                     if ( OptionalLock.has_value( ) )
                     {
@@ -619,7 +619,7 @@ CombinationTweakerMenu::TweakerMenu( const std::map<std::string, std::vector<std
                         ImGui::PushStyleColor( ImGuiCol_Border, ImVec4( 0.f, 0.f, 0.f, 0.f ) );
 
                         DisplayTextAt( std::format( "{:.3f} %", OptionalLock.value( ) ).c_str( ), 0.5 );
-                        const auto LockIcon = OptimizerUIConfig::GetTextureOrDefault( "Lock" );
+                        const auto LockIcon = UIConfig::GetTextureOrDefault( "Lock" );
                         if ( LockIcon )
                         {
                             ImGui::SetCursorPos( ImVec2 { NumberFrameWidth - IconSize - Style.WindowPadding.x, 0 } );
@@ -654,7 +654,7 @@ CombinationTweakerMenu::TweakerMenu( const std::map<std::string, std::vector<std
                         ImGui::PushStyleColor( ImGuiCol_Border, ImVec4( 0.f, 0.f, 0.f, 0.f ) );
 
                         DisplayTextAt( std::format( "{:.3f} %", Value ).c_str( ), 0.5 );
-                        const auto UnlockIcon = OptimizerUIConfig::GetTextureOrDefault( "Unlock" );
+                        const auto UnlockIcon = UIConfig::GetTextureOrDefault( "Unlock" );
                         if ( UnlockIcon )
                         {
                             ImGui::SetCursorPos( ImVec2 { NumberFrameWidth - IconSize - Style.WindowPadding.x, 0 } );

@@ -4,7 +4,7 @@
 
 #include "CharacterPage.hpp"
 
-#include <Opt/UI/OptimizerUIConfig.hpp>
+#include <Opt/UI/UIConfig.hpp>
 
 #include <SFML/Graphics.hpp>
 
@@ -160,7 +160,7 @@ CharacterPage::DisplayStatConfigPopup( float WidthPerPanel )
             const auto CompositionNameTextHeight = ImGui::CalcTextSize( CompositionName.c_str( ) ).y;
             ImGui::SeparatorTextEx( 0, CompositionName.c_str( ), CompositionName.data( ) + CompositionName.size( ), CompositionNameTextHeight + ImGui::GetStyle( ).SeparatorTextPadding.x );
             ImGui::SameLine( );
-            if ( ImGui::ImageButton( "StatToggleImageButton", *OptimizerUIConfig::GetTextureOrDefault( Enabled ? "ToggleOn" : "ToggleOff" ), { CompositionNameTextHeight, CompositionNameTextHeight } ) )
+            if ( ImGui::ImageButton( "StatToggleImageButton", *UIConfig::GetTextureOrDefault( Enabled ? "ToggleOn" : "ToggleOff" ), { CompositionNameTextHeight, CompositionNameTextHeight } ) )
             {
                 Enabled = !Enabled;
                 SaveActiveCharacter( );
@@ -281,13 +281,13 @@ CharacterPage::CharacterPage( Loca& LocaObj )
             const constexpr auto DefaultCharacterSize = 256;
 
             const auto Name = entry.path( ).stem( ).string( );
-            OptimizerUIConfig::LoadTexture( "CharImg_" + Name, entry.path( ).string( ) );
+            UIConfig::LoadTexture( "CharImg_" + Name, entry.path( ).string( ) );
             m_CharacterNames.push_back( Name );
 
             const constexpr double CharacterZoomFactor = 0.75;
             const constexpr int    SmallSize           = DefaultCharacterSize * CharacterZoomFactor;
             if ( auto SmallTexture =
-                     OptimizerUIConfig::LoadTexture( "SmallCharImg_" + Name, entry.path( ).string( ),
+                     UIConfig::LoadTexture( "SmallCharImg_" + Name, entry.path( ).string( ),
                                                      {
                                                          ( DefaultCharacterSize - SmallSize ) / 2,
                                                          ( DefaultCharacterSize - SmallSize ) / 2,
@@ -309,7 +309,7 @@ CharacterPage::CharacterPage( Loca& LocaObj )
                                if ( Profile )
                                {
                                    // Replace by user defined texture
-                                   OptimizerUIConfig::LoadTexture( "CharImg_" + Name, Profile.as<std::string>( ) );
+                                   UIConfig::LoadTexture( "CharImg_" + Name, Profile.as<std::string>( ) );
                                }
                                if ( !std::ranges::contains( m_CharacterNames, Name ) )
                                    m_CharacterNames.push_back( Name );
@@ -426,13 +426,13 @@ CharacterPage::DisplayCharacterInfo( float Width, float* HeightOut )
 
     const auto DisplayImageWithSize = []( const std::string& ImageName, float ImageSize ) {
         const auto StartPos = ImGui::GetCursorPos( );
-        const auto Texture  = OptimizerUIConfig::GetTexture( "CharImg_" + ImageName );
+        const auto Texture  = UIConfig::GetTexture( "CharImg_" + ImageName );
         if ( Texture.has_value( ) )
         {
             ImGui::Image( *Texture.value( ), sf::Vector2f { ImageSize, ImageSize } );
         } else
         {
-            ImGui::Image( *OptimizerUIConfig::GetTextureDefault( ), sf::Vector2f { ImageSize, ImageSize } );
+            ImGui::Image( *UIConfig::GetTextureDefault( ), sf::Vector2f { ImageSize, ImageSize } );
             ImGui::SetCursorPos( StartPos );
             ImGui::Text( "%s", ImageName.c_str( ) );
         }
@@ -534,7 +534,7 @@ CharacterPage::DisplayCharacterInfo( float Width, float* HeightOut )
 
     ImGui::SeparatorTextEx( 0, OverallStatsText, OverallStatsText + strlen( OverallStatsText ), OverallStatsTextHeight + Style.SeparatorTextPadding.x );
     ImGui::SameLine( );
-    if ( ImGui::ImageButton( "DecompositionImageButton", *OptimizerUIConfig::GetTextureOrDefault( "Decomposition" ), { OverallStatsTextHeight, OverallStatsTextHeight } ) )
+    if ( ImGui::ImageButton( "DecompositionImageButton", *UIConfig::GetTextureOrDefault( "Decomposition" ), { OverallStatsTextHeight, OverallStatsTextHeight } ) )
     {
         ImGui::OpenPopup( LanguageProvider[ "StatsComposition" ] );
     }
@@ -593,12 +593,12 @@ CharacterPage::DisplayCharacterInfo( float Width, float* HeightOut )
             if ( m_ActiveCharacterConfig->EquippedEchoHashes.size( ) > i )
             {
                 ImGui::ImageRotatedFrame(
-                    *OptimizerUIConfig::GetTextureOrDefault( m_ActiveCharacterConfig->RuntimeEquippedEchoName[ i ] ),
+                    *UIConfig::GetTextureOrDefault( m_ActiveCharacterConfig->RuntimeEquippedEchoName[ i ] ),
                     EchoImageSize,
                     EchoCenters[ i ] );
                 uint8_t FrameAlpha = 70;
                 if ( ImGui::IsItemHovered( ) ) FrameAlpha = 150;
-                ImGui::RotatedImage( *OptimizerUIConfig::GetTextureOrDefault( "EchoFrame" ), EchoFrameSize, EchoCenters[ i ], sf::Color { 255, 255, 255, FrameAlpha } );
+                ImGui::RotatedImage( *UIConfig::GetTextureOrDefault( "EchoFrame" ), EchoFrameSize, EchoCenters[ i ], sf::Color { 255, 255, 255, FrameAlpha } );
                 if ( !ErasedThisFrame && ImGui::IsItemClicked( ) && ImGui::GetMouseClickedCount( ImGuiMouseButton_Left ) == 2 )
                 {
                     m_ActiveCharacterConfig->EquippedEchoHashes.erase( m_ActiveCharacterConfig->EquippedEchoHashes.begin( ) + i );
@@ -608,7 +608,7 @@ CharacterPage::DisplayCharacterInfo( float Width, float* HeightOut )
                 }
             } else
             {
-                ImGui::RotatedImage( *OptimizerUIConfig::GetTextureOrDefault( "EchoFrame" ), EchoImageSize, EchoCenters[ i ] );
+                ImGui::RotatedImage( *UIConfig::GetTextureOrDefault( "EchoFrame" ), EchoImageSize, EchoCenters[ i ] );
             }
         }
 

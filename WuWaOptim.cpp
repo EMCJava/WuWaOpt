@@ -10,7 +10,7 @@
 #include "Loca/Loca.hpp"
 
 #include "Opt/UI/Backpack.hpp"
-#include "Opt/UI/OptimizerUIConfig.hpp"
+#include "Opt/UI/UIConfig.hpp"
 #include "Opt/UI/PlotCombinationMeta.hpp"
 #include "Opt/UI/Page/CharacterPage.hpp"
 #include "Opt/Tweak/CombinationMetaCache.hpp"
@@ -218,7 +218,7 @@ main( int argc, char** argv )
             .detach( );
     }
 
-    OptimizerUIConfig UIConfig( LanguageProvider );
+    UIConfig UIConfig( LanguageProvider );
     UIConfig.LoadTexture( "ToggleOn", "data/on.png" );
     UIConfig.LoadTexture( "ToggleOff", "data/off.png" );
     UIConfig.LoadTexture( "Decomposition", "data/decomposition.png" );

@@ -4,7 +4,7 @@
 
 #include "Backpack.hpp"
 
-#include <Opt/UI/OptimizerUIConfig.hpp>
+#include <Opt/UI/UIConfig.hpp>
 #include <Opt/UI/Page/CharacterPage.hpp>
 
 #include <imgui.h>
@@ -162,9 +162,9 @@ Backpack::DisplayBackpack( )
                     }
 
                     ImGui::SetCursorPos( ChildStartPos );
-                    ImGui::Image( *OptimizerUIConfig::GetTextureOrDefault( CurrentEcho.EchoName ), sf::Vector2f { EchoImageSize, EchoImageSize } );
+                    ImGui::Image( *UIConfig::GetTextureOrDefault( CurrentEcho.EchoName ), sf::Vector2f { EchoImageSize, EchoImageSize } );
                     ImGui::Separator( );
-                    ImGui::Image( *OptimizerUIConfig::GetTextureOrDefault( std::string( CurrentEcho.GetSetName( ) ) ), sf::Vector2f { SetImageSize, SetImageSize }, EchoSetSFColor[ (int) CurrentEcho.Set ] );
+                    ImGui::Image( *UIConfig::GetTextureOrDefault( std::string( CurrentEcho.GetSetName( ) ) ), sf::Vector2f { SetImageSize, SetImageSize }, EchoSetSFColor[ (int) CurrentEcho.Set ] );
 
                     if ( !CurrentEcho.RuntimeOccupation.empty( ) )
                     {
@@ -182,7 +182,7 @@ Backpack::DisplayBackpack( )
                                 }
                             }
                             ImGui::SetCursorPos( CharacterStartPosition );
-                            ImGui::Image( *OptimizerUIConfig::GetTextureOrDefault( std::string( "SmallCharImg_" ) + CurrentEcho.RuntimeOccupation ), sf::Vector2f { CharImageSize, CharImageSize } );
+                            ImGui::Image( *UIConfig::GetTextureOrDefault( std::string( "SmallCharImg_" ) + CurrentEcho.RuntimeOccupation ), sf::Vector2f { CharImageSize, CharImageSize } );
                             ImGui::EndChild( );
                         }
                         ImGui::PopStyleColor( 2 );
@@ -217,7 +217,7 @@ Backpack::DisplayBackpack( )
             ImGui::BeginChild( "EchoDetails", ImVec2( EchoImageSize * 3 + Style.WindowPadding.x * 2, 700 ), ImGuiChildFlags_Border );
             if ( m_FocusEcho != -1 )
             {
-                ImGui::Image( *OptimizerUIConfig::GetTextureOrDefault( m_Content[ m_FocusEcho ].EchoName ), sf::Vector2f { EchoImageSize, EchoImageSize } * 3.f );
+                ImGui::Image( *UIConfig::GetTextureOrDefault( m_Content[ m_FocusEcho ].EchoName ), sf::Vector2f { EchoImageSize, EchoImageSize } * 3.f );
                 ImGui::Separator( );
                 ImGui::Text( "%s", m_Content[ m_FocusEcho ].DetailStat( LanguageProvider ).c_str( ) );
             }
@@ -233,7 +233,7 @@ Backpack::DisplayBackpack( )
             ImGui::SetCursorPos( FilterImagePos );
             if ( ImGui::BeginChild( "ESSChi", ImVec2 { SLIconSize.x, SLIconSize.y } + Style.FramePadding * 2 ) )
             {
-                if ( ImGui::ImageButton( "FilterImageButton", *OptimizerUIConfig::GetTextureOrDefault( "Filter" ), SLIconSize ) )
+                if ( ImGui::ImageButton( "FilterImageButton", *UIConfig::GetTextureOrDefault( "Filter" ), SLIconSize ) )
                 {
                     ImGui::OpenPopup( "EchoSetSelect" );
                 }
@@ -263,7 +263,7 @@ Backpack::DisplayBackpack( )
                     ImGui::SameLine( );
                     if ( !m_SetFilter[ SetIndex ] ) ImGui::BeginDisabled( );
                     const auto ElementImageSize = ( ImGui::GetFontSize( ) + Style.FramePadding.y * 2 );
-                    ImGui::Image( *OptimizerUIConfig::GetTextureOrDefault( ElementName ), sf::Vector2f { ElementImageSize, ElementImageSize }, EchoSetSFColor[ SetIndex ] );
+                    ImGui::Image( *UIConfig::GetTextureOrDefault( ElementName ), sf::Vector2f { ElementImageSize, ElementImageSize }, EchoSetSFColor[ SetIndex ] );
                     ImGui::SameLine( );
                     ImGui::Text( LanguageProvider[ ElementName ] );
                     if ( !m_SetFilter[ SetIndex ] ) ImGui::EndDisabled( );
