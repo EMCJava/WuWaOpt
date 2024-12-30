@@ -14,6 +14,10 @@
 
 #include <spdlog/spdlog.h>
 
+#define NOMINMAX
+#include <windows.h>
+#include <winrt/Windows.Foundation.h>
+
 #include <thread>
 
 std::random_device               RD;
@@ -33,11 +37,32 @@ MouseControl::MousePoint CardSize         = { CardWidth, CardHeight };
 }   // namespace GameCoordinateConfigs
 
 
+bool
+BackpackEchoScanner::CheckResolution( )
+{
+    const POINT ptZero  = { 0, 0 };
+    HMONITOR    monitor = MonitorFromPoint( ptZero, MONITOR_DEFAULTTOPRIMARY );
+
+    MONITORINFOEX info = { sizeof( MONITORINFOEX ) };
+    winrt::check_bool( GetMonitorInfo( monitor, &info ) );
+    DEVMODE devmode = { };
+    devmode.dmSize  = sizeof( DEVMODE );
+    winrt::check_bool( EnumDisplaySettings( info.szDevice, ENUM_CURRENT_SETTINGS, &devmode ) );
+    return devmode.dmPelsWidth == info.rcMonitor.right && devmode.dmPelsHeight == info.rcMonitor.bottom;
+}
+
 void
 BackpackEchoScanner::Initialize( )
 {
     m_ShouldTerminate = false;
     if ( m_Initialized ) return;
+
+    if ( !CheckResolution( ) )
+    {
+        spdlog::error( m_LanguageProvider[ "ResolutionMismatch" ] );
+        system( "pause" );
+        exit( 1 );
+    }
 
     try
     {

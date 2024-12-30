@@ -13,6 +13,10 @@
 class BackpackEchoScanner
 {
 private:
+
+    bool
+    CheckResolution( );
+
     void Initialize( );
 
     std::unique_ptr<GameHandle> m_GameHandler;
