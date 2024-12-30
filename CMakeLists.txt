@@ -32,6 +32,7 @@ add_subdirectory(Common)
 add_subdirectory(Scan)
 add_subdirectory(Opt)
 
+add_executable(WuWaEchoManager WuWaEchoManager.cpp)
 add_executable(WuWaScan WuWaScan.cpp)
 add_executable(WuWaOptim WuWaOptim.cpp)
 
@@ -44,10 +45,18 @@ target_link_libraries(WuWaGASwitcher spdlog::spdlog_header_only)
 target_link_libraries(WuWaGA INTERFACE nlohmann_json::nlohmann_json WuWaGASwitcher)
 
 target_link_libraries(WuWaScan PRIVATE Loca.lib ${OpenCV_LIBS} nlohmann_json::nlohmann_json Scan.lib)
-target_link_libraries(WuWaOptim PRIVATE CharacterConfig.lib Pages.lib Backpack.lib EchoConstraint.lib OptimizerUIConfig.lib StringArrayObserver.lib OptimizerConfig.lib SubStatRollConfig.lib CombinationTweaker.lib CombinationMetaCache.lib WuWaGA httplib::httplib Loca.lib nlohmann_json::nlohmann_json implot::implot sfml-system sfml-network sfml-graphics sfml-window ImGui-SFML::ImGui-SFML spdlog::spdlog_header_only)
+target_link_libraries(WuWaEchoManager PRIVATE Loca.lib ${OpenCV_LIBS} Scan.lib UIConfig.lib sfml-system sfml-network sfml-graphics sfml-window ImGui-SFML::ImGui-SFML spdlog::spdlog_header_only)
 target_link_libraries(WuWaOptim PRIVATE CharacterConfig.lib Pages.lib Backpack.lib EchoConstraint.lib UIConfig.lib StringArrayObserver.lib OptimizerConfig.lib SubStatRollConfig.lib CombinationTweaker.lib CombinationMetaCache.lib WuWaGA httplib::httplib Loca.lib nlohmann_json::nlohmann_json implot::implot sfml-system sfml-network sfml-graphics sfml-window ImGui-SFML::ImGui-SFML spdlog::spdlog_header_only)
 
 set_target_properties(WuWaScan
+        PROPERTIES
+        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/WuWaOpt"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/WuWaOpt"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/WuWaOpt"
+        LINK_FLAGS "/MANIFESTUAC:\"level='requireAdministrator' uiAccess='false'\""
+)
+
+set_target_properties(WuWaEchoManager
         PROPERTIES
         ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/WuWaOpt"
         LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/WuWaOpt"
@@ -73,6 +82,7 @@ add_custom_target(
         "cfv" "Release.zip" --format=zip
         "WuWaOptim.exe"
         "WuWaScan.exe"
+        "WuWaEchoManager.exe"
         "data/"
         COMMAND
         ${CMAKE_COMMAND} -E copy
@@ -80,4 +90,4 @@ add_custom_target(
         "Release_v${PROJECT_VERSION}.zip"
         WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/WuWaOpt"
         DEPENDS
-        WuWaScan WuWaOptim)
+        WuWaScan WuWaOptim WuWaEchoManager)
