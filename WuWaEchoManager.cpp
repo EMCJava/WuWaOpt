@@ -13,7 +13,13 @@
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
 
+#include <Common/ImGuiUtil.hxx>
+
 #include <spdlog/spdlog.h>
+
+struct EchoManagerConfig {
+    std::string EchoCountStrInput;
+};
 
 int
 main( )
@@ -30,7 +36,9 @@ main( )
 
     UIConfig UIConfig( LanguageProvider );
 
-    sf::Clock deltaClock;
+    EchoManagerConfig ManagerConfig;
+
+    sf::Clock DeltaClock;
     while ( window.isOpen( ) )
     {
         sf::Event event { };
@@ -44,16 +52,24 @@ main( )
             }
         }
 
-        ImGui::SFML::Update( window, deltaClock.restart( ) );
+        ImGui::SFML::Update( window, DeltaClock.restart( ) );
         UIConfig.PushFont( );
 
         ImGui::ShowDemoWindow( );
+
+        if ( ImGui::Begin( "Manager Config" ) )
+        {
+            ImGui::InputText( "Echo Count", &ManagerConfig.EchoCountStrInput );
+        }
+        ImGui::End( );
 
         ImGui::PopFont( );
         window.clear( );
         ImGui::SFML::Render( window );
         window.display( );
     }
+
+    ImGui::SFML::Shutdown( );
 
     return 0;
 }
