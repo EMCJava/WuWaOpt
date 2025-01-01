@@ -13,7 +13,6 @@
 class BackpackEchoScanner
 {
 private:
-
     bool
     CheckResolution( );
 
@@ -32,6 +31,8 @@ public:
 
     // CallBack return false to terminate
     void Scan( int EchoCount, const std::function<bool( const FullStats& )>& CallBack );
+
+    void LoopWriteEchoNameImgToFile( );
 
     void SetScanDelay( int ScanDelayMS );
 

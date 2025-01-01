@@ -251,3 +251,53 @@ BackpackEchoScanner::Scan( int EchoCount, const std::function<bool( const FullSt
 
     m_Initialized = false;
 }
+
+void
+BackpackEchoScanner::LoopWriteEchoNameImgToFile( )
+{
+    Initialize( );
+
+    cv::namedWindow( "Preview", cv::WINDOW_NORMAL );
+    cv::resizeWindow( "Preview", { 500, 500 } );
+
+    while ( true )
+    {
+        auto Src = m_GameHandler->ScreenCap( );
+
+        const cv::Rect NameRect { 1310, 125, 280, 35 };
+        const auto     NameImage = Src( NameRect );
+
+        cv::Mat SrcHSV, SrcGray;
+        cvtColor( NameImage, SrcHSV, cv::COLOR_BGR2HSV );
+        cv::inRange( SrcHSV, cv::Scalar( 25, 0, 150 ), cv::Scalar( 35, 255, 255 ), SrcGray );
+
+        // Find all non-black pixels
+        std::vector<cv::Point> nonBlackList;
+        cv::findNonZero( SrcGray, nonBlackList );
+
+        // Create bounding rect around those pixels
+        cv::Rect bb = cv::boundingRect( nonBlackList );
+        if ( bb.empty( ) )
+        {
+            cv::waitKey( 1000 );
+            continue;
+        }
+
+
+        cv::Mat result = SrcGray( bb );
+        cvtColor( result, result, cv::COLOR_GRAY2BGR );
+
+        cv::Mat Background( 500, 500, CV_8UC3, cv::Scalar( 0, 0, 255 ) );
+
+        cv::Rect roi( 0, 0, result.cols, result.rows );
+        result.copyTo( Background( roi ) );
+
+        cv::imshow( "result", Background );
+        if ( cv::waitKey( 1000 ) == 's' )
+        {
+            std::stringstream FileName;
+            FileName << std::chrono::high_resolution_clock::now( ).time_since_epoch( ).count( ) << ".png";
+            cv::imwrite( FileName.str( ), result );
+        }
+    }
+}
