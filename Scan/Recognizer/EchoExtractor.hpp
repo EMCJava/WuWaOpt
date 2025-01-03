@@ -7,6 +7,7 @@
 #include "CharacterRecognizer.hpp"
 #include "EchoNameRecognizer.hpp"
 #include "StatTypeRecognizer.hpp"
+#include "SetRecognizer.hpp"
 
 #include <Common/Stat/FullStats.hpp>
 
@@ -17,8 +18,9 @@ private:
     void TypeThresholdPreProcessor( const cv::Mat& Src );
 
     void InYellowRangePreProcessor( const cv::Mat& Src );
+    void SetPreProcessor( const cv::Mat& Src );
 
-    void CullAndWriteProcessedGrayImage(const std::string& File);
+    void CullAndWriteProcessedGrayImage( const std::string& File );
 
     std::vector<char> MatchWithRecognizer( const cv::Mat&     Src,
                                            auto&              Recognizer,
@@ -31,6 +33,7 @@ private:
 public:
     std::vector<char> MatchText( const cv::Mat& Src, const std::string& MatchName = "" );
     std::vector<char> MatchType( const cv::Mat& Src, const std::string& MatchName = "" );
+    std::vector<char> MatchSet( const cv::Mat& Src, const std::string& MatchName = "" );
     std::vector<char> MatchCost( const cv::Mat& Src, const std::string& MatchName = "" );
     std::vector<char> MatchEchoName( const cv::Mat& Src, const std::string& MatchName = "" );
 
@@ -40,6 +43,7 @@ private:
     StatTypeRecognizer  m_TRecognizer;
     CharacterRecognizer m_CRecognizer;
     EchoNameRecognizer  m_NRecognizer;
+    SetRecognizer       m_SRecognizer;
 
     /*
      *

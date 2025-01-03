@@ -172,6 +172,7 @@
     "MainStat": "主词条类型",
     "SubStatType": "副词条类型",
     "SubStatValue": "副词条数值",
+    "NoSet": "无法提取套装",
     "NoCost": "无法提取Cost",
     "NoLevel": "无法提取等级",
     "NoGameHandle": "无法找到游戏窗口",

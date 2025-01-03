@@ -22,10 +22,14 @@ struct Template {
     cv::Scalar  color;
     int         threshold;
 
-    Template( int32_t name, std::string template_file, cv::Scalar color, int threshold )
+    Template( int32_t name, std::string template_file, cv::Scalar color, int threshold, bool gray_scale = true )
     {
         if ( !std::filesystem::exists( template_file ) ) template_file = "data/" + template_file;
-        template_mat = cv::imread( template_file, cv::IMREAD_GRAYSCALE );
+
+        if ( gray_scale )
+            template_mat = cv::imread( template_file, cv::IMREAD_GRAYSCALE );
+        else
+            template_mat = cv::imread( template_file, cv::IMREAD_COLOR );
 
         this->template_id   = name;
         this->template_file = std::move( template_file );

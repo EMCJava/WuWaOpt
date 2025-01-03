@@ -172,6 +172,7 @@
     "MainStat": "Main Stat",
     "SubStatType": "SubStat Type",
     "SubStatValue": "SubStat Value",
+    "NoSet": "Failed to extract set",
     "NoCost": "Failed to extract cost",
     "NoLevel": "Failed to extract level",
     "Result": "Result",

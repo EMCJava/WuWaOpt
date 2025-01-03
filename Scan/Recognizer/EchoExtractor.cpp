@@ -30,6 +30,13 @@ EchoExtractor::InYellowRangePreProcessor( const cv::Mat& Src )
 }
 
 void
+EchoExtractor::SetPreProcessor( const cv::Mat& Src )
+{
+    cvtColor( Src, m_GrayImg, cv::COLOR_BGRA2BGR );
+    m_MatchVisualizerImg = m_GrayImg;
+}
+
+void
 EchoExtractor::CullAndWriteProcessedGrayImage( const std::string& File )
 {
     std::vector<cv::Point> nonZeroPoints;
@@ -119,7 +126,7 @@ EchoExtractor::MatchWithRecognizer( const cv::Mat&     Src,
 
         if ( !MatchRects.empty( ) )
         {
-            if ( MatchRects.top( ).rect.y > CurrentMatch.rect.y + 80 ) break; // Likely from set description, finished substat
+            if ( MatchRects.top( ).rect.y > CurrentMatch.rect.y + 80 ) break;   // Likely from set description, finished substat
             if ( MatchRects.top( ).rect.y > CurrentMatch.rect.y + 20 ) Result.push_back( '\n' );
         }
     }
@@ -137,6 +144,12 @@ std::vector<char>
 EchoExtractor::MatchType( const cv::Mat& Src, const std::string& MatchName )
 {
     return MatchWithRecognizer( Src, m_TRecognizer, MatchName, &EchoExtractor::TypeThresholdPreProcessor );
+}
+
+std::vector<char>
+EchoExtractor::MatchSet( const cv::Mat& Src, const std::string& MatchName )
+{
+    return MatchWithRecognizer( Src, m_SRecognizer, MatchName, &EchoExtractor::SetPreProcessor );
 }
 
 std::vector<char>
@@ -270,6 +283,9 @@ EchoExtractor::ReadCard( const cv::Mat& Src )
     const cv::Rect NumberRect { 1720, 420, 110, 320 };
     const auto     NumberImage = Src( NumberRect );
 
+    const cv::Rect SetRect { 1440, 316, 25, 25 };
+    const auto     SetImage = Src( SetRect );
+
     auto FS = ExtractStat( NumberImage, TypeImage, NameImage );
     if ( int Cost = ExtractCost( CostImage ); Cost != 0 )
     {
@@ -279,10 +295,9 @@ EchoExtractor::ReadCard( const cv::Mat& Src )
         throw std::runtime_error( "NoCost" );
     }
 
-    int SetColorCoordinateX = 1441, SetColorCoordinateY = 325;
-    FS.Set = MatchColorToSet( { Src.data[ Src.channels( ) * ( Src.cols * SetColorCoordinateY + SetColorCoordinateX ) + 2 ],
-                                Src.data[ Src.channels( ) * ( Src.cols * SetColorCoordinateY + SetColorCoordinateX ) + 1 ],
-                                Src.data[ Src.channels( ) * ( Src.cols * SetColorCoordinateY + SetColorCoordinateX ) + 0 ] } );
+    const auto Sets = MatchSet( SetImage, "Stat Set" );
+    if ( Sets.empty( ) ) throw std::runtime_error( "NoSet" );
+    FS.Set = static_cast<EchoSet>( Sets[ 0 ] );
 
     const auto LevelChars = MatchText( LevelImage, "Level" );
     std::from_chars( LevelChars.data( ), LevelChars.data( ) + LevelChars.size( ), FS.Level, 10 );
