@@ -29,7 +29,8 @@
       "VioletFeatheredHeron",
       "BabyViridblazeSaurian",
       "SnipSnap",
-      "LavaLarva"
+      "LavaLarva",
+      "NightmareInfernoRider"
     ],
     "eVoidThunder": [
       "AeroPredator",
@@ -45,7 +46,9 @@
       "TrafficIlluminator",
       "VanguardJunrock",
       "VioletFeatheredHeron",
-      "BabyViridblazeSaurian"
+      "BabyViridblazeSaurian",
+      "NightmareTempestMephis",
+      "NightmareThunderingMephis"
     ],
     "eSierraGale": [
       "AeroPredator",
@@ -60,7 +63,8 @@
       "SabyrBoar",
       "TrafficIlluminator",
       "WhiffWhaff",
-      "YoungRoseshroom"
+      "YoungRoseshroom",
+      "NightmareFeilianBeringal"
     ],
     "eCelestialLight": [
       "AutopuppetScout",
@@ -91,7 +95,8 @@
       "Roseshroom",
       "Tambourinist",
       "TickTack",
-      "YoungRoseshroom"
+      "YoungRoseshroom",
+      "NightmareCrownless"
     ],
     "eRejuvenatingGlow": [
       "BellBorneGeochelone",
@@ -139,6 +144,65 @@
       "BabyViridblazeSaurian",
       "ZigZag",
       "LavaLarva"
+    ],
+    "eFrostyResolve": [
+      "GalescourgeStalker",
+      "ChopChopLeftless",
+      "ChopChopRightless",
+      "HocusPocus",
+      "LottieLost",
+      "ChestMimic",
+      "QuestlessKnight",
+      "AbyssalPatricius",
+      "AbyssalMercator",
+      "SentryConstruct"
+    ],
+    "eEternalRadiance": [
+      "FrostscourgeStalker",
+      "ChopChopHeadless",
+      "FaeIgnis",
+      "DiggyDuggy",
+      "DiurnusKnight",
+      "AbyssalMercator",
+      "VitreumDancer",
+      "NightmareMourningAix"
+    ],
+    "eMidnightVeil": [
+      "VoltscourgeStalker",
+      "FrostscourgeStalker",
+      "FaeIgnis",
+      "NimbusWraith",
+      "ChestMimic",
+      "QuestlessKnight",
+      "NocturnusKnight",
+      "AbyssalGladius",
+      "CuddleWuddle",
+      "Lorelei",
+      "NightmareImpermanenceHeron"
+    ],
+    "eEmpyreanAnthem": [
+      "GalescourgeStalker",
+      "VoltscourgeStalker",
+      "NimbusWraith",
+      "HocusPocus",
+      "NocturnusKnight",
+      "AbyssalPatricius",
+      "ChopChop",
+      "ChestMimic",
+      "VitreumDancer",
+      "Hecate",
+      "NightmareTempestMephis"
+    ],
+    "eTidebreakingCourage": [
+      "ChopChopHeadless",
+      "ChopChopLeftless",
+      "ChopChopRightless",
+      "LottieLost",
+      "DiggyDuggy",
+      "DiurnusKnight",
+      "AbyssalGladius",
+      "ChopChop",
+      "DragonOfDirge"
     ]
   }
 }
