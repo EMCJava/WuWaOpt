@@ -176,3 +176,16 @@ GameHandle::GetLeftTop( ) const
 
     return { static_cast<float>( WindowTopLeft.x ), static_cast<float>( WindowTopLeft.y ) };
 }
+
+MouseControl::MousePoint
+GameHandle::GetMousePointInGameSpace( ) const
+{
+    POINT p;
+    if ( GetCursorPos( &p ) )
+    {
+        return MouseControl::MousePoint { static_cast<float>( p.x ), static_cast<float>( p.y ) } - GetLeftTop( );
+    } else
+    {
+        return { 0, 0 };
+    }
+}

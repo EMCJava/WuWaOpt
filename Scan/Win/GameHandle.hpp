@@ -24,6 +24,9 @@ public:
     [[nodiscard]] MouseControl::MousePoint
     GetLeftTop( ) const;
 
+    [[nodiscard]] MouseControl::MousePoint
+    GetMousePointInGameSpace( ) const;
+
     cv::Mat ScreenCap( );
 
 protected:
