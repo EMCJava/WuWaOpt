@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.28)
 
 set(VCPKG_TARGET_TRIPLET x64-windows-static)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-project(WuWaOpt VERSION 1.4.0 LANGUAGES CXX)
+project(WuWaOpt VERSION 1.4.1 LANGUAGES CXX)
 
 if (NOT MSVC)
     message(FATAL_ERROR "MSVC should be used as compiler")
