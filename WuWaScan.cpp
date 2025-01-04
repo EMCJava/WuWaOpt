@@ -62,6 +62,8 @@ main( )
     Loca LanguageProvider;
     spdlog::info( "Using language: {}", LanguageProvider[ "Name" ] );
 
+    BackpackEchoScanner Scanner( LanguageProvider );
+
     const int  TotalEcho = AskTotalEcho( LanguageProvider );
     const int  ScanDelay = AskScanDelay( LanguageProvider );
     const bool StopAtUnEscalated =
@@ -75,7 +77,6 @@ main( )
     YAML::Node ResultYAMLEchos = { };
     spdlog::info( "Scanning {} echoes...", TotalEcho );
 
-    BackpackEchoScanner Scanner( LanguageProvider );
     Scanner.SetScanDelay( ScanDelay );
     Scanner.Scan( TotalEcho, [ & ]( const auto& FS ) {
         if ( StopAtUnEscalated && FS.Level == 0 ) return false;
