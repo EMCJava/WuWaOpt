@@ -17,18 +17,6 @@
 
 #include <fstream>
 
-inline std::array<sf::Color, (int) EchoSet::eEchoSetCount + 1> EchoSetSFColor {
-    sf::Color( 66, 178, 255, 255 ),
-    sf::Color( 245, 118, 79, 255 ),
-    sf::Color( 182, 108, 255, 255 ),
-    sf::Color( 86, 255, 183, 255 ),
-    sf::Color( 247, 228, 107, 255 ),
-    sf::Color( 204, 141, 181, 255 ),
-    sf::Color( 135, 189, 41, 255 ),
-    sf::Color( 255, 255, 255, 255 ),
-    sf::Color( 202, 44, 37, 255 ),
-    sf::Color( 243, 60, 241, 255 ) };
-
 Backpack::Backpack( const std::string& EchoesPath, const std::map<std::string, std::vector<std::string>>& EchoNamesBySet, CharacterPage& CharacterPageConfig, Loca& LocaObj )
     : LanguageObserver( LocaObj )
     , m_CharacterConfigRef( CharacterPageConfig )
@@ -164,7 +152,7 @@ Backpack::DisplayBackpack( )
                     ImGui::SetCursorPos( ChildStartPos );
                     ImGui::Image( *UIConfig::GetTextureOrDefault( CurrentEcho.EchoName ), sf::Vector2f { EchoImageSize, EchoImageSize } );
                     ImGui::Separator( );
-                    ImGui::Image( *UIConfig::GetTextureOrDefault( std::string( CurrentEcho.GetSetName( ) ) ), sf::Vector2f { SetImageSize, SetImageSize }, EchoSetSFColor[ (int) CurrentEcho.Set ] );
+                    ImGui::Image( *UIConfig::GetTextureOrDefault( std::string( CurrentEcho.GetSetName( ) ) ), sf::Vector2f { SetImageSize, SetImageSize } );
 
                     if ( !CurrentEcho.RuntimeOccupation.empty( ) )
                     {
@@ -243,7 +231,7 @@ Backpack::DisplayBackpack( )
             {
                 for ( int SetIndex = 0; SetIndex < (int) EchoSet::eEchoSetCount; ++SetIndex )
                 {
-                    const std::string ElementName { magic_enum::enum_name( (EchoSet) SetIndex ) };
+                    const std::string SetName { magic_enum::enum_name( (EchoSet) SetIndex ) };
                     ImGui::PushID( SetIndex + 1 );
 
                     if ( ImGui::Checkbox( "##CB", m_SetFilter.data( ) + SetIndex ) )
@@ -263,9 +251,9 @@ Backpack::DisplayBackpack( )
                     ImGui::SameLine( );
                     if ( !m_SetFilter[ SetIndex ] ) ImGui::BeginDisabled( );
                     const auto ElementImageSize = ( ImGui::GetFontSize( ) + Style.FramePadding.y * 2 );
-                    ImGui::Image( *UIConfig::GetTextureOrDefault( ElementName ), sf::Vector2f { ElementImageSize, ElementImageSize }, EchoSetSFColor[ SetIndex ] );
+                    ImGui::Image( *UIConfig::GetTextureOrDefault( SetName ), sf::Vector2f { ElementImageSize, ElementImageSize } );
                     ImGui::SameLine( );
-                    ImGui::Text( LanguageProvider[ ElementName ] );
+                    ImGui::Text( LanguageProvider[ SetName ] );
                     if ( !m_SetFilter[ SetIndex ] ) ImGui::EndDisabled( );
 
                     ImGui::PopID( );
