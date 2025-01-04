@@ -328,15 +328,22 @@ CombinationTweakerMenu::CombinationTweakerMenu( Loca& LanguageProvider, const Co
 {
     CombinationTweakerMenu::OnLanguageChanged( &LanguageProvider );
 
-    m_SetNames.SetKeyStrings( { "eFreezingFrost",
-                                "eMoltenRift",
-                                "eVoidThunder",
-                                "eSierraGale",
-                                "eCelestialLight",
-                                "eSunSinkingEclipse",
-                                "eRejuvenatingGlow",
-                                "eMoonlitClouds",
-                                "eLingeringTunes" } );
+    m_SetNames.SetKeyStrings( {
+        "eFreezingFrost",
+        "eMoltenRift",
+        "eVoidThunder",
+        "eSierraGale",
+        "eCelestialLight",
+        "eSunSinkingEclipse",
+        "eRejuvenatingGlow",
+        "eMoonlitClouds",
+        "eLingeringTunes",
+        "eFrostyResolve",
+        "eEternalRadiance",
+        "eMidnightVeil",
+        "eEmpyreanAnthem",
+        "eTidebreakingCourage",
+    } );
 
     m_SubStatPtr = {
         nullptr,
