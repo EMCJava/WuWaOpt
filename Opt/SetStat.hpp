@@ -13,74 +13,161 @@
 #include <tuple>
 
 // Assume all conditions are met, max buff applies
-template <EchoSet Set>
-inline void
-ApplyTwoSetEffect( EffectiveStats& Stats )
-{
-    Stats.buff_multiplier += 0.1f;
-}
+template <EchoSet Set, ElementType ETy>
+struct ApplyTwoSetEffect {
+    static constexpr void Apply( EffectiveStats& Stats )
+    {
+        Stats.buff_multiplier += 0.1f;
+    }
+};
 
-template <>
-inline void
-ApplyTwoSetEffect<EchoSet::eLingeringTunes>( EffectiveStats& Stats )
-{
-    Stats.percentage_attack += 0.1f;
-}
+template <ElementType ETy>
+struct ApplyTwoSetEffect<EchoSet::eLingeringTunes, ETy> {
+    static constexpr void Apply( EffectiveStats& Stats )
+    {
+        Stats.percentage_attack += 0.1f;
+    }
+};
 
-template <>
-inline void
-ApplyTwoSetEffect<EchoSet::eMoonlitClouds>( EffectiveStats& Stats )
-{
-    Stats.regen += 0.1f;
-}
 
-template <>
-inline void
-ApplyTwoSetEffect<EchoSet::eRejuvenatingGlow>( EffectiveStats& Stats )
-{
-    Stats.heal_buff += 0.1f;
-}
+template <ElementType ETy>
+struct ApplyTwoSetEffect<EchoSet::eMoonlitClouds, ETy> {
+    static constexpr void Apply( EffectiveStats& Stats )
+    {
+        Stats.regen += 0.1f;
+    }
+};
+
+template <ElementType ETy>
+struct ApplyTwoSetEffect<EchoSet::eRejuvenatingGlow, ETy> {
+    static constexpr void Apply( EffectiveStats& Stats )
+    {
+        Stats.heal_buff += 0.1f;
+    }
+};
+
+template <ElementType ETy>
+struct ApplyTwoSetEffect<EchoSet::eFrostyResolve, ETy> {
+    static constexpr void Apply( EffectiveStats& Stats )
+    {
+        Stats.skill_buff += 0.12f;
+    }
+};
+
+template <ElementType ETy>
+struct ApplyTwoSetEffect<EchoSet::eEmpyreanAnthem, ETy> {
+    static constexpr void Apply( EffectiveStats& Stats )
+    {
+        Stats.regen += 0.1f;
+    }
+};
+
+template <ElementType ETy>
+struct ApplyTwoSetEffect<EchoSet::eTidebreakingCourage, ETy> {
+    static constexpr void Apply( EffectiveStats& Stats )
+    {
+        Stats.regen += 0.1f;
+    }
+};
 
 // Assume all conditions are met, max buff applies
-template <EchoSet Set>
-inline void
-ApplyFiveSetEffect( EffectiveStats& Stats )
-{
-    Stats.buff_multiplier += 0.3f;
-}
+template <EchoSet Set, ElementType ETy>
+struct ApplyFiveSetEffect {
+    static constexpr void Apply( EffectiveStats& Stats )
+    {
+        Stats.buff_multiplier += 0.3f;
+    }
+};
+
+template <ElementType ETy>
+struct ApplyFiveSetEffect<EchoSet::eRejuvenatingGlow, ETy> {
+    static constexpr void Apply( EffectiveStats& Stats )
+    {
+        /* When performing the Outro Skill, the ATK of the entire team's Resonator increases by 15%, lasting 30 seconds. */
+    }
+};
+
+template <ElementType ETy>
+struct ApplyFiveSetEffect<EchoSet::eMoonlitClouds, ETy> {
+    static constexpr void Apply( EffectiveStats& Stats )
+    {
+        /* After using an Outro Skill, the ATK of the next Resonator to enter the field increases by 22.5%, lasting 15 seconds. */
+    }
+};
+
+template <ElementType ETy>
+struct ApplyFiveSetEffect<EchoSet::eLingeringTunes, ETy> {
+    static constexpr void Apply( EffectiveStats& Stats )
+    {
+        Stats.percentage_attack += 0.2f;
+    }
+};
+
+template <ElementType ETy>
+struct ApplyFiveSetEffect<EchoSet::eFrostyResolve, ETy> {
+    static constexpr void Apply( EffectiveStats& Stats )
+    {
+        Stats.skill_buff += 0.18f;
+    }
+};
 
 template <>
-inline void
-ApplyFiveSetEffect<EchoSet::eRejuvenatingGlow>( EffectiveStats& Stats )
-{
-    /* When performing the Outro Skill, the ATK of the entire team's Resonator increases by 15%, lasting 30 seconds. */
-}
+struct ApplyFiveSetEffect<EchoSet::eFrostyResolve, ElementType::eIceElement> {
+    static constexpr void Apply( EffectiveStats& Stats )
+    {
+        Stats.skill_buff += 0.18f;
+        Stats.buff_multiplier += 0.225f;
+    }
+};
 
-template <>
-inline void
-ApplyFiveSetEffect<EchoSet::eMoonlitClouds>( EffectiveStats& Stats )
-{
-    /* After using an Outro Skill, the ATK of the next Resonator to enter the field increases by 22.5%, lasting 15 seconds. */
-}
+template <ElementType ETy>
+struct ApplyFiveSetEffect<EchoSet::eEternalRadiance, ETy> {
+    static constexpr void Apply( EffectiveStats& Stats )
+    {
+        /*  Inflicting enemies with Spectro Frazzle increases Crit. Rate by 20% for 15s. Attacking enemies with 10 stacks of Spectro Frazzle grants 15% Spectro DMG Bonus for 15s. */
+        Stats.crit_rate += 0.2f;
+        Stats.buff_multiplier += 0.15f;
+    }
+};
 
-template <>
-inline void
-ApplyFiveSetEffect<EchoSet::eLingeringTunes>( EffectiveStats& Stats )
-{
-    Stats.percentage_attack += 0.2f;
-}
+template <ElementType ETy>
+struct ApplyFiveSetEffect<EchoSet::eMidnightVeil, ETy> {
+    static constexpr void Apply( EffectiveStats& Stats )
+    {
+        /* When Outro Skill is triggered, deal additional 480% Havoc DMG to surrounding enemies, considered Outro Skill DMG, and grant the incoming Resonator 15% Havoc DMG Bonus for 15s. */
+    }
+};
 
-template <EchoSet Set>
+template <ElementType ETy>
+struct ApplyFiveSetEffect<EchoSet::eEmpyreanAnthem, ETy> {
+    static constexpr void Apply( EffectiveStats& Stats )
+    {
+        /* Increase the Resonator's Coordinated Attack DMG by 80%. Upon a critical hit of Coordinated Attack, increase the active Resonator's ATK by 20% for 4s. */
+        // Stats.percentage_attack += 0.2f;
+    }
+};
+
+template <ElementType ETy>
+struct ApplyFiveSetEffect<EchoSet::eTidebreakingCourage, ETy> {
+    static constexpr void Apply( EffectiveStats& Stats )
+    {
+        Stats.percentage_attack += 0.15f;
+        // TODO: Reaching 250% Energy Regen increases all Attribute DMG by 30% for the Resonator.
+        Stats.buff_multiplier += 0.3f;
+    }
+};
+
+template <EchoSet Set, ElementType ETy>
 inline void
 ApplySetEffect( EffectiveStats& Stats, int SetCount )
 {
     if ( SetCount >= 2 )
     {
-        ApplyTwoSetEffect<Set>( Stats );
+        ApplyTwoSetEffect<Set, ETy>::Apply( Stats );
 
         if ( SetCount >= 5 )
         {
-            ApplyFiveSetEffect<Set>( Stats );
+            ApplyFiveSetEffect<Set, ETy>::Apply( Stats );
         }
     }
 }
@@ -105,16 +192,16 @@ CountSet( auto& Counter, auto& OccupationMask, EchoSet ActualSet, int NameID )
         CountSet<Index + 1, Sets...>( Counter, OccupationMask, ActualSet, NameID );
 }
 
-template <int Index, EchoSet Set, EchoSet... Sets>
+template <ElementType ETy, int Index, EchoSet Set, EchoSet... Sets>
 inline void
 ApplyAllSetByCount( EffectiveStats& Stat, auto& SetCounts )
 {
-    ApplySetEffect<Set>( Stat, SetCounts[ Index ] );
+    ApplySetEffect<Set, ETy>( Stat, SetCounts[ Index ] );
     if constexpr ( sizeof...( Sets ) > 0 )
-        ApplyAllSetByCount<Index + 1, Sets...>( Stat, SetCounts );
+        ApplyAllSetByCount<ETy, Index + 1, Sets...>( Stat, SetCounts );
 }
 
-template <EchoSet... Sets>
+template <ElementType ETy, EchoSet... Sets>
 inline EffectiveStats
 CountAndApplySets( auto&& EffectiveStatRanges, EffectiveStats CommonStats )
 {
@@ -129,7 +216,7 @@ CountAndApplySets( auto&& EffectiveStatRanges, EffectiveStats CommonStats )
         CommonStats += EffectiveStat;
     }
 
-    ApplyAllSetByCount<0, Sets...>( CommonStats, SetCounts );
+    ApplyAllSetByCount<ETy, 0, Sets...>( CommonStats, SetCounts );
 
     return CommonStats;
 }
@@ -143,27 +230,27 @@ CalculateCombinationalStat( const std::vector<EffectiveStats>& EffectiveStatRang
 
     SWITCH_TYPE( Fire )
     {
-        return CountAndApplySets<EchoSet::eMoltenRift, EchoSet::eMoonlitClouds, EchoSet::eLingeringTunes, EchoSet::eRejuvenatingGlow>( EffectiveStatRanges, CommonStats );
+        return CountAndApplySets<ETy, EchoSet::eMoltenRift, EchoSet::eMoonlitClouds, EchoSet::eLingeringTunes, EchoSet::eRejuvenatingGlow, EchoSet::eFrostyResolve, EchoSet::eEmpyreanAnthem, EchoSet::eTidebreakingCourage>( EffectiveStatRanges, CommonStats );
     }
     else SWITCH_TYPE( Air )
     {
-        return CountAndApplySets<EchoSet::eSierraGale, EchoSet::eMoonlitClouds, EchoSet::eLingeringTunes, EchoSet::eRejuvenatingGlow>( EffectiveStatRanges, CommonStats );
+        return CountAndApplySets<ETy, EchoSet::eSierraGale, EchoSet::eMoonlitClouds, EchoSet::eLingeringTunes, EchoSet::eRejuvenatingGlow, EchoSet::eFrostyResolve, EchoSet::eEmpyreanAnthem, EchoSet::eTidebreakingCourage>( EffectiveStatRanges, CommonStats );
     }
     else SWITCH_TYPE( Ice )
     {
-        return CountAndApplySets<EchoSet::eFreezingFrost, EchoSet::eMoonlitClouds, EchoSet::eLingeringTunes, EchoSet::eRejuvenatingGlow>( EffectiveStatRanges, CommonStats );
+        return CountAndApplySets<ETy, EchoSet::eFreezingFrost, EchoSet::eMoonlitClouds, EchoSet::eLingeringTunes, EchoSet::eRejuvenatingGlow, EchoSet::eFrostyResolve, EchoSet::eEmpyreanAnthem, EchoSet::eTidebreakingCourage>( EffectiveStatRanges, CommonStats );
     }
     else SWITCH_TYPE( Electric )
     {
-        return CountAndApplySets<EchoSet::eVoidThunder, EchoSet::eMoonlitClouds, EchoSet::eLingeringTunes, EchoSet::eRejuvenatingGlow>( EffectiveStatRanges, CommonStats );
+        return CountAndApplySets<ETy, EchoSet::eVoidThunder, EchoSet::eMoonlitClouds, EchoSet::eLingeringTunes, EchoSet::eRejuvenatingGlow, EchoSet::eFrostyResolve, EchoSet::eEmpyreanAnthem, EchoSet::eTidebreakingCourage>( EffectiveStatRanges, CommonStats );
     }
     else SWITCH_TYPE( Dark )
     {
-        return CountAndApplySets<EchoSet::eSunSinkingEclipse, EchoSet::eMoonlitClouds, EchoSet::eLingeringTunes, EchoSet::eRejuvenatingGlow>( EffectiveStatRanges, CommonStats );
+        return CountAndApplySets<ETy, EchoSet::eSunSinkingEclipse, EchoSet::eMoonlitClouds, EchoSet::eLingeringTunes, EchoSet::eRejuvenatingGlow, EchoSet::eFrostyResolve, EchoSet::eMidnightVeil, EchoSet::eEmpyreanAnthem, EchoSet::eTidebreakingCourage>( EffectiveStatRanges, CommonStats );
     }
     else SWITCH_TYPE( Light )
     {
-        return CountAndApplySets<EchoSet::eCelestialLight, EchoSet::eMoonlitClouds, EchoSet::eLingeringTunes, EchoSet::eRejuvenatingGlow>( EffectiveStatRanges, CommonStats );
+        return CountAndApplySets<ETy, EchoSet::eCelestialLight, EchoSet::eMoonlitClouds, EchoSet::eLingeringTunes, EchoSet::eRejuvenatingGlow, EchoSet::eFrostyResolve, EchoSet::eEternalRadiance, EchoSet::eEmpyreanAnthem, EchoSet::eTidebreakingCourage>( EffectiveStatRanges, CommonStats );
     }
 
 #undef SWITCH_TYPE
