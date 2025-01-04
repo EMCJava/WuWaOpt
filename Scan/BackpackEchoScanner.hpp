@@ -20,7 +20,7 @@ private:
 
     std::unique_ptr<GameHandle> m_GameHandler;
 
-    MouseControl::MousePoint m_CurrentMousePos { 2 };
+    MouseControl::MousePoint m_CurrentMousePos { 0, 0 };
 
     void MoveMouseToCard( FloatTy X, FloatTy Y );
 
