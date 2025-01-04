@@ -63,6 +63,11 @@ std::array<ImU32, (int) EchoSet::eEchoSetCount + 1> EchoSetColor {
     IM_COL32( 135, 189, 41, 255 ),
     IM_COL32( 255, 255, 255, 255 ),
     IM_COL32( 202, 44, 37, 255 ),
+    IM_COL32( 65, 175, 251, 255 ),
+    IM_COL32( 248, 229, 108, 255 ),
+    IM_COL32( 201, 139, 179, 255 ),
+    IM_COL32( 142, 185, 255, 255 ),
+    IM_COL32( 255, 255, 255, 255 ),
     IM_COL32( 243, 60, 241, 255 ) };
 
 bool
