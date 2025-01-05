@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.28)
 
 set(VCPKG_TARGET_TRIPLET x64-windows-static)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-project(WuWaOpt VERSION 1.4.1 LANGUAGES CXX)
+project(WuWaOpt VERSION 1.4.2 LANGUAGES CXX)
 
 if (NOT MSVC)
     message(FATAL_ERROR "MSVC should be used as compiler")
@@ -82,7 +82,6 @@ add_custom_target(
         "cfv" "Release.zip" --format=zip
         "WuWaOptim.exe"
         "WuWaScan.exe"
-        "WuWaEchoManager.exe"
         "data/"
         COMMAND
         ${CMAKE_COMMAND} -E copy
