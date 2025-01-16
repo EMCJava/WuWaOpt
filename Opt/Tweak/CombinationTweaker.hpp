@@ -99,14 +99,16 @@ protected:
      * Controls
      *
      * */
-    int                            m_EchoSlotIndex      = -1;
-    int                            m_UsedSubStatCount   = 0;
-    std::array<StatValueConfig, 5> m_EchoSubStatConfigs = { };
+    bool                           m_ShouldRecalculateSubStatConfigs = false;
+    int                            m_EchoSlotIndex                   = -1;
+    int                            m_UsedSubStatCount                = 0;
+    std::array<StatValueConfig, 5> m_EchoSubStatConfigs              = { };
 
     double             m_DragEDTargetY               = 0;
     int                m_SelectedMainStatTypeIndex   = -1;
     int                m_SelectedEchoNameID          = 0;
     int                m_SelectedEchoSet             = (int) EchoSet::eEchoSetNone;
+    std::set<int>      m_SelectedSubStatTypeSet      = { };
     std::array<int, 5> m_SelectedSubStatTypeIndices  = { };
     std::array<int, 5> m_SelectedSubStatValueIndices = { };
 

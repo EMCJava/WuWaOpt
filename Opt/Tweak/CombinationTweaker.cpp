@@ -464,7 +464,32 @@ CombinationTweakerMenu::TweakerMenu( const std::map<std::string, std::vector<std
             {
                 ImGui::PushID( i );
                 ImGui::BeginChild( "EchoConfig", ImVec2( EchoConfigWidth - Style.WindowPadding.x * 2, 0 ), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY );
-                bool Changed = ImGui::Combo( LanguageProvider[ "SubStatType" ], &m_SelectedSubStatTypeIndices[ i ], m_SubStatLabel.GetRawStrings( ), m_SubStatLabel.GetStringCount( ) );
+
+                const auto* SubStatLabelRwaString    = m_SubStatLabel.GetRawStrings( );
+                auto&       SelectedSubStatTypeIndex = m_SelectedSubStatTypeIndices[ i ];
+
+                if ( ImGui::BeginCombo( LanguageProvider[ "SubStatType" ],
+                                        SubStatLabelRwaString[ SelectedSubStatTypeIndex ] ) )   // The second parameter is the label previewed before opening the combo.
+                {
+                    for ( int n = 0; n < m_SubStatLabel.GetStringCount( ); n++ )
+                    {
+                        bool       IsSelected    = n == SelectedSubStatTypeIndex;
+                        const bool ShouldDisable = !IsSelected && m_SelectedSubStatTypeSet.contains( n );
+
+                        if ( ShouldDisable ) ImGui::BeginDisabled( );
+                        if ( ImGui::Selectable( SubStatLabelRwaString[ n ], IsSelected ) )
+                        {
+                            m_ShouldRecalculateSubStatConfigs = true;
+                            m_SelectedSubStatTypeSet.erase( SelectedSubStatTypeIndex );
+                            m_SelectedSubStatTypeSet.insert( SelectedSubStatTypeIndex = n );
+                        }
+                        if ( ShouldDisable ) ImGui::EndDisabled( );
+
+                        if ( IsSelected )
+                            ImGui::SetItemDefaultFocus( );   // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
+                    }
+                    ImGui::EndCombo( );
+                }
 
                 ImGui::SameLine( );
 
@@ -483,7 +508,7 @@ CombinationTweakerMenu::TweakerMenu( const std::map<std::string, std::vector<std
                     ImGui::EndDisabled( );
                 } else
                 {
-                    Changed |= ImGui::Combo( LanguageProvider[ "SubStatValue" ],
+                    m_ShouldRecalculateSubStatConfigs |= ImGui::Combo( LanguageProvider[ "SubStatValue" ],
                                              &m_SelectedSubStatValueIndices[ i ],
                                              SubStatRollConfig::GetValueString,
                                              (void*) &*SelectedTypeIt,
@@ -493,7 +518,7 @@ CombinationTweakerMenu::TweakerMenu( const std::map<std::string, std::vector<std
                 ImGui::EndChild( );
                 ImGui::PopID( );
 
-                if ( Changed )
+                if ( m_ShouldRecalculateSubStatConfigs )
                 {
                     if ( SelectedTypeIt != FullSubStatRollConfigs.rend( ) )
                     {
@@ -513,14 +538,37 @@ CombinationTweakerMenu::TweakerMenu( const std::map<std::string, std::vector<std
 
             const bool CantAdd = m_UsedSubStatCount >= MaxRollCount;
             if ( CantAdd ) ImGui::BeginDisabled( );
-            if ( ImGui::Selectable( "+", true, ImGuiSelectableFlags_None, ImVec2( EchoConfigWidth / 2 - Style.WindowPadding.x * 2, 10 ) ) ) m_UsedSubStatCount++;
+            if ( ImGui::Selectable( "+", true, ImGuiSelectableFlags_None, ImVec2( EchoConfigWidth / 2 - Style.WindowPadding.x * 2, 10 ) ) )
+            {
+                // Prevent repeating sub-stat
+                if ( m_SelectedSubStatTypeSet.contains( m_SelectedSubStatTypeIndices[ m_UsedSubStatCount ] ) )
+                {
+                    for ( int i = 0; i < m_SubStatLabel.GetStringCount( ); ++i )
+                    {
+                        if ( !m_SelectedSubStatTypeSet.contains( i ) )
+                        {
+                            m_SelectedSubStatTypeIndices[ m_UsedSubStatCount ] = i;
+                            break;
+                        }
+                    }
+                }
+
+                m_SelectedSubStatTypeSet.insert( m_SelectedSubStatTypeIndices[ m_UsedSubStatCount ] );
+                m_UsedSubStatCount++;
+                m_ShouldRecalculateSubStatConfigs = true;
+            }
             if ( CantAdd ) ImGui::EndDisabled( );
 
             ImGui::SameLine( );
 
             const bool CantSub = m_UsedSubStatCount <= 0;
             if ( CantSub ) ImGui::BeginDisabled( );
-            if ( ImGui::Selectable( "-", true, ImGuiSelectableFlags_None, ImVec2( EchoConfigWidth / 2 - Style.WindowPadding.x * 2, 10 ) ) ) m_UsedSubStatCount--;
+            if ( ImGui::Selectable( "-", true, ImGuiSelectableFlags_None, ImVec2( EchoConfigWidth / 2 - Style.WindowPadding.x * 2, 10 ) ) )
+            {
+                m_UsedSubStatCount--;
+                m_SelectedSubStatTypeSet.erase( m_SelectedSubStatTypeIndices[ m_UsedSubStatCount ] );
+                m_ShouldRecalculateSubStatConfigs = true;
+            }
             if ( CantSub ) ImGui::EndDisabled( );
             ImGui::PopStyleVar( );
             ImGui::PopID( );
