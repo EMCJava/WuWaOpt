@@ -30,7 +30,7 @@ private:
             Template {(char) StatType::eAutoAttackDamagePercentage,  "auto_attack.png", cv::Scalar( 255, 255,   0 ), 180},
             Template {     (char) StatType::eHeavyAttackPercentage, "heavy_attack.png", cv::Scalar( 193, 182, 255 ), 200},
             Template {       (char) StatType::eUltDamagePercentage,   "ult_damage.png", cv::Scalar( 193, 182, 255 ), 180},
-            Template {     (char) StatType::eSkillDamagePercentage,    "skill_dmg.png", cv::Scalar( 255,   0, 245 ), 220},
+            Template {     (char) StatType::eSkillDamagePercentage,    "skill_dmg.png", cv::Scalar( 255,   0, 245 ), 210},
             Template {       (char) StatType::eHealBonusPercentage,   "heal_bonus.png", cv::Scalar( 160, 158,  95 ), 200},
             Template {      (char) StatType::eFireDamagePercentage,     "fire_dmg.png",  cv::Scalar( 80, 127, 255 ), 200},
             Template {       (char) StatType::eAirDamagePercentage,      "air_dmg.png", cv::Scalar( 169, 169, 169 ), 200},
