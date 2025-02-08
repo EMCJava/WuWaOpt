@@ -625,10 +625,15 @@ CharacterPage::DisplayCharacterInfo( float Width, float* HeightOut )
     ImGui::PushItemWidth( -200 );
 
     ImGui::BeginChild( "ConfigPanel##ElementType", ImVec2( Width / 2 - Style.WindowPadding.x * 4, 0 ), ImGuiChildFlags_AutoResizeY );
-    SAVE_CONFIG( ImGui::Combo( LanguageProvider[ "ElementType" ],
-                               (int*) &m_ActiveCharacterConfig->CharacterElement,
-                               m_ElementLabels.GetRawStrings( ),
-                               m_ElementLabels.GetStringCount( ) ) )
+    if ( ImGui::Combo( LanguageProvider[ "ElementType" ],
+                       (int*) &m_ActiveCharacterConfig->CharacterElement,
+                       m_ElementLabels.GetRawStrings( ),
+                       m_ElementLabels.GetStringCount( ) ) )
+    {
+        SaveActiveCharacter( );
+        Changed = true;
+    }
+
     ImGui::EndChild( );
 
     ImGui::SameLine( );

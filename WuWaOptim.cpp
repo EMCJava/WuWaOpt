@@ -21,6 +21,7 @@
 #include "Opt/OptimizerParmSwitcher.hpp"
 #include "Opt/OptUtil.hpp"
 #include "Opt/WuWaGa.hpp"
+#include "Opt/SetStat.hpp"
 
 #include <httplib.h>
 
@@ -32,6 +33,8 @@
 
 #include <implot.h>
 #include <implot_internal.h>
+
+#include <magic_enum/magic_enum.hpp>
 
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
@@ -137,6 +140,34 @@ DisplayBar( auto&& ID, auto&& Color, auto&& Width, int Cost = 1 )
 
     ImGui::SameLine( );
     ImGui::SetCursorPosY( ImGui::GetCursorStartPos( ).y );
+}
+
+void
+OnUpdateOptimizingTarget( const std::string& CharacterName, const ElementType CharacterElement )
+{
+    ResetConditionalSetEffectData( );
+
+    std::ifstream CharacterSpecialSetConfigFile { "data/CharacterSpecialSetConfig.yaml" };
+    if ( !CharacterSpecialSetConfigFile )
+    {
+        spdlog::error( "Failed to open character echo set config file." );
+        return;
+    }
+
+    const auto CharacterSpecialSetConfigs = YAML::Load( CharacterSpecialSetConfigFile ).as<std::map<std::string, std::vector<std::string>>>( );
+
+    const std::string TargetMatchingString = CharacterName + "_" + std::string { magic_enum::enum_name( CharacterElement ) };
+
+    for ( const auto& [ MatchingRegex, ConditionalEffects ] : CharacterSpecialSetConfigs )
+    {
+        if ( std::regex_match( TargetMatchingString, std::regex { MatchingRegex } ) )
+        {
+            for ( const auto& ConditionalEffect : ConditionalEffects )
+            {
+                SetConditionalSetEffectData( magic_enum::enum_cast<ConditionalSetEffect>( ConditionalEffect ).value_or( CSE_No ) );
+            }
+        }
+    }
 }
 
 int
@@ -253,6 +284,7 @@ main( int argc, char** argv )
     }
 
     CharacterPage UserCharacterPage( LanguageProvider );
+    OnUpdateOptimizingTarget( UserCharacterPage.GetActiveCharacterNames( ), UserCharacterPage.GetActiveConfig( ).CharacterElement );
 
     Backpack UserBackpack( EchoFilePath, EchoNameBySet, UserCharacterPage, LanguageProvider );
     UserBackpack.BanEquippedEchoesExcept( UserCharacterPage.GetActiveCharacterNames( ) );
@@ -685,6 +717,8 @@ main( int argc, char** argv )
                 float ConfigHeight;
                 if ( UserCharacterPage.DisplayCharacterInfo( StatSplitWidth, &ConfigHeight ) )
                 {
+                    OnUpdateOptimizingTarget( UserCharacterPage.GetActiveCharacterNames( ), ActiveConfig.CharacterElement );
+
                     SelectedStatsCache.Deactivate( );
                     HoverStatsCache.Deactivate( );
 

@@ -12,6 +12,31 @@
 #include <array>
 #include <tuple>
 
+enum ConditionalSetEffect : uint64_t {
+    CSE_No                     = 0b0,
+    CSE_EternalRadianceFiveSet = 0b1
+};
+
+inline uint64_t ConditionalSetEffectData = 0;
+
+inline void
+ResetConditionalSetEffectData( )
+{
+    ConditionalSetEffectData = 0;
+}
+
+inline void
+SetConditionalSetEffectData( const ConditionalSetEffect Effect )
+{
+    ConditionalSetEffectData |= static_cast<uint64_t>( Effect );
+}
+
+inline bool
+CheckForSetCondition( const ConditionalSetEffect Effect )
+{
+    return ConditionalSetEffectData & static_cast<uint64_t>( Effect );
+}
+
 // Assume all conditions are met, max buff applies
 template <EchoSet Set, ElementType ETy>
 struct ApplyTwoSetEffect {
@@ -124,9 +149,12 @@ template <ElementType ETy>
 struct ApplyFiveSetEffect<EchoSet::eEternalRadiance, ETy> {
     static constexpr void Apply( EffectiveStats& Stats )
     {
-        /*  Inflicting enemies with Spectro Frazzle increases Crit. Rate by 20% for 15s. Attacking enemies with 10 stacks of Spectro Frazzle grants 15% Spectro DMG Bonus for 15s. */
-        Stats.crit_rate += 0.2f;
-        Stats.buff_multiplier += 0.15f;
+        if ( CheckForSetCondition( CSE_EternalRadianceFiveSet ) )
+        {
+            /*  Inflicting enemies with Spectro Frazzle increases Crit. Rate by 20% for 15s. Attacking enemies with 10 stacks of Spectro Frazzle grants 15% Spectro DMG Bonus for 15s. */
+            Stats.crit_rate += 0.2f;
+            Stats.buff_multiplier += 0.15f;
+        }
     }
 };
 
