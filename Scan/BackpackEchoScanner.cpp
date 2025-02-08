@@ -163,7 +163,7 @@ BackpackEchoScanner::Scan( int EchoCount, const std::function<bool( const FullSt
                 spdlog::error( "Error reading card: [{}] {}", e.what( ), m_LanguageProvider[ e.what( ) ] );
 
                 std::stringstream FileName;
-                FileName << std::chrono::high_resolution_clock::now( ).time_since_epoch( ).count( ) << "_defective.png";
+                FileName << std::chrono::high_resolution_clock::now( ).time_since_epoch( ).count( ) << '_' << e.what( ) << "_defective.png";
 
                 imwrite( FileName.str( ), TypedContext->ScreenCap );
             }
