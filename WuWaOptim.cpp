@@ -284,7 +284,6 @@ main( int argc, char** argv )
     }
 
     CharacterPage UserCharacterPage( LanguageProvider );
-    OnUpdateOptimizingTarget( UserCharacterPage.GetActiveCharacterNames( ), UserCharacterPage.GetActiveConfig( ).CharacterElement );
 
     Backpack UserBackpack( EchoFilePath, EchoNameBySet, UserCharacterPage, LanguageProvider );
     UserBackpack.BanEquippedEchoesExcept( UserCharacterPage.GetActiveCharacterNames( ) );
@@ -717,8 +716,6 @@ main( int argc, char** argv )
                 float ConfigHeight;
                 if ( UserCharacterPage.DisplayCharacterInfo( StatSplitWidth, &ConfigHeight ) )
                 {
-                    OnUpdateOptimizingTarget( UserCharacterPage.GetActiveCharacterNames( ), ActiveConfig.CharacterElement );
-
                     SelectedStatsCache.Deactivate( );
                     HoverStatsCache.Deactivate( );
 
@@ -744,6 +741,7 @@ main( int argc, char** argv )
                         Opt.Stop( );
                     } else
                     {
+                        OnUpdateOptimizingTarget( UserCharacterPage.GetActiveCharacterNames( ), ActiveConfig.CharacterElement );
                         OptimizerParmSwitcher::SwitchRun( Opt, ActiveConfig, Constraints );
                     }
                 }
