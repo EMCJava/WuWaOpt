@@ -162,7 +162,8 @@
       "AbyssalPatricius",
       "AbyssalMercator",
       "SentryConstruct",
-      "CuddleWuddle"
+      "CuddleWuddle",
+      "GoldenJunrock"
     ],
     "eEternalRadiance": [
       "FrostscourgeStalker",
@@ -172,7 +173,10 @@
       "DiurnusKnight",
       "AbyssalMercator",
       "VitreumDancer",
-      "NightmareMourningAix"
+      "NightmareMourningAix",
+      "AeroPrism",
+      "GoldenJunrock",
+      "RageAgainstTheStatue"
     ],
     "eMidnightVeil": [
       "VoltscourgeStalker",
@@ -198,7 +202,8 @@
       "ChestMimic",
       "VitreumDancer",
       "Hecate",
-      "NightmareTempestMephis"
+      "NightmareTempestMephis",
+      "CalcifiedJunrock"
     ],
     "eTidebreakingCourage": [
       "ChopChopHeadless",
@@ -209,7 +214,10 @@
       "DiurnusKnight",
       "AbyssalGladius",
       "ChopChop",
-      "DragonOfDirge"
+      "DragonOfDirge",
+      "Hurriclaw",
+      "AeroPrism",
+      "CalcifiedJunrock"
     ]
   }
 }
