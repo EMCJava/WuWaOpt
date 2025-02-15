@@ -292,12 +292,40 @@ BackpackEchoScanner::LoopWriteEchoNameImgToFile( )
         cv::Rect roi( 0, 0, result.cols, result.rows );
         result.copyTo( Background( roi ) );
 
-        cv::imshow( "result", Background );
+        cv::imshow( "Preview", Background );
         if ( cv::waitKey( 1000 ) == 's' )
         {
             std::stringstream FileName;
             FileName << std::chrono::high_resolution_clock::now( ).time_since_epoch( ).count( ) << ".png";
             cv::imwrite( FileName.str( ), result );
+        }
+    }
+}
+
+void
+BackpackEchoScanner::LoopVerifyEchoName( )
+{
+    Initialize( );
+
+    EchoExtractor Extractor;
+
+    cv::namedWindow( "Preview", cv::WINDOW_NORMAL );
+    cv::resizeWindow( "Preview", { 500, 500 } );
+
+    while ( true )
+    {
+        try
+        {
+            auto       Src = m_GameHandler->ScreenCap( );
+            const auto FS  = Extractor.ReadCard( Src );
+            auto a = "data/echo_img/" + FS.EchoName + ".png";
+            auto EchoImg = cv::imread( "data/echo_img/" + FS.EchoName + ".png", cv::IMREAD_COLOR );
+            cv::imshow( "Preview", EchoImg );
+            cv::waitKey( 1000 );
+        }
+        catch ( ... )
+        {
+            spdlog::error( "Failed!" );
         }
     }
 }

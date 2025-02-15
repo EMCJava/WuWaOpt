@@ -33,6 +33,7 @@ public:
     void Scan( int EchoCount, const std::function<bool( const FullStats& )>& CallBack );
 
     void LoopWriteEchoNameImgToFile( );
+    void LoopVerifyEchoName( );
 
     void SetScanDelay( int ScanDelayMS );
 
