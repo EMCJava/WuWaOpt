@@ -277,7 +277,7 @@ Backpack::DisplayBackpack( )
         ImGui::SetItemDefaultFocus( );
 
         ImGui::EndPopup( );
-    } else if ( BPressed )
+    } else if ( BPressed && !ImGui::GetIO( ).WantCaptureKeyboard )
     {
         ImGui::OpenPopup( LanguageProvider[ "Backpack" ] );
     }
