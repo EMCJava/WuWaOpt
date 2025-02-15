@@ -1,2 +1,4 @@
 Rover(?:Female|Male)_eLightElement:
   - CSE_EternalRadianceFiveSet
+Phoebe_eLightElement:
+  - CSE_EternalRadianceFiveSet
