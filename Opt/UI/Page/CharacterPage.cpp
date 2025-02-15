@@ -153,6 +153,7 @@ CharacterPage::DisplayStatConfigPopup( float WidthPerPanel )
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "HeavyDeep%" ], &CompositionDeepenStats.heavy_attack_multiplier, 0.01, 0, 0, "%.2f" ) );
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "SkillDeep%" ], &CompositionDeepenStats.skill_multiplier, 0.01, 0, 0, "%.2f" ) );
             SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "UltDeep%" ], &CompositionDeepenStats.ult_multiplier, 0.01, 0, 0, "%.2f" ) );
+            SAVE_CONFIG( ImGui::DragFloat( LanguageProvider[ "RawDeep%" ], &CompositionDeepenStats.raw_damage_multiplier, 0.01, 0, 0, "%.2f" ) );
             if ( !Enabled ) ImGui::EndDisabled( );
 
             ImGui::PopID( );
@@ -250,12 +251,12 @@ CharacterPage::CharacterPage( Loca& LocaObj )
             const constexpr int    SmallSize           = DefaultCharacterSize * CharacterZoomFactor;
             if ( auto SmallTexture =
                      UIConfig::LoadTexture( "SmallCharImg_" + Name, entry.path( ).string( ),
-                                                     {
-                                                         ( DefaultCharacterSize - SmallSize ) / 2,
-                                                         ( DefaultCharacterSize - SmallSize ) / 2,
-                                                         SmallSize,
-                                                         SmallSize,
-                                                     } ) )
+                                            {
+                                                ( DefaultCharacterSize - SmallSize ) / 2,
+                                                ( DefaultCharacterSize - SmallSize ) / 2,
+                                                SmallSize,
+                                                SmallSize,
+                                            } ) )
             {
                 SmallTexture.value( )->generateMipmap( );
                 SmallTexture.value( )->setSmooth( true );
@@ -322,13 +323,15 @@ CharacterPage::LoadCharacter( const std::string& CharacterName )
         .heavy_attack_multiplier = m_ActiveCharacterConfig->SkillConfig.heavy_attack_multiplier * 100,
         .skill_multiplier        = m_ActiveCharacterConfig->SkillConfig.skill_multiplier * 100,
         .ult_multiplier          = m_ActiveCharacterConfig->SkillConfig.ult_multiplier * 100,
-        .heal_multiplier         = m_ActiveCharacterConfig->SkillConfig.heal_multiplier * 100 };
+        .heal_multiplier         = m_ActiveCharacterConfig->SkillConfig.heal_multiplier * 100,
+        .raw_damage_multiplier   = m_ActiveCharacterConfig->SkillConfig.raw_damage_multiplier * 100 };
     m_ActiveDeepenDisplay = {
         .auto_attack_multiplier  = m_ActiveCharacterConfig->CharacterOverallDeepenStats.auto_attack_multiplier * 100,
         .heavy_attack_multiplier = m_ActiveCharacterConfig->CharacterOverallDeepenStats.heavy_attack_multiplier * 100,
         .skill_multiplier        = m_ActiveCharacterConfig->CharacterOverallDeepenStats.skill_multiplier * 100,
         .ult_multiplier          = m_ActiveCharacterConfig->CharacterOverallDeepenStats.ult_multiplier * 100,
-        .heal_multiplier         = m_ActiveCharacterConfig->CharacterOverallDeepenStats.heal_multiplier * 100 };
+        .heal_multiplier         = m_ActiveCharacterConfig->CharacterOverallDeepenStats.heal_multiplier * 100,
+        .raw_damage_multiplier   = m_ActiveCharacterConfig->CharacterOverallDeepenStats.raw_damage_multiplier * 100 };
 }
 
 void
@@ -366,7 +369,8 @@ CharacterPage::SaveActiveCharacter( )
         .heavy_attack_multiplier = m_ActiveCharacterConfig->CharacterOverallDeepenStats.heavy_attack_multiplier * 100,
         .skill_multiplier        = m_ActiveCharacterConfig->CharacterOverallDeepenStats.skill_multiplier * 100,
         .ult_multiplier          = m_ActiveCharacterConfig->CharacterOverallDeepenStats.ult_multiplier * 100,
-        .heal_multiplier         = m_ActiveCharacterConfig->CharacterOverallDeepenStats.heal_multiplier * 100 };
+        .heal_multiplier         = m_ActiveCharacterConfig->CharacterOverallDeepenStats.heal_multiplier * 100,
+        .raw_damage_multiplier   = m_ActiveCharacterConfig->CharacterOverallDeepenStats.raw_damage_multiplier * 100 };
 
     std::ofstream OutFile( CharacterFileName );
 
@@ -599,6 +603,7 @@ CharacterPage::DisplayCharacterInfo( float Width, float* HeightOut )
         ImGui::DragFloat( LanguageProvider[ "HeavyTotal%" ], &m_ActiveDeepenDisplay.heavy_attack_multiplier );
         ImGui::DragFloat( LanguageProvider[ "SkillTotal%" ], &m_ActiveDeepenDisplay.skill_multiplier );
         ImGui::DragFloat( LanguageProvider[ "UltTotal%" ], &m_ActiveDeepenDisplay.ult_multiplier );
+        ImGui::DragFloat( LanguageProvider[ "RDMGTotal%" ], &m_ActiveDeepenDisplay.raw_damage_multiplier );
         ImGui::EndDisabled( );
         ImGui::PopID( );
         ImGui::EndChild( );
@@ -613,6 +618,18 @@ CharacterPage::DisplayCharacterInfo( float Width, float* HeightOut )
         SAVE_MULTIPLIER_CONFIG( LanguageProvider[ "SkillTotal%" ], Skill, skill )
         SAVE_MULTIPLIER_CONFIG( LanguageProvider[ "UltTotal%" ], Skill, ult )
         SAVE_MULTIPLIER_CONFIG( LanguageProvider[ "HealTotal%" ], Skill, heal )
+
+        SAVE_MULTIPLIER_CONFIG( LanguageProvider[ "RDMGTotal%" ], Skill, raw_damage )
+        ImGui::SameLine( );
+        ImGui::TextDisabled( "(?)" );
+        if ( ImGui::BeginItemTooltip( ) )
+        {
+            ImGui::PushTextWrapPos( ImGui::GetFontSize( ) * 35.0f );
+            ImGui::TextUnformatted( LanguageProvider[ "RDMGExplain" ] );
+            ImGui::PopTextWrapPos( );
+            ImGui::EndTooltip( );
+        }
+
         ImGui::PopID( );
         ImGui::EndChild( );
     }

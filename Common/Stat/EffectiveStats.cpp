@@ -167,7 +167,8 @@ EffectiveStats::NormalDamage( StatsFoundation character_foundation, FloatTy foun
     return multiplier_config->auto_attack_multiplier  * (1 + deepen_config->auto_attack_multiplier ) * FinalFoundationStat * ( 1.f + buff_multiplier + auto_attack_buff  )
          + multiplier_config->heavy_attack_multiplier * (1 + deepen_config->heavy_attack_multiplier) * FinalFoundationStat * ( 1.f + buff_multiplier + heavy_attack_buff )
          + multiplier_config->skill_multiplier        * (1 + deepen_config->skill_multiplier       ) * FinalFoundationStat * ( 1.f + buff_multiplier + skill_buff        )
-         + multiplier_config->ult_multiplier          * (1 + deepen_config->ult_multiplier         ) * FinalFoundationStat * ( 1.f + buff_multiplier + ult_buff          );
+         + multiplier_config->ult_multiplier          * (1 + deepen_config->ult_multiplier         ) * FinalFoundationStat * ( 1.f + buff_multiplier + ult_buff          )
+         + multiplier_config->raw_damage_multiplier   * (1 + deepen_config->raw_damage_multiplier  ) * FinalFoundationStat * ( 1.f + buff_multiplier                     );
     // clang-format on
 }
 
