@@ -185,17 +185,50 @@ struct ApplyFiveSetEffect<EchoSet::eTidebreakingCourage, ETy> {
     }
 };
 
-template <EchoSet Set, ElementType ETy>
+template <EchoSet Set, int SetCount, ElementType ETy>
+struct ApplyFinalizeSetEffect {
+    static constexpr void Apply( EffectiveStats& Stats ) { }
+};
+
+template <ElementType ETy>
+struct ApplyFinalizeSetEffect<EchoSet::eTidebreakingCourage, 5, ETy> {
+
+    static constexpr void Apply( EffectiveStats& Stats )
+    {
+        if ( Stats.regen >= 2.5f )
+        {
+            Stats.buff_multiplier += 0.3f;
+        }
+    }
+};
+
+enum class SetApplyStage {
+    Any,
+    Finalize
+};
+
+template <EchoSet Set, ElementType ETy, SetApplyStage Stage>
 inline void
 ApplySetEffect( EffectiveStats& Stats, int SetCount )
 {
     if ( SetCount >= 2 )
     {
-        ApplyTwoSetEffect<Set, ETy>::Apply( Stats );
-
+        if constexpr ( Stage == SetApplyStage::Any )
+        {
+            ApplyTwoSetEffect<Set, ETy>::Apply( Stats );
+        } else
+        {
+            ApplyFinalizeSetEffect<Set, 2, ETy>::Apply( Stats );
+        }
         if ( SetCount >= 5 )
         {
-            ApplyFiveSetEffect<Set, ETy>::Apply( Stats );
+            if constexpr ( Stage == SetApplyStage::Any )
+            {
+                ApplyFiveSetEffect<Set, ETy>::Apply( Stats );
+            } else
+            {
+                ApplyFinalizeSetEffect<Set, 5, ETy>::Apply( Stats );
+            }
         }
     }
 }
@@ -220,13 +253,13 @@ CountSet( auto& Counter, auto& OccupationMask, EchoSet ActualSet, int NameID )
         CountSet<Index + 1, Sets...>( Counter, OccupationMask, ActualSet, NameID );
 }
 
-template <ElementType ETy, int Index, EchoSet Set, EchoSet... Sets>
+template <ElementType ETy, int Index, SetApplyStage Stage, EchoSet Set, EchoSet... Sets>
 inline void
 ApplyAllSetByCount( EffectiveStats& Stat, auto& SetCounts )
 {
-    ApplySetEffect<Set, ETy>( Stat, SetCounts[ Index ] );
+    ApplySetEffect<Set, ETy, Stage>( Stat, SetCounts[ Index ] );
     if constexpr ( sizeof...( Sets ) > 0 )
-        ApplyAllSetByCount<ETy, Index + 1, Sets...>( Stat, SetCounts );
+        ApplyAllSetByCount<ETy, Index + 1, Stage, Sets...>( Stat, SetCounts );
 }
 
 template <ElementType ETy, EchoSet... Sets>
@@ -244,7 +277,8 @@ CountAndApplySets( auto&& EffectiveStatRanges, EffectiveStats CommonStats )
         CommonStats += EffectiveStat;
     }
 
-    ApplyAllSetByCount<ETy, 0, Sets...>( CommonStats, SetCounts );
+    ApplyAllSetByCount<ETy, 0, SetApplyStage::Any, Sets...>( CommonStats, SetCounts );
+    ApplyAllSetByCount<ETy, 0, SetApplyStage::Finalize, Sets...>( CommonStats, SetCounts );
 
     return CommonStats;
 }
