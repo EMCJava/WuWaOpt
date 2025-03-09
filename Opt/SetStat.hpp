@@ -181,7 +181,7 @@ struct ApplyFiveSetEffect<EchoSet::eTidebreakingCourage, ETy> {
     {
         Stats.percentage_attack += 0.15f;
         // TODO: Reaching 250% Energy Regen increases all Attribute DMG by 30% for the Resonator.
-        Stats.buff_multiplier += 0.3f;
+        // Stats.buff_multiplier += 0.3f;
     }
 };
 
