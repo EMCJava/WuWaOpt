@@ -171,7 +171,7 @@ struct ApplyFiveSetEffect<EchoSet::eEmpyreanAnthem, ETy> {
     static constexpr void Apply( EffectiveStats& Stats )
     {
         /* Increase the Resonator's Coordinated Attack DMG by 80%. Upon a critical hit of Coordinated Attack, increase the active Resonator's ATK by 20% for 4s. */
-        // Stats.percentage_attack += 0.2f;
+        Stats.percentage_attack += 0.2f;
     }
 };
 
