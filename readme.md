@@ -1,8 +1,12 @@
+> ⚠️ Project Status: Unmaintained after Withering Waves 2.1
+
+This project is no longer maintained due to personal reasons, it will still remain public for archival purposes. Thank you for the support for this project over time.
+
+Note: If you're interested in making an optimizer, feel free to take it and make your own ones, the core optimizing algorithm is located in `WuWaGA::Run` (although it's by no mean optimized, haha get it?)
+
+---
 
 ![Showcase](data/opt_showcase.png)
-
-> ⚠️ This project is still under development
-# Usage
 
 ## Echo Optimizer
 
